@@ -56,9 +56,9 @@ const lampMat=new T.MeshBasicMaterial({color:0x8d9094}),poolMat=new T.MeshBasicM
   for(let u=Math.max(t0,16);u<e.len-Math.max(t1,16);u+=sp,k++){const sg=((k+e.id)&1)?1:-1,p=edgePt(e,u),off=sg*(e.w/2+(hwy?1.6:.6)),x=p[0]+p[2]*off,z=p[1]+p[3]*off;
    if(onOther(x,z,e,.8)||!occFree(obb(x,z,.7,.7,0),0))continue;
    if(inPark(x,z,0))continue;
-   const y=hillH(x,z),H=hwy?10:8.4,dx=-sg*p[2],dz=-sg*p[3],ry=Math.atan2(-dz,dx),L=hwy?2.4:1.9;
-   poles.push([x,y+H/2,z,0,.2,H,.2]);arms.push([x+dx*L*.5,y+H-.15,z+dz*L*.5,ry,L,.12,.12]);heads.push([x+dx*(L-.1),y+H-.3,z+dz*(L-.1),ry,.8,.14,.34]);pools.push([x+dx*(L+1.2),y+.22,z+dz*(L+1.2),0,1,1,1]);
-   addCol({x,z,r:.32});furnAdd(x,z);lampN++}});
+   const y=hillH(x,z),H=hwy?10:8.4,dx=-sg*p[2],dz=-sg*p[3],ry=Math.atan2(-dz,dx),L=hwy?2.4:1.9,key='streetlight:'+Math.round(x*10)+':'+Math.round(z*10);
+   poles.push([x,y+H/2,z,0,.2,H,.2,undefined,key]);arms.push([x+dx*L*.5,y+H-.15,z+dz*L*.5,ry,L,.12,.12]);heads.push([x+dx*(L-.1),y+H-.3,z+dz*(L-.1),ry,.8,.14,.34]);pools.push([x+dx*(L+1.2),y+.22,z+dz*(L+1.2),0,1,1,1]);
+   addCol({x,z,r:.32,type:'streetLight',breakable:true,breakAt:17,visualKey:key,height:H,baseY:y});furnAdd(x,z);lampN++}});
  const pm=gfxStd({color:0xb4bac1,roughness:.42,metalness:.6,envMapIntensity:.9},'none')||UBm(0x7c838a);instO(UB,pm,poles,true,420,300);instO(UB,pm,arms,false,420,300);instO(UB,lampMat,heads,false,420,300);
  // light pools on the road at night (additive gradient discs)
  const cv=document.createElement('canvas');cv.width=cv.height=64;{const g=cv.getContext('2d'),gr=g.createRadialGradient(32,32,2,32,32,32);gr.addColorStop(0,'rgba(255,200,120,1)');gr.addColorStop(.45,'rgba(255,170,80,.45)');gr.addColorStop(1,'rgba(255,150,60,0)');g.fillStyle=gr;g.fillRect(0,0,64,64)}
@@ -70,7 +70,7 @@ function lampTick(night){const n=night;lampMat.color.setRGB(.55+2.6*n,.57+1.9*n,
  EDGES.forEach(e=>{if(!UK.has(e.kind)||e.len<70||e.fz<(e.kind==='local'?3:2))return;const sp=e.kind==='local'?40:46,sg=(e.id&1)?1:-1,t0=jTrim(e.a)+10,t1=jTrim(e.b)+10;let prev=null;
   for(let u=Math.max(t0,20)+(e.id%5)*3;u<e.len-Math.max(t1,16);u+=sp){const p=edgePt(e,u),off=sg*(e.w/2+1.35),x=p[0]+p[2]*off,z=p[1]+p[3]*off;
    if(onOther(x,z,e,.8)||!occFree(obb(x,z,.6,.6,0),0)||inPark(x,z,0)){prev=null;continue}
-   const y=hillH(x,z),H=9.2,ry=Math.atan2(-p[3],p[2]);poles.push([x,y+H/2,z,0,.26,H,.26,0x8f8d86]);arms.push([x,y+H-.5,z,ry,2.3,.13,.13,0x4a3a2a]);if(((u/sp)|0)%7===3)xf.push([x+p[2]*sg*.5,y+H-2.2,z+p[3]*sg*.5,0,.7,1.3,.7]);addCol({x,z,r:.3});furnAdd(x,z);poleN++;
+   const y=hillH(x,z),H=9.2,ry=Math.atan2(-p[3],p[2]),key='utilitypole:'+Math.round(x*10)+':'+Math.round(z*10);poles.push([x,y+H/2,z,0,.26,H,.26,0x8f8d86,key]);arms.push([x,y+H-.5,z,ry,2.3,.13,.13,0x4a3a2a]);if(((u/sp)|0)%7===3)xf.push([x+p[2]*sg*.5,y+H-2.2,z+p[3]*sg*.5,0,.7,1.3,.7]);addCol({x,z,r:.3,type:'utilityPole',breakable:true,breakAt:12.5,visualKey:key,height:H,baseY:y});furnAdd(x,z);poleN++;
    const tip=o=>[x+p[2]*o,y+H-.3,z+p[3]*o];
    if(prev){for(const o of[-1,0,1]){const a=prev.tip(o),b=tip(o);let q=a;for(let s=1;s<=4;s++){const t=s/4,r=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t-1.3*4*t*(1-t),a[2]+(b[2]-a[2])*t];wv.push(q[0],q[1],q[2],r[0],r[1],r[2]);q=r}}}
    prev={tip}}});

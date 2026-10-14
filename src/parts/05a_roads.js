@@ -14,13 +14,15 @@ RAMPS.forEach(r=>{const a=Math.atan(r[4]/r[3]),m=new T.Mesh(new T.BoxGeometry(r[
 function groundH(x,z){let h=TH(x,z)+.12;for(let i=0;i<RAMPS.length;i++){const r=RAMPS[i];if(Math.abs(x-r[0])<r[2]/2&&z>r[1]-r[3]/2&&z<r[1]+r[3]/2)h=RAMPB[i]+.12+r[4]*(z-(r[1]-r[3]/2))/r[3]}return h}
 // ---- instancing helpers (oriented boxes / geometries, 600 m chunks) ----
 const BS=new T.Sphere(new T.Vector3(),520),o3=new T.Object3D(),tc=new T.Color();
+// Optional stable keys let gameplay damage hide selected instanced roadside props without rebuilding the entire scene.
+const DESTRUCTIBLE_INSTANCES=new Map();
 function chunkBy(items,fn,cs){cs=cs||600;const ch={};items.forEach(p=>{const k=Math.floor(p[0]/cs)+','+Math.floor(p[2]/cs);(ch[k]=ch[k]||[]).push(p)});for(const k in ch){const[a,b]=k.split(',').map(Number);fn(ch[k],a*cs+cs/2,b*cs+cs/2)}}
 // distance LOD for small props: a chunk is hidden once its centre is farther than R+half a chunk from the camera (checked every frame)
 const LODL=[],BSC={};let lodF=0;
 function lodTick(){const cx=cam.position.x,cz=cam.position.z;for(let i=0;i<LODL.length;i++){const o=LODL[i],dx=o.x-cx,dz=o.z-cz;o.m.visible=dx*dx+dz*dz<o.r2}}
 function lodReg(m,x,z,R,cs){LODL.push({m,x,z,r2:(R+cs*.5)*(R+cs*.5)})}
 // items: [x,y,z,ry,sx,sy,sz,color?]
-function instO(g,mat,items,shadow,R,CS){CS=CS||600;if(CS!==600)g=g.clone();g.boundingSphere=CS===600?BS:new T.Sphere(new T.Vector3(),CS*.72);chunkBy(items,(L,cx,cz)=>{const m=new T.InstancedMesh(g,mat,L.length);L.forEach((p,i)=>{o3.position.set(p[0]-cx,p[1],p[2]-cz);o3.rotation.set(0,p[3]||0,0);o3.scale.set(p[4]||1,p[5]||1,p[6]||1);o3.updateMatrix();m.setMatrixAt(i,o3.matrix);if(p[7]!==undefined)m.setColorAt(i,tc.setHex(p[7]))});m.position.set(cx,0,cz);m.castShadow=!!shadow;m.receiveShadow=true;scene.add(m);if(R)lodReg(m,cx,cz,R,CS)},CS)}
+function instO(g,mat,items,shadow,R,CS){CS=CS||600;if(CS!==600)g=g.clone();g.boundingSphere=CS===600?BS:new T.Sphere(new T.Vector3(),CS*.72);chunkBy(items,(L,cx,cz)=>{const m=new T.InstancedMesh(g,mat,L.length);L.forEach((p,i)=>{o3.position.set(p[0]-cx,p[1],p[2]-cz);o3.rotation.set(0,p[3]||0,0);o3.scale.set(p[4]||1,p[5]||1,p[6]||1);o3.updateMatrix();m.setMatrixAt(i,o3.matrix);if(p[7]!==undefined)m.setColorAt(i,tc.setHex(p[7]));if(typeof p[8]==='string'&&p[8])DESTRUCTIBLE_INSTANCES.set(p[8],{mesh:m,index:i,item:p,chunkX:cx,chunkZ:cz,geometry:g,material:mat})});m.instanceMatrix.needsUpdate=true;m.position.set(cx,0,cz);m.castShadow=!!shadow;m.receiveShadow=true;scene.add(m);if(R)lodReg(m,cx,cz,R,CS)},CS)}
 const UB=new T.BoxGeometry(1,1,1),UBm=c=>new T.MeshLambertMaterial({color:c});
 const baseMat=gfxStd({color:0xffffff,roughness:.93,metalness:0,envMapIntensity:.15},'wall')||new T.MeshLambertMaterial({color:0xffffff});
 function edgePt(e,u){u=cl(u,0,e.len);let lo=0,hi=e.cum.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(e.cum[m]<=u)lo=m;else hi=m}const t=(u-e.cum[lo])/((e.cum[hi]-e.cum[lo])||1),a=e.pts[lo],b=e.pts[hi];return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,e.nx[lo]+(e.nx[hi]-e.nx[lo])*t,e.nz[lo]+(e.nz[hi]-e.nz[lo])*t,lo]}
