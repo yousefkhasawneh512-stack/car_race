@@ -1,8 +1,9 @@
+import os
 import sys, json, math
 from playwright.sync_api import sync_playwright
-SP='/tmp/claude-0/-home-claude/7976de04-c6f1-5f2c-9216-6abb7f58f2b5/scratchpad'
+SP=os.environ.get('SP',os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root: node_modules/three + screenshots
 THREE=open(SP+'/node_modules/three/build/three.min.js','rb').read()
-HTML='file:///mnt/user-data/outputs/irbid-drive.html'
+HTML='file:///'+os.path.join(SP,'dist','irbid-drive.html').replace(os.sep,'/')
 plan=json.loads(sys.argv[1])  # list of shots
 logs=[]
 with sync_playwright() as p:

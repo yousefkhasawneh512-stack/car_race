@@ -1,9 +1,9 @@
 import sys, json, math, base64, time
 from playwright.sync_api import sync_playwright
-SP='/tmp/claude-0/-home-claude/7976de04-c6f1-5f2c-9216-6abb7f58f2b5/scratchpad'
+SP=os.environ.get('SP',os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root: node_modules/three + screenshots
 THREE=open(SP+'/node_modules/three/build/three.min.js','rb').read()
 import os
-HTML=os.environ.get('HTML','file:///mnt/user-data/outputs/irbid-drive.html')
+HTML=os.environ.get('HTML','file:///'+os.path.join(SP,'dist','irbid-drive.html').replace(os.sep,'/'))
 plan=json.load(open(sys.argv[1]))
 W,H=int(sys.argv[2]) if len(sys.argv)>2 else 800,int(sys.argv[3]) if len(sys.argv)>3 else 450
 logs=[]

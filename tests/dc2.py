@@ -1,6 +1,7 @@
+import os
 import sys
 from playwright.sync_api import sync_playwright
-SP='/tmp/claude-0/-home-claude/7976de04-c6f1-5f2c-9216-6abb7f58f2b5/scratchpad'
+SP=os.environ.get('SP',os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # repo root: node_modules/three + screenshots
 THREE=open(SP+'/node_modules/three/build/three.min.js','rb').read()
 with sync_playwright() as p:
     b=p.chromium.launch(args=['--use-gl=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'])

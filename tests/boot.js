@@ -1,8 +1,8 @@
 const fs=require('fs');global.THREE=require('three');
 const noop=new Proxy(function(){},{get:()=>noop,apply:()=>noop,set:()=>true});
 THREE.WebGLRenderer=class{constructor(){this.domElement={style:{},insertAdjacentElement(){}};this.shadowMap={}}setPixelRatio(){}setSize(){}render(){}};
-const el=()=>({getContext:()=>new Proxy(noop,{get:(t,k)=>k==='measureText'?(q=>({width:String(q).length*14})):t[k]}),appendChild(){},remove(){},style:{},addEventListener(){},focus(){},blur(){},select(){},value:'',children:[],set innerHTML(v){},set textContent(v){}});
-global.document={getElementById:el,createElement:el,body:{appendChild(){}}};
+const el=()=>({getContext:()=>new Proxy(noop,{get:(t,k)=>k==='measureText'?(q=>({width:String(q).length*14})):t[k]}),appendChild(){},remove(){},style:{},dataset:{},setAttribute(){},addEventListener(){},focus(){},blur(){},select(){},value:'',children:[],set innerHTML(v){},set textContent(v){}});
+global.document={getElementById:el,createElement:el,body:{appendChild(){}}};global.window=global;
 global.addEventListener=()=>{};global.innerWidth=1280;global.innerHeight=720;global.devicePixelRatio=1;
 let t=1000;global.performance={now:()=>t};let cb;global.requestAnimationFrame=f=>{cb=f};global.setTimeout=()=>{};
 global.localStorage={getItem:()=>null,setItem(){}};
