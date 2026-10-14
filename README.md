@@ -5,6 +5,11 @@ places come from OpenStreetMap, and the terrain comes from NASA SRTM elevation d
 rob the bank, and navigate the city. The whole game is one self-contained HTML file (Three.js r128 + WebGL, no framework,
 no backend).
 
+**Author:** Yousef Khasawneh
+
+> **AI-generated code:** the source code in this repository was written with AI assistance (Anthropic's Claude), under
+> the author's direction and review. It is a hobby project, not production software.
+
 ![screenshot](docs/screenshot.png)
 
 ## Play
@@ -50,8 +55,10 @@ pip install playwright && python -m playwright install chromium
 python tests/drive_pw.py dist/irbid-drive.html    # real-browser check
 ```
 
-Map data is generated from the inputs in `osm/` (`osm/gen_world.py`, `osm/bld/conv.py`, `osm/bld/pois.py`,
-`osm/terrain/gen_terrain.py`). Never edit the generated `src/parts/03a`–`03d` files by hand.
+The game's map data is already baked into `src/parts/03a`–`03d`, so building and playing need nothing else. The raw
+OpenStreetMap/SRTM input files are **not included in this repository**. Only the converter scripts are
+(`osm/gen_world.py`, `osm/net.py`, `osm/bld/conv.py`, `osm/bld/pois.py`, `osm/terrain/gen_terrain.py`). Regenerating the map
+data requires downloading your own OSM extract first. Never edit the generated `src/parts/03a`–`03d` files by hand.
 
 More detail for contributors:
 - `CLAUDE.md`: architecture, constraints and the test baseline.

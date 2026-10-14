@@ -48,7 +48,8 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   force game state instead of driving (see `tests/wheel_test.py` for a manual RAF stepper).
 - `osm/` holds the data pipelines that GENERATE `src/parts/03a`–`03d` (`gen_world.py`+`net.py` → `03a_net_data.js`,
   `bld/conv.py` → `03b_bld_data.js`, `bld/pois.py` → `03c_poi_data.js`, `terrain/gen_terrain.py` → `03d_terrain_data.js`).
-  Never hand-edit those four parts; change the pipeline and regenerate.
+  Never hand-edit those four parts; change the pipeline and regenerate. **Raw OSM/SRTM input files (`osm/**/*.json`,
+  `*.gpkg`) are local-only and git-ignored. The owner does not want them published; never commit them.** The scripts are tracked.
 
 ## Architecture
 

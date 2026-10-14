@@ -5,3 +5,6 @@ out.json
 /*.png
 /tests/*.png
 /errs.txt
+# raw OSM / SRTM input data is kept local only (owner decision 2026-10-14)
+osm/**/*.json
+osm/**/*.gpkg
