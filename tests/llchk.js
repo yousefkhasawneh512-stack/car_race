@@ -1,0 +1,11 @@
+const fs=require('fs');global.THREE=require('three');
+const noop=new Proxy(function(){},{get:()=>noop,apply:()=>noop,set:()=>true});
+THREE.WebGLRenderer=class{constructor(){this.domElement={style:{},insertAdjacentElement(){}};this.shadowMap={}}setPixelRatio(){}setSize(){}render(){}};
+const el=()=>({getContext:()=>new Proxy(noop,{get:(t,k)=>k==='measureText'?(q=>({width:String(q).length*14})):t[k]}),appendChild(){},remove(){},style:{},addEventListener(){},focus(){},blur(){},select(){},value:'',children:[],classList:{add(){},remove(){},toggle(){}},set innerHTML(v){},set textContent(v){}});
+global.document={getElementById:el,createElement:el,body:{appendChild(){}}};
+global.addEventListener=()=>{};global.innerWidth=1280;global.innerHeight=720;global.devicePixelRatio=1;
+let t=1000;global.performance={now:()=>t};global.requestAnimationFrame=f=>{};global.setTimeout=()=>{};
+const html=fs.readFileSync('new.html','utf8');
+const js=html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+'\n;global.__s={LL2XZ};';
+(0,eval)(js);const pts=[[32.55,35.85],[32.5375,35.85556],[32.60,35.95],[32.45,35.75],[32.5,35.9]];
+console.log(JSON.stringify(pts.map(p=>global.__s.LL2XZ(p[0],p[1]))));

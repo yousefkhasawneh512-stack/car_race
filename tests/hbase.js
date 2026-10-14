@@ -1,0 +1,14 @@
+const fs=require('fs');global.THREE=require('three');
+const noop=new Proxy(function(){},{get:()=>noop,apply:()=>noop,set:()=>true});
+THREE.WebGLRenderer=class{constructor(){this.domElement={style:{},insertAdjacentElement(){}};this.shadowMap={}}setPixelRatio(){}setSize(){}render(){}};
+const el=()=>({getContext:()=>new Proxy(noop,{get:(t,k)=>k==='measureText'?(q=>({width:String(q).length*14})):t[k]}),appendChild(){},remove(){},style:{},addEventListener(){},focus(){},blur(){},select(){},value:'',children:[],set innerHTML(v){},set textContent(v){}});
+global.document={getElementById:el,createElement:el,body:{appendChild(){}}};
+global.addEventListener=()=>{};global.innerWidth=1280;global.innerHeight=720;global.devicePixelRatio=1;
+global.t=1000;global.performance={now:()=>global.t};global.cb=null;global.requestAnimationFrame=f=>{global.cb=f};global.setTimeout=()=>{};
+const file=process.argv[2]||'new.html';
+const html=fs.readFileSync(file,'utf8');
+const js=html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+'\n;global.__s={TRAFFIC_SPAWN,trafficZone,rollTraffic,TPOOL,PORS,NRACE,INC,P,CIRC,LM,streetName,colB,traffic,scene,cam,startRace,startDuel,race,bots,tryRob,heist,BANK,SHOP,START,updTraffic,keys,roadAt,NODES,EDGES,HOUSES,distName,hillH,groundH,riv:()=>riv,nearCar,toast,fines:()=>fines,spent:()=>spent,setF:v=>{fines=v},respawn,LIT,all,UL,uvOf,COL,houseNear,warp};';
+const t0=Date.now();(0,eval)(js);
+const S=global.__s,P=S.P,run=n=>{for(let i=0;i<n;i++)cb(t+=16.667)};
+let nIM=0,nInst=0,nM=0;S.scene.traverse(o=>{nM++;if(o.isInstancedMesh){nIM++;nInst+=o.count}});
+console.log('build ms',Date.now()-t0,'| scene nodes',nM,'| instanced meshes',nIM,'| instances',nInst);

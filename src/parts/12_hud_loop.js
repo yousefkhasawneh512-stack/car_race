@@ -1,0 +1,41 @@
+// ---- HUD ----
+const mp=document.getElementById('map').getContext('2d'),topEl=document.getElementById('top'),driftEl=document.getElementById('drift'),spdEl=document.getElementById('spd'),raceEl=document.getElementById('race');
+const MC={ring:'#c08ae8',main:'#a8a8a8',arch:'#ee6a6a',petra:'#5aa0f0',hw:'#f0b040',local:'#6c6c6c',svc:'#4d4d4d',alley:'#b08a4a',campus:'#5aa66a',ramp:'#f0b040'},MORD=['svc','local','main','petra','arch','ramp','ring','hw'],MWD={svc:4,local:7,main:9.5,petra:11,arch:12,ramp:6,ring:8,hw:14},MSB={},MSN={};let mapF=0;MORD.forEach(k=>{MSB[k]=new Float32Array(4*9000);MSN[k]=0});
+
+const PKC={grocery:'#7bd88f',heritage:'#d9c27a',square:'#e8d9a0',gym:'#ff4d6d',ev:'#3cff9a',auto:'#8a96a8',dukkan:'#7bd88f',cafe:'#c58b5a',medical:'#ff6b6b',cage:'#9ad0ff',mosque:'#4fd1c5',culture:'#d9c27a',civic:'#9aa5b8',church:'#d9c27a',museum:'#d9c27a',mall:'#ff5a5a',dealer:'#5aa0f0',food:'#ffa94d',school:'#b07aff',stadium:'#ffd24a',drift:'#ff7a00',park:'#3fbf5f',barber:'#ff5fa8',pet:'#38d97a',bank:'#ffd24a',garage:'#ff7a00',market:'#e67e22',landmark:'#d9c27a',campus:'#b07aff',hospital:'#ff4d4d'},PKEY=new Set(['bank','garage','park','mall','stadium','drift']);
+function drawMap(){crisp2d(mp);mp.clearRect(0,0,150,150);const S=150/700,X=x=>75+(x-P.x)*S,Z=z=>75+(z-P.z)*S;mp.lineCap='round';mp.lineJoin='round';
+ {mapF++;const R=380,c0=Math.floor((P.x-R)/HC2),c1=Math.floor((P.x+R)/HC2),r0=Math.floor((P.z-R)/HC2),r1=Math.floor((P.z+R)/HC2);for(const k of MORD)MSN[k]=0;
+  for(let i=c0;i<=c1;i++)for(let j=r0;j<=r1;j++){const L=HASH.get(hk(i,j));if(!L)continue;for(const s of L){if(s.mf===mapF)continue;s.mf=mapF;const e=s.e,sk=e.kind==='drift'||e.kind==='campus'?'local':e.kind==='alley'?'svc':e.kind,n=MSN[sk];if(n<9000){const q=MSB[sk];q[n*4]=s.x0;q[n*4+1]=s.z0;q[n*4+2]=s.x1;q[n*4+3]=s.z1;MSN[sk]=n+1}}}
+  for(const k of MORD){const n=MSN[k];if(!n)continue;const q=MSB[k];mp.strokeStyle=MC[k]||'#888';mp.lineWidth=Math.max(1,MWD[k]*S*1.1);mp.beginPath();for(let t=0;t<n;t++){mp.moveTo(X(q[t*4]),Z(q[t*4+1]));mp.lineTo(X(q[t*4+2]),Z(q[t*4+3]))}mp.stroke()}}
+ const TCL=['#8c8c8c','#4aa3ff','#ffd24a','#c05cff','#ff4d4d'];traffic.forEach(c=>{if(Math.abs(c.x-P.x)<360&&Math.abs(c.z-P.z)<360){mp.fillStyle=TCL[c.tier|0];const q=c.tier>=2?3:2;mp.fillRect(X(c.x)-q/2,Z(c.z)-q/2,q,q)}});
+ if(race.s==='run'||race.s==='count'){const w=curWP();if(w){mp.strokeStyle='#33e0ff';mp.lineWidth=2;mp.beginPath();mp.arc(cl(X(w[0]),6,144),cl(Z(w[1]),6,144),6,0,7);mp.stroke()}}
+ ['#ff5a1f','#19c37d','#a64dff'].forEach((c,i)=>{mp.fillStyle=c;mp.beginPath();mp.arc(X(bots[i].x),Z(bots[i].z),3,0,7);mp.fill()});
+ PLACES.forEach(q=>{const c=PKC[q.kind];if(!c)return;const x=X(q.x),z=Z(q.z),inn=x>3&&x<147&&z>3&&z<147;if(!inn&&!PKEY.has(q.kind))return;mp.fillStyle=c;const s=PKEY.has(q.kind)||q.r>=30?6:q.gen?3:4;mp.fillRect(cl(x,3,147)-s/2,cl(z,3,147)-s/2,s,s)});csvDots(mp,X,Z);heist.cops.forEach(c=>{mp.fillStyle='#ff3b3b';mp.fillRect(X(c.x)-2,Z(c.z)-2,4,4)});
+ if(NAV.on){const q=NAV.pts;mp.strokeStyle='#2f8bff';mp.lineWidth=3;mp.beginPath();let st=false;for(let j=Math.max(0,NAV.j-1);j<q.length;j+=2){const x=X(q[j][0]),z=Z(q[j][1]);if(x<-20||x>170||z<-20||z>170){st=false;continue}st?mp.lineTo(x,z):mp.moveTo(x,z);st=true}mp.stroke();
+  const d=NAV.dest,dx=cl(X(d.x),7,143),dz=cl(Z(d.z),7,143);mp.fillStyle='#ff4d2e';mp.strokeStyle='#fff';mp.lineWidth=1.5;mp.beginPath();mp.arc(dx,dz,5,0,7);mp.fill();mp.stroke()}
+ mp.save();mp.translate(75,75);mp.rotate(Math.PI-P.h);mp.fillStyle='#1fa2ff';mp.strokeStyle='#fff';mp.lineWidth=1.6;mp.lineJoin='round';mp.beginPath();mp.moveTo(0,-10);mp.lineTo(7,8);mp.lineTo(0,4);mp.lineTo(-7,8);mp.closePath();mp.fill();mp.stroke();mp.restore();
+ if(PASS){mp.fillStyle='#000b';mp.fillRect(0,134,150,16);mp.fillStyle='#fff';mp.font='bold 10px system-ui';mp.textAlign='center';const nm=PASS.name.length>27?PASS.name.slice(0,26)+'…':PASS.name;mp.fillText(nm,75,145);mp.textAlign='left'}}
+const hh=()=>{const h=Math.floor(hour),m=Math.floor((hour-h)*60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')};
+// (window resizes only re-fit the 16:9 canvas via CSS inside initialize1080pGameDisplay; the 1920x1080 buffer and camera aspect never change)
+// ---- main loop ----
+const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();
+function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
+ const a=(hour-6)/12*Math.PI,el=Math.sin(a),dx=Math.cos(a);
+ if(el>.3)sky.copy(dayC);else if(el>0)sky.copy(duskC).lerp(dayC,el/.3);else sky.copy(nightC).lerp(duskC,Math.max(0,(el+.15)/.15));
+ gfxSky(el,dx*900,el*900,300,clock);const night=cl((.05-el)*8,0,1);sun.position.set(P.x+dx*400,P.y+Math.max(el,.03)*400,P.z+140);sun.target.position.set(P.x,P.y,P.z);groundTo(Math.round(P.x/100)*100,Math.round(P.z/100)*100);sun.intensity=Math.max(0,el)*1.3;
+ hemi.intensity=.14+.5*Math.max(0,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
+ mX.color.set({g:0x22ff55,y:0xffc400,r:0xff2a2a}[light('x')]);mZ.color.set({g:0x22ff55,y:0xffc400,r:0xff2a2a}[light('z')]);
+ traffic.forEach(c=>updTraffic(c,dt));
+ const frozen=race.s==='count';const sp=updP(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);
+ const fx=Math.sin(P.h),fz=Math.cos(P.h);
+ if(camMode===0){cam.position.lerp(new T.Vector3(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
+ else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}
+ cam.fov=65+Math.min(20,sp*.12);cam.updateProjectionMatrix();
+ head.position.set(P.x,P.y+1,P.z);head.target.position.set(P.x+fx*25,P.y,P.z+fz*25);head.intensity=night*3;
+ driftEl.textContent=drift.pts>0?'DRIFT '+Math.round(drift.pts)+' ×'+(1+Math.min(4,drift.t/3)).toFixed(1)+(P.rm>1?' · '+RARN[P.rt]+' ×'+P.rm.toFixed(1):''):'';
+ spdEl.innerHTML=Math.round(sp)+' <small>km/h · '+(inDrift(P.x,P.z)?'DRIFT ZONE · no limit':'limit '+curLim)+'</small>';
+ const sn=streetName(),dn=distDisp(P.x,P.z),hn=houseNear(P.x,P.z);const tzn=trafficZone(P.x,P.z,RI&&RI.d<=RI.e.w/2+5?RI.e:null),tw=TRAFFIC_SPAWN.spawn_rules[tzn],tzs=tzn.replace(/_/g,' ')+' · '+Math.round(tw[0]*100)+'% C / '+Math.round(tw[1]*100)+'% U / '+Math.round(tw[2]*100)+'% R / '+Math.round(tw[3]*100)+'% E / '+Math.round(tw[4]*100)+'% L';
+ topEl.innerHTML='<b>IRBID DRIVE</b> · 📍 '+(sn?sn+' · ':'')+dn+(hn?' · 🏠 '+hn.tag+' house':'')+' · '+hh()+' · Balance: '+(fines-spent)+' JD · Drift: '+drift.total+' · 🚗 '+RARN[P.rt]+' ×'+P.rm.toFixed(1)+(PASS?'<br>📍 Passing: <b>'+PASS.name+'</b>'+(PASS.sub?' · '+PASS.sub:''):'')+(driftZoneAt(P.x,P.z)?'<br>🏁 <b>'+driftZoneAt(P.x,P.z).name+'</b> — no speed limit, no fines':'')+'<br>W/S gas·brake · A/D steer · Space handbrake (drift)<br>R race (nearest circuit), or R next to a car to duel it · C camera · T +1 hour · F reset · J stunt ramps · K tour landmarks · G wheel spin · E rob bank · U / P Apex Drift Customs · M maps / directions'+(WH.state.on?'<br>🎮 Racing wheel connected · V wheel setup'+(WH.ff.dev?' · force feedback on':''):'')+'<br>🚗 Traffic zone: '+tzs+'<br>Car: '+PORS[P.idx][0]+' (N/B or menu to change)';
+ raceEl.innerHTML=race.s==='count'?Math.ceil(race.t):race.s==='run'?(race.kind==='duel'&&riv?'Duel · you '+Math.round(Math.hypot(race.dest[0]-P.x,race.dest[1]-P.z))+' m · rival '+Math.round(Math.hypot(race.dest[0]-riv.x,race.dest[1]-riv.z))+' m':race.c.n+' · P'+rankP()+'/4 · '+(race.c.loop?'Lap '+Math.min(race.c.laps,Math.floor(P.prog/race.c.nodes.length)+1)+'/'+race.c.laps:'Checkpoint '+Math.min(P.prog+1,race.total)+'/'+race.total)):'';
+ heistEl.innerHTML=heistHud();spinBtn.textContent='🎡 Wheel spin (G) · '+Math.min(COST,fines-spent)+'/'+COST+' JD';drawMap();TuningShopInterface.tick();gfxRender();requestAnimationFrame(loop)}
+applyTerrain();requestAnimationFrame(loop);
