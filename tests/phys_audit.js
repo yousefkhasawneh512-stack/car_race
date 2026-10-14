@@ -26,7 +26,7 @@ if(require.main===module){
  const rows=[];
  for(let i=0;i<S.PORS.length;i++){const m=S.PORS[i];const a=sim(i,1/60,accel);
    rows.push([m[0],m[1],m[2],+(a.t100||0).toFixed(2),+a.vmax.toFixed(0)]);}
- fs.writeFileSync('/tmp/phys_rows.json',JSON.stringify(rows));
+ fs.writeFileSync(require('path').join(require('os').tmpdir(),'phys_rows.json'),JSON.stringify(rows));
  const dev=rows.map(r=>r[3]/r[2]);dev.sort((a,b)=>a-b);
  console.log('models',rows.length,'0-100 sim/spec ratio min/median/max',dev[0].toFixed(2),dev[dev.length>>1].toFixed(2),dev[dev.length-1].toFixed(2));
  const vr=rows.map(r=>r[4]/r[1]).sort((a,b)=>a-b);console.log('vmax(90s)/spec top ratio min/med/max',vr[0].toFixed(2),vr[vr.length>>1].toFixed(2),vr[vr.length-1].toFixed(2));

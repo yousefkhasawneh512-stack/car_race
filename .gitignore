@@ -4,3 +4,4 @@ __pycache__/
 out.json
 /*.png
 /tests/*.png
+/errs.txt

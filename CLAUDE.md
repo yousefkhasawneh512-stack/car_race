@@ -32,8 +32,16 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
-  Pre-existing failures (don't "fix" or hide them): `h14` "bad 2" and `h24` "bad 6" (removed invented shops), `h16` one flaky
-  sample, the heist test ends in a bust. See `PLAN.md` → Current State.
+  Also run `realism_test` (29 PASS/FAIL checks for v38 damage/poles/bumps; exits 1 on failure).
+  Expected results, identical on v37 and v38 (measured 2026-10-14): `h24` "bad 6", `vg` "bad 9" (searches for removed invented
+  shops), `h21` places 1038, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0. `boot`/`h2`/`h13`/race/traffic output varies
+  run to run (`Math.random`), so compare their shape, not their numbers.
+  Broken or obsolete scripts (they fail the same way on v37): `val` (pre-OSM graph; use `val_net`), `csv_test`/`cs_check`
+  (CSV nodes removed in v35b), `gen_fit`/`h18` (removed shops/places), `llchk` (expects `new.html`), `dups` (needs npm `acorn`).
+  Node tests write output files into the current directory, so run them from a scratch dir (but `terr_check` must run from the repo root).
+- Playwright: `pip install playwright` then `python -m playwright install chromium`. Scripts take the build path **relative to
+  the repo root** (`tests\disp.py dist/irbid-drive.html`), resolve `node_modules/three` and write screenshots there (`SP` env
+  overrides). Passing on v38: `disp`, `ios`, `shopt`, `wheel_test`, `dc2`, `drive_pw`. `dc`/`ui2`/`fx` hard-code `new.html`.
 - Visual checks need a real browser (`page.screenshot`). Headless SwiftShader runs ~2 fps and RAF ticks unreliably, so
   force game state instead of driving (see `tests/wheel_test.py` for a manual RAF stepper).
 - `osm/` holds the data pipelines that GENERATE `src/parts/03a`–`03d` (`gen_world.py`+`net.py` → `03a_net_data.js`,
