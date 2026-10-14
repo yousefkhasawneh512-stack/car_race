@@ -1,26 +1,69 @@
 # PLAN.md — Refactor / rebuild of Irbid Drive
 
-Companion to `CLAUDE.md`. **Do not start implementing until this plan is reviewed and approved.**
+Companion to `CLAUDE.md`. Last updated 2026-10-14 (published build **v38**).
+
+> **Status:** the structural refactor below (Phases 1-7) has **not** been started and stays on hold until the owner approves it. Since this plan was written (v19) the owner instead asked for feature/accuracy work, which is logged in "Done since v19" and "Approved behaviour changes". The next planned work is the **Accuracy & Realism Roadmap**; the refactor phases are kept as the long-term option and must be re-baselined first (see the note under Phase 1).
 
 # Goal
 
 Turn the current single-file, global-scope, one-liner codebase into a clean, modular, testable project **without changing
 what the game does**. The shipped game stays one self-contained HTML file; gameplay, economy, physics feel, map geography,
-save compatibility and visuals stay exactly as they are today. The current build (`dist/irbid-drive.html`, Artifact v19) is the
+save compatibility and visuals stay exactly as they are today. The current build (`dist/irbid-drive.html`, Artifact **v38**; it was v19 when this plan was first written) is the
 **reference implementation**: when in doubt, the old behaviour wins.
 
 Success = a reviewer can open any module, understand it in minutes, change a constant in one place, and run automated checks
 that prove the rebuilt game matches the reference.
 
-# Current State
+# Current State (v38)
 
-- 29 concatenated source parts → one 1,504-line / 215 K-char script in one global scope (~320 globals, order-dependent).
-- Vanilla JS + Three.js r128 (CDN) + WebGL; no framework, no assets, no audio, no backend; `localStorage['irbid-save']` only.
-- Content: 136 car models in 5 rarity tiers, 1,243 places, ~91 km of hand-authored roads, 80 traffic cars + 3 bots + police,
-  races, duels, heist, wheel, upgrade shop, nav/search, drift zone, day/night, Forza-style fx.
-- Tests: ~12 useful ad-hoc Node scripts (stubbed DOM) + Playwright screenshot scripts; no assertions framework/CI/git history.
-- Known debt: see `CLAUDE.md → Known Issues`. Notable: global state, dense one-liners, magic numbers, per-frame HUD/minimap
-  work, duplicated colour maps/landmark builders, non-deterministic `Math.random` in places.
+- ~45 concatenated source parts -> one ~2,870-line / 3.27 MB script in one global scope; most of the size is generated data
+  (`03a` roads, `03b` buildings, `03c` places, `03d` terrain). Still order-dependent, still ~320+ globals.
+- Vanilla JS + Three.js r128 (CDN) + WebGL; no framework, no assets, no audio, no backend. Storage: `localStorage['irbid-save']`
+  (unchanged shape) + `irbid-wheel` (G29 setup) + `irbid-drive-realism-v1` (damage mode and per-car condition).
+- **World = real data:** OSM street network (26k nodes / 4,608 km), OSM building footprints (19.6k), OSM places/POIs (~1,000 real +
+  ~36 hand-built landmarks), SRTM terrain (1 km grid, bicubic). Invented shops and CSV nodes were removed (v35/v35b).
+- Content: 217 `PORS` car models (the old "136" figure was wrong), 5 rarity tiers, races/duels/heist/wheel/shop/nav, drift zone, day/night,
+  per-car visuals, racing-wheel + touch input, optional vehicle damage, breakable poles, estimated speed bumps.
+- Physics (v37): braking 0.8-1.1 g by body kind, reverse 3.5 m/s2, slope gravity, surface traction (heuristic), cosmetic body pitch/roll.
+- Tests: ~45 Node/Playwright scripts, no assertion framework/CI/git. Pre-existing known results: `h24` "bad 6", `h14` "bad 2" (removed
+  invented shops), `h16` flaky sample. New: `phys_brake`, `terr_check`, `dyn_check`, `slope_stats`, `drive_pw`. (`realism_test`/`realism_pw` were cited for v38 but never existed on disk; still to be written.)
+- Known debt: see `CLAUDE.md -> Known Issues` and `AUDIT_REPORT.md`.
+
+# Done since v19 (owner-requested; each has a note in CLAUDE.md)
+
+| Ver | What |
+|---|---|
+| v22 | per-car visual engine (`07a4_carvis`), exhaust/drift stream |
+| v24-v27 | 1080p display lock; place patch; shop access and touch driving pads |
+| v28 | city realism pass (facade shader, infra, vegetation) |
+| v29 | Logitech G29 wheel + force feedback (untested on hardware) |
+| v30-v31 | shop placement by type; CSV place nodes (later removed) |
+| v33 | real OSM street network replaces the hand-authored grid |
+| v34 | real OSM building footprints |
+| v35/35b | real OSM shops/places; invented venues removed |
+| v36 | published OSM-based build |
+| v37 | real SRTM terrain (flat-frame authoring + one terrain pass `12c_terrain.js`); physics fixes from the accuracy audit; `AUDIT_REPORT.md` |
+| v38 | vehicle damage (Off/Cosmetic/Full), breakable poles/streetlights, estimated speed bumps (supplied by owner, reviewed and fixed: bump double terrain lift, pole height on hills, Lambert warnings, per-frame allocation) |
+
+# Accuracy & Realism Roadmap (next work, priority order; source: `AUDIT_REPORT.md`)
+
+Each item needs evidence before a change, a test, and a CLAUDE.md note. Unverified facts stay marked unverified.
+
+1. **Carry real OSM tags into the network data** (`osm/net.py`, `gen_world.py`): `surface`, `lanes`, `maxspeed`, `width`, `oneway`,
+   `bridge`/`tunnel`/`layer`. Then drive widths, limits and `surfK()` traction from evidence instead of class defaults.
+   (OSM today: `width` 0 / `lanes` 12 / `maxspeed` 18 of 17,244 ways, so expect small gains; mark the rest unverified.)
+2. **Speed bumps decision (owner):** the 50-90 bumps are *estimated*, not surveyed. Options: (a) keep, (b) gate behind the damage/realism
+   setting, (c) remove until real `traffic_calming` data exists. Needs an owner answer.
+3. **Denser terrain** (250 m grid or a licensed DEM tile processed offline), to resolve wadis and cuts; re-run `terr_check`/`slope_stats`.
+4. **Bridges/tunnels at real heights** (deck profile + ramps) instead of ground level.
+5. **Landmark placement:** put landmarks at their OSM seed (Dar As-Saraya is 76 m off, Nabulsi House 36 m, Clock Square 35 m, Nissan 47 m);
+   keep the road-snapped point only as the nav anchor. Verify the landmark checklist against imagery before changing any facade.
+6. **Per-car physics from manufacturer data only** (mass, power, gearing); then a simple gear/RPM and lateral-grip-by-surface model.
+   Lateral grip off-road changes drift scoring, so it needs owner approval (economy constraint).
+7. **Mobile:** shorten the attribution line on phones (it overlaps the GAS pad); test on a real iPhone/Android; measure frame rate on devices.
+8. **Real signals/signage:** replace the 167 inferred traffic signals only where OSM or another source supports it.
+9. **Re-baseline before any refactor:** re-record golden data (places, graph hash, economy, physics traces including terrain and damage Off)
+   from the v38 build.
 
 # Target Architecture
 
@@ -66,7 +109,15 @@ Principles:
 
 # Approved behaviour changes
 
-None yet. (Any proposal goes here and needs the owner's explicit approval before it is implemented.)
+Approved by the owner (explicit requests) and now part of the reference behaviour:
+- v33 real OSM street network replaces the hand-authored map (place coordinates changed; `h21` identity is checked against v33+).
+- v34/v35 real OSM buildings and places; invented shops, venues and CSV nodes removed.
+- v37 real terrain (heights, slope gravity) and physics corrections (braking 0.8-1.1 g, reverse 3.5 m/s2, surface traction heuristic,
+  cosmetic body motion), requested through the realism/accuracy audit. Economy, drift scoring, save format and HUD strings unchanged.
+- v38 optional vehicle damage (default Off), breakable poles, estimated speed bumps.
+
+Still needs approval before implementing: a fixed-timestep physics loop, lateral grip by surface (affects drift scoring), removing or
+gating the estimated speed bumps, any pause/start/audio features, and the refactor phases below.
 
 ---
 
@@ -88,6 +139,8 @@ code moves.
 5. Capture reference screenshots (day/dusk/night; street, drift with smoke, HUD, shop, wheel, nav, minimap) using forced state.
 6. Write `docs/behaviour.md`: one page of observed behaviour per feature, citing the golden files.
 7. Triage pre-existing test oddities (`h14` JUST route "bad 1", flaky `h16` sample) and record them as known baselines.
+
+**Re-baseline note (2026-10-14):** the numbers above (136 cars, 1,243 places, hand-authored roads) are from v19. Capture golden data from the v38 build instead (217 cars, ~1,038 places, OSM network/buildings, terrain, physics traces on flat and sloped ground, damage Off).
 
 **Files likely to change:** package.json, tests/*, new `tests/golden/*`, docs/, `.gitignore`. **No `src/` logic changes.**
 
