@@ -25,8 +25,10 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - This Windows machine has no `python3`/`node` on PATH. Python is at
   `%LOCALAPPDATA%\Programs\Python\Python315\python.exe`. Node must be installed before any `tests/*.js` can run.
   `build.py` writes UTF-8 + LF explicitly, so a Windows build matches a Linux one byte for byte (check with `git diff --stat dist/`).
-- **Git** (installed 2026-10-14, `C:\Program Files\Git\cmd`, branch `main`, no remote). Commit each verified step, and keep
-  behaviour changes and refactors in separate commits. `core.autocrlf=false`. The repo is in OneDrive: if `git add` fails
+- **Git** (installed 2026-10-14, `C:\Program Files\Git\cmd`, branch `main`, remote `origin` =
+  https://github.com/yousefkhasawneh512-stack/car_race.git). **The owner wants GitHub kept up to date: after every verified
+  commit, `git push`.** Never force-push. Keep behaviour changes and refactors in separate commits.
+  Keep `README.md` (public-facing) in sync when controls, commands or features change. `core.autocrlf=false`. The repo is in OneDrive: if `git add` fails
   with "Permission denied" on `.git/objects`, it's a sync lock, so just retry. History starts with v37 (import) → v38 as supplied → v38 review fixes.
 - No lint, formatter, CI or `npm test`. Test output is mostly eyeballed (counts, `bad N`, `issues 0`).
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
