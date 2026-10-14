@@ -2055,16 +2055,13 @@ function durabilityForCar(i){
 function newDamageRecord(i){return{durability:durabilityForCar(i),body:100,engine:100,tyres:100,suspension:100,brakes:100,impacts:0,lastHit:-99,lastX:0,lastZ:0};}
 function getDamageRecord(i){const name=PORS[i]?.[0]||'Unknown car';if(!damageRecords[name]||typeof damageRecords[name]!=='object')damageRecords[name]=newDamageRecord(i);const s=damageRecords[name];for(const k of ['body','engine','tyres','suspension','brakes'])if(!Number.isFinite(s[k]))s[k]=100;if(!Number.isFinite(s.durability))s.durability=durabilityForCar(i);return s;}
 function currentDamageRecord(){return getDamageRecord(P.idx||0)}
+// Called every frame by updP: fills one shared object (no per-frame allocation).
+const DFX={maxSpeed:1,accel:1,steering:1,grip:1,brakes:1};
 function damageEffects(){
- if(damageMode!==2)return{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1};
- const s=currentDamageRecord(),health=k=>cl(s[k]/100,0,1);
- return{
-  maxSpeed:cl(.48+.34*health('engine')+.18*health('tyres'),.48,1),
-  accel:cl(.35+.65*health('engine'),.35,1),
-  steering:cl(.58+.42*health('suspension'),.58,1),
-  grip:cl(.42+.58*health('tyres')*(.8+.2*health('suspension')),.42,1),
-  brakes:cl(.50+.50*health('brakes'),.50,1)
- };
+ if(damageMode!==2){DFX.maxSpeed=DFX.accel=DFX.steering=DFX.grip=DFX.brakes=1;return DFX}
+ const s=currentDamageRecord(),hE=cl(s.engine/100,0,1),hT=cl(s.tyres/100,0,1),hS=cl(s.suspension/100,0,1),hB=cl(s.brakes/100,0,1);
+ DFX.maxSpeed=cl(.48+.34*hE+.18*hT,.48,1);DFX.accel=cl(.35+.65*hE,.35,1);DFX.steering=cl(.58+.42*hS,.58,1);
+ DFX.grip=cl(.42+.58*hT*(.8+.2*hS),.42,1);DFX.brakes=cl(.50+.50*hB,.50,1);return DFX;
 }
 function removeDamageOverlay(){if(!P.m)return;const old=P.m.children.filter(c=>c.userData&&c.userData.damageOverlay);for(const o of old){P.m.remove(o);o.traverse?.(n=>{if(n.geometry)n.geometry.dispose();if(n.material){if(Array.isArray(n.material))n.material.forEach(m=>m.dispose());else n.material.dispose()}})}}
 function refreshDamageVisual(){
@@ -2072,7 +2069,7 @@ function refreshDamageVisual(){
  if(damageMode===0)return;const s=currentDamageRecord(),loss=100-s.body;if(loss<2)return;
  const [,, ,L,W,H]=PORS[P.idx],g=new T.Group();g.userData.damageOverlay=true;
  const scratchMat=new T.MeshBasicMaterial({color:0x25282c,transparent:true,opacity:cl(.38+loss*.006,.38,.9),depthWrite:false,side:T.DoubleSide});
- const dentMat=new T.MeshLambertMaterial({color:0x4a4d50,roughness:.95});
+ const dentMat=new T.MeshLambertMaterial({color:0x4a4d50});
  const add=(geo,mat,x,y,z,ry=0)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.y=ry;m.userData.damageOverlay=true;g.add(m)};
  const count=Math.min(8,Math.floor(loss/7));
  for(let j=0;j<count;j++){
@@ -2091,8 +2088,9 @@ updateDamageButton();
 
 function hideBrokenInstancedPole(key){
  const entry=key&&DESTRUCTIBLE_INSTANCES.get(key);if(!entry)return null;
- const p=entry.item,ob=new T.Object3D(),height=Math.max(.3,p[5]||1),baseY=p[1]-height/2;
- ob.position.set(p[0]-entry.chunkX,baseY+.045,p[2]-entry.chunkZ);ob.rotation.set(0,p[3]||0,0);ob.scale.set(p[4]||1,.09,p[6]||1);ob.updateMatrix();
+ // Read the live instance matrix: applyTerrain() has lifted it (instance y + mesh y), the authored p[1] is flat-frame.
+ const p=entry.item,ob=new T.Object3D(),height=Math.max(.3,p[5]||1);entry.mesh.getMatrixAt(entry.index,ob.matrix);const localBase=ob.matrix.elements[13]-height/2,baseY=entry.mesh.position.y+localBase;
+ ob.position.set(p[0]-entry.chunkX,localBase+.045,p[2]-entry.chunkZ);ob.rotation.set(0,p[3]||0,0);ob.scale.set(p[4]||1,.09,p[6]||1);ob.updateMatrix();
  entry.mesh.setMatrixAt(entry.index,ob.matrix);entry.mesh.instanceMatrix.needsUpdate=true;entry.broken=true;
  return{height,baseY,x:p[0],z:p[2],material:entry.material};
 }
@@ -2102,7 +2100,7 @@ function breakObstacle(obstacle,incoming){
  if(!obstacle||!obstacle.breakable||obstacle.broken||incoming<(obstacle.breakAt||99))return false;
  const vis=hideBrokenInstancedPole(obstacle.visualKey);removeCol(obstacle);
  if(vis){
-  const mat=new T.MeshLambertMaterial({color:obstacle.type==='streetLight'?0x9aa1a8:0x8f8d86,roughness:.88});
+  const mat=new T.MeshLambertMaterial({color:obstacle.type==='streetLight'?0x9aa1a8:0x8f8d86});
   const pivot=new T.Group();pivot.position.set(vis.x,vis.baseY,vis.z);
   const pole=new T.Mesh(new T.CylinderGeometry(.105,.14,vis.height,6),mat);pole.position.y=vis.height/2;pole.castShadow=true;pole.receiveShadow=true;pivot.add(pole);scene.add(pivot);
   FALLING_POLES.push({pivot,age:0,duration:.48,direction:Math.sign(P.vx||P.vz||1),height:vis.height});
@@ -2174,9 +2172,10 @@ function buildEstimatedSpeedBumps(){
  // Spread them around the loaded network and cap the count for mobile performance.
  const selected=candidates.slice(0,90);
  for(const b of selected){
-  const group=new T.Group();group.position.set(b.x,TH(b.x,b.z)+.05,b.z);group.rotation.y=Math.atan2(b.tx,b.tz);group.userData.speedBump=true;group.userData.estimated=true;
+  // Flat-frame authoring: applyTerrain() (12c) adds TH(x,z) to this group later; adding it here too lifted bumps twice.
+  const group=new T.Group();group.position.set(b.x,.05,b.z);group.rotation.y=Math.atan2(b.tx,b.tz);group.userData.speedBump=true;group.userData.estimated=true;
   const stripeCount=Math.max(6,Math.ceil(b.width/0.75)),stripeWidth=b.width/stripeCount;
-  for(let j=0;j<stripeCount;j++){const col=j%2===0?0xe6c84f:0x202326,mesh=new T.Mesh(new T.BoxGeometry(stripeWidth+.015,.10,.72),new T.MeshLambertMaterial({color:col,roughness:.9}));mesh.position.set(-b.width/2+stripeWidth*(j+.5),.05,0);mesh.receiveShadow=true;group.add(mesh)}
+  for(let j=0;j<stripeCount;j++){const col=j%2===0?0xe6c84f:0x202326,mesh=new T.Mesh(new T.BoxGeometry(stripeWidth+.015,.10,.72),new T.MeshLambertMaterial({color:col}));mesh.position.set(-b.width/2+stripeWidth*(j+.5),.05,0);mesh.receiveShadow=true;group.add(mesh)}
   scene.add(group);b.mesh=group;IRBID_SPEED_BUMPS.push(b);
  }
  console.log('Speed bumps:',IRBID_SPEED_BUMPS.length,'estimated near OSM-mapped schools/medical facilities/parks; locations are not surveyed traffic-calming data.');
