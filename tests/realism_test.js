@@ -44,7 +44,8 @@ S.cycleDamageMode();ck('cycle -> Full',S.mode===2);
 S.repairCurrentCar();ck('Full, repaired: 0-100 unchanged',Math.abs(t100()-base)<1e-9);
 for(let i=0;i<6;i++)hit(25);const rf=S.currentDamageRecord(),ef=S.damageEffects();
 ck('Full: engine/tyres/suspension damaged',rf.engine<100&&rf.tyres<100&&rf.suspension<100,['eng',rf.engine.toFixed(0),'tyr',rf.tyres.toFixed(0),'sus',rf.suspension.toFixed(0)].join(' '));
-ck('Full: multipliers within bounds',ef.maxSpeed>=.48&&ef.accel>=.35&&ef.steering>=.58&&ef.grip>=.42&&ef.brakes>=.5&&!all1(ef));
+// v39 floors (07c damageEffects): a wrecked car keeps >= 40% top speed, 30% accel, 45% steering, 35% grip, 50% brakes, 45% lateral grip
+ck('Full: multipliers within bounds',ef.maxSpeed>=.4&&ef.accel>=.3&&ef.steering>=.45&&ef.grip>=.35&&ef.brakes>=.5&&ef.lat>=.45&&!all1(ef),['spd',ef.maxSpeed.toFixed(2),'acc',ef.accel.toFixed(2),'str',ef.steering.toFixed(2),'grip',ef.grip.toFixed(2),'lat',ef.lat.toFixed(2)].join(' '));
 const slow=t100();ck('Full, damaged: 0-100 slower',slow>base,base.toFixed(2)+'s -> '+slow.toFixed(2)+'s');
 const st=JSON.parse(LS['irbid-drive-realism-v1']||'{}');
 ck('persisted to irbid-drive-realism-v1',st.mode===2&&st.cars&&st.cars['Ford Focus RS']);

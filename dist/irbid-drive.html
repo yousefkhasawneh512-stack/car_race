@@ -564,7 +564,7 @@ function groundH(x,z){let h=TH(x,z)+.12;for(let i=0;i<RAMPS.length;i++){const r=
 // ---- instancing helpers (oriented boxes / geometries, 600 m chunks) ----
 const BS=new T.Sphere(new T.Vector3(),520),o3=new T.Object3D(),tc=new T.Color();
 // Optional stable keys let gameplay damage hide selected instanced roadside props without rebuilding the entire scene.
-const DESTRUCTIBLE_INSTANCES=new Map();
+const DESTRUCTIBLE_INSTANCES=new Map(),SIGN_PLATES=new Map();
 function chunkBy(items,fn,cs){cs=cs||600;const ch={};items.forEach(p=>{const k=Math.floor(p[0]/cs)+','+Math.floor(p[2]/cs);(ch[k]=ch[k]||[]).push(p)});for(const k in ch){const[a,b]=k.split(',').map(Number);fn(ch[k],a*cs+cs/2,b*cs+cs/2)}}
 // distance LOD for small props: a chunk is hidden once its centre is farther than R+half a chunk from the camera (checked every frame)
 const LODL=[],BSC={};let lodF=0;
@@ -610,7 +610,7 @@ function colB(o){const L=COL.get(ck(Math.floor(o.x/100),Math.floor(o.z/100)));if
  else{const lx=dx*a.c-dz*a.s,lz=dx*a.s+dz*a.c,cx=cl(lx,-a.hw,a.hw),cz=cl(lz,-a.hd,a.hd);let ex=lx-cx,ez=lz-cz,d=Math.hypot(ex,ez);
   if(d>=q)continue;if(d<1e-4){const px=a.hw-Math.abs(lx),pz=a.hd-Math.abs(lz);if(px<pz){ex=Math.sign(lx)||1;ez=0;pen=px+q}else{ex=0;ez=Math.sign(lz)||1;pen=pz+q}d=1}else pen=q-d;
   ex/=d;ez/=d;nx=ex*a.c+ez*a.s;nz=-ex*a.s+ez*a.c}
- if(o===P&&typeof registerPlayerImpact==='function'){const incoming=-(o.vx*nx+o.vz*nz);if(incoming>1.8)registerPlayerImpact(incoming,a,nx,nz)}
+ if(o===P&&typeof registerPlayerImpact==='function'){const incoming=-(o.vx*nx+o.vz*nz);if(incoming>1.8){const gv=registerPlayerImpact(incoming,a,nx,nz);if(gv>0){o.vx+=nx*gv;o.vz+=nz*gv;return true}}}
  o.x+=nx*pen;o.z+=nz*pen;if(o.vx!==undefined){const vn=o.vx*nx+o.vz*nz;if(vn<0){o.vx-=vn*nx*1.4;o.vz-=vn*nz*1.4}}else o.v*=(o.rad?.9:.6);return true}return false}
 let clock=0,hour=15;const light=ax=>{const p=ax==='x'?clock%28:(clock+14)%28;return p<10?'g':p<12?'y':'r'};
 // ---- signalised junctions: the 14 signals mapped in OSM + junctions where three or more arterial arms meet (inferred; OSM lists few) ----
@@ -1609,7 +1609,7 @@ const lampMat=new T.MeshBasicMaterial({color:0x8d9094}),poolMat=new T.MeshBasicM
    if(onOther(x,z,e,.8)||!occFree(obb(x,z,.7,.7,0),0))continue;
    if(inPark(x,z,0))continue;
    const y=hillH(x,z),H=hwy?10:8.4,dx=-sg*p[2],dz=-sg*p[3],ry=Math.atan2(-dz,dx),L=hwy?2.4:1.9,key='streetlight:'+Math.round(x*10)+':'+Math.round(z*10);
-   poles.push([x,y+H/2,z,0,.2,H,.2,undefined,key]);arms.push([x+dx*L*.5,y+H-.15,z+dz*L*.5,ry,L,.12,.12]);heads.push([x+dx*(L-.1),y+H-.3,z+dz*(L-.1),ry,.8,.14,.34]);pools.push([x+dx*(L+1.2),y+.22,z+dz*(L+1.2),0,1,1,1]);
+   poles.push([x,y+H/2,z,0,.2,H,.2,undefined,key]);arms.push([x+dx*L*.5,y+H-.15,z+dz*L*.5,ry,L,.12,.12,undefined,key+'/arm']);heads.push([x+dx*(L-.1),y+H-.3,z+dz*(L-.1),ry,.8,.14,.34,undefined,key+'/head']);pools.push([x+dx*(L+1.2),y+.22,z+dz*(L+1.2),0,1,1,1,undefined,key+'/pool']);
    addCol({x,z,r:.32,type:'streetLight',breakable:true,breakAt:17,visualKey:key,height:H,baseY:y});furnAdd(x,z);lampN++}});
  const pm=gfxStd({color:0xb4bac1,roughness:.42,metalness:.6,envMapIntensity:.9},'none')||UBm(0x7c838a);instO(UB,pm,poles,true,420,300);instO(UB,pm,arms,false,420,300);instO(UB,lampMat,heads,false,420,300);
  // light pools on the road at night (additive gradient discs)
@@ -1622,7 +1622,7 @@ function lampTick(night){const n=night;lampMat.color.setRGB(.55+2.6*n,.57+1.9*n,
  EDGES.forEach(e=>{if(!UK.has(e.kind)||e.len<70||e.fz<(e.kind==='local'?3:2))return;const sp=e.kind==='local'?40:46,sg=(e.id&1)?1:-1,t0=jTrim(e.a)+10,t1=jTrim(e.b)+10;let prev=null;
   for(let u=Math.max(t0,20)+(e.id%5)*3;u<e.len-Math.max(t1,16);u+=sp){const p=edgePt(e,u),off=sg*(e.w/2+1.35),x=p[0]+p[2]*off,z=p[1]+p[3]*off;
    if(onOther(x,z,e,.8)||!occFree(obb(x,z,.6,.6,0),0)||inPark(x,z,0)){prev=null;continue}
-   const y=hillH(x,z),H=9.2,ry=Math.atan2(-p[3],p[2]),key='utilitypole:'+Math.round(x*10)+':'+Math.round(z*10);poles.push([x,y+H/2,z,0,.26,H,.26,0x8f8d86,key]);arms.push([x,y+H-.5,z,ry,2.3,.13,.13,0x4a3a2a]);if(((u/sp)|0)%7===3)xf.push([x+p[2]*sg*.5,y+H-2.2,z+p[3]*sg*.5,0,.7,1.3,.7]);addCol({x,z,r:.3,type:'utilityPole',breakable:true,breakAt:12.5,visualKey:key,height:H,baseY:y});furnAdd(x,z);poleN++;
+   const y=hillH(x,z),H=9.2,ry=Math.atan2(-p[3],p[2]),key='utilitypole:'+Math.round(x*10)+':'+Math.round(z*10);poles.push([x,y+H/2,z,0,.26,H,.26,0x8f8d86,key]);arms.push([x,y+H-.5,z,ry,2.3,.13,.13,0x4a3a2a,key+'/arm']);if(((u/sp)|0)%7===3)xf.push([x+p[2]*sg*.5,y+H-2.2,z+p[3]*sg*.5,0,.7,1.3,.7,undefined,key+'/xf']);addCol({x,z,r:.3,type:'utilityPole',breakable:true,breakAt:12.5,visualKey:key,height:H,baseY:y});furnAdd(x,z);poleN++;
    const tip=o=>[x+p[2]*o,y+H-.3,z+p[3]*o];
    if(prev){for(const o of[-1,0,1]){const a=prev.tip(o),b=tip(o);let q=a;for(let s=1;s<=4;s++){const t=s/4,r=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t-1.3*4*t*(1-t),a[2]+(b[2]-a[2])*t];wv.push(q[0],q[1],q[2],r[0],r[1],r[2]);q=r}}}
    prev={tip}}});
@@ -1633,7 +1633,7 @@ const SGA={cv:document.createElement('canvas'),cells:new Map(),n:0};SGA.cv.width
 function sgCell(name){let c=SGA.cells.get(name);if(c!==undefined)return c;c=SGA.n++;SGA.cells.set(name,c);return c}
 function sgRect(c,big){if(big){const k=c;return[(k%16)*128,768+((k/16)|0)*128,128,128]}return[(c%8)*256,((c/8)|0)*64,256,64]}
 const SGS=[],SGM=new Map();   // sign instances: [x,y,z,ry,w,h,cellKey,big]
-function addSign(x,z,dx,dz,ph,w,h,key,big){SGS.push([x,hillH(x,z)+ph,z,Math.atan2(dx,dz),w,h,key,big]);signPole.push([x,hillH(x,z)+(ph+h/2-.1)/2,z,0,.09,ph+h/2-.1,.09]);addCol({x,z,r:.25})}
+function addSign(x,z,dx,dz,ph,w,h,key,big){const sk='sign:'+SGS.length;SGS.push([x,hillH(x,z)+ph,z,Math.atan2(dx,dz),w,h,key,big,sk]);signPole.push([x,hillH(x,z)+(ph+h/2-.1)/2,z,0,.09,ph+h/2-.1,.09,undefined,sk]);addCol({x,z,r:.25,type:'sign',breakable:true,breakAt:4.5,visualKey:sk,height:ph+h/2-.1})}
 { // speed-limit signs (both directions) on the main roads
  const seen=new Set();let ns=0;
  EDGES.forEach(e=>{if(!(e.kind==='main'||e.kind==='petra'||e.kind==='arch'||e.kind==='hw')||!e.lim||e.len<110||e.fz<1)return;
@@ -1664,20 +1664,20 @@ function addSign(x,z,dx,dz,ph,w,h,key,big){SGS.push([x,hillH(x,z)+ph,z,Math.atan
  // merged plates (one mesh per 600 m cell), uv rectangles into the atlas
  const cells=new Map();
  SGS.forEach(s=>{const k=Math.floor(s[0]/300)+','+Math.floor(s[2]/300);let C=cells.get(k);if(!C)cells.set(k,C={p:[],uv:[],n:[],i:[],cx:(Math.floor(s[0]/300)+.5)*300,cz:(Math.floor(s[2]/300)+.5)*300});
-  const r=s[7]?sgRect(bigCell[s[6]],1):sgRect(SGA.cells.get(s[6].slice(1)),0),u0=r[0]/2048,u1=(r[0]+r[2])/2048,v1=1-r[1]/1024,v0=1-(r[1]+r[3])/1024,hx=s[4]/2,sx=Math.cos(s[3]),sz=-Math.sin(s[3]),n=C.p.length/3;
+  const r=s[7]?sgRect(bigCell[s[6]],1):sgRect(SGA.cells.get(s[6].slice(1)),0),u0=r[0]/2048,u1=(r[0]+r[2])/2048,v1=1-r[1]/1024,v0=1-(r[1]+r[3])/1024,hx=s[4]/2,sx=Math.cos(s[3]),sz=-Math.sin(s[3]),n=C.p.length/3;SIGN_PLATES.set(s[8],{C,n});
   // plate faces direction (sin ry, cos ry); its local x axis is (cos ry, -sin ry)
   for(const[a,b,uu,vv]of[[-1,0,u0,v0],[1,0,u1,v0],[-1,1,u0,v1],[1,1,u1,v1]]){C.p.push(s[0]+sx*hx*a,s[1]+s[5]*b,s[2]+sz*hx*a);C.uv.push(uu,vv);C.n.push(Math.sin(s[3]),0,Math.cos(s[3]))}
   C.i.push(n,n+1,n+2,n+1,n+3,n+2)});
  const tex=new T.CanvasTexture(SGA.cv);tex.anisotropy=4;tex.minFilter=T.LinearMipmapLinearFilter;
  const sm=new T.MeshLambertMaterial({map:tex,alphaTest:.5,side:T.DoubleSide});
- cells.forEach(C=>{const g2=new T.BufferGeometry();g2.setAttribute('position',new T.Float32BufferAttribute(C.p,3));g2.setAttribute('uv',new T.Float32BufferAttribute(C.uv,2));g2.setAttribute('normal',new T.Float32BufferAttribute(C.n,3));g2.setIndex(C.i);const m=new T.Mesh(g2,sm);scene.add(m);lodReg(m,C.cx,C.cz,260,300)});
+ cells.forEach(C=>{const g2=new T.BufferGeometry();g2.setAttribute('position',new T.Float32BufferAttribute(C.p,3));g2.setAttribute('uv',new T.Float32BufferAttribute(C.uv,2));g2.setAttribute('normal',new T.Float32BufferAttribute(C.n,3));g2.setIndex(C.i);const m=new T.Mesh(g2,sm);C.mesh=m;scene.add(m);lodReg(m,C.cx,C.cz,260,300)});
  instO(UB,gfxStd({color:0xb4bac1,roughness:.42,metalness:.6,envMapIntensity:.9},'none')||UBm(0x7c838a),signPole,false,230,200)}
 // ===== highway guardrails (W-beam rail + posts, stopped near every junction and wherever another road crosses) =====
 {const rails=[],posts=[];
  EDGES.forEach(e=>{if(e.kind!=='hw'||e.len<80||e.fz<2)return;const t0=jTrim(e.a)+24,t1=jTrim(e.b)+24;
   for(const sg of[-1,1]){for(let u=t0;u<e.len-t1;u+=4){const p=edgePt(e,u),q=edgePt(e,Math.min(e.len,u+4)),off=sg*(e.w/2+.9),x=p[0]+p[2]*off,z=p[1]+p[3]*off,x2=q[0]+q[2]*off,z2=q[1]+q[3]*off;
    if(onOther(x,z,e,1.5)||onOther(x2,z2,e,1.5))continue;const mx=(x+x2)/2,mz=(z+z2)/2,y=hillH(mx,mz),dx=x2-x,dz=z2-z,l=Math.hypot(dx,dz)||1,ry=Math.atan2(-dz,dx);
-   rails.push([mx,y+.62,mz,ry,l+.05,.3,.08]);posts.push([x,y+.38,z,0,.1,.76,.1]);boxCol(mx,mz,l,.3,ry)}}});
+   rails.push([mx,y+.62,mz,ry,l+.05,.3,.08]);posts.push([x,y+.38,z,0,.1,.76,.1]);boxCol(mx,mz,l,.3,ry,'guardrail')}}});
  const gr=gfxStd({color:0xcfd4d9,roughness:.38,metalness:.7,envMapIntensity:1},'none')||UBm(0xb9bec4);instO(UB,gr,rails,true,330,300);instO(UB,gr,posts,false,250,300)}
 
 // ===== manhole covers, bus shelters, alley wires, roundabout planting =====
@@ -1689,7 +1689,7 @@ function addSign(x,z,dx,dz,ph,w,h,key,big){SGS.push([x,hillH(x,z)+ph,z,Math.atan
   for(let u=60+Math.random()*120;u<e.len-60;u+=rr(260,520)){const dn=distName(...edgePt(e,u).slice(0,2));if(dn==='Outskirts'||dn==='Wasfi Al-Tal Park')continue;const sg=Math.random()<.5?-1:1,p=edgePt(e,u),off=sg*(e.w/2+1.55),x=p[0]+p[2]*off,z=p[1]+p[3]*off;
    if(onOther(x,z,e,2)||!occFree(obb(x,z,3.4,1.6,0),0)||furnNear(x,z,3))continue;   const tx=p[3],tz=-p[2],r=Math.atan2(-tz,tx),y=hillH(x,z),nx=-sg*p[2],nz=-sg*p[3];
    roof.push([x,y+2.55,z,r,3.2,.12,1.5,0x2f6f9f]);for(const k of[-1.3,1.3])post.push([x+tx*k+nx*.55,y+1.27,z+tz*k+nz*.55,0,.08,2.5,.08]);
-   glass.push([x-nx*.62,y+1.3,z-nz*.62,r,3,2.2,.05]);bench.push([x-nx*.35,y+.45,z-nz*.35,r,2.4,.1,.45]);boxCol(x,z,3.2,1.2,r);furnAdd(x,z);n++}});
+   glass.push([x-nx*.62,y+1.3,z-nz*.62,r,3,2.2,.05]);bench.push([x-nx*.35,y+.45,z-nz*.35,r,2.4,.1,.45]);boxCol(x,z,3.2,1.2,r,'busShelter');furnAdd(x,z);n++}});
  const pm=UBm(0x4a4f55);instO(UB,UBm(0x2f6f9f),roof,true,280,300);instO(UB,pm,post,false,280,300);instO(UB,gfxStd({color:0x9fc4d8,roughness:.08,metalness:.2,envMapIntensity:2,transparent:true,opacity:.35},'none')||new T.MeshLambertMaterial({color:0x9fc4d8,transparent:true,opacity:.35}),glass,false,280,300);instO(UB,UBm(0x7a5a3a),bench,false,280,300)}
 {const wv=[];EDGES.forEach(e=>{if(!(e.kind==='local'||e.kind==='svc')||e.fz<3)return;
   for(let u=12+Math.random()*10;u<e.len-10;u+=rr(16,32)){const p=edgePt(e,u);if(distName(p[0],p[1])!=='Al-Balad')continue;const hh=e.w/2+1.55,y=hillH(p[0],p[1])+rr(5.4,7.6),ax=p[0]-p[2]*hh,az=p[1]-p[3]*hh,bx=p[0]+p[2]*hh,bz=p[1]+p[3]*hh;
@@ -1704,7 +1704,7 @@ CANP_PRE.forEach((q,i)=>treeSp(q[0],q[1],q[2],i%2?'palm':'cyp'));
   for(let u=40+Math.random()*60;u<e.len-40;u+=rr(130,260)){const p=edgePt(e,u),sg=Math.random()<.5?-1:1,off=sg*(e.w/2+rr(2.5,3.4)),x=p[0]+p[2]*off,z=p[1]+p[3]*off,dn=distName(x,z);
    if(dn==='Outskirts'||dn==='Wasfi Al-Tal Park'||Math.random()<.35)continue;const r=Math.atan2(-p[3],p[2]);
    if(onOther(x,z,e,2)||!occFree(obb(x,z,2.4,1.5,r),0)||furnNear(x,z,2.5))continue;const y=hillH(x,z);
-   bin.push([x,y+.6,z,r,1.9,1.2,1.1,pick([0x2f6b3a,0x2f6b3a,0x25562f,0x3a6f8f])]);lid.push([x,y+1.25,z,r,2,.1,1.2,0x1d2a22]);boxCol(x,z,1.9,1.1,r);furnAdd(x,z)}});
+   const bk='bin:'+bin.length;bin.push([x,y+.6,z,r,1.9,1.2,1.1,pick([0x2f6b3a,0x2f6b3a,0x25562f,0x3a6f8f]),bk]);lid.push([x,y+1.25,z,r,2,.1,1.2,0x1d2a22,bk+'/lid']);boxCol(x,z,1.9,1.1,r,'bin').visualKey=bk;furnAdd(x,z)}});
  instO(UB,UBm(0xffffff),bin,true,200,200);instO(UB,UBm(0x1d2a22),lid,false,200,200)}
 // ---- vegetation + land-use layer: urban/rural ground tint, street trees, olive groves, scrub, rocks (all Math.random-based; never touches PR) ----
 const VQ=FACQ?1:.45,ROCKS=[];
@@ -1715,7 +1715,7 @@ const VQ=FACQ?1:.45,ROCKS=[];
     if(Math.random()>(ZP[dn]!==undefined?ZP[dn]:.5)*VQ*1.3)continue;
     if(onOther(x,z,e,3)||!occFree(obb(x,z,3.4,3.4,0),0)||furnNear(x,z,3))continue;
     const sp=dn==='Petra Street'||dn==='Aidun'?(Math.random()<.3?'cyp':Math.random()<.5?'pine':Math.random()<.2?'palm':'round'):(Math.random()<.55?'round':Math.random()<.5?'pine':Math.random()<.4?'cyp':'palm');
-    treeSp(x,z,rr(.85,1.15),sp);addCol({x,z,r:.32});furnAdd(x,z);n++}}});
+    treeSp(x,z,rr(.85,1.15),sp);addCol({x,z,r:.32,type:'tree'});furnAdd(x,z);n++}}});
  console.log('street trees',n)}
 // ===== olive groves, pines, scrub and limestone boulders on the open land outside the city =====
 {const RS=RAMPS.map(r=>[r[0],r[1]]),VX0=RA.balad[0]-7500,VX1=RA.balad[0]+7500,VZ0=RA.balad[1]-7000,VZ1=RA.balad[1]+7000,okPt=(x,z,rd)=>{if(distName(x,z)!=='Outskirts')return false;if(roadAt(x,z,rd))return false;for(const r of RS)if(Math.hypot(x-r[0],z-r[1])<160)return false;return true};
@@ -1724,11 +1724,11 @@ const VQ=FACQ?1:.45,ROCKS=[];
  while(groves<cap&&tries<900){tries++;const x=R(VX0,VX1),z=R(VZ0,VZ1);if(!okPt(x,z,40)||nearPlace(x,z,90))continue;
   const a=Math.random()*3.14,ca=Math.cos(a),sa=Math.sin(a),sp=rr(6.5,9),nx=Math.round(rr(5,12)),nz=Math.round(rr(5,11));let placed=0;
   for(let i=0;i<nx;i++)for(let j=0;j<nz;j++){const lx=(i-nx/2)*sp+rr(-.8,.8),lz=(j-nz/2)*sp+rr(-.8,.8),tx=x+lx*ca-lz*sa,tz=z+lx*sa+lz*ca;
-    if(Math.random()<.07||roadAt(tx,tz,10)||!occFree(obb(tx,tz,4,4,0),0))continue;treeSp(tx,tz,rr(.9,1.2),'olive');addCol({x:tx,z:tz,r:.4});placed++}
+    if(Math.random()<.07||roadAt(tx,tz,10)||!occFree(obb(tx,tz,4,4,0),0))continue;treeSp(tx,tz,rr(.9,1.2),'olive');addCol({x:tx,z:tz,r:.4,type:'tree'});placed++}
   if(placed>8){groves++;trees+=placed}}
  // scattered pines / carob and shrubs on rocky ground
  let sc=0;for(let k=0;k<Math.round(900*VQ);k++){const x=R(VX0,VX1),z=R(VZ0,VZ1);if(!okPt(x,z,12)||!occFree(obb(x,z,3,3,0),0))continue;
-  const r=Math.random();if(r<.18){treeSp(x,z,rr(.9,1.25),Math.random()<.65?'pine':'round');addCol({x,z,r:.35})}
+  const r=Math.random();if(r<.18){treeSp(x,z,rr(.9,1.25),Math.random()<.65?'pine':'round');addCol({x,z,r:.35,type:'tree'})}
   else if(r<.78){const k2=Math.round(rr(1,4));for(let q=0;q<k2;q++){const bs=rr(.9,2.1);CANP.bush.push([x+rr(-2,2),hillH(x,z)+bs*.28,z+rr(-2,2),Math.random()*3,bs*1.3,bs*.8,bs,pick([0x8a8a55,0x777f4a,0x9a9060,0x6d7a42,0x7b8348])])}}
   else{const rs=rr(.7,1.8),y=hillH(x,z);for(let q=0;q<Math.round(rr(1,4));q++)ROCKS.push([x+rr(-1.6,1.6),y+rs*.2,z+rr(-1.6,1.6),Math.random()*3,rs*rr(1,1.8),rs*rr(.6,1),rs*rr(1,1.6),pick([0x9a9690,0x8c8880,0xa8a39a,0x7f7b74])])}sc++}
  console.log('groves',groves,'olives',trees,'scatter',sc)}
@@ -1801,12 +1801,12 @@ const rgm=gfxStd({color:0xd4d8dc,roughness:.22,metalness:.95,envMapIntensity:1.2
 if(GFX.on){hlm.color.setRGB(2.6,2.4,1.9);tlm.color.setRGB(1.8,.12,.1)}
 function ext(pts,w,mat){const sh=new T.Shape();pts.forEach((p,i)=>i?sh.lineTo(p[0],p[1]):sh.moveTo(p[0],p[1]));const g=new T.ExtrudeGeometry(sh,{depth:w-.2,bevelEnabled:true,bevelThickness:.1,bevelSize:.08,bevelSegments:1});g.translate(0,0,-(w-.2)/2);g.rotateY(-Math.PI/2);return new T.Mesh(g,mat)}
 function mkPorsche(i,nl,cc){const[n,,,L,W,H,k,col0]=PORS[i],col=cc??col0,P0=PROF[k]||PROF.c,g=new T.Group(),bh=(H-.3)*P0.bf,y0=.3+bh,wr=(k==='s'||k==='p')?.5:k==='v'?.45:.38,bc=carPaint(col,1),u=f=>f*L,a=P0.g;
- g.add(ext([[-L/2,.3],[L/2,.3],[L/2,.3+bh*P0.nf],[L*(.5-P0.hl),y0],[-L*.42,y0],[-L/2,.3+bh*P0.rf]],W,bc));
- if(a.length===4){g.add(ext([[u(a[0]),y0],[u(a[3]),y0],[u(a[2]),H],[u(a[1]),H]],W*.84,gl));const rl=u(a[1]-a[2]);if(rl>.2){const rf=new T.Mesh(new T.BoxGeometry(W*.8,.08,rl),bc);rf.position.set(0,H+.02,u((a[1]+a[2])/2));g.add(rf)}}
- else{g.add(ext([[u(a[0]),y0],[u(a[0])-.12,y0],[u(a[1])-.12,H],[u(a[1]),H]],W*.8,gl));const st=new T.Mesh(new T.BoxGeometry(W*.7,.25,L*.22),blk);st.position.set(0,y0+.05,u(a[0]-.2));g.add(st)}
+ {const bd=ext([[-L/2,.3],[L/2,.3],[L/2,.3+bh*P0.nf],[L*(.5-P0.hl),y0],[-L*.42,y0],[-L/2,.3+bh*P0.rf]],W,bc);bd.userData.part='body';g.add(bd)}
+ if(a.length===4){const gm=ext([[u(a[0]),y0],[u(a[3]),y0],[u(a[2]),H],[u(a[1]),H]],W*.84,gl);gm.userData.part='glass';g.add(gm);const rl=u(a[1]-a[2]);if(rl>.2){const rf=new T.Mesh(new T.BoxGeometry(W*.8,.08,rl),bc);rf.position.set(0,H+.02,u((a[1]+a[2])/2));g.add(rf)}}
+ else{const gm=ext([[u(a[0]),y0],[u(a[0])-.12,y0],[u(a[1])-.12,H],[u(a[1]),H]],W*.8,gl);gm.userData.part='glass';g.add(gm);const st=new T.Mesh(new T.BoxGeometry(W*.7,.25,L*.22),blk);st.position.set(0,y0+.05,u(a[0]-.2));g.add(st)}
  if(k==='r'){const w=new T.Mesh(new T.BoxGeometry(W*.95,.08,.6),bc);w.position.set(0,H+.15,-L*.47);g.add(w)}
- for(const sx of[-1,1]){const h=new T.Mesh(new T.BoxGeometry(.4,.14,.06),hlm);h.position.set(sx*W*.33,.3+bh*P0.nf*.8,L/2+.02);g.add(h);const t=new T.Mesh(new T.BoxGeometry(.45,.1,.06),tlm);t.position.set(sx*W*.33,.3+bh*P0.rf*.75,-L/2-.02);g.add(t)}
- [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(p=>{const x=p[0]*(W/2-.12),z=p[1]*L*.31,s=wr/.42,w=new T.Mesh(wg,wm),r=new T.Mesh(rg,rgm);w.scale.set(1,s,s);r.scale.set(1,s,s);w.position.set(x,wr,z);r.position.set(x+p[0]*.01,wr,z);g.add(w,r)});
+ for(const sx of[-1,1]){const h=new T.Mesh(new T.BoxGeometry(.4,.14,.06),hlm);h.position.set(sx*W*.33,.3+bh*P0.nf*.8,L/2+.02);h.userData.part='hl';h.userData.side=sx;g.add(h);const t=new T.Mesh(new T.BoxGeometry(.45,.1,.06),tlm);t.position.set(sx*W*.33,.3+bh*P0.rf*.75,-L/2-.02);t.userData.part='tl';t.userData.side=sx;g.add(t)}
+ [[-1,1],[1,1],[-1,-1],[1,-1]].forEach(p=>{const x=p[0]*(W/2-.12),z=p[1]*L*.31,s=wr/.42,w=new T.Mesh(wg,wm),r=new T.Mesh(rg,rgm);w.scale.set(1,s,s);r.scale.set(1,s,s);w.position.set(x,wr,z);r.position.set(x+p[0]*.01,wr,z);const ci=(p[1]>0?0:2)+(p[0]>0?0:1);w.userData.part='tyre';r.userData.part='rim';w.userData.corner=r.userData.corner=ci;w.userData.side=r.userData.side=p[0];g.add(w,r)});
  if(cc===undefined)addNeon(g,i);if(!nl)g.add(label(n));g.rotation.order='YXZ';g.traverse(o=>{if(o.isMesh&&!o.userData.nsh)o.castShadow=true});scene.add(g);return g}
 function setModel(b,i){const m=PORS[i];b.model=m[0];b.vm=m[1]/3.6*.98;b.a0=Math.min(11,27.8/m[2]*1.1)}
 // ---- traffic spawn system: 5-tier vehicle database + per-zone spawn weights ----
@@ -2036,125 +2036,268 @@ function refreshSel(){carSel.innerHTML='';owned.forEach(n=>{const o=document.cre
 function setPlayerCar(i){if(P.m)scene.remove(P.m);P.m=mkPorsche(i,1);setModel(P,i);P.idx=i;P.rt=rarityIdx(i);P.rm=RMULT[P.rt];cur=PORS[i][0];applyTune();refreshSel();save()}
 function cycleCar(d){const i=(owned.indexOf(cur)+d+owned.length)%owned.length;setPlayerCar(PORS.findIndex(m=>m[0]===owned[i]))}
 carSel.onchange=()=>{setPlayerCar(+carSel.value);carSel.blur()};setPlayerCar(PORS.findIndex(m=>m[0]===cur));
-// ---- vehicle damage, subtle impact effects, and OSM-informed estimated speed bumps ----
-// Road data and POIs are bundled from OpenStreetMap. The currently bundled extract has no
-// traffic_calming-tagged features, so bumps are explicitly inferred near mapped schools,
-// hospitals/clinics, and parks, on nearby local/service roads. They are not claimed as surveyed locations.
+// ---- vehicle damage v2 (v39): per-car profiles, localized impacts, internal components, mesh dents ----
+// Modes: 0 Off (no persistent damage; physics identical to v37), 1 Cosmetic (visible damage only), 2 Full (visible + mechanical + tyre grip).
+// HONEST LIMITS: the cars are procedural meshes (07a_cars.js) and the driving model is the arcade updP. Every mass, layout and threshold
+// here is a GAMEPLAY ESTIMATE unless its source flag says 'doc' (the layout commonly published for that model name; generation-dependent,
+// not re-verified against a primary source). No manufacturer crash-test data is used. Crush depth uses the generic linear crush relation
+// v = b0 + b1*C (Campbell 1974, SAE 740565) with coefficients in the usual published range, scaled per car.
 const IRBID_DAMAGE_STORE='irbid-drive-realism-v1';
-let damageMode=0,damageRecords={},damageSaveClock=0,lastDamageToast=-99;
+let damageMode=0,damageRecords={},damageSaveClock=0,lastDamageToast=-99,diagReady=false;
 try{const savedRealism=JSON.parse(localStorage.getItem(IRBID_DAMAGE_STORE)||'{}');damageMode=cl(+savedRealism.mode||0,0,2)|0;damageRecords=savedRealism.cars&&typeof savedRealism.cars==='object'?savedRealism.cars:{}}catch(e){}
 const DAMAGE_MODE_NAMES=['Off','Cosmetic','Full'];
 const damageButton=document.getElementById('damageBtn'),repairButton=document.getElementById('repairBtn');
 function persistDamage(){try{localStorage.setItem(IRBID_DAMAGE_STORE,JSON.stringify({mode:damageMode,cars:damageRecords}))}catch(e){}}
+const dmgNow=()=>typeof clock==='number'?clock:performance.now()/1000;
+
+// ---- per-car profile (data-driven; see manifest/cars.json for the generated table) ----
 function durabilityForCar(i){
  const m=PORS[i],kind=m[6],kindBonus=kind==='s'?22:kind==='v'?18:kind==='p'?16:kind==='h'?12:kind==='r'?-18:kind==='o'?-5:kind==='q'?4:0;
  // Gameplay balance only: this is relative durability, not manufacturer crash-test data.
  const accelPenalty=cl((m[2]-5)*1.1,-5,8),hash=String(m[0]).split('').reduce((a,c)=>((a*31+c.charCodeAt(0))|0),7),individual=((Math.abs(hash)%9)-4);
  return cl(82+kindBonus+accelPenalty+individual,55,120);
 }
-function newDamageRecord(i){return{durability:durabilityForCar(i),body:100,engine:100,tyres:100,suspension:100,brakes:100,impacts:0,lastHit:-99,lastX:0,lastZ:0};}
-function getDamageRecord(i){const name=PORS[i]?.[0]||'Unknown car';if(!damageRecords[name]||typeof damageRecords[name]!=='object')damageRecords[name]=newDamageRecord(i);const s=damageRecords[name];for(const k of ['body','engine','tyres','suspension','brakes'])if(!Number.isFinite(s[k]))s[k]=100;if(!Number.isFinite(s.durability))s.durability=durabilityForCar(i);return s;}
-function currentDamageRecord(){return getDamageRecord(P.idx||0)}
-// Called every frame by updP: fills one shared object (no per-frame allocation).
-const DFX={maxSpeed:1,accel:1,steering:1,grip:1,brakes:1};
-function damageEffects(){
- if(damageMode!==2){DFX.maxSpeed=DFX.accel=DFX.steering=DFX.grip=DFX.brakes=1;return DFX}
- const s=currentDamageRecord(),hE=cl(s.engine/100,0,1),hT=cl(s.tyres/100,0,1),hS=cl(s.suspension/100,0,1),hB=cl(s.brakes/100,0,1);
- DFX.maxSpeed=cl(.48+.34*hE+.18*hT,.48,1);DFX.accel=cl(.35+.65*hE,.35,1);DFX.steering=cl(.58+.42*hS,.58,1);
- DFX.grip=cl(.42+.58*hT*(.8+.2*hS),.42,1);DFX.brakes=cl(.50+.50*hB,.50,1);return DFX;
+// drivetrain / engine layout: names listed here follow the layout commonly published for that model name ('doc'); everything else
+// falls back to a body-type default ('est'). Where a name covers several generations or variants the choice is noted as ambiguous.
+const DRV_DOC={
+ AWD:['Porsche 959','Porsche 918 Spyder','Porsche Cayenne','Porsche Cayenne Turbo','Porsche Macan','Lamborghini Murciélago','Lamborghini Aventador','Lamborghini Revuelto','Lamborghini Gallardo','Lamborghini Huracán','Lamborghini Temerario','Lamborghini Reventón','Lamborghini Centenario','Lamborghini Sián FKP 37','Lamborghini Countach LPI 800-4','Lamborghini Urus','Lamborghini Sesto Elemento','Lamborghini Veneno','Lamborghini LM002','Ferrari SF90 Stradale','Ferrari SF90 Spider','Ferrari Purosangue','Ford Focus RS','Ford Bronco','Ford F-150 Raptor','Ford Taurus SHO','Nissan GT-R R35','Audi R8 V10','BMW i8','Bentley Continental GT','Subaru Impreza','BMW X5','Range Rover Sport','Land Rover Defender','Mercedes-AMG G63','Rolls-Royce Cullinan','Toyota Land Cruiser LC200','Toyota Prado','Nissan Patrol','Toyota Highlander Hybrid'],
+ FWD:['Ford Fiesta','Ford Fiesta ST','Ford Focus','Ford Puma','Ford Mondeo','Ford Taurus','Ford Escort','Ford Maverick','Ford Fusion Hybrid','Toyota Camry Hybrid','Toyota Corolla','Toyota Prius','Toyota Yaris','Hyundai Avante','Hyundai Elantra','Hyundai Accent','Hyundai Sonata Hybrid','Hyundai Ioniq Hybrid','Kia Sephia','Kia Cerato','Kia Forte','Kia Optima','Kia K5 Hybrid','Kia K3 EV','Kia Picanto','Kia Niro','Nissan Sunny','Nissan Altima','Nissan Leaf EV','Mitsubishi Lancer','BYD Qin Plus','BYD Song Plus EV','Changan Eado EV','Changan Alsvin','MG 5','Honda Civic','Honda Accord','Chevrolet Spark','Peugeot 206','Opel Astra','Mazda 3','Suzuki Swift','Skoda Octavia','Volkswagen Golf Mk7','Seat Leon','Fiat 500','Geely Geometry C'],
+ RWD:['Ford Model T','Ford Model A','Ford Mustang','Ford Mustang GT','Ford Mustang Foxbody','Ford Crown Victoria','Ford Sierra','Ford Capri','Ford Cortina','Ford Falcon','Ford Fairlane','Ford Galaxie','Ford Thunderbird','Ford GT40','Ford GT','Porsche 550 Spyder','Porsche 912','Porsche 914','Porsche 924','Porsche 928','Porsche 944','Porsche 968','Porsche Boxster','Porsche Cayman','Porsche Carrera GT','Porsche 904 GTS','Porsche 906','Porsche 917','Porsche 935','Porsche 956','Porsche 962','Lamborghini Miura','Lamborghini Countach','Lamborghini Urraco','Lamborghini Jalpa','Lamborghini Silhouette','Lamborghini 350 GT','Lamborghini 400 GT','Lamborghini Islero','Lamborghini Espada','Lamborghini Jarama','Ferrari 125 S','Ferrari 250 GTO','Ferrari 250 GT California Spyder','Ferrari Testarossa','Ferrari F40','Ferrari F50','Ferrari Enzo','Ferrari LaFerrari','Ferrari Dino 246 GT','Ferrari 365 GTB/4 Daytona','Ferrari 288 GTO','Ferrari 458 Italia','Ferrari 488 GTB','Ferrari 488 Spider','Ferrari F8 Tributo','Ferrari F8 Spider','Ferrari 296 GTB','Ferrari Roma','Ferrari Portofino','Ferrari 812 Superfast','Ferrari 12Cilindri','Ferrari Monza SP1','Ferrari Daytona SP3','Ferrari FXX-K','Ferrari 599 GTB Fiorano','Ferrari 360 Modena','Mercedes-Benz E-Class W211','Mercedes-Benz C-Class W203','Mercedes-Benz S-Class W221','Classic Mercedes 280SEL W108','BMW 3 Series E46','BMW 5 Series E60','BMW E36 M3 (Drift Spec)','BMW M3 G80','BMW M4 G82','Mercedes-AMG GT','Maserati Ghibli','Aston Martin Vantage','Chevrolet Corvette C8','Lotus Emira','Toyota Supra Mk5','Toyota Supra JZA80','Alfa Romeo Giulia Quadrifoglio','Toyota AE86 Trueno','Nissan 350Z (Z33)','Subaru BRZ / Toyota GT86','Nissan Silvia S15 Spec-R','Nissan Skyline GT-R R34 (RWD)','Mazda RX-7 FD3S','Mazda MX-5 Miata NA','MG 4 EV','Dodge Charger','Dodge Challenger']};
+const DRV_AMBIG=new Set(['Ford Escort','Ford Taurus SHO','Porsche Taycan','Lamborghini Diablo','Porsche 911','Lamborghini Huracán','Lamborghini Gallardo','BMW M3 G80','BMW M4 G82','Dodge Charger','Dodge Challenger','Audi R8 V10','Nissan Skyline GT-R R34 (RWD)']);
+const ENG_REAR=new Set(['Porsche 911','Porsche 912','Porsche 959','Porsche 935']);
+const ENG_MID=new Set(['Porsche 550 Spyder','Porsche 914','Porsche Boxster','Porsche Cayman','Porsche Carrera GT','Porsche 918 Spyder','Porsche 904 GTS','Porsche 906','Porsche 917','Porsche 956','Porsche 962','Ford GT40','Ford GT','Ferrari Daytona SP3','Chevrolet Corvette C8','Lotus Emira','Audi R8 V10','BMW i8']);
+const EVS=new Set(['Porsche Taycan','Porsche Mission X','Kia K3 EV','Changan Eado EV','Tesla Model 3','Tesla Model Y','BYD Han EV','BYD Seal','BYD Song Plus EV','Volkswagen ID.4','Volkswagen ID.6','Geely Geometry C','Nissan Leaf EV','MG 4 EV','Zeekr 001']);
+const AIRC=new Set(['Porsche 550 Spyder','Porsche 912','Porsche 914']);
+// body-type defaults (all estimates): rho = kg per m^3 of the L*W*H box (calibrated loosely on a few widely published kerb weights),
+// b1 = crush stiffness km/h per cm (front/rear/side), thr = scratch/light/glass thresholds in km/h, comp = component durability, ty = tyre wear/heat
+const KSPEC={
+ c:{rho:135,b1:[.9,.8,1],thr:[3,9,18],comp:1,ty:[1,1],dr:'RWD'},  m:{rho:142,b1:[.8,.75,.9],thr:[2.5,8,16],comp:.9,ty:[.8,1.2],dr:'RWD'},
+ o:{rho:125,b1:[.85,.8,.9],thr:[3,9,16],comp:.95,ty:[1,1],dr:'RWD'}, q:{rho:135,b1:[.8,.75,.9],thr:[2.5,8,16],comp:.9,ty:[.8,1.2],dr:'RWD'},
+ s:{rho:120,b1:[1.05,.95,1.15],thr:[4,10,20],comp:1.2,ty:[1.2,.9],dr:'AWD'}, p:{rho:95,b1:[1.1,1,1.2],thr:[4,10,20],comp:1.25,ty:[1.3,.9],dr:'RWD'},
+ r:{rho:100,b1:[.75,.7,.85],thr:[2,7,15],comp:.85,ty:[.6,1.4],dr:'RWD'}, v:{rho:50,b1:[1.2,1.1,1.3],thr:[4,8,12],comp:.8,ty:[.7,1.1],dr:'RWD'},
+ h:{rho:122,b1:[.9,.8,1],thr:[3,9,18],comp:1,ty:[1,1],dr:'FWD'}};
+const CAR_SPEC=new Map();
+function carSpec(i){
+ let s=CAR_SPEC.get(i);if(s)return s;const m=PORS[i],n=m[0],k=KSPEC[m[6]]||KSPEC.c,L=m[3],W=m[4],H=m[5],dur=durabilityForCar(i),f=dur/100;
+ let drive=k.dr,driveSrc='est';for(const d in DRV_DOC)if(DRV_DOC[d].includes(n)){drive=d;driveSrc=DRV_AMBIG.has(n)?'doc (variant-dependent)':'doc'}
+ if(driveSrc==='est'&&DRV_AMBIG.has(n))driveSrc='est (variant-dependent)';
+ const eng=ENG_REAR.has(n)?'R':(ENG_MID.has(n)||m[6]==='m'||m[6]==='q'||m[6]==='r')?'M':'F',ev=EVS.has(n),air=AIRC.has(n);
+ const fw=ev?.49:eng==='R'?.39:eng==='M'?.42:drive==='FWD'?.62:drive==='AWD'?.57:.53;
+ s={i,name:n,kind:m[6],mass:Math.round(cl(k.rho*L*W*H,500,3300)),massSrc:'est',drive,driveSrc,eng,engSrc:ENG_REAR.has(n)||ENG_MID.has(n)?'doc':'est',ev,air,fw,
+  hcg:.2+H*.28,wb:L*.62,tr:W-.24,L,W,H,durability:dur,b0:[8,8,4],b1:k.b1.map(b=>b*(.6+.4*f)),maxC:[110,95,55],thr:k.thr,
+  comp:{engine:k.comp*Math.sqrt(f),cooling:k.comp*Math.sqrt(f),trans:k.comp,driveline:k.comp,steer:k.comp,susp:k.comp*Math.sqrt(f),brakes:1},
+  tyre:{dur:k.ty[0],heat:k.ty[1]}};
+ CAR_SPEC.set(i,s);return s;
 }
-function removeDamageOverlay(){if(!P.m)return;const old=P.m.children.filter(c=>c.userData&&c.userData.damageOverlay);for(const o of old){P.m.remove(o);o.traverse?.(n=>{if(n.geometry)n.geometry.dispose();if(n.material){if(Array.isArray(n.material))n.material.forEach(m=>m.dispose());else n.material.dispose()}})}}
+// ---- per-car damage record (stored per car NAME under irbid-drive-realism-v1, so switching cars never transfers damage) ----
+const ZONES=['fl','fr','l','r','rl','rr','roof','u'],ZONE_NAMES={fl:'front-left',fr:'front-right',l:'left side',r:'right side',rl:'rear-left',rr:'rear-right',roof:'roof',u:'underbody'};
+const WHEEL_NAMES=['FL','FR','RL','RR'],LIGHT_NAMES=['left headlight','right headlight','left tail light','right tail light'],GLASS_NAMES=['windscreen','rear screen','left windows','right windows'];
+function newWheel(){return{tread:100,temp:25,health:100,punct:false,wear:{burn:0,slide:0,spin:0,lock:0,roll:0}}}
+function newDamageRecord(i){return{v:2,durability:durabilityForCar(i),body:100,engine:100,tyres:100,suspension:100,brakes:100,cooling:100,trans:100,driveline:100,steer:100,
+ zones:{fl:100,fr:100,l:100,r:100,rl:100,rr:100,roof:100,u:100},susp:[100,100,100,100],align:[0,0,0,0],lights:[0,0,0,0],glass:[0,0,0,0],
+ wheels:[newWheel(),newWheel(),newWheel(),newWheel()],dents:[],engTemp:90,impacts:0,lastHit:-99,lastX:0,lastZ:0,log:[]}}
+const finite=(v,d)=>Number.isFinite(v)?v:d;
+function migrateRecord(s,i){ // v38 records had only body/engine/tyres/suspension/brakes: spread them over the new components
+ const b=finite(s.body,100),t=finite(s.tyres,100),su=finite(s.suspension,100),n=newDamageRecord(i),old=s.v!==2;
+ for(const k in n)if(!(k in s))s[k]=n[k];
+ if(old){for(const z of ZONES)s.zones[z]=z==='roof'||z==='u'?100:b;s.susp=[su,su,su,su];for(const w of s.wheels)w.tread=t;s.v=2}
+ for(const k of['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer','engTemp'])s[k]=finite(s[k],k==='engTemp'?90:100);
+ if(!Number.isFinite(s.durability))s.durability=durabilityForCar(i);
+ if(!Array.isArray(s.wheels)||s.wheels.length!==4)s.wheels=n.wheels;for(let j=0;j<4;j++){const w=s.wheels[j]=Object.assign(newWheel(),s.wheels[j]);w.wear=Object.assign(newWheel().wear,w.wear)}
+ for(const a of['susp','align','lights','glass'])if(!Array.isArray(s[a])||s[a].length!==4)s[a]=n[a];if(!Array.isArray(s.dents))s.dents=[];if(!Array.isArray(s.log))s.log=[];
+ return s}
+function getDamageRecord(i){const name=PORS[i]?.[0]||'Unknown car';if(!damageRecords[name]||typeof damageRecords[name]!=='object')damageRecords[name]=newDamageRecord(i);const s=damageRecords[name];if(!s._ok){migrateRecord(s,i);Object.defineProperty(s,'_ok',{value:true,enumerable:false})}return s;}
+function currentDamageRecord(){return getDamageRecord(P.idx||0)}
+// legacy aggregate fields (body/tyres/suspension) stay meaningful for the v38 HUD/toasts and saved data
+function syncAggregates(s){let z=0;for(let j=0;j<6;j++)z+=s.zones[ZONES[j]];s.body=z/6;let t=0,u=0;for(let j=0;j<4;j++){const w=s.wheels[j];t+=w.punct?0:Math.min(w.tread,w.health);u+=s.susp[j]}s.tyres=t/4;s.suspension=u/4}
+
+// ---- effects on driving (Full only). Filled in place every frame: no allocation ----
+const DFX={maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0,vib:0,limp:1};
+function damageEffects(){
+ if(damageMode!==2){DFX.maxSpeed=DFX.accel=DFX.steering=DFX.grip=DFX.brakes=DFX.lat=DFX.limp=1;DFX.pull=DFX.vib=0;return DFX}
+ const s=currentDamageRecord(),sp=carSpec(P.idx||0),W=s.wheels,mu=typeof tyreMu==='function'?tyreMu:(()=>1);
+ const m0=mu(W[0]),m1=mu(W[1]),m2=mu(W[2]),m3=mu(W[3]),muF=(m0+m1)/2,muR=(m2+m3)/2,muA=(muF+muR)/2,
+  muD=sp.drive==='FWD'?muF:sp.drive==='RWD'?muR:muA,sF=(s.susp[0]+s.susp[1])/200,sR=(s.susp[2]+s.susp[3])/200,sA=(sF+sR)/2,
+  hE=cl(s.engine/100,0,1),hT=cl(s.trans/100,0,1),hD=cl(s.driveline/100,0,1),hS=cl(s.steer/100,0,1),hB=cl(s.brakes/100,0,1),
+  punct=W[0].punct||W[1].punct||W[2].punct||W[3].punct,limp=s.engTemp>112?cl(1-(s.engTemp-112)/50,.55,1):1;
+ DFX.limp=limp;
+ DFX.maxSpeed=cl((.55+.45*Math.pow(hE,.7))*limp*(.72+.28*hT)*(.85+.15*sA)*(punct?.62:1),.4,1);
+ DFX.accel=cl((.35+.65*Math.pow(hE,.8))*limp*(.6+.4*hT)*(.8+.2*hD)*(.5+.5*muD),.3,1);
+ DFX.steering=cl((.58+.42*hS)*Math.pow(muF,.7)*(.8+.2*sF),.45,1);
+ DFX.grip=cl(muA*(.85+.15*sA),.35,1);DFX.brakes=cl(.5+.5*hB,.5,1);DFX.lat=cl(muR*(.75+.25*sR),.45,1);
+ // pull (rad/s at speed, + = left): toe changes from wheel hits plus a punctured tyre dragging its side
+ DFX.pull=(s.align[0]+s.align[1]+.5*(s.align[2]+s.align[3]))*.012+((W[0].punct||W[2].punct)?.07:0)-((W[1].punct||W[3].punct)?.07:0);
+ DFX.vib=cl((punct?.8:0)+(1-hD)*.6+(1-sA)*.5+(1-Math.min(m0,m1,m2,m3))*.4,0,1);
+ return DFX;
+}
+
+// ---- visuals: localized dents (vertex deformation of a tessellated copy of the player's body), broken lights, cracked glass, scratches, bent/flat wheels ----
+const DMG_SCRATCH=new T.MeshBasicMaterial({color:0x9a9fa5,transparent:true,opacity:.9,depthWrite:false,side:T.DoubleSide}),DMG_BOX=new T.BoxGeometry(1,1,1),
+ DMG_LIGHT=new T.MeshLambertMaterial({color:0x2a2b2d}),DMG_PLANE=new T.PlaneGeometry(1,1);
+let DMG_CRACK=null;
+function crackMat(){if(DMG_CRACK)return DMG_CRACK;let tex=null;try{const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.strokeStyle='rgba(235,240,245,.9)';g.lineWidth=1.6;
+  for(let k=0;k<14;k++){const a=k/14*Math.PI*2+Math.sin(k*7)*.2;let x=128,y=128;g.beginPath();g.moveTo(x,y);for(let s=0;s<6;s++){x+=Math.cos(a+Math.sin(k*3+s)*.35)*20;y+=Math.sin(a+Math.cos(k*5+s)*.35)*20;g.lineTo(x,y)}g.stroke()}
+  for(let r=18;r<120;r+=26){g.beginPath();for(let k=0;k<=14;k++){const a=k/14*Math.PI*2;g.lineTo(128+Math.cos(a)*r*(1+Math.sin(k*9)*.12),128+Math.sin(a)*r*(1+Math.cos(k*7)*.12))}g.stroke()}
+  tex=new T.CanvasTexture(c)}catch(e){}
+ DMG_CRACK=new T.MeshBasicMaterial({map:tex,color:0xffffff,transparent:true,opacity:.85,depthWrite:false,side:T.DoubleSide});return DMG_CRACK}
+// longest-edge bisection until every edge is shorter than maxE (player car only, done once on the first dent; caps the triangle count)
+function tessellate(geo,maxE){
+ const g0=geo.index?geo.toNonIndexed():geo,p=g0.attributes.position.array,uvA=g0.attributes.uv?g0.attributes.uv.array:null,outP=[],outU=[],st=[];
+ for(let t=0;t<p.length/9;t++){const q=[];for(let k=0;k<3;k++){const v=t*3+k;q.push([p[v*3],p[v*3+1],p[v*3+2],uvA?uvA[v*2]:0,uvA?uvA[v*2+1]:0])}st.push(q)}
+ const m2=maxE*maxE,mid=(a,b)=>a.map((x,k)=>(x+b[k])/2),d2=(a,b)=>(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2;let n=0;
+ while(st.length){const q=st.pop(),e0=d2(q[0],q[1]),e1=d2(q[1],q[2]),e2=d2(q[2],q[0]),mx=Math.max(e0,e1,e2);
+  if(mx>m2&&n+st.length<24000){const[a,b,c]=e0===mx?[0,1,2]:e1===mx?[1,2,0]:[2,0,1],mm=mid(q[a],q[b]);st.push([q[a],mm,q[c]],[mm,q[b],q[c]])}
+  else{for(const v of q){outP.push(v[0],v[1],v[2]);outU.push(v[3],v[4])}n++}}
+ const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(outP,3));if(uvA)g.setAttribute('uv',new T.Float32BufferAttribute(outU,2));g.computeVertexNormals();return g}
+function carMeshParts(m){const r={body:null,glass:null,hl:[],tl:[],tyre:[],rim:[]};if(!m)return r;for(const c of m.children){const u=c.userData||{};
+ if(u.part==='body')r.body=c;else if(u.part==='glass')r.glass=c;else if(u.part==='hl')r.hl.push(c);else if(u.part==='tl')r.tl.push(c);else if(u.part==='tyre')r.tyre.push(c);else if(u.part==='rim')r.rim.push(c)}return r}
+function ensureTess(mesh){const u=mesh.userData;if(u.base)return;const g=tessellate(mesh.geometry,.2);mesh.geometry.dispose();mesh.geometry=g;u.base=Float32Array.from(g.attributes.position.array)}
+function applyDents(mesh,dents){const u=mesh.userData;if(!u.base)return;const pos=mesh.geometry.attributes.position,a=pos.array,b=u.base;
+ for(let v=0;v<a.length;v+=3){let x=b[v],y=b[v+1],z=b[v+2];for(const d of dents){const dx=b[v]-d[0],dy=(b[v+1]-d[1])*1.25,dz=b[v+2]-d[2],r2=d[6]*d[6],q=dx*dx+dy*dy+dz*dz;
+  if(q<r2){const w=(1-q/r2)**2;x+=d[3]*d[5]*w;z+=d[4]*d[5]*w;y-=d[5]*w*.18}}a[v]=x;a[v+1]=y;a[v+2]=z}
+ pos.needsUpdate=true;mesh.geometry.computeVertexNormals();mesh.geometry.computeBoundingSphere()}
+function removeDamageOverlay(){if(!P.m)return;const old=P.m.children.filter(c=>c.userData&&c.userData.damageOverlay);for(const o of old)P.m.remove(o)}
 function refreshDamageVisual(){
- if(!P.m||!Number.isFinite(P.idx))return;removeDamageOverlay();
- if(damageMode===0)return;const s=currentDamageRecord(),loss=100-s.body;if(loss<2)return;
- const [,, ,L,W,H]=PORS[P.idx],g=new T.Group();g.userData.damageOverlay=true;
- const scratchMat=new T.MeshBasicMaterial({color:0x25282c,transparent:true,opacity:cl(.38+loss*.006,.38,.9),depthWrite:false,side:T.DoubleSide});
- const dentMat=new T.MeshLambertMaterial({color:0x4a4d50});
- const add=(geo,mat,x,y,z,ry=0)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.y=ry;m.userData.damageOverlay=true;g.add(m)};
- const count=Math.min(8,Math.floor(loss/7));
- for(let j=0;j<count;j++){
-  const side=j%2?1:-1,zz=-L*.30+((j*37)%70)/100*L*.6,yy=.40+((j*13)%20)/100;
-  add(new T.BoxGeometry(.018+((j%3)*.008),.012,Math.min(.48,L*.16)),scratchMat,side*(W*.47),yy,zz,side*.10);
- }
- if(loss>18){add(new T.BoxGeometry(W*.54,.055,.09),dentMat,0,.34,L*.49,0)}
- if(loss>38){add(new T.BoxGeometry(.28,.012,.42),scratchMat,-W*.14,H*.77,L*.24,.08);add(new T.BoxGeometry(.24,.012,.34),scratchMat,W*.18,H*.72,L*.22,-.13)}
+ if(!P.m||!Number.isFinite(P.idx))return;removeDamageOverlay();const parts=carMeshParts(P.m),s=currentDamageRecord(),show=damageMode!==0;
+ // restore everything first (mode Off hides damage; the record is kept)
+ for(const m of parts.hl.concat(parts.tl))if(m.userData.mat0){m.material=m.userData.mat0}
+ for(const m of parts.tyre.concat(parts.rim)){const u=m.userData;if(!u.p0)u.p0=[m.position.y,m.scale.y,m.scale.z];m.position.y=u.p0[0];m.scale.y=u.p0[1];m.scale.z=u.p0[2];m.rotation.set(0,0,0)}
+ for(const m of[parts.body,parts.glass])if(m&&m.userData.base){if(show&&s.dents.length)applyDents(m,s.dents);else applyDents(m,[])}
+ if(!show)return;
+ const[,, ,L,W,H]=PORS[P.idx];
+ if(s.dents.length)for(const m of[parts.body,parts.glass])if(m){ensureTess(m);applyDents(m,s.dents)}
+ // broken lights (index: 0 left head, 1 right head, 2 left tail, 3 right tail; mesh +x is the car's left)
+ for(const m of parts.hl.concat(parts.tl)){const u=m.userData,j=(u.part==='hl'?0:2)+(u.side>0?0:1);if(s.lights[j]){if(!u.mat0)u.mat0=m.material;m.material=DMG_LIGHT}}
+ // wheels: punctured tyres sit flat, damaged corners lean (camber) and toe out
+ for(const m of parts.tyre.concat(parts.rim)){const u=m.userData,j=u.corner,w=s.wheels[j];if(j===undefined)continue;
+  if(w.punct){m.scale.y=u.p0[1]*.8;m.position.y=u.p0[0]*.82}
+  const camber=s.susp[j]<60?(60-s.susp[j])/60*.16:0;m.rotation.z=(u.side>0?1:-1)*camber;m.rotation.y=(j<2?1:.5)*s.align[j]*Math.PI/180}
+ const g=new T.Group();g.userData.damageOverlay=true;
+ const add=(geo,mat,x,y,z,sx,sy,sz,rx,ry)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.rotation.set(rx||0,ry||0,0);m.rotation.order='YXZ';m.userData.damageOverlay=true;g.add(m)};
+ // scratches/scuffs on each zone that lost condition (localized, a few strips per zone)
+ const ZC={fl:[W*.5,L*.38,1],fr:[-W*.5,L*.38,1],l:[W*.5,0,1],r:[-W*.5,0,1],rl:[W*.5,-L*.38,1],rr:[-W*.5,-L*.38,1]};
+ for(const z in ZC){const loss=100-s.zones[z];if(loss<1.5)continue;const c=ZC[z],n=Math.min(4,1+Math.floor(loss/12));
+  for(let j=0;j<n;j++){const zz=c[1]+((j*37)%60-30)/100*L*.18,yy=.42+((j*13)%22)/100;add(DMG_BOX,DMG_SCRATCH,c[0]+Math.sign(c[0])*.035,yy,zz,.01,.02+.018*(j%2),Math.min(.7,.22+loss*.01),0,Math.sign(c[0])*.08*(j%2?1:-1))}}
+ // cracked glass: decal planes on the windscreen / rear screen / side windows (positions from the body profile)
+ const k=PORS[P.idx][6],a=(PROF[k]||PROF.c).g,P0=PROF[k]||PROF.c,y0=.3+(H-.3)*P0.bf,u=f=>f*L,cm=s.glass.some(v=>v>0)?crackMat():null;
+ const pane=(za,zb,ya,yb,wd,lvl)=>{if(lvl<=0)return;const dz=zb-za,dy=yb-ya,len=Math.hypot(dz,dy),sc=.45+.55*Math.min(1,lvl);
+  add(DMG_PLANE,cm,0,(ya+yb)/2+.05,(za+zb)/2+(dz<0?.06:-.06),wd*sc,len*sc,1,Math.atan2(-Math.abs(dz),dy),dz<0?0:Math.PI)};
+ if(cm){pane(u(a[0]),u(a[1]),y0,H,W*.7,s.glass[0]);if(a.length===4)pane(u(a[3]),u(a[2]),y0,H,W*.66,s.glass[1]);
+  const cz=a.length===4?u((a[1]+a[2])/2):u(a[0])-.4,cl2=a.length===4?Math.abs(u(a[1]-a[2]))+.4:.6;
+  for(const sd of[1,-1]){const lvl=s.glass[sd>0?2:3];if(lvl>0)add(DMG_PLANE,cm,sd*(W*.42+.1),(y0+H)/2,cz,cl2*(.5+.5*Math.min(1,lvl)),(H-y0)*.7,1,0,sd*Math.PI/2)}}
  P.m.add(g);
 }
-function updateDamageButton(){if(damageButton){damageButton.textContent='Damage: '+DAMAGE_MODE_NAMES[damageMode];damageButton.dataset.mode=String(damageMode);damageButton.setAttribute('aria-label','Vehicle damage setting: '+DAMAGE_MODE_NAMES[damageMode]+'. Click to change.')}if(repairButton){const s=currentDamageRecord(),hurt=['body','engine','tyres','suspension','brakes'].some(k=>s[k]<99.9);repairButton.style.display=damageMode!==0&&hurt?'block':'none'}}
+function updateDamageButton(){if(damageButton){damageButton.textContent='Damage: '+DAMAGE_MODE_NAMES[damageMode];damageButton.dataset.mode=String(damageMode);damageButton.setAttribute('aria-label','Vehicle damage setting: '+DAMAGE_MODE_NAMES[damageMode]+'. Click to change.')}if(repairButton){const s=currentDamageRecord(),hurt=['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer'].some(k=>s[k]<99.9)||s.dents.length>0||s.lights.some(Boolean)||s.glass.some(Boolean)||s.wheels.some(w=>w.tread<99.9);repairButton.style.display=damageMode!==0&&hurt?'block':'none'}if(diagReady)diagSync()}
 function cycleDamageMode(){damageMode=(damageMode+1)%3;persistDamage();updateDamageButton();refreshDamageVisual();const n=DAMAGE_MODE_NAMES[damageMode];toast('Vehicle damage: '+n+(damageMode===2?' — tyres, engine, suspension and brakes active':damageMode===1?' — visual damage only':' — disabled'));}
-if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',repairCurrentCar);
+if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',()=>repairCurrentCar());
 addEventListener('keydown',e=>{if(e.code==='KeyI'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')){e.preventDefault();cycleDamageMode()}});
-updateDamageButton();
 
-function hideBrokenInstancedPole(key){
- const entry=key&&DESTRUCTIBLE_INSTANCES.get(key);if(!entry)return null;
- // Read the live instance matrix: applyTerrain() has lifted it (instance y + mesh y), the authored p[1] is flat-frame.
- const p=entry.item,ob=new T.Object3D(),height=Math.max(.3,p[5]||1);entry.mesh.getMatrixAt(entry.index,ob.matrix);const localBase=ob.matrix.elements[13]-height/2,baseY=entry.mesh.position.y+localBase;
- ob.position.set(p[0]-entry.chunkX,localBase+.045,p[2]-entry.chunkZ);ob.rotation.set(0,p[3]||0,0);ob.scale.set(p[4]||1,.09,p[6]||1);ob.updateMatrix();
- entry.mesh.setMatrixAt(entry.index,ob.matrix);entry.mesh.instanceMatrix.needsUpdate=true;entry.broken=true;
- return{height,baseY,x:p[0],z:p[2],material:entry.material};
-}
-const FALLING_POLES=[],IMPACT_SPARKS=[];
-const IMPACT_SPARK_GEOM=new T.SphereGeometry(.055,5,4);
-function breakObstacle(obstacle,incoming){
- if(!obstacle||!obstacle.breakable||obstacle.broken||incoming<(obstacle.breakAt||99))return false;
- const vis=hideBrokenInstancedPole(obstacle.visualKey);removeCol(obstacle);
- if(vis){
-  const mat=new T.MeshLambertMaterial({color:obstacle.type==='streetLight'?0x9aa1a8:0x8f8d86});
-  const pivot=new T.Group();pivot.position.set(vis.x,vis.baseY,vis.z);
-  const pole=new T.Mesh(new T.CylinderGeometry(.105,.14,vis.height,6),mat);pole.position.y=vis.height/2;pole.castShadow=true;pole.receiveShadow=true;pivot.add(pole);scene.add(pivot);
-  FALLING_POLES.push({pivot,age:0,duration:.48,direction:Math.sign(P.vx||P.vz||1),height:vis.height});
- }
- return true;
-}
-function spawnImpactSparks(normalSpeed,nx,nz){if(normalSpeed<11)return;const x=P.x-(nx||0)*1.55,z=P.z-(nz||0)*1.55,y=P.y+.28;for(let i=0;i<5;i++){const mat=new T.MeshBasicMaterial({color:i%2?0xff8d34:0xffd17a,transparent:true,opacity:.9,depthWrite:false}),m=new T.Mesh(IMPACT_SPARK_GEOM,mat);m.position.set(x+(Math.random()-.5)*.24,y+(Math.random()-.5)*.16,z+(Math.random()-.5)*.24);scene.add(m);IMPACT_SPARKS.push({mesh:m,age:0,life:.18+Math.random()*.16,vx:(nx||0)*(-1.2-Math.random()*2)+(Math.random()-.5)*2,vy:.6+Math.random()*2,vz:(nz||0)*(-1.2-Math.random()*2)+(Math.random()-.5)*2})}}
+// ---- impacts ----
+// registerPlayerImpact(normal closing speed m/s, collider, contact normal pointing from the obstacle to the car).
+// Returns the car's speed loss along the normal when the obstacle gave way (broke / was shoved), else 0 (colB then bounces as before).
+const IMPACT={zone:'',face:'',kmh:0,ebs:0,crush:0,x:0,z:0,wx:0,wz:0};
 function registerPlayerImpact(normalSpeed,obstacle,nx,nz){
- if(damageMode===0||!Number.isFinite(normalSpeed)||normalSpeed<2.8)return;
- const s=currentDamageRecord(),t=typeof clock==='number'?clock:performance.now()/1000;
+ if(damageMode===0||!Number.isFinite(normalSpeed)||normalSpeed<2.8)return 0;
+ const s=currentDamageRecord(),sp=carSpec(P.idx||0),t=dmgNow();
  // One hit per contact interval, so staying pressed against a wall does not multiply damage every frame.
- if(t-s.lastHit<.48&&Math.hypot(P.x-s.lastX,P.z-s.lastZ)<2.8)return;
+ if(t-s.lastHit<.48&&Math.hypot(P.x-s.lastX,P.z-s.lastZ)<2.8)return 0;
  s.lastHit=t;s.lastX=P.x;s.lastZ=P.z;s.impacts=(s.impacts||0)+1;
- const type=obstacle?.type|| (obstacle?.r!==undefined?'fixed-object':'wall');
- const objectFactor=type==='utilityPole'?1.22:type==='streetLight'?1.12:type==='vehicle'?.72:type==='speedBump'?.30:type==='tree'?.9:.95;
- const severity=cl(Math.pow(Math.max(0,normalSpeed-2.4),1.22)*.67*objectFactor*(100/Math.max(55,s.durability)),0,58);
- if(damageMode===1){s.body=cl(s.body-severity*1.3,0,100)}
- else{
-  s.body=cl(s.body-severity*1.35,0,100);
-  // The impact vector determines whether the front drivetrain is likely to have taken the hit.
-  const towardCarX=-(nx||0),towardCarZ=-(nz||0),front=Math.max(0,Math.sin(P.h)*towardCarX+Math.cos(P.h)*towardCarZ);
-  const hard=cl((normalSpeed-5)/18,0,1);
-  s.engine=cl(s.engine-severity*(.10+.55*front)*hard,0,100);
-  s.tyres=cl(s.tyres-severity*(.18+(type==='utilityPole'?.13:0)),0,100);
-  s.suspension=cl(s.suspension-severity*(.20+.18*hard),0,100);
-  s.brakes=cl(s.brakes-severity*.10*hard,0,100);
+ // what the obstacle does (07e_objects.js): equivalent barrier speed for the car, and the speed it keeps if the object gives way
+ const ob=typeof objectImpact==='function'?objectImpact(obstacle,normalSpeed,sp.mass,nx,nz):{ebs:normalSpeed,gave:0,broke:false,label:'object'};
+ const kmh=ob.ebs*3.6;
+ // contact point on the car's outline, in mesh-local coordinates (+x = car's left, +z = forward)
+ const sh=Math.sin(P.h),ch=Math.cos(P.h),dx=-(nx||0),dz=-(nz||0),lf=dx*sh+dz*ch,lr=dx*-ch+dz*sh,X=-lr,Z=lf,L=sp.L,W=sp.W;
+ const tX=Math.abs(X)>1e-6?W/2/Math.abs(X):1e9,tZ=Math.abs(Z)>1e-6?L/2/Math.abs(Z):1e9,tt=Math.min(tX,tZ),cx=X*tt,cz=Z*tt,face=tZ<=tX?(Z>0?'front':'rear'):(X>0?'left':'right');
+ const fi=face==='front'?0:face==='rear'?1:2,crush=Math.max(0,kmh-sp.b0[fi])/sp.b1[fi];   // cm
+ IMPACT.face=face;IMPACT.kmh=Math.round(normalSpeed*3.6);IMPACT.ebs=kmh;IMPACT.crush=crush;IMPACT.x=cx;IMPACT.z=cz;IMPACT.wx=P.x+dx*tt;IMPACT.wz=P.z+dz*tt;
+ // spread over the zones by distance from the contact point (localized: far zones get nothing)
+ const ZC={fl:[W*.3,L*.45],fr:[-W*.3,L*.45],l:[W*.5,0],r:[-W*.5,0],rl:[W*.3,-L*.45],rr:[-W*.3,-L*.45]};let best='',bw=0;
+ const maxC=sp.maxC[fi],scuff=kmh>sp.thr[0]?Math.min(2.5,(kmh-sp.thr[0])*.25):0;
+ for(const z in ZC){const d=Math.hypot(cx-ZC[z][0],cz-ZC[z][1]),w=Math.exp(-((d/(.8+crush/200))**2));if(w>bw){bw=w;best=z}
+  if(w>.05)s.zones[z]=cl(s.zones[z]-(crush/maxC*100+scuff)*w,0,100)}
+ IMPACT.zone=best;
+ // dent at the contact point (stored per car in mesh-local metres; merged with a nearby earlier dent)
+ if(crush>1.5){const depth=Math.min(fi===2?.3:.5,crush/100*.8),rad=.42+Math.min(.9,crush/100*.9),il=Math.hypot(cx,cz)||1,d=[+cx.toFixed(3),.55,+cz.toFixed(3),+(-cx/il).toFixed(3),+(-cz/il).toFixed(3),+depth.toFixed(3),+rad.toFixed(3)];
+  const near=s.dents.find(q=>Math.hypot(q[0]-d[0],q[2]-d[2])<.35);if(near){near[5]=+Math.min(fi===2?.32:.52,Math.hypot(near[5],d[5])).toFixed(3);near[6]=Math.max(near[6],d[6])}else{s.dents.push(d);if(s.dents.length>16){s.dents.sort((a,b)=>b[5]-a[5]);s.dents.length=16}}}
+ // lights and glass (visible, so recorded in Cosmetic and Full)
+ if(kmh>sp.thr[1]){const lx=W*.33;if(face==='front'||face==='rear'||Math.abs(cz)>L*.36){const base=cz>0?0:2;for(const sd of[0,1]){const sx=sd===0?lx:-lx;if(Math.abs(cx-sx)<.55+crush/100)s.lights[base+sd]=1}}}
+ if(face==='front'&&kmh>sp.thr[2])s.glass[0]=Math.min(1,s.glass[0]+(kmh-sp.thr[2])/35);
+ if(face==='rear'&&kmh>sp.thr[2])s.glass[1]=Math.min(1,s.glass[1]+(kmh-sp.thr[2])/35);
+ if(fi===2&&crush>6&&Math.abs(cz)<L*.3)s.glass[face==='left'?2:3]=Math.min(1,s.glass[face==='left'?2:3]+crush/25);
+ if(damageMode===2){
+  const c=sp.comp,center=1-Math.min(1,Math.abs(cx)/(W/2))*.5;
+  // radiator sits behind the front bumper (air-cooled cars: at the engine)
+  const coolFace=sp.air?(sp.eng==='F'?'front':'rear'):'front';if(face===coolFace)s.cooling=cl(s.cooling-Math.max(0,crush-8)*1.6*center/c.cooling,0,100);
+  const engFace=sp.eng==='F'?'front':'rear',engDepth=sp.eng==='F'?22:sp.eng==='M'?30:18;
+  if(face===engFace)s.engine=cl(s.engine-Math.max(0,crush-engDepth)*1.4*center/c.engine,0,100);
+  if(fi===2&&sp.eng==='M'&&cz<-L*.05)s.engine=cl(s.engine-Math.max(0,crush-20)*.8/c.engine,0,100);
+  if((face==='front'&&sp.eng==='F'&&crush>40)||(face==='rear'&&sp.eng!=='F'&&crush>25))s.trans=cl(s.trans-(crush-(face==='front'?40:25))*.8/c.trans,0,100);
+  // wheels within reach of the contact point, or behind a deep front/rear crush, take tyre / suspension / steering / alignment damage
+  const reach=L/2-L*.31-.3;
+  for(let j=0;j<4;j++){const wx=(j%2===0?1:-1)*(W/2-.12),wz=(j<2?1:-1)*L*.31;let wf=Math.max(0,1-Math.hypot(cx-wx,cz-wz)/1.0);
+   if(fi<2&&(j<2)===(face==='front')&&crush/100>reach)wf=Math.max(wf,Math.min(1,(crush/100-reach)/.4));if(wf<=0)continue;
+   const wk=kmh*wf,w=s.wheels[j];
+   w.health=cl(w.health-wk*1.1/sp.tyre.dur,0,100);if(wk>32||w.health<12)w.punct=true;
+   s.susp[j]=cl(s.susp[j]-Math.max(0,wk-6)*1.6/c.susp,0,100);s.brakes=cl(s.brakes-Math.max(0,wk-15)*.4/c.brakes,0,100);
+   const toe=Math.max(0,wk-8)*.06*(fi===2?(face==='left'?-1:1):(j%2===0?1:-1));s.align[j]=cl(s.align[j]+toe,-6,6);
+   if(j<2)s.steer=cl(s.steer-Math.max(0,wk-10)*1.0/c.steer,0,100)}
  }
- const broke=damageMode!==0&&breakObstacle(obstacle,normalSpeed);spawnImpactSparks(normalSpeed,nx,nz);
- refreshDamageVisual();persistDamage();updateDamageButton();
- if(t-lastDamageToast>.7){lastDamageToast=t;const lost=Math.round(100-s.body);toast((broke?'💥 Weak roadside pole broke · ':'Impact · ')+Math.round(normalSpeed*3.6)+' km/h · body condition '+Math.round(s.body)+'%'+(damageMode===2?' · engine '+Math.round(s.engine)+'%':'') )}
+ syncAggregates(s);s.log.unshift({t:Math.round(t),kmh:IMPACT.kmh,ebs:Math.round(kmh),zone:ZONE_NAMES[best]||best,face,obj:ob.label});if(s.log.length>8)s.log.length=8;
+ spawnImpactSparks(normalSpeed,nx,nz);refreshDamageVisual();persistDamage();updateDamageButton();
+ if(t-lastDamageToast>.7){lastDamageToast=t;toast((ob.broke?'💥 '+ob.label+' broke · ':ob.gave?ob.label+' shoved · ':'Impact · ')+Math.round(normalSpeed*3.6)+' km/h · '+(ZONE_NAMES[best]||face)+' · body condition '+Math.round(s.body)+'%'+(damageMode===2?' · engine '+Math.round(s.engine)+'%':'') )}
+ return ob.gave||0;
+}
+// heavy landings (ramps, kerbs at speed) load the suspension and underbody; vy is the vertical speed just before touchdown
+function registerLanding(vy){
+ if(damageMode===0||vy>-5.5)return;const s=currentDamageRecord(),sp=carSpec(P.idx||0),e=-vy-5.5,c=sp.comp;
+ s.zones.u=cl(s.zones.u-e*6,0,100);
+ if(damageMode===2){for(let j=0;j<4;j++){s.susp[j]=cl(s.susp[j]-e*7/c.susp,0,100);s.wheels[j].health=cl(s.wheels[j].health-e*2/sp.tyre.dur,0,100)}
+  s.driveline=cl(s.driveline-Math.max(0,-vy-8)*4/c.driveline,0,100);s.trans=cl(s.trans-Math.max(0,-vy-9)*3/c.trans,0,100);s.engine=cl(s.engine-Math.max(0,-vy-10)*3/c.engine,0,100)}
+ syncAggregates(s);s.log.unshift({t:Math.round(dmgNow()),kmh:Math.round(-vy*3.6),ebs:0,zone:'underbody',face:'landing',obj:'hard landing'});if(s.log.length>8)s.log.length=8;
+ persistDamage();updateDamageButton();const now=dmgNow();if(now-lastDamageToast>.8){lastDamageToast=now;toast('Hard landing · '+Math.round(-vy*3.6)+' km/h vertical · check suspension')}
 }
 function registerSpeedBumpImpact(speed){
  if(damageMode===0||speed<12)return;
- const s=currentDamageRecord(),now=typeof clock==='number'?clock:performance.now()/1000;
- if(damageMode===1){s.body=cl(s.body-Math.max(0,speed-12)*.10,0,100)}
- else{const sev=cl((speed-11)*.34,0,8);s.suspension=cl(s.suspension-sev*.55,0,100);s.tyres=cl(s.tyres-sev*.28,0,100)}
- refreshDamageVisual();persistDamage();updateDamageButton();if(now-lastDamageToast>.8){lastDamageToast=now;toast(speed*3.6>80?'Hard speed-bump impact — check suspension/tyres':'Speed-bump impact')}
+ const s=currentDamageRecord(),sp=carSpec(P.idx||0),now=dmgNow();
+ if(damageMode===1){s.zones.u=cl(s.zones.u-Math.max(0,speed-12)*.10,0,100)}
+ else{const sev=cl((speed-11)*.34,0,8);for(let j=0;j<4;j++){s.susp[j]=cl(s.susp[j]-sev*.55/sp.comp.susp,0,100);s.wheels[j].health=cl(s.wheels[j].health-sev*.28/sp.tyre.dur,0,100)}s.zones.u=cl(s.zones.u-sev*.3,0,100)}
+ syncAggregates(s);refreshDamageVisual();persistDamage();updateDamageButton();if(now-lastDamageToast>.8){lastDamageToast=now;toast(speed*3.6>80?'Hard speed-bump impact — check suspension/tyres':'Speed-bump impact')}
 }
+// pooled sparks (no allocation per impact)
+const IMPACT_SPARKS=[],IMPACT_SPARK_GEOM=new T.SphereGeometry(.055,5,4);
+for(let i=0;i<24;i++){const m=new T.Mesh(IMPACT_SPARK_GEOM,new T.MeshBasicMaterial({color:i%2?0xff8d34:0xffd17a,transparent:true,opacity:0,depthWrite:false}));m.visible=false;m.userData={age:9,life:1,vx:0,vy:0,vz:0};scene.add(m);IMPACT_SPARKS.push(m)}
+let sparkI=0;
+function spawnImpactSparks(normalSpeed,nx,nz){if(normalSpeed<11)return;const x=P.x-(nx||0)*1.55,z=P.z-(nz||0)*1.55,y=P.y+.28;for(let i=0;i<5;i++){const m=IMPACT_SPARKS[sparkI=(sparkI+1)%IMPACT_SPARKS.length],q=m.userData;m.position.set(x+(Math.random()-.5)*.24,y+(Math.random()-.5)*.16,z+(Math.random()-.5)*.24);q.age=0;q.life=.18+Math.random()*.16;q.vx=(nx||0)*(-1.2-Math.random()*2)+(Math.random()-.5)*2;q.vy=.6+Math.random()*2;q.vz=(nz||0)*(-1.2-Math.random()*2)+(Math.random()-.5)*2;m.material.opacity=.9;m.visible=true}}
+let airVy=0,wasAir=false,engHeatAcc=0;
 function damageTick(dt){
- if(damageMode===2){const s=currentDamageRecord(),speed=Math.hypot(P.vx,P.vz),road=!!(RI&&RI.d<=RI.e.w/2+.3),rough=!road;
-  if(P.gnd&&speed>31){const rate=(rough?.014:.004)+(drift&&drift.pts>1?.009:0);s.tyres=cl(s.tyres-rate*dt,0,100)}
-  damageSaveClock+=dt;if(damageSaveClock>8){damageSaveClock=0;persistDamage()}
+ if(typeof diagTick==='function')diagTick(dt);
+ if(damageMode!==0){
+  // landings: remember the last airborne vertical speed (updP overwrites P.vy on touchdown)
+  if(!P.gnd){airVy=P.vy;wasAir=true}else if(wasAir){wasAir=false;registerLanding(airVy)}
+  const s=currentDamageRecord();
+  if(damageMode===2){// engine temperature: a damaged radiator cannot reject the heat of sustained throttle
+   const thr=typeof TYS==='object'?TYS.thr:0,c=s.cooling/100,heat=thr*((1-c)*6+.4),cool=(s.engTemp-90)*(.02+.08*c);s.engTemp=cl(s.engTemp+(heat-cool)*dt,60,140);
+   if(s.engTemp>125){s.engine=cl(s.engine-(s.engTemp-125)*.02*dt,0,100);engHeatAcc+=dt;if(engHeatAcc>3){engHeatAcc=0;syncAggregates(s);updateDamageButton()}}
+   // vibration from a flat tyre / bent driveline (visual only; updP has already set the body rotation this frame)
+   const fx=damageEffects(),v=Math.hypot(P.vx,P.vz);if(fx.vib>0&&P.gnd&&v>2&&P.m){const a=fx.vib*.011*Math.min(1,v/18);P.m.rotation.z+=(Math.random()-.5)*a;P.m.rotation.x+=(Math.random()-.5)*a*.6}}
+  damageSaveClock+=dt;if(damageSaveClock>8){damageSaveClock=0;syncAggregates(s);persistDamage();updateDamageButton()}
  }
- for(let i=FALLING_POLES.length-1;i>=0;i--){const f=FALLING_POLES[i];f.age+=dt;const k=cl(f.age/f.duration,0,1);f.pivot.rotation.z=-f.direction*k*Math.PI/2;if(k>=1)FALLING_POLES.splice(i,1)}
- for(let i=IMPACT_SPARKS.length-1;i>=0;i--){const q=IMPACT_SPARKS[i];q.age+=dt;q.vy-=5.5*dt;q.mesh.position.x+=q.vx*dt;q.mesh.position.y+=q.vy*dt;q.mesh.position.z+=q.vz*dt;q.mesh.material.opacity=cl(1-q.age/q.life,0,1);if(q.age>=q.life){scene.remove(q.mesh);q.mesh.material.dispose();IMPACT_SPARKS.splice(i,1)}}
- if(smokePuff){const s=currentDamageRecord(),show=damageMode===2&&s.engine<28;smokePuff.visible=show;if(show){const f=Math.sin(clock*8)*.05;const back=PORS[P.idx][3]*.37;smokePuff.position.set(P.x-Math.sin(P.h)*back,P.y+.52+f,P.z-Math.cos(P.h)*back);const size=.23+(28-s.engine)*.009;smokePuff.scale.setScalar(size);smokePuff.material.opacity=.13+(28-s.engine)*.004}}
+ for(const m of IMPACT_SPARKS){if(!m.visible)continue;const q=m.userData;q.age+=dt;q.vy-=5.5*dt;m.position.x+=q.vx*dt;m.position.y+=q.vy*dt;m.position.z+=q.vz*dt;m.material.opacity=cl(1-q.age/q.life,0,1);if(q.age>=q.life)m.visible=false}
+ if(typeof objectsTick==='function')objectsTick(dt);
+ if(smokePuff){const s=currentDamageRecord(),show=damageMode===2&&(s.engine<28||s.engTemp>118);smokePuff.visible=show;if(show){const f=Math.sin(clock*8)*.05,hot=Math.max(28-s.engine,(s.engTemp-118)*1.5);const back=PORS[P.idx][3]*(carSpec(P.idx).eng==='F'?-.37:.37);smokePuff.position.set(P.x-Math.sin(P.h)*back,P.y+.52+f,P.z-Math.cos(P.h)*back);const size=.23+hot*.009;smokePuff.scale.setScalar(size);smokePuff.material.opacity=.13+hot*.004}}
 }
 let smokePuff=null;
 try{smokePuff=new T.Mesh(new T.SphereGeometry(1,7,5),new T.MeshBasicMaterial({color:0x777c80,transparent:true,opacity:.18,depthWrite:false}));smokePuff.visible=false;scene.add(smokePuff)}catch(e){smokePuff=null}
-function repairCurrentCar(){const s=currentDamageRecord();s.body=s.engine=s.tyres=s.suspension=s.brakes=100;s.impacts=0;s.lastHit=-99;persistDamage();refreshDamageVisual();updateDamageButton();toast('Vehicle repaired')}
-// Expose a compact repair method for the tuning/shop UI to call later if desired.
-window.irbidVehicleRealism={cycleDamageMode,repairCurrentCar,getMode:()=>damageMode,getCurrentState:()=>({...currentDamageRecord()}),getEffects:damageEffects};
+// repairs are free (the economy is unchanged by request); 'tyres' replaces the four tyres only
+function repairCurrentCar(what){const s=currentDamageRecord(),i=P.idx||0;
+ if(what==='tyres'){s.wheels=[newWheel(),newWheel(),newWheel(),newWheel()];toast('Tyres replaced')}
+ else{const n=newDamageRecord(i);for(const k in n)if(k!=='durability')s[k]=n[k];s.lastHit=-99;toast('Vehicle repaired')}
+ syncAggregates(s);persistDamage();refreshDamageVisual();updateDamageButton()}
+window.irbidVehicleRealism={cycleDamageMode,repairCurrentCar,getMode:()=>damageMode,getCurrentState:()=>JSON.parse(JSON.stringify(currentDamageRecord())),getEffects:damageEffects,getSpec:()=>carSpec(P.idx||0)};
 
 // ---- place up to 90 estimated low-speed humps near mapped sensitive destinations ----
+// Road data and POIs are bundled from OpenStreetMap. The bundled network carries no traffic_calming-tagged features, so bumps are
+// explicitly inferred near mapped schools, hospitals/clinics, and parks, on nearby local/service roads. They are not surveyed locations.
 const IRBID_SPEED_BUMPS=[];
 function buildEstimatedSpeedBumps(){
  if(!Array.isArray(POID)||typeof roadNear!=='function'||typeof edgePt!=='function')return;
@@ -2196,11 +2339,217 @@ function checkSpeedBumpCrossing(prevX,prevZ){
  }
 }
 
-// Follow vehicle changes after the game's own model/tuning setter has run.
+// Follow vehicle changes after the game's own model/tuning setter has run: the new mesh gets ITS OWN car's saved damage.
 const irbidOriginalSetPlayerCar=setPlayerCar;
-setPlayerCar=function(i){irbidOriginalSetPlayerCar(i);refreshDamageVisual();persistDamage()};
+setPlayerCar=function(i){irbidOriginalSetPlayerCar(i);if(typeof tyreReset==='function')tyreReset();refreshDamageVisual();updateDamageButton();persistDamage()};
 // The initial car was selected before this module loaded; attach its saved damage state now.
-refreshDamageVisual();
+updateDamageButton();refreshDamageVisual();
+// ---- per-wheel tyre model (v39): load, slip, temperature, tread and carcass for each wheel; burnouts by drivetrain ----
+// A slip ESTIMATOR on top of the arcade updP (the game has no wheel-rotation or Pacejka tyre model). Every frame it derives each wheel's
+// vertical load (static split + longitudinal/lateral weight transfer), longitudinal slip (drive force beyond traction, burnout spin,
+// handbrake lock, ABS-limited braking) and lateral slip (from the car's sideslip and yaw rate), then integrates heat and wear from the
+// slip power. It runs in Cosmetic and Full; its grip only acts on driving in Full (damageEffects). All coefficients are gameplay estimates.
+const TYRE_AMB=25,TY_WEAR=5.5e-5,TY_HEAT=6e-4;
+const TYS={thr:0,burn:false,burnT:0,h0:null,yaw:0,smk:0,fz:new Float32Array(4),sl:new Float32Array(4),sa:new Float32Array(4),pw:new Float32Array(4),mu:new Float32Array([1,1,1,1])};
+// grip factor of one tyre (1 = new and in its working range): tread below 50 %, overheating above 110 C, a damaged carcass, or a puncture
+function tyreMu(w){if(w.punct)return .35;const t=w.tread,tf=t>=50?1:t>=5?.78+.22*(t-5)/45:.6+.18*t/5,T=w.temp,hf=T<=110?1:cl(1-(T-110)/180,.7,1),cf=w.health>=60?1:.75+.25*w.health/60;return tf*hf*cf}
+function tyreReset(){TYS.h0=null;TYS.burn=false;TYS.burnT=0;TYS.thr=0}
+// Burnout = throttle + brake at (near) standstill where the drivetrain can overpower the driven wheels' traction plus whatever holds them:
+// the foot brake holds every axle (front-biased ~68/32), the handbrake only the rear. So RWD cars burn out on the foot brake if they are
+// strong enough, FWD cars need the handbrake, AWD cars rarely manage. Off mode never does this (physics identical to v37).
+function burnoutState(th,thA,br,brA,hb,fs){
+ TYS.burn=false;if(damageMode===0||!th||!P.gnd||Math.abs(fs)>2.5||!(br||hb))return false;
+ const sp=carSpec(P.idx||0),m=sp.mass,g=9.81,mu=surfK(),Ff=m*g*sp.fw*mu,Fr=m*g*(1-sp.fw)*mu,b=br?(brA||1):0,
+  holdF=.68*m*P.bk*b,holdR=.32*m*P.bk*b+(hb?.22*m*g:0),Fd=m*P.a0*1.8*(thA||1)*(damageMode===2?damageEffects().accel:1),
+  need=sp.drive==='FWD'?Ff+holdF:sp.drive==='RWD'?Fr+holdR:Ff+Fr+holdF+holdR;
+ TYS.burn=Fd>need;return TYS.burn}
+let tySmA=0;
+function tyreSmoke(j,sp,amt){if(typeof SMK==='undefined'||!SMK.length)return;const sh=Math.sin(P.h),ch=Math.cos(P.h),zw=(j<2?1:-1)*sp.L*.31,xw=(j%2===0?1:-1)*(sp.W/2-.12),
+ s=SMK[smI=(smI+1)%SMN],u=s.userData;u.age=0;u.life=1.2+Math.random()*.8;u.s0=.8+amt*1.6+Math.random()*.4;u.o=.32+.2*amt;s.material.color.setRGB(.93,.93,.93);
+ u.vx=(Math.random()-.5)*1.2-sh*.6;u.vz=(Math.random()-.5)*1.2-ch*.6;u.vy=.5+Math.random()*.7;s.position.set(P.x+sh*zw+ch*xw,groundH(P.x,P.z)+.3,P.z+ch*zw-sh*xw);s.visible=true;s.scale.set(u.s0*.5,u.s0*.5,1)}
+function tyreStep(dt,thr,brk,hb,st,fs,ls,frozen){
+ TYS.thr=thr;if(damageMode===0||!(dt>0))return;
+ const s=currentDamageRecord(),sp=carSpec(P.idx||0),W=s.wheels,m=sp.mass,g=9.81,au=Math.abs(fs);
+ if(!P.gnd||frozen){for(const w of W)w.temp=Math.max(TYRE_AMB,w.temp-(w.temp-TYRE_AMB)*.05*dt);TYS.h0=P.h;TYS.burn=false;return}
+ if(TYS.h0===null)TYS.h0=P.h;const r=wrap(P.h-TYS.h0)/dt;TYS.h0=P.h;TYS.yaw=r;
+ const v=-ls,sfc=surfK(),road=sfc>=1,ax=cl(P.al,-12,12),ay=cl(fs*r,-12,12),dX=m*ax*sp.hcg/sp.wb,dY=m*ay*sp.hcg/sp.tr,sf=m*g*sp.fw/2,sr=m*g*(1-sp.fw)/2,F=TYS.fz;
+ // load per wheel: accelerating moves load rearward, a left turn (ay > 0) moves it to the right-hand wheels
+ F[0]=sf-dX/2-dY/2;F[1]=sf-dX/2+dY/2;F[2]=sr+dX/2-dY/2;F[3]=sr+dX/2+dY/2;for(let j=0;j<4;j++)if(F[j]<50)F[j]=50;
+ // lateral slip velocity: rear axle from sideslip + yaw (v - r*wb/2); the fronts slip less while counter-steering a slide (estimate)
+ const vr=Math.abs(v-r*sp.wb/2),slide=Math.abs(Math.atan2(v,au+.5))>.15,vf=slide?vr*.55:vr,latG=Math.min(1,Math.abs(ay)/g);
+ const dF=sp.drive!=='RWD',dR=sp.drive!=='FWD',nd=(dF?2:0)+(dR?2:0),spin=TYS.burn?cl(P.a0*2.4,5,24)*thr:0;
+ const demand=thr>0&&!TYS.burn?m*P.a0*1.8*thr*Math.max(0,1-Math.pow(Math.max(fs,0)/(P.vm*1.05),2.5)):0;
+ if(TYS.burn)TYS.burnT+=dt;let blown=-1;
+ for(let j=0;j<4;j++){const front=j<2,isD=front?dF:dR,w=W[j],mu=tyreMu(w)*sfc,cap=mu*F[j];TYS.mu[j]=mu;let sl=0,fl=0;
+  if(isD&&TYS.burn){sl=spin;fl=cap}
+  else if(isD&&demand>0){const e=demand/nd-cap;if(e>0){sl=Math.min(18,e/cap*6);fl=cap}}
+  if(!front&&hb&&au>1){sl=Math.max(sl,au);fl=cap}                                   // handbrake locks the rear wheels
+  else if(brk>.6&&au>3&&!TYS.burn){sl=Math.max(sl,.08*au);fl=Math.max(fl,F[j]*Math.min(1,P.bk*brk/g))}   // ABS-limited braking slip
+  const sa=front?vf:vr,fa=slide?cap:F[j]*Math.min(mu,latG),pl=fl*sl,pa=fa*sa,pw=pl+pa;TYS.sl[j]=sl;TYS.sa[j]=sa;TYS.pw[j]=pw;
+  // heat: slip power in; convection (faster when rolling) and a steep loss above 150 C out
+  w.temp=cl(w.temp+(pw*TY_HEAT*sp.tyre.heat*(road?1:.8)-(w.temp-TYRE_AMB)*(.05+.006*au)-Math.max(0,w.temp-150)*.5)*dt,TYRE_AMB-5,320);
+  // wear: strongly non-linear in slip power and faster when hot; abrasive unpaved ground adds more; plus a tiny rolling wear per metre
+  const tm=1+Math.max(0,(w.temp-90)/45)**2,kw=Math.pow(pw/1000,2)*TY_WEAR*tm*(road?1:1.6)/sp.tyre.dur*dt,roll=au*dt*2.5e-6*(road?1:3);
+  w.tread=Math.max(0,w.tread-kw-roll);w.wear.roll+=roll;
+  if(kw>0){const fa2=pa/(pw||1),lw=kw*(1-fa2);w.wear.slide+=kw*fa2;if(TYS.burn&&isD)w.wear.burn+=lw;else if(!front&&hb&&au>1)w.wear.lock+=lw;else w.wear.spin+=lw}
+  // the carcass suffers once the tread is gone or the rubber blisters; below 10 % it fails (blow-out)
+  if(w.tread<3&&pw>2000)w.health=Math.max(0,w.health-pw/1000*.25*dt);if(w.temp>230)w.health=Math.max(0,w.health-(w.temp-230)*.05*dt);
+  if(!w.punct&&w.health<10){w.punct=true;blown=j}}
+ if(TYS.burn||(spin===0&&TYS.sl[2]+TYS.sl[3]+TYS.sl[0]+TYS.sl[1]>12)){tySmA+=dt*(TYS.burn?22:8);while(tySmA>=1){tySmA-=1;for(let j=0;j<4;j++)if(TYS.sl[j]>4)tyreSmoke(j,sp,Math.min(1,TYS.sl[j]/20))}}
+ if(blown>=0){syncAggregates(s);persistDamage();updateDamageButton();refreshDamageVisual();toast('💥 Tyre '+WHEEL_NAMES[blown]+' failed — the car will pull and lose grip')}
+}
+// ---- world-object damage (v39): every collider has a class; breakable/movable ones react to the impact ENERGY ----
+// rigid      : stays put, the car takes the full hit (walls, buildings, trees, guardrails, shelters, monuments)
+// breakable  : bends above `bend` x its break energy, snaps above it (street lights, utility poles, road signs)
+// movable    : shoved along the impact direction, may tip over (dumpsters)
+// vehicle    : car-to-car, energy shared by mass;  traversable : speed bumps (handled in 07c)
+// Masses and thresholds are ESTIMATES (no material data in OSM for these props). breakAt is the speed (m/s) at which a 1,500 kg car breaks the
+// object; heavier cars break it sooner (same energy). Only reacts in Cosmetic/Full: with damage Off every object is rigid exactly as in v37.
+const OBJ_CLASS={
+ streetLight:{cls:'breakable',label:'Street light',material:'steel lighting column (estimate)',mass:180,breakAt:17,bend:.3,debris:0},
+ utilityPole:{cls:'breakable',label:'Utility pole',material:'pole; material not in source data (estimate)',mass:450,breakAt:12.5,bend:.35,debris:1},
+ sign:{cls:'breakable',label:'Road sign',material:'steel post + sign plate (estimate)',mass:25,breakAt:4.5,bend:.35,debris:0},
+ bin:{cls:'movable',label:'Dumpster',material:'steel 1,100 L container (estimate)',mass:160,debris:2},
+ guardrail:{cls:'rigid',label:'Guardrail',material:'steel W-beam; redirects, deformation not modelled'},
+ busShelter:{cls:'rigid',label:'Bus shelter',material:'steel frame + glass; breakage not modelled'},
+ tree:{cls:'rigid',label:'Tree',material:'trunk'},monument:{cls:'rigid',label:'Monument',material:'masonry'},
+ structure:{cls:'rigid',label:'Structure',material:'masonry / concrete'},solid:{cls:'rigid',label:'Wall',material:'building / wall'},
+ vehicle:{cls:'vehicle',label:'Car',material:'traffic car (mass estimate)',mass:1400},speedBump:{cls:'traversable',label:'Speed bump',material:'asphalt hump (location estimated)'}};
+const objClass=o=>OBJ_CLASS[o&&o.type]||(o&&o.r!==undefined?OBJ_CLASS.structure:OBJ_CLASS.solid);
+const breakEnergy=(o,c)=>.5*1500*Math.pow(o.breakAt||c.breakAt||99,2);
+const FALLING_POLES=[],DEBRIS=[],MOVERS=[],DEB_MAT=[new T.MeshLambertMaterial({color:0x9aa1a8}),new T.MeshLambertMaterial({color:0x8f8d86}),new T.MeshLambertMaterial({color:0x2f6b3a})],DEB_GEO=new T.BoxGeometry(.16,.06,.1);
+for(let i=0;i<36;i++){const m=new T.Mesh(DEB_GEO,DEB_MAT[0]);m.visible=false;m.userData={age:9,life:1,vx:0,vy:0,vz:0,sp:0};scene.add(m);DEBRIS.push(m)}
+let debI=0;
+function spawnDebris(x,y,z,dx,dz,n,kind){for(let i=0;i<n;i++){const m=DEBRIS[debI=(debI+1)%DEBRIS.length],q=m.userData;m.material=DEB_MAT[kind||0];m.position.set(x+(Math.random()-.5)*.4,y+Math.random()*.4,z+(Math.random()-.5)*.4);
+ q.age=0;q.life=1.8+Math.random();q.vx=dx*(1.5+Math.random()*3)+(Math.random()-.5)*2;q.vz=dz*(1.5+Math.random()*3)+(Math.random()-.5)*2;q.vy=1+Math.random()*2.5;q.sp=(Math.random()-.5)*14;m.visible=true}}
+const _M1=new T.Matrix4(),_M2=new T.Matrix4(),_M3=new T.Matrix4(),_V=new T.Vector3(),_Q=new T.Quaternion(),_S=new T.Vector3(),_O=new T.Object3D();
+// live (terrain-lifted) world base of an instanced pole: instance y + mesh y - half height
+function instBase(e){e.mesh.getMatrixAt(e.index,_M1);const h=Math.max(.3,e.item[5]||1);return e.mesh.position.y+_M1.elements[13]-h/2}
+function keepOrig(e){if(!e.orig){e.orig=new T.Matrix4();e.mesh.getMatrixAt(e.index,e.orig)}return e.orig}
+function hideInstance(key){const e=DESTRUCTIBLE_INSTANCES.get(key);if(!e)return;keepOrig(e);_M1.makeScale(0,0,0);e.mesh.setMatrixAt(e.index,_M1);e.mesh.instanceMatrix.needsUpdate=true;e.broken=true}
+function hideBrokenInstancedPole(key){
+ const entry=key&&DESTRUCTIBLE_INSTANCES.get(key);if(!entry)return null;keepOrig(entry);
+ // Read the live instance matrix: applyTerrain() has lifted it (instance y + mesh y), the authored p[1] is flat-frame.
+ const p=entry.item,ob=_O,height=Math.max(.3,p[5]||1);entry.mesh.getMatrixAt(entry.index,ob.matrix);const localBase=ob.matrix.elements[13]-height/2,baseY=entry.mesh.position.y+localBase;
+ ob.position.set(p[0]-entry.chunkX,localBase+.045,p[2]-entry.chunkZ);ob.rotation.set(0,p[3]||0,0);ob.scale.set(p[4]||1,.09,p[6]||1);ob.updateMatrix();
+ entry.mesh.setMatrixAt(entry.index,ob.matrix);entry.mesh.instanceMatrix.needsUpdate=true;entry.broken=true;
+ return{height,baseY,x:p[0],z:p[2],material:entry.material};
+}
+const ATTACHED={streetLight:['/arm','/head','/pool'],utilityPole:['/arm','/xf'],sign:[]};
+// lean a pole (and its arm/lamp, sign plate) about its base toward (dx,dz) by `ang` radians
+function leanObstacle(o,ang,dx,dz){
+ const e=DESTRUCTIBLE_INSTANCES.get(o.visualKey);if(!e)return;const by=instBase(e),l=Math.hypot(dx,dz)||1;_V.set(dz/l,0,-dx/l);_Q.setFromAxisAngle(_V,ang);
+ for(const k of[''].concat(ATTACHED[o.type]||[])){const q=DESTRUCTIBLE_INSTANCES.get(o.visualKey+k);if(!q||q.broken&&k)continue;const orig=keepOrig(q),mp=q.mesh.position;
+  _M2.makeTranslation(o.x-mp.x,by-mp.y,o.z-mp.z);_M3.makeRotationFromQuaternion(_Q);_M2.multiply(_M3);_M3.makeTranslation(-(o.x-mp.x),-(by-mp.y),-(o.z-mp.z));_M2.multiply(_M3);_M2.multiply(orig);q.mesh.setMatrixAt(q.index,_M2);q.mesh.instanceMatrix.needsUpdate=true}
+ const sp=SIGN_PLATES.get(o.visualKey);if(sp&&sp.C.mesh){const a=sp.C.mesh.geometry.attributes.position;if(!sp.orig)sp.orig=Float32Array.from(a.array.subarray(sp.n*3,sp.n*3+12));
+  _M2.makeTranslation(o.x,by,o.z);_M3.makeRotationFromQuaternion(_Q);_M2.multiply(_M3);_M3.makeTranslation(-o.x,-by,-o.z);_M2.multiply(_M3);
+  for(let k=0;k<4;k++){_V.fromArray(sp.orig,k*3).applyMatrix4(_M2);a.array[sp.n*3+k*3]=_V.x;a.array[sp.n*3+k*3+1]=_V.y;a.array[sp.n*3+k*3+2]=_V.z}a.needsUpdate=true}}
+function hideSignPlate(key){const sp=SIGN_PLATES.get(key);if(!sp||!sp.C.mesh)return;const a=sp.C.mesh.geometry.attributes.position,i=sp.n*3;for(let k=1;k<4;k++){a.array[i+k*3]=a.array[i];a.array[i+k*3+1]=a.array[i+1];a.array[i+k*3+2]=a.array[i+2]}a.needsUpdate=true}
+// breakObstacle(collider, normal speed m/s, car mass kg = 1,500): true when the impact energy reaches the object's break energy
+function breakObstacle(obstacle,incoming,mass){
+ if(!obstacle||!obstacle.breakable||obstacle.broken)return false;const c=objClass(obstacle),ms=mass||1500;
+ if(.5*ms*incoming*incoming<breakEnergy(obstacle,c))return false;
+ const vis=hideBrokenInstancedPole(obstacle.visualKey);for(const k of ATTACHED[obstacle.type]||[])hideInstance(obstacle.visualKey+k);if(obstacle.type==='sign')hideSignPlate(obstacle.visualKey);
+ removeCol(obstacle);
+ if(vis){
+  const mat=obstacle.type==='utilityPole'?DEB_MAT[1]:DEB_MAT[0],pivot=new T.Group();pivot.position.set(vis.x,vis.baseY,vis.z);pivot.rotation.order='YXZ';
+  const r0=obstacle.type==='sign'?.045:.105,pole=new T.Mesh(new T.CylinderGeometry(r0,r0*1.3,vis.height,6),mat);pole.position.y=vis.height/2;pole.castShadow=true;pole.receiveShadow=true;pivot.add(pole);
+  if(obstacle.type==='sign'){const pl=new T.Mesh(new T.BoxGeometry(.75,.75,.03),DEB_MAT[0]);pl.position.y=vis.height;pivot.add(pl)}
+  // falls along the car's direction of travel
+  pivot.rotation.y=Math.atan2(P.vx||Math.sin(P.h),P.vz||Math.cos(P.h));scene.add(pivot);
+  FALLING_POLES.push({pivot,age:0,duration:obstacle.type==='sign'?.35:.48,maxA:Math.PI/2-.05,direction:1,height:vis.height});
+  spawnDebris(vis.x,vis.baseY+.3,vis.z,Math.sin(pivot.rotation.y),Math.cos(pivot.rotation.y),obstacle.type==='sign'?3:6,c.debris||0);
+ }
+ return true;
+}
+// called by registerPlayerImpact (07c): returns the equivalent barrier speed for the car's crush, and the car's speed loss if the object gave way
+const OBJR={ebs:0,gave:0,broke:false,label:''};
+function objectImpact(o,vn,mass,nx,nz){
+ const c=objClass(o),t=dmgNow();OBJR.ebs=vn;OBJR.gave=0;OBJR.broke=false;OBJR.label=c.label;
+ if(c.cls==='vehicle'){const m2=c.mass;OBJR.ebs=vn*Math.sqrt(m2/(2*(mass+m2)));return OBJR}
+ if(c.cls==='breakable'){const E=.5*mass*vn*vn,Eb=breakEnergy(o,c);
+  if(breakObstacle(o,vn,mass)){const Ea=Eb*.6;OBJR.broke=true;OBJR.gave=vn-Math.sqrt(Math.max(0,vn*vn-2*Ea/mass));OBJR.ebs=Math.min(vn,Math.sqrt(Ea/mass));return OBJR}
+  if(E>Eb*c.bend&&!(t-(o.hitT||-9)<.6)){o.hitT=t;o.bent=Math.min(.42,(o.bent||0)+.42*(E-Eb*c.bend)/(Eb*(1-c.bend)));leanObstacle(o,o.bent,-nx,-nz);OBJR.ebs=vn*.85}
+  return OBJR}
+ if(c.cls==='movable'&&vn>1.5&&o.visualKey){const mb=c.mass,vc=mass*vn/(mass+mb);OBJR.gave=vn-vc;OBJR.ebs=vn*Math.sqrt(mb/(2*(mass+mb)));OBJR.label=c.label;
+  if(!o.moving){removeCol(o);o.moving=true;const e=DESTRUCTIBLE_INSTANCES.get(o.visualKey);if(e){keepOrig(e);const l=DESTRUCTIBLE_INSTANCES.get(o.visualKey+'/lid');if(l)keepOrig(l);
+   MOVERS.push({o,e,l,x:o.x,z:o.z,vx:-nx*vc*1.15,vz:-nz*vc*1.15,ry:Math.atan2(o.s,o.c),spin:(Math.random()-.5)*2,tip:0,tipV:vc>5?2.4:0})}}
+  spawnDebris(o.x,TH(o.x,o.z)+.6,o.z,-nx,-nz,2,c.debris);OBJR.gave=Math.max(OBJR.gave,0);return OBJR}
+ return OBJR;
+}
+// shoved dumpsters slide with friction, maybe tip; their collider comes back where they stop
+function placeMover(q){const e=q.e,p=e.item,mp=e.mesh.position,y=TH(q.x,q.z)+p[1];
+ _O.position.set(q.x-mp.x,y-mp.y,q.z-mp.z);_O.rotation.set(q.tip,q.ry,0,'YXZ');_O.scale.set(p[4]||1,p[5]||1,p[6]||1);_O.updateMatrix();e.mesh.setMatrixAt(e.index,_O.matrix);e.mesh.instanceMatrix.needsUpdate=true;
+ if(q.l){const lp=q.l.item,lm=q.l.mesh.position;_M2.makeRotationFromEuler(_O.rotation);_V.set(0,lp[1]-p[1],0).applyMatrix4(_M2);
+  _O.position.set(q.x+_V.x-lm.x,y+_V.y-lm.y,q.z+_V.z-lm.z);_O.scale.set(lp[4]||1,lp[5]||1,lp[6]||1);_O.updateMatrix();q.l.mesh.setMatrixAt(q.l.index,_O.matrix);q.l.mesh.instanceMatrix.needsUpdate=true}}
+function objectsTick(dt){
+ for(let i=FALLING_POLES.length-1;i>=0;i--){const f=FALLING_POLES[i];f.age+=dt;const k=cl(f.age/f.duration,0,1);f.pivot.rotation.x=k*k*(f.maxA||Math.PI/2);if(k>=1)FALLING_POLES.splice(i,1)}
+ for(const m of DEBRIS){if(!m.visible)continue;const q=m.userData;q.age+=dt;q.vy-=9.81*dt;m.position.x+=q.vx*dt;m.position.y+=q.vy*dt;m.position.z+=q.vz*dt;m.rotation.x+=q.sp*dt;m.rotation.z+=q.sp*.7*dt;
+  const gy=TH(m.position.x,m.position.z)+.03;if(m.position.y<gy){m.position.y=gy;q.vy*=-.25;q.vx*=.55;q.vz*=.55;q.sp*=.5}if(q.age>q.life)m.visible=false}
+ for(let i=MOVERS.length-1;i>=0;i--){const q=MOVERS[i],v=Math.hypot(q.vx,q.vz),dv=Math.min(v,.55*9.81*dt);if(v>0){q.vx-=q.vx/v*dv;q.vz-=q.vz/v*dv}q.x+=q.vx*dt;q.z+=q.vz*dt;q.ry+=q.spin*v*.12*dt;
+  if(q.tipV){q.tip=Math.min(Math.PI/2,q.tip+q.tipV*dt);if(q.tip>=Math.PI/2)q.tipV=0}placeMover(q);
+  if(v-dv<.05&&!q.tipV){const o=q.o;o.x=q.x;o.z=q.z;o.c=Math.cos(q.ry);o.s=Math.sin(q.ry);o.broken=false;o.moving=false;o.hitT=dmgNow();addCol(o);MOVERS.splice(i,1)}}
+}
+// ---- vehicle diagnostics (v39): damage report, per-wheel tyre view, dashboard warnings. Key O or the Diagnostics button; not modal (you can drive with it open) ----
+const diagBtn=document.createElement('button'),diagPanel=document.createElement('div'),dmgWarn=document.createElement('div');
+diagBtn.id='diagBtn';diagBtn.type='button';diagBtn.textContent='Diagnostics (O)';diagBtn.title='Vehicle damage report and tyre view (O)';
+diagBtn.style.cssText='position:fixed;right:12px;top:calc(126px + env(safe-area-inset-top));z-index:4;padding:6px 10px;font-size:12px;color:#fff;background:#242a30dd;border:1px solid #ffffff40;border-radius:7px;cursor:pointer;display:none;touch-action:manipulation';
+dmgWarn.id='dmgWarn';dmgWarn.style.cssText='position:fixed;right:12px;top:calc(162px + env(safe-area-inset-top));z-index:4;font:600 12px system-ui,sans-serif;color:#ffcf6b;text-align:right;text-shadow:0 1px 2px #000;pointer-events:none;white-space:pre-line';
+diagPanel.id='diagPanel';diagPanel.style.cssText='position:fixed;right:12px;top:calc(50px + env(safe-area-inset-top));z-index:6;width:min(430px,calc(100vw - 24px));max-height:calc(100vh - 70px);overflow:auto;padding:12px 14px;font:13px/1.35 system-ui,sans-serif;color:#e8ecef;background:#121519ee;border:1px solid #ffffff38;border-radius:10px;display:none;box-shadow:0 8px 30px #0008';
+try{document.body.appendChild(diagBtn);document.body.appendChild(dmgWarn);document.body.appendChild(diagPanel)}catch(e){}
+let diagOpen=false,diagT=0,warnT=0;
+const sev=h=>h>=95?['OK','#7fd68a']:h>=75?['minor','#c9e36b']:h>=45?['moderate','#ffcf6b']:h>=15?['severe','#ff9a5c']:['failed','#ff6b6b'];
+const pct=v=>Math.round(v)+'%',bar=(h,w)=>{const c=sev(h)[1];return'<span style="display:inline-block;width:'+(w||60)+'px;height:7px;background:#ffffff1c;border-radius:4px;vertical-align:middle"><span style="display:block;height:7px;width:'+cl(h,0,100)+'%;background:'+c+';border-radius:4px"></span></span>'};
+function diagSync(){const on=damageMode!==0;diagBtn.style.display=on||diagOpen?'block':'none';if(!on)dmgWarn.textContent=''}
+function diagToggle(f){diagOpen=f===undefined?!diagOpen:!!f;diagPanel.style.display=diagOpen?'block':'none';diagSync();if(diagOpen)diagRender()}
+diagBtn.addEventListener('click',()=>diagToggle());
+addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='KeyO'&&!e.repeat){e.preventDefault();diagToggle()}else if(e.code==='Escape'&&diagOpen)diagToggle(false)});
+diagPanel.addEventListener('click',e=>{const b=e.target&&e.target.dataset&&e.target.dataset.act;if(b==='close')diagToggle(false);else if(b==='repair')repairCurrentCar();else if(b==='tyres')repairCurrentCar('tyres');if(b)diagRender()});
+// effect wording comes from the same formulas damageEffects() uses
+function diagRows(s,sp,full){const ev=sp.ev,rows=[],eff=(t)=>full?t:'<i>visual only in Cosmetic mode</i>',lim=s.engTemp>112?cl(1-(s.engTemp-112)/50,.55,1):1;
+ const hE=s.engine/100,hT=s.trans/100;
+ rows.push([ev?'Motor / inverter':'Engine',s.engine,eff('power −'+Math.round((1-(.35+.65*Math.pow(hE,.8))*lim)*100)+'%'+(s.engine<28?' · smoking':''))]);
+ rows.push([ev?'Battery & motor cooling':'Cooling (radiator)',s.cooling,eff((ev?'drive unit ':'engine ')+Math.round(s.engTemp)+' °C'+(s.cooling<70?' · overheats under sustained throttle':'')+(lim<1?' · power limited '+Math.round((1-lim)*100)+'%':''))]);
+ rows.push([ev?'Reduction gear':'Transmission',s.trans,eff('top speed −'+Math.round((1-(.72+.28*hT))*100)+'%, acceleration −'+Math.round((1-(.6+.4*hT))*100)+'%')]);
+ rows.push(['Driveline',s.driveline,eff(s.driveline<90?'vibration, acceleration −'+Math.round((1-(.8+.2*s.driveline/100))*100)+'%':'no effect')]);
+ rows.push(['Steering',s.steer,eff('steering response −'+Math.round((1-(.58+.42*s.steer/100))*100)+'%')]);
+ rows.push(['Brakes',s.brakes,eff('braking −'+Math.round((1-(.5+.5*s.brakes/100))*100)+'%')]);
+ for(let j=0;j<4;j++)rows.push(['Suspension '+WHEEL_NAMES[j],s.susp[j],eff(s.susp[j]<60?'camber/instability, less grip':s.susp[j]<95?'slightly softer':'no effect')]);
+ const toe=s.align[0]+s.align[1]+.5*(s.align[2]+s.align[3]);
+ rows.push(['Wheel alignment',100-Math.min(100,Math.abs(toe)*25),eff(Math.abs(toe)<.05?'straight':'pulls '+(toe>0?'left':'right')+' (toe '+toe.toFixed(1)+'°)')]);
+ return rows}
+function diagRender(){
+ if(!diagOpen)return;const s=currentDamageRecord(),sp=carSpec(P.idx||0),full=damageMode===2,on=damageMode!==0;let h='';
+ h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:15px">'+sp.name+'</b><button data-act="close" style="background:#ffffff1a;color:#fff;border:0;border-radius:6px;padding:3px 9px;cursor:pointer">✕</button></div>';
+ h+='<div style="opacity:.8;margin:2px 0 8px">Damage mode: <b>'+DAMAGE_MODE_NAMES[damageMode]+'</b> (I to change) · '+sp.mass+' kg <i>est.</i> · '+sp.drive+' <i>'+sp.driveSrc+'</i> · '+({F:'front',M:'mid',R:'rear'})[sp.eng]+(sp.ev?' motor':' engine')+' · durability '+Math.round(sp.durability)+'</div>';
+ if(!on){diagPanel.innerHTML=h+'<p>Damage is <b>Off</b>: nothing is recorded and the car drives exactly as before. Press <b>I</b> (or the Damage button) for Cosmetic or Full simulation.</p>';return}
+ // body: top-down zone map
+ const z=s.zones,cell=(k,lab)=>{const v=z[k],c=sev(v)[1];return'<div style="padding:4px 2px;text-align:center;border-radius:5px;background:'+c+'22;border:1px solid '+c+'88"><div style="font-size:11px;opacity:.8">'+lab+'</div><b>'+pct(v)+'</b></div>'};
+ h+='<div style="font-weight:650;margin:6px 0 4px">Body (top view, front at the top)</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;max-width:330px">'+cell('fl','front-left')+'<div style="text-align:center;font-size:11px;opacity:.6;align-self:center">▲ front</div>'+cell('fr','front-right')+cell('l','left side')+cell('roof','roof')+cell('r','right side')+cell('rl','rear-left')+cell('u','underbody')+cell('rr','rear-right')+'</div>';
+ const lights=s.lights.map((v,j)=>v?LIGHT_NAMES[j]:null).filter(Boolean),glass=s.glass.map((v,j)=>v>0?GLASS_NAMES[j]+' '+Math.round(v*100)+'%':null).filter(Boolean);
+ h+='<div style="margin:6px 0">Lights: '+(lights.length?'<span style="color:#ff9a5c">broken '+lights.join(', ')+'</span>':'all working')+'<br>Glass: '+(glass.length?'<span style="color:#ffcf6b">cracked '+glass.join(', ')+'</span>':'intact')+'<br>Dents: '+s.dents.length+' (deepest '+Math.round(Math.max(0,...s.dents.map(d=>d[5]))*100)+' cm)</div>';
+ // internal components
+ h+='<div style="font-weight:650;margin:8px 0 4px">Mechanical'+(full?'':' <span style="font-weight:400;opacity:.7">(not simulated in Cosmetic mode)</span>')+'</div><table style="width:100%;border-collapse:collapse;font-size:12px">';
+ for(const r of diagRows(s,sp,full)){const[w,c]=sev(r[1]);h+='<tr><td style="padding:2px 4px 2px 0">'+r[0]+'</td><td>'+bar(r[1],50)+'</td><td style="color:'+c+';padding:0 4px;white-space:nowrap">'+pct(r[1])+' '+w+'</td><td style="opacity:.85">'+r[2]+'</td></tr>'}
+ h+='</table>';
+ // tyres: one card per wheel
+ h+='<div style="font-weight:650;margin:10px 0 4px">Tyres (per wheel)'+(full?'':' <span style="font-weight:400;opacity:.7">wear tracked; grip effect only in Full</span>')+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+ for(let j=0;j<4;j++){const w=s.wheels[j],mu=tyreMu(w),drv=(j<2)?sp.drive!=='RWD':sp.drive!=='FWD',st=w.punct?['PUNCTURED','#ff6b6b']:w.temp>150?['overheated','#ff9a5c']:w.tread<20?['worn','#ffcf6b']:['OK','#7fd68a'],wr=w.wear;
+  h+='<div style="padding:6px;border-radius:6px;background:#ffffff0d;border:1px solid '+st[1]+'66"><b>'+WHEEL_NAMES[j]+'</b> <span style="font-size:11px;opacity:.7">'+(drv?'driven':'free')+'</span> <span style="color:'+st[1]+';float:right">'+st[0]+'</span><br>tread '+bar(w.tread,46)+' '+pct(w.tread)+'<br>carcass '+bar(w.health,38)+' '+pct(w.health)+'<br>temp <b>'+Math.round(w.temp)+' °C</b> · grip ×'+mu.toFixed(2)
+   +'<br><span style="font-size:11px;opacity:.75">load '+Math.round(TYS.fz[j])+' N · slip '+TYS.sl[j].toFixed(1)+'/'+TYS.sa[j].toFixed(1)+' m/s<br>wear: burnout '+wr.burn.toFixed(1)+' · slide '+wr.slide.toFixed(1)+' · spin '+wr.spin.toFixed(1)+' · lock '+wr.lock.toFixed(1)+' · road '+wr.roll.toFixed(2)+' %</span></div>'}
+ h+='</div><div style="font-size:11px;opacity:.65;margin-top:4px">'+(TYS.burn?'<b style="color:#ff9a5c">BURNOUT</b> · ':'')+'Burnout: throttle + brake at a standstill (FWD: throttle + handbrake). Whether the wheels break loose depends on power, weight split and drivetrain.</div>';
+ if(s.log.length){h+='<div style="font-weight:650;margin:10px 0 4px">Recent impacts</div><div style="font-size:12px">'+s.log.map(q=>q.kmh+' km/h · '+q.zone+' · '+q.obj+(q.ebs?' · '+q.ebs+' km/h barrier-equivalent':'')).join('<br>')+'</div>'}
+ h+='<div style="margin-top:10px;display:flex;gap:8px"><button data-act="repair" style="flex:1;padding:7px;border-radius:7px;border:1px solid #ffffff40;background:#2b6b3a;color:#fff;cursor:pointer">Repair all (free)</button><button data-act="tyres" style="flex:1;padding:7px;border-radius:7px;border:1px solid #ffffff40;background:#33414d;color:#fff;cursor:pointer">Replace tyres (free)</button></div>';
+ h+='<div style="font-size:11px;opacity:.55;margin-top:8px">All masses, layouts and thresholds are gameplay estimates unless marked doc; no manufacturer crash data is used. See manifest/cars.json.</div>';
+ diagPanel.innerHTML=h}
+// dashboard warnings (Full only), refreshed twice a second
+function diagTick(dt){
+ if(diagOpen){diagT+=dt;if(diagT>.25){diagT=0;diagRender()}}
+ warnT+=dt;if(warnT<.5)return;warnT=0;if(damageMode!==2){dmgWarn.textContent='';return}
+ const s=currentDamageRecord(),w=[];if(s.engTemp>110)w.push('⚠ '+(carSpec(P.idx||0).ev?'DRIVE TEMP ':'ENGINE TEMP ')+Math.round(s.engTemp)+' °C');if(s.engine<40)w.push('⚠ ENGINE '+Math.round(s.engine)+'%');
+ for(let j=0;j<4;j++){const t=s.wheels[j];if(t.punct)w.push('⚠ TYRE '+WHEEL_NAMES[j]+' PUNCTURED');else if(t.tread<15)w.push('⚠ TYRE '+WHEEL_NAMES[j]+' '+Math.round(t.tread)+'%');else if(t.temp>150)w.push('⚠ TYRE '+WHEEL_NAMES[j]+' '+Math.round(t.temp)+' °C')}
+ if(s.brakes<50)w.push('⚠ BRAKES');if(s.steer<50)w.push('⚠ STEERING');const t=w.slice(0,4).join('\n');if(dmgWarn.textContent!==t)dmgWarn.textContent=t}
+diagReady=true;diagSync();
 // ---- wheel spin (costs law-breaking JD) ----
 const wcv=document.getElementById('wc'),wres=document.getElementById('wres'),wcred=document.getElementById('wcred'),wgo=document.getElementById('wgo'),wx=document.getElementById('wx'),wheelEl=document.getElementById('wheel'),spinBtn=document.getElementById('spinBtn');
 const WCOL=['#9aa0a6','#4caf50','#2196f3','#9c27b0','#ffc107'],TIERS=RT.map((t,k)=>[RARN[k],RCH[k],WCOL[k],[...new Set(TPOOL[k].map(i=>PORS[i][0]).concat(WHEEL_OLD[k]))]]),COST=10000;
@@ -2358,16 +2707,17 @@ addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
 const MobilePCInputController={steeringAngle:0,isAccelerating:false,isBraking:false,isHandbrake:false,sig:function(){return[this.steeringAngle,this.isAccelerating,this.isBraking,this.isHandbrake].join()}};
 // traction by surface under the car: 1 paved road / drift pad, .75 unpaved track, .9 urban ground off-network, .65 open ground (no surface tag is carried in the network data yet; see audit)
 function surfK(){if(inDrift.was)return 1;const r=RI;if(r&&r.e&&r.d<=r.e.w/2+.3)return r.e.hw==='track'?.75:1;return urbanK(P.x,P.z)>.5?.9:.65}
-function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;
+function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;
  let fx=Math.sin(P.h),fz=Math.cos(P.h),fs=P.vx*fx+P.vz*fz;
- P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;
+ P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);const rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
  const sfc=surfK()*dfx.grip,vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
- if(P.gnd&&!frozen){if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
-  if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}
-  if(!(Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
-  if(hb)fs*=1-.8*dt;if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt;ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dt)}
- P.vx=fx*fs+rx*ls;P.vz=fz*fs+rz*ls;if(frozen)P.vx=P.vz=0;P.al=(fs-pfs)/dt;
+ const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);
+ if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
+  if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
+  if(!(bo||Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
+  if(hb)fs*=1-.8*dt;if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt;ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*dt)}
+ P.vx=fx*fs+rx*ls;P.vz=fz*fs+rz*ls;if(frozen)P.vx=P.vz=0;P.al=(fs-pfs)/dt;if(typeof tyreStep==='function')tyreStep(dt,th?thA:0,br?brA:0,hb,st,fs,ls,frozen);
  const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),spm=Math.hypot(P.vx,P.vz);
  if(P.gnd&&spm>8&&sa>.22-.012*P.dr&&!frozen){drift.t+=dt;drift.off=0;drift.pts+=sa*spm*8*dt*(1+Math.min(4,drift.t/3))*(1+.2*P.dr)*(P.rm||1)}
  else if(drift.pts>0){drift.off+=dt;if(drift.off>.7){if(drift.pts>40){const n=Math.round(drift.pts);drift.total+=n;save();toast('Drift +'+n+(P.rm>1?'  ('+RARN[P.rt]+' ×'+P.rm.toFixed(1)+')':''))}drift.pts=0;drift.t=0}}

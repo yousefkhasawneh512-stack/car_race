@@ -8,7 +8,7 @@ function colB(o){const L=COL.get(ck(Math.floor(o.x/100),Math.floor(o.z/100)));if
  else{const lx=dx*a.c-dz*a.s,lz=dx*a.s+dz*a.c,cx=cl(lx,-a.hw,a.hw),cz=cl(lz,-a.hd,a.hd);let ex=lx-cx,ez=lz-cz,d=Math.hypot(ex,ez);
   if(d>=q)continue;if(d<1e-4){const px=a.hw-Math.abs(lx),pz=a.hd-Math.abs(lz);if(px<pz){ex=Math.sign(lx)||1;ez=0;pen=px+q}else{ex=0;ez=Math.sign(lz)||1;pen=pz+q}d=1}else pen=q-d;
   ex/=d;ez/=d;nx=ex*a.c+ez*a.s;nz=-ex*a.s+ez*a.c}
- if(o===P&&typeof registerPlayerImpact==='function'){const incoming=-(o.vx*nx+o.vz*nz);if(incoming>1.8)registerPlayerImpact(incoming,a,nx,nz)}
+ if(o===P&&typeof registerPlayerImpact==='function'){const incoming=-(o.vx*nx+o.vz*nz);if(incoming>1.8){const gv=registerPlayerImpact(incoming,a,nx,nz);if(gv>0){o.vx+=nx*gv;o.vz+=nz*gv;return true}}}
  o.x+=nx*pen;o.z+=nz*pen;if(o.vx!==undefined){const vn=o.vx*nx+o.vz*nz;if(vn<0){o.vx-=vn*nx*1.4;o.vz-=vn*nz*1.4}}else o.v*=(o.rad?.9:.6);return true}return false}
 let clock=0,hour=15;const light=ax=>{const p=ax==='x'?clock%28:(clock+14)%28;return p<10?'g':p<12?'y':'r'};
 // ---- signalised junctions: the 14 signals mapped in OSM + junctions where three or more arterial arms meet (inferred; OSM lists few) ----

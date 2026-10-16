@@ -15,7 +15,7 @@ function groundH(x,z){let h=TH(x,z)+.12;for(let i=0;i<RAMPS.length;i++){const r=
 // ---- instancing helpers (oriented boxes / geometries, 600 m chunks) ----
 const BS=new T.Sphere(new T.Vector3(),520),o3=new T.Object3D(),tc=new T.Color();
 // Optional stable keys let gameplay damage hide selected instanced roadside props without rebuilding the entire scene.
-const DESTRUCTIBLE_INSTANCES=new Map();
+const DESTRUCTIBLE_INSTANCES=new Map(),SIGN_PLATES=new Map();
 function chunkBy(items,fn,cs){cs=cs||600;const ch={};items.forEach(p=>{const k=Math.floor(p[0]/cs)+','+Math.floor(p[2]/cs);(ch[k]=ch[k]||[]).push(p)});for(const k in ch){const[a,b]=k.split(',').map(Number);fn(ch[k],a*cs+cs/2,b*cs+cs/2)}}
 // distance LOD for small props: a chunk is hidden once its centre is farther than R+half a chunk from the camera (checked every frame)
 const LODL=[],BSC={};let lodF=0;

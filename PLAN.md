@@ -115,6 +115,11 @@ Approved by the owner (explicit requests) and now part of the reference behaviou
 - v37 real terrain (heights, slope gravity) and physics corrections (braking 0.8-1.1 g, reverse 3.5 m/s2, surface traction heuristic,
   cosmetic body motion), requested through the realism/accuracy audit. Economy, drift scoring, save format and HUD strings unchanged.
 - v38 optional vehicle damage (default Off), breakable poles, estimated speed bumps.
+- v39 (owner request 2026-10-16, "realistic cars, damage physics, tyre wear"): localized damage by contact point / body zone with mesh
+  dents, per-car durability profiles, internal components (engine, cooling, transmission, driveline, steering, brakes, per-corner
+  suspension, alignment), per-wheel tyre load/slip/heat/wear, drivetrain-dependent burnouts, energy-based breakable/bendable/movable
+  roadside objects, diagnostics panel. **Damage Off stays byte-identical to v37/v38 physics** (`tests/off_trace.js`); burnouts, pull,
+  lateral-grip loss and object give-way only exist in Cosmetic/Full. Repairs stay free (economy unchanged).
 
 Still needs approval before implementing: a fixed-timestep physics loop, lateral grip by surface (affects drift scoring), removing or
 gating the estimated speed bumps, any pause/start/audio features, and the refactor phases below.
