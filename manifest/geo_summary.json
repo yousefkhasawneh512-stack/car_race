@@ -1,0 +1,310 @@
+{
+ "retrieved": "2026-10-16T17:40:26Z",
+ "window_game_m": [
+  -9408.063139694348,
+  19756.947273847385,
+  -7782.267085059616,
+  16629.874200473558
+ ],
+ "bbox_lat_lon": [
+  32.39986472488027,
+  35.74975600704912,
+  32.62013556311152,
+  36.06051206772567
+ ],
+ "pois": {
+  "raw_elements": 2234,
+  "classified": 2203,
+  "duplicates_merged": 62,
+  "unique": 2141,
+  "named": 1647,
+  "unnamed": 494,
+  "by_kind": {
+   "dukkan": 484,
+   "mosque": 211,
+   "food": 199,
+   "school": 175,
+   "place": 168,
+   "poi": 167,
+   "cafe": 125,
+   "medical": 100,
+   "grocery": 77,
+   "gym": 76,
+   "park": 66,
+   "landmark": 51,
+   "bank": 47,
+   "barber": 45,
+   "hospital": 43,
+   "auto": 39,
+   "civic": 33,
+   "mall": 13,
+   "transport": 9,
+   "dealer": 4,
+   "church": 3,
+   "museum": 3,
+   "address": 2,
+   "pet": 1
+  },
+  "mosques": {
+   "unique": 211,
+   "named": 161
+  },
+  "schools": {
+   "unique": 146,
+   "named": 100
+  },
+  "education_by_category": {
+   "School": 146,
+   "Library": 5,
+   "College": 3,
+   "University": 18,
+   "Driving school": 2,
+   "Kindergarten": 1
+  },
+  "with_wikidata": 10,
+  "with_commons_or_image": 7,
+  "in_current_game": 1016
+ },
+ "buildings": {
+  "osm_in_window": 46142,
+  "in_game_extract_rectangle": 19551,
+  "outside_extract": 26591,
+  "by_building_tag": {
+   "yes": 44833,
+   "house": 837,
+   "greenhouse": 134,
+   "residential": 100,
+   "apartments": 77,
+   "school": 49,
+   "industrial": 30,
+   "commercial": 19,
+   "roof": 14,
+   "university": 11,
+   "hangar": 8,
+   "mosque": 6,
+   "retail": 5,
+   "hospital": 4,
+   "public": 4,
+   "garage": 3,
+   "farm_auxiliary": 2,
+   "kindergarten": 1,
+   "civic": 1,
+   "construction": 1,
+   "detached": 1,
+   "ruins": 1,
+   "shed": 1
+  },
+  "with_levels": 860,
+  "with_height": 213,
+  "with_roof_tags": 0,
+  "with_name": 231,
+  "with_address": 42
+ },
+ "highways": {
+  "ways": 14546,
+  "tag_coverage": {
+   "name": 588,
+   "surface": 195,
+   "lanes": 8,
+   "maxspeed": 12,
+   "width": 0,
+   "oneway": 2109,
+   "bridge": 79,
+   "tunnel": 33,
+   "lit": 0
+  }
+ },
+ "missing_geometry": 0,
+ "skipped": {
+  "outside window": 7,
+  "unclassified": 24
+ },
+ "records_total": {
+  "pois_unique": 2141,
+  "buildings": 46142,
+  "highway_ways": 14546,
+  "sum": 62829
+ },
+ "poi_sparse_cells_2km": [
+  {
+   "cell_x_m": [
+    -7408.063139694348,
+    -5408.063139694348
+   ],
+   "cell_z_m": [
+    12217.732914940385,
+    14217.732914940385
+   ],
+   "buildings": 1389,
+   "pois": 8
+  },
+  {
+   "cell_x_m": [
+    4591.936860305652,
+    6591.936860305652
+   ],
+   "cell_z_m": [
+    217.73291494038403,
+    2217.732914940384
+   ],
+   "buildings": 1218,
+   "pois": 1
+  },
+  {
+   "cell_x_m": [
+    18591.93686030565,
+    20591.93686030565
+   ],
+   "cell_z_m": [
+    8217.732914940385,
+    10217.732914940385
+   ],
+   "buildings": 741,
+   "pois": 0
+  },
+  {
+   "cell_x_m": [
+    -5408.063139694348,
+    -3408.063139694348
+   ],
+   "cell_z_m": [
+    -3782.267085059616,
+    -1782.267085059616
+   ],
+   "buildings": 662,
+   "pois": 1
+  },
+  {
+   "cell_x_m": [
+    -3408.063139694348,
+    -1408.0631396943481
+   ],
+   "cell_z_m": [
+    217.73291494038403,
+    2217.732914940384
+   ],
+   "buildings": 650,
+   "pois": 4
+  },
+  {
+   "cell_x_m": [
+    4591.936860305652,
+    6591.936860305652
+   ],
+   "cell_z_m": [
+    12217.732914940385,
+    14217.732914940385
+   ],
+   "buildings": 607,
+   "pois": 0
+  },
+  {
+   "cell_x_m": [
+    4591.936860305652,
+    6591.936860305652
+   ],
+   "cell_z_m": [
+    4217.732914940384,
+    6217.732914940384
+   ],
+   "buildings": 515,
+   "pois": 3
+  },
+  {
+   "cell_x_m": [
+    16591.93686030565,
+    18591.93686030565
+   ],
+   "cell_z_m": [
+    -3782.267085059616,
+    -1782.267085059616
+   ],
+   "buildings": 438,
+   "pois": 1
+  },
+  {
+   "cell_x_m": [
+    -5408.063139694348,
+    -3408.063139694348
+   ],
+   "cell_z_m": [
+    12217.732914940385,
+    14217.732914940385
+   ],
+   "buildings": 403,
+   "pois": 0
+  },
+  {
+   "cell_x_m": [
+    -5408.063139694348,
+    -3408.063139694348
+   ],
+   "cell_z_m": [
+    14217.732914940385,
+    16217.732914940385
+   ],
+   "buildings": 370,
+   "pois": 1
+  },
+  {
+   "cell_x_m": [
+    6591.936860305652,
+    8591.936860305652
+   ],
+   "cell_z_m": [
+    -7782.267085059616,
+    -5782.267085059616
+   ],
+   "buildings": 370,
+   "pois": 2
+  },
+  {
+   "cell_x_m": [
+    -3408.063139694348,
+    -1408.0631396943481
+   ],
+   "cell_z_m": [
+    10217.732914940385,
+    12217.732914940385
+   ],
+   "buildings": 327,
+   "pois": 2
+  },
+  {
+   "cell_x_m": [
+    6591.936860305652,
+    8591.936860305652
+   ],
+   "cell_z_m": [
+    -5782.267085059616,
+    -3782.267085059616
+   ],
+   "buildings": 321,
+   "pois": 0
+  }
+ ],
+ "official_cross_check": {
+  "mosques": {
+   "official_rows": 778,
+   "unique_normalized_names": 477,
+   "name_matches_in_osm_window": 254,
+   "note": "Awqaf Irbid directorate lists (whole directorates, incl. villages outside the play area). No coordinates; matching is by name only and generic names (e.g. Abu Bakr Al-Siddiq) can match a different mosque, so this is an upper bound, never used to place anything."
+  },
+  "schools": {
+   "official_rows_irbid_governorate": 1358,
+   "by_district": {
+    "لواء قصبة اربد": 488,
+    "لواء بني عبيد": 202,
+    "لواء الرمثا": 155,
+    "لواء الكورة": 143,
+    "لواء بني كنانة": 124,
+    "لواء الاغوار الشمالية": 93,
+    "لواء المزار الشمالي": 75,
+    "لواء الطيبة": 41,
+    "لواء الوسطية": 37
+   },
+   "name_matches_in_osm_window": 30,
+   "note": "Ministry of Education list dated 2018 (published 2018, re-listed 2025): Irbid governorate, all districts, no coordinates. Name match is an upper bound."
+  }
+ }
+}

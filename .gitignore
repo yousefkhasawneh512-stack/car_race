@@ -8,3 +8,7 @@ out.json
 # raw OSM / SRTM input data is kept local only (owner decision 2026-10-14)
 osm/**/*.json
 osm/**/*.gpkg
+# official Jordanian open-data spreadsheets + Overpass outputs too large to publish: local only (regenerate with osm/overpass/fetch.py)
+osm/official/*.xls
+osm/official/*.xlsx
+osm/overpass/out/
