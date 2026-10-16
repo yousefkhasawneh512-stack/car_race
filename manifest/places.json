@@ -24,7 +24,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47,7 +47,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -133,7 +133,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -156,7 +156,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -246,7 +246,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -274,7 +274,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -302,7 +302,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -330,7 +330,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -357,7 +357,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -385,7 +385,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -413,7 +413,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -441,7 +441,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -468,7 +468,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -496,7 +496,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -561,7 +561,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -584,7 +584,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -649,7 +649,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -788,7 +788,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -811,7 +811,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -834,7 +834,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -857,7 +857,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -880,7 +880,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -903,7 +903,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -927,7 +927,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -971,7 +971,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -994,7 +994,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1017,7 +1017,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1040,7 +1040,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1063,7 +1063,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1086,7 +1086,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1109,7 +1109,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1132,7 +1132,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1180,7 +1180,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1203,7 +1203,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1227,7 +1227,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1250,7 +1250,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1273,7 +1273,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1302,7 +1302,7 @@
 "merged": [
 "osm:n5606771826"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1325,7 +1325,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1348,7 +1348,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1397,7 +1397,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1421,7 +1421,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1444,7 +1444,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1467,7 +1467,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1512,7 +1512,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1557,7 +1557,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1580,7 +1580,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1604,7 +1604,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1629,7 +1629,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1653,7 +1653,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1676,7 +1676,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1699,7 +1699,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1720,7 +1720,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1767,7 +1767,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1790,7 +1790,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1813,7 +1813,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1839,7 +1839,7 @@
 "merged": [
 "osm:n9594125257"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1862,7 +1862,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1885,7 +1885,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1908,7 +1908,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1929,7 +1929,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1953,7 +1953,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -1978,7 +1978,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2001,7 +2001,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2045,7 +2045,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2244,7 +2244,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2458,7 +2458,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2481,7 +2481,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2504,7 +2504,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2573,7 +2573,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2596,7 +2596,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2619,7 +2619,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2664,7 +2664,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2729,7 +2729,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2752,7 +2752,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2775,7 +2775,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2847,7 +2847,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2874,7 +2874,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2900,7 +2900,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2927,7 +2927,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2954,7 +2954,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -2981,7 +2981,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3025,7 +3025,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3048,7 +3048,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3071,7 +3071,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3094,7 +3094,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3117,7 +3117,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3165,7 +3165,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3188,7 +3188,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3281,7 +3281,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3396,7 +3396,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3496,7 +3496,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3571,7 +3571,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3595,7 +3595,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -3621,7 +3621,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4230,7 +4230,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4395,7 +4395,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4419,7 +4419,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4443,7 +4443,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4467,7 +4467,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4491,7 +4491,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4538,7 +4538,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4562,7 +4562,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4586,7 +4586,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4611,7 +4611,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4663,7 +4663,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4688,7 +4688,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4709,7 +4709,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4754,7 +4754,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4777,7 +4777,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4801,7 +4801,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4825,7 +4825,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4848,7 +4848,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4871,7 +4871,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -4915,7 +4915,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5066,7 +5066,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5090,7 +5090,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5111,7 +5111,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5135,7 +5135,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5156,7 +5156,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5182,7 +5182,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5206,7 +5206,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5229,7 +5229,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5254,7 +5254,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5277,7 +5277,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5300,7 +5300,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5345,7 +5345,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5368,7 +5368,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5392,7 +5392,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5415,7 +5415,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5459,7 +5459,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5549,7 +5549,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5660,7 +5660,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5683,7 +5683,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5706,7 +5706,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5730,7 +5730,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5754,7 +5754,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5819,7 +5819,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5846,7 +5846,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5869,7 +5869,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5892,7 +5892,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5915,7 +5915,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5936,7 +5936,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5961,7 +5961,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -5985,7 +5985,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6008,7 +6008,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6029,7 +6029,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6052,7 +6052,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6098,7 +6098,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6122,7 +6122,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6143,7 +6143,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6171,7 +6171,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6199,7 +6199,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6226,7 +6226,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6249,7 +6249,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6293,7 +6293,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6317,7 +6317,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6340,7 +6340,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6363,7 +6363,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6386,7 +6386,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6409,7 +6409,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6433,7 +6433,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6460,7 +6460,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6485,7 +6485,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6510,7 +6510,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6554,7 +6554,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6577,7 +6577,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6600,7 +6600,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6645,7 +6645,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6666,7 +6666,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6735,7 +6735,7 @@
 "merged": [
 "osm:n7468749889"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6758,7 +6758,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6781,7 +6781,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6805,7 +6805,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6829,7 +6829,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6852,7 +6852,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6875,7 +6875,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6898,7 +6898,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6921,7 +6921,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6971,7 +6971,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -6994,7 +6994,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -7018,7 +7018,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -7042,7 +7042,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -7840,7 +7840,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -7996,7 +7996,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -8437,7 +8437,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -8483,7 +8483,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -8506,7 +8506,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -9302,7 +9302,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -9346,7 +9346,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -9459,7 +9459,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -9503,7 +9503,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -9639,7 +9639,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -9708,7 +9708,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -10540,7 +10540,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -12475,7 +12475,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -14033,7 +14033,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -14645,7 +14645,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -14758,7 +14758,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -15058,7 +15058,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -15381,7 +15381,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -15586,7 +15586,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -15935,7 +15935,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -15981,7 +15981,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -16233,7 +16233,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -16441,7 +16441,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -16733,7 +16733,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -16781,7 +16781,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -16804,7 +16804,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -17566,7 +17566,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -17953,7 +17953,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -18445,7 +18445,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -18515,7 +18515,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -18538,7 +18538,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -18887,7 +18887,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -19075,7 +19075,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -19122,7 +19122,7 @@
 "merged": [
 "osm:n7480332278"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -19356,7 +19356,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -19377,7 +19377,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -19822,7 +19822,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20305,7 +20305,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20328,7 +20328,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20421,7 +20421,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20442,7 +20442,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20515,7 +20515,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": true,
+"in_game": false,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20697,7 +20697,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -20763,7 +20763,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -21125,7 +21125,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -21507,7 +21507,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -23130,7 +23130,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -23383,7 +23383,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -23523,7 +23523,7 @@
 "osm:n7287730146",
 "osm:n7287730180"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -23567,7 +23567,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -23749,7 +23749,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24023,7 +24023,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24044,7 +24044,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24249,7 +24249,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24389,7 +24389,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24456,7 +24456,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24569,7 +24569,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24590,7 +24590,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24726,7 +24726,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24752,7 +24752,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -24843,7 +24843,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25739,7 +25739,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25762,7 +25762,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25785,7 +25785,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25808,7 +25808,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25831,7 +25831,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25879,7 +25879,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -25902,7 +25902,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26296,7 +26296,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26657,7 +26657,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26724,7 +26724,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26748,7 +26748,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26774,7 +26774,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26802,7 +26802,7 @@
 "merged": [
 "osm:n7426323385"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26825,7 +26825,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -26959,7 +26959,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -27274,7 +27274,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -27986,7 +27986,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -28421,7 +28421,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -28444,7 +28444,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -28676,7 +28676,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -28791,7 +28791,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -28958,7 +28958,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -29167,7 +29167,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -29213,7 +29213,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -29234,7 +29234,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -29558,7 +29558,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -30077,7 +30077,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -30192,7 +30192,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -30213,7 +30213,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -30684,7 +30684,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -30705,7 +30705,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -31350,7 +31350,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -31374,7 +31374,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -31418,7 +31418,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -31538,7 +31538,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -31770,7 +31770,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -32030,7 +32030,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -33400,7 +33400,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -33535,7 +33535,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -34402,7 +34402,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -34610,7 +34610,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -34723,7 +34723,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35512,7 +35512,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35586,7 +35586,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35630,7 +35630,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35653,7 +35653,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35676,7 +35676,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35720,7 +35720,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35787,7 +35787,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35808,7 +35808,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35884,7 +35884,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35907,7 +35907,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35930,7 +35930,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -35953,7 +35953,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36497,7 +36497,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36677,7 +36677,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36827,7 +36827,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36850,7 +36850,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36903,7 +36903,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36929,7 +36929,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36955,7 +36955,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -36980,7 +36980,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37006,7 +37006,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37032,7 +37032,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37060,7 +37060,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37088,7 +37088,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37114,7 +37114,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37137,7 +37137,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37164,7 +37164,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37236,7 +37236,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37261,7 +37261,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -37391,7 +37391,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38056,7 +38056,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38108,7 +38108,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38134,7 +38134,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38183,7 +38183,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38207,7 +38207,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38392,7 +38392,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38415,7 +38415,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38459,7 +38459,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38482,7 +38482,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38527,7 +38527,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38550,7 +38550,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38573,7 +38573,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38598,7 +38598,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38624,7 +38624,7 @@
 "merged": [
 "osm:n7512272498"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38668,7 +38668,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38693,7 +38693,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38716,7 +38716,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38803,7 +38803,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38826,7 +38826,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38849,7 +38849,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38900,7 +38900,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38923,7 +38923,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -38972,7 +38972,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39047,7 +39047,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39249,7 +39249,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39295,7 +39295,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39418,7 +39418,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39441,7 +39441,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39464,7 +39464,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39488,7 +39488,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39562,7 +39562,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39610,7 +39610,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39662,7 +39662,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39687,7 +39687,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39711,7 +39711,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39735,7 +39735,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39760,7 +39760,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39784,7 +39784,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39808,7 +39808,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39852,7 +39852,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39876,7 +39876,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39899,7 +39899,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39922,7 +39922,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39946,7 +39946,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39969,7 +39969,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -39992,7 +39992,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40189,7 +40189,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40305,7 +40305,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40429,7 +40429,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40453,7 +40453,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40531,7 +40531,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40554,7 +40554,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40630,7 +40630,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40804,7 +40804,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -40880,7 +40880,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41034,7 +41034,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41058,7 +41058,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41130,7 +41130,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41155,7 +41155,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41179,7 +41179,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41202,7 +41202,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41225,7 +41225,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41249,7 +41249,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41272,7 +41272,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41297,7 +41297,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41320,7 +41320,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41343,7 +41343,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41668,7 +41668,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41692,7 +41692,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41741,7 +41741,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -41871,8 +41871,10 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
-"photo": [],
+"in_game": true,
+"photo": [
+"File:Fresh tree leaves and sunshine at Jordan University of Science and Technology - panoramio.jpg"
+],
 "confidence": "osm-mapped"
 },
 {
@@ -42045,7 +42047,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42116,7 +42118,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42143,7 +42145,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42173,7 +42175,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42201,7 +42203,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42228,7 +42230,7 @@
 "merged": [
 "osm:n9592824073"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42429,7 +42431,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42452,7 +42454,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42548,7 +42550,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42571,7 +42573,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42594,7 +42596,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42619,7 +42621,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42644,7 +42646,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42669,7 +42671,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42694,8 +42696,10 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
-"photo": [],
+"in_game": true,
+"photo": [
+"File:YUPanorama.jpg"
+],
 "confidence": "osm-mapped"
 },
 {
@@ -42746,7 +42750,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42769,7 +42773,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42793,7 +42797,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42866,7 +42870,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -42889,7 +42893,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43039,7 +43043,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43085,7 +43089,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43331,7 +43335,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43381,7 +43385,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43404,7 +43408,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43530,7 +43534,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43554,7 +43558,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43655,7 +43659,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -43876,7 +43880,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -44374,7 +44378,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -44447,7 +44451,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -44622,8 +44626,12 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
-"photo": [],
+"in_game": true,
+"photo": [
+"File:Arar House in Irbid 2025 - Entrance4.jpg",
+"File:Arar House in Irbid 2025 - Entrance3.jpg",
+"File:Arar House in Irbid 2025 - Entrance.jpg"
+],
 "confidence": "osm-mapped"
 },
 {
@@ -44646,8 +44654,12 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
-"photo": [],
+"in_game": true,
+"photo": [
+"File:Al Nabulsi House 03.jpg",
+"File:Al Nabulsi House 01.jpg",
+"File:Al Nabulsi House 04.jpg"
+],
 "confidence": "osm-mapped"
 },
 {
@@ -44953,7 +44965,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -46336,7 +46348,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -46791,7 +46803,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -46916,7 +46928,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -46941,7 +46953,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -46987,7 +46999,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47015,7 +47027,7 @@
 "merged": [
 "osm:n1334014166"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47038,7 +47050,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47063,7 +47075,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47087,7 +47099,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47110,7 +47122,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47161,7 +47173,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47186,7 +47198,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -47388,7 +47400,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -48504,8 +48516,10 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
-"photo": [],
+"in_game": true,
+"photo": [
+"File:Capitolias (Beit Ras).jpg"
+],
 "confidence": "osm-mapped"
 },
 {
@@ -48632,7 +48646,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -48897,7 +48911,11 @@
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
 "in_game": true,
-"photo": [],
+"photo": [
+"File:King Abdullah II Gardens (Irbid) 08.jpg",
+"File:King Abdullah II Gardens (Irbid) 07.jpg",
+"File:King Abdullah II Gardens (Irbid) 05.jpg"
+],
 "confidence": "osm-mapped"
 },
 {
@@ -50018,7 +50036,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50090,7 +50108,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50215,7 +50233,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50239,7 +50257,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50285,7 +50303,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50309,7 +50327,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50358,7 +50376,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50383,7 +50401,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50407,7 +50425,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50457,7 +50475,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50506,7 +50524,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50554,7 +50572,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50577,7 +50595,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50603,7 +50621,7 @@
 "merged": [
 "osm:n5606636770"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50677,7 +50695,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50756,7 +50774,7 @@
 "merged": [
 "osm:n7908703852"
 ],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50779,7 +50797,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -50904,7 +50922,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-16T17:40:26Z",
 "flags": [],
-"in_game": false,
+"in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
 }

@@ -100,3 +100,33 @@ Versions before v22 are summarised in PLAN.md ("Done since v19").
 - Fixes made during review: speed-bump meshes were authored at `TH()+.05` and then lifted a second time by `applyTerrain()` (up to 129 m off the ground) -> now authored at y=.05 in the flat frame; broken poles used the authored flat-frame y (sank/floated on hills) -> now read the live instance matrix and the pivot uses the lifted base; `roughness` removed from Lambert materials (r128 warning spam); `damageEffects()` returns a shared object (no per-frame allocation).
 - ~~Test: `tests/realism_test.js`, `tests/realism_pw.py`~~ — **correction 2026-10-14:** these tests (and the stub changes for `dataset`/`setAttribute`/`window`) never existed on disk, and the review fixes above were not in the source either. The zip was actually merged on 2026-10-14 (source copied from `Downloads\irbid-drive-source\irbid-drive-project`, the 9 changed files from the zip overlaid, then the four fixes above applied to `07c_realism.js`). Built with `build.py` (3,271,379 chars; `build.py` now forces UTF-8/LF so a Windows build matches the Linux one). Tracked in git from here on. **No headless/browser test was run** (no Node on that machine); realism tests are still to be written.
 - Open: bumps are invented positions (conflicts with the evidence-only rule of the audit; consider gating them or replacing with real `traffic_calming` data); attribution line is long on phones and overlaps the GAS pad; durability numbers are balance estimates.
+
+## v39 (2026-10-16)
+
+Owner request "realistic cars, damage physics, tyre wear, accurate Irbid map". Approved in `PLAN.md`. Full write-up: `AUDIT_REPORT.md`.
+- **v39a vehicle realism** (`07c_realism` rewritten, new `07d_tyres`, `07e_objects`, `07f_diag`; hooks in `07a_cars` (part tags),
+  `05a` (`SIGN_PLATES`), `05b` (`colB` give-way), `06i`/`06j` (collider types + instance keys), `10_laws_player` (`updP`: `dfx.lat`,
+  `dfx.pull`, burnout hold, `tyreStep`)):
+  - per-car profile `carSpec(i)`: mass (estimate from L×W×H×body-type density), drivetrain (documented for 181 of 217 names, rest by body type),
+    engine position, weight split, CG height, Campbell-style crush stiffness, thresholds, component/tyre durability;
+  - impacts: contact point on the car outline → zone weights (fl/fr/l/r/rl/rr + roof/underbody), equivalent barrier speed
+    (vehicle: mass-shared energy; breakable: energy absorbed), crush cm, mesh dents (player body tessellated on first dent, stored
+    per car), lights by side, glass by face, components by location (engine position, radiator, wheels within reach), landings;
+  - Full-mode effects: power/top speed/accel/steering/brakes, lateral grip (`dfx.lat`), pull (toe + puncture), vibration,
+    engine temperature with limp mode, smoke; all floors documented; Cosmetic = visual only; Off = untouched (proved by `off_trace`);
+  - tyres per wheel: load transfer, longitudinal/lateral slip, heat, tread, carcass, puncture/blow-out, wear by cause; burnouts
+    (throttle + brake / handbrake at standstill) only when power beats traction + brake hold for that drivetrain;
+  - world objects: `OBJ_CLASS` rigid/breakable/movable/vehicle/traversable; energy-based bend → break; signs now breakable;
+    dumpsters shoved/tipped; broken street lights also hide arm, head and light pool (v38 left them floating); pooled debris/sparks;
+  - diagnostics panel (key **O**, button), dashboard warnings, free "Repair all" / "Replace tyres"; v38 saves migrate.
+  - Tests: `damage_test.js` (50), `damage_pw.py` (Playwright, screenshots), `off_trace.js` (hash identical to v38); `realism_test`
+    bounds updated to the v39 floors.
+- **v39b map data** (`osm/overpass/*`): Overpass fetch of the whole playable window (the network's own window), classification incl.
+  `education=school` / `building=mosque`, de-duplication, official Awqaf/MoE lists cross-checked by name only (no coordinates),
+  `manifest/places.json` + `geo_summary.json`; `03c` regenerated: **places 1038 → 1473** (+102 schools, +82 mosques, +27 hospitals…),
+  previous rows keep order so `RLP()` landmark seeds are unchanged; "Latin Church" no longer classed as a mosque.
+  Baselines after v39b: `h21` places 1473 (laz 1450), `h24` bad 6, `vg` bad 9, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0.
+- **v39c manifests/docs**: `manifest/cars.json` + `world_objects.json` (generated from the build by `tools/gen_car_manifest.js`),
+  `manifest/photos.json` (`osm/photos/commons.py`), `AUDIT_REPORT.md` (v37 audit moved to `docs/AUDIT_v37.md`),
+  `DATA_SOURCES_AND_LICENCES.md`, `manifest/DATASET_REPORT.md`, `TEST_REPORT.md`.
+- Not done: licensed 3D car models (none downloaded), real building outlines / buildings outside the extract, photos shown in game.

@@ -9,9 +9,10 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 
 Companion files (read before non-trivial work):
 - `PLAN.md`: approved behaviour changes, the realism roadmap, the on-hold refactor plan, expected pre-existing test results.
-- `CHANGELOG.md`: per-version notes v22–v38 (history, honest limits, tests added per feature).
-- `AUDIT_REPORT.md`: v37 realism/accuracy audit (evidence, sources, remaining limits).
-- `REALISM_FEATURES.md`: player-facing description of the v38 damage / speed-bump features.
+- `CHANGELOG.md`: per-version notes v22–v39 (history, honest limits, tests added per feature).
+- `AUDIT_REPORT.md`: v39 audit (damage/tyre/object systems, map data, photos, car assets; what is real vs estimated). The v37 audit is `docs/AUDIT_v37.md`.
+- `DATA_SOURCES_AND_LICENCES.md`, `manifest/` (cars, places, photos, world objects, `DATASET_REPORT.md`), `TEST_REPORT.md`.
+- `REALISM_FEATURES.md`: player-facing description of damage modes, tyres, diagnostics.
 
 ## Commands
 
@@ -22,8 +23,8 @@ node tests/<name>.js dist/irbid-drive.html          # run one headless check (st
 python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check (needs `pip install playwright`)
 ```
 
-- This Windows machine has no `python3`/`node` on PATH. Python is at
-  `%LOCALAPPDATA%\Programs\Python\Python315\python.exe`. Node must be installed before any `tests/*.js` can run.
+- This Windows machine has no `python3` on PATH. Python is at `%LOCALAPPDATA%\Programs\Python\Python315\python.exe`
+  (has playwright, xlrd, openpyxl; no pyproj/shapely, so `osm/bld/*.py` cannot run here). Node v24 is installed.
   `build.py` writes UTF-8 + LF explicitly, so a Windows build matches a Linux one byte for byte (check with `git diff --stat dist/`).
 - **Git** (installed 2026-10-14, `C:\Program Files\Git\cmd`, branch `main`, remote `origin` =
   https://github.com/yousefkhasawneh512-stack/car_race.git). **The owner wants GitHub kept up to date: after every verified
@@ -34,9 +35,10 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
-  Also run `realism_test` (29 PASS/FAIL checks for v38 damage/poles/bumps; exits 1 on failure).
-  Expected results, identical on v37 and v38 (measured 2026-10-14): `h24` "bad 6", `vg` "bad 9" (searches for removed invented
-  shops), `h21` places 1038, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0. `boot`/`h2`/`h13`/race/traffic output varies
+  Also run `realism_test` (29 checks), `damage_test` (50 checks: zones, modes, per-car durability, tyres, burnouts, objects,
+  switching, diagnostics) and `off_trace` (damage Off physics hash must equal v38's); all exit 1 on failure. Visual: `damage_pw.py`.
+  Expected results (v39b, 2026-10-16; v37/v38 identical except places 1038): `h24` "bad 6", `vg` "bad 9" (searches for removed invented
+  shops), `h21` places 1473, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0. `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
   Broken or obsolete scripts (they fail the same way on v37): `val` (pre-OSM graph; use `val_net`), `csv_test`/`cs_check`
   (CSV nodes removed in v35b), `gen_fit`/`h18` (removed shops/places), `llchk` (expects `new.html`), `dups` (needs npm `acorn`).
@@ -47,9 +49,13 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - Visual checks need a real browser (`page.screenshot`). Headless SwiftShader runs ~2 fps and RAF ticks unreliably, so
   force game state instead of driving (see `tests/wheel_test.py` for a manual RAF stepper).
 - `osm/` holds the data pipelines that GENERATE `src/parts/03a`–`03d` (`gen_world.py`+`net.py` → `03a_net_data.js`,
-  `bld/conv.py` → `03b_bld_data.js`, `bld/pois.py` → `03c_poi_data.js`, `terrain/gen_terrain.py` → `03d_terrain_data.js`).
+  `bld/conv.py` → `03b_bld_data.js`, `overpass/fetch.py`+`overpass/build.py --game` → `03c_poi_data.js` (since v39; `bld/pois.py` is the
+  old BBBike route), `terrain/gen_terrain.py` → `03d_terrain_data.js`). `overpass/build.py` also writes `manifest/places.json` and
+  `geo_summary.json`; it keeps previous POID rows in their old order because `RLP()` seeds landmarks by first match.
+  `osm/overpass/proj.py` is the game projection in Python. `osm/photos/commons.py` → `manifest/photos.json`;
+  `tools/gen_car_manifest.js` → `manifest/cars.json` + `world_objects.json` (generated from the build; never hand-edit).
   Never hand-edit those four parts; change the pipeline and regenerate. **Raw OSM/SRTM input files (`osm/**/*.json`,
-  `*.gpkg`) are local-only and git-ignored. The owner does not want them published; never commit them.** The scripts are tracked.
+  `*.gpkg`, `osm/official/*.xls*`, `osm/overpass/out/`) are local-only and git-ignored. The owner does not want them published; never commit them.** The scripts are tracked.
 
 ## Architecture
 
@@ -65,13 +71,14 @@ Current order and roles:
 | Data (generated) | `03a_net_data`, `03b_bld_data`, `03c_poi_data`, `03d_terrain_data` | `NETD/NETE` roads, `BLDD` footprints + `RL()`, `POID` places + `RLP()`, `TERR` heights |
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
-| Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage system |
+| Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
 | Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
 | Frame | `12a_fx`, `12b_post`, `12c_terrain`, `12_hud_loop` | effects, HDR bloom/grade chain, the terrain pass, minimap/HUD/camera and the **main loop** |
 
 Order facts that have broken things before: `06h2_final_patch` runs before `06h_gen`, and `06d_fabric_driver` runs after it.
 `12a_fx` must precede `12_hud_loop`. `08a_wheel` declares `let ui`, which earlier-defined handlers read at runtime. `07c_realism`
-wraps `setPlayerCar` (a function declaration in `07b_tune`), so it must load after it.
+wraps `setPlayerCar` (a function declaration in `07b_tune`), so it must load after it. `07c` runs code at load that may call into
+`07f` (`updateDamageButton`); that call is gated by `diagReady` because `07f`'s consts are still in their temporal dead zone then.
 
 **Flat-frame authoring + one terrain pass (v37). This is the rule most likely to bite.** Every world generator builds at y=0.
 At the end of `12_hud_loop.js`, `applyTerrain()` (`12c_terrain.js`) runs once before the loop starts and lifts the static scene
@@ -106,11 +113,16 @@ invented shop/venue builder. The early-return guards keep the `PR()` call order 
 **Storage:** `irbid-save` (`{fines,spent,owned,cur,dt,tune}`, `07b_tune.js`) is the only one that matters for compatibility.
 `irbid-wheel` (G29 setup) and `irbid-drive-realism-v1` (damage mode + per-car condition) are separate keys on purpose.
 
-**Damage (v38, `07c_realism.js`):** mode Off/Cosmetic/Full (key `I`, `#damageBtn`), **default Off = physics identical to
-v37**. `registerPlayerImpact` is called from `colB` (when `o===P`) and from the traffic/bot collision code in `updP`.
-`damageEffects()` returns a shared multiplier object that `updP` reads. Breakable poles/street lights are colliders with
-`breakable/breakAt/visualKey`, removed with `removeCol`; the instance is hidden via `DESTRUCTIBLE_INSTANCES`, filled by
-`instO` item slot `p[8]`. Speed bumps (always on, even with damage Off) are **estimated** positions near OSM
+**Damage (v39, `07c`–`07f`):** mode Off/Cosmetic/Full (key `I`, `#damageBtn`; diagnostics key `O`), **default Off = physics identical to
+v37/v38, proved by `tests/off_trace.js`; keep it that way** (every new `updP` term is neutral when `damageMode===0`: `dfx.lat=1`,
+`dfx.pull=0`, `burnoutState` false, `tyreStep` returns). `registerPlayerImpact(v,collider,nx,nz)` is called from `colB` (when `o===P`)
+and from the traffic/bot code in `updP`; it returns the speed the car loses when the object GAVE WAY (broke/shoved), and `colB` then
+skips the bounce. `n` points from the obstacle to the car. Mesh frame: +x = car's LEFT, +z = forward; wheels FL,FR,RL,RR = 0..3.
+`carSpec(i)` is the per-car profile (cached); records are per car NAME, schema `v:2`, v38 records migrate in `migrateRecord`.
+`damageEffects()` fills the shared `DFX`. Mesh parts are tagged in `mkPorsche` (`userData.part` body/glass/hl/tl/tyre/rim). Object
+classes live in `OBJ_CLASS` (`07e`); breakables use `breakAt` = speed for a 1,500 kg car (energy-based); attached instances use keys
+`<key>/arm|/head|/pool|/xf`, sign plates are in `SIGN_PLATES` (merged-mesh vertex range); instances are registered by `instO`
+item slot `p[8]`. Speed bumps (always on, even with damage Off) are **estimated** positions near OSM
 schools/clinics/parks, not survey data. Whether to keep them is an open owner decision (`PLAN.md`).
 
 ## Constraints (the product; get owner approval in `PLAN.md` → "Approved behaviour changes" before altering)
@@ -147,10 +159,12 @@ schools/clinics/parks, not survey data. Whether to keep them is an open owner de
 
 ## Open issues worth knowing
 
-- **v38 has no automated test** and was merged without running any (no Node here). Write `tests/realism_test.js` next.
-  Test DOM stubs will need `dataset`, `setAttribute` and `window`.
+- Test DOM stubs need `dataset`, `setAttribute`, `window` and `document.body.appendChild` (07f appends its panel).
+- No licensed 3D car models: Sketchfab downloads need the owner's account and a licence/trademark decision, and GLBs conflict with
+  the single-file rule. Photos in `manifest/photos.json` are reference-only (showing them would add a network host).
 - The attribution line is long on phones and overlaps the GAS pad. Damage durability numbers are balance estimates.
 - Not modelled: mass/CoM, torque curves, gears, suspension, a tyre model, OSM `surface` tags (`surfK()` is a heuristic).
 - 1 km SRTM sampling misses narrow wadis. Rigid landmark groups may float or sink slightly at slope edges.
 - OSM coverage is partial (empty blocks, rectangle footprints, generated heights). Outside the building extract
-  (JUST, Jadara, INU) buildings are still procedural.
+  (JUST, Jadara, INU) buildings are still procedural, although 26,591 real OSM buildings exist there (`manifest/DATASET_REPORT.md`).
+  Schools are badly under-mapped in OSM (146 in the play area vs 1,358 on the MoE list for the governorate).
