@@ -24,10 +24,10 @@ for(const z in TS.spawn_rules){const c=[0,0,0,0,0];for(let i=0;i<60000;i++)c[S.r
 const tally={};const names=S.TPOOL.map(a=>new Set(a));
 let badTier=0;
 const PL=n=>{const p=S.PLACES.find(q=>q.name===n||q.name.startsWith(n));return p?[p.x,p.z]:[0,0]};
-for(const [nm,[x,z]] of [['Al-Balad',PL('Irbid Clock')],['University St',PL('Oxygen Gym')],['Petra St',PL('Eimar Irbid Park')],['Aidun',PL('Aidun')],['Thalatheen',PL('Power House Gym')],['Arabella',PL('Arabella')],['JUST',PL('Jordan University of Science')],['Jadara',PL('Jadara')],['INU',PL('Irbid National')]]){S.warp(x,z,0);
+for(const [nm,[x,z]] of [['Al-Balad',PL('Clock Tower Square')],['University St',PL('Oxygen Gym')],['Petra St',PL('Emaar Irbid Park')],['Aidun',PL('Aidun')],['Thalatheen',PL('Power House Gym')],['Arabella',PL('Arabella')],['JUST',PL('Jordan University of Science')],['Jadara',PL('Jadara')],['INU',PL('Irbid National')]]){S.warp(x,z,0);
  for(let k=0;k<12;k++)for(const c of S.traffic){S.respawn(c);if(c.x>9e4)continue;const t=tally[c.zone]||(tally[c.zone]=[0,0,0,0,0]);t[c.tier]++;if(!names[c.tier].has(c.idx))badTier++;if(!c.m.parent)badTier+=1000}}
 for(const z in tally){const t=tally[z],n=t.reduce((a,b)=>a+b,0);console.log('world',z.padEnd(22),'n='+String(n).padStart(5),t.map(v=>(100*v/n).toFixed(1)).join(' / '),'rule',(TS.spawn_rules[z]||[]).map(v=>(v*100).toFixed(0)).join(' / '))}
 console.log('tier/model mismatches',badTier,'| distinct meshes cached',S.MESHC.size,'| scene nodes',(()=>{let n=0;S.scene.traverse(()=>n++);return n})());
 // 3) sample list of rare models actually driving after a warm-up run in Petra
-S.warp(...PL('Eimar Irbid Park'),0);for(const c of S.traffic)S.respawn(c);run(600);console.log('petra sample',S.traffic.slice(0,24).map(c=>S.PORS[c.idx][0].replace(/^(Toyota|Hyundai|Kia|Nissan) /,'')+'['+'CUREL'[c.tier]+']').join(', '));
+S.warp(...PL('Emaar Irbid Park'),0);for(const c of S.traffic)S.respawn(c);run(600);console.log('petra sample',S.traffic.slice(0,24).map(c=>S.PORS[c.idx][0].replace(/^(Toyota|Hyundai|Kia|Nissan) /,'')+'['+'CUREL'[c.tier]+']').join(', '));
 console.log('traffic positions finite',S.traffic.every(c=>Number.isFinite(c.x)&&Number.isFinite(c.z)));

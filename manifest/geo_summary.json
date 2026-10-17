@@ -1,5 +1,5 @@
 {
- "retrieved": "2026-10-16T17:40:26Z",
+ "retrieved": "2026-10-17T08:23:49Z",
  "window_game_m": [
   -9408.063139694348,
   19756.947273847385,
@@ -13,19 +13,19 @@
   36.06051206772567
  ],
  "pois": {
-  "raw_elements": 2234,
-  "classified": 2203,
+  "raw_elements": 2307,
+  "classified": 2222,
   "duplicates_merged": 62,
-  "unique": 2141,
-  "named": 1647,
+  "unique": 2160,
+  "named": 1666,
   "unnamed": 494,
   "by_kind": {
    "dukkan": 484,
    "mosque": 211,
    "food": 199,
+   "poi": 186,
    "school": 175,
    "place": 168,
-   "poi": 167,
    "cafe": 125,
    "medical": 100,
    "grocery": 77,
@@ -63,7 +63,7 @@
   },
   "with_wikidata": 10,
   "with_commons_or_image": 7,
-  "in_current_game": 1468
+  "in_current_game": 1653
  },
  "buildings": {
   "osm_in_window": 46142,
@@ -116,14 +116,14 @@
  },
  "missing_geometry": 0,
  "skipped": {
-  "outside window": 7,
-  "unclassified": 24
+  "unclassified": 78,
+  "outside window": 7
  },
  "records_total": {
-  "pois_unique": 2141,
+  "pois_unique": 2160,
   "buildings": 46142,
   "highway_ways": 14546,
-  "sum": 62829
+  "sum": 62848
  },
  "poi_sparse_cells_2km": [
   {
@@ -232,7 +232,7 @@
     14217.732914940385
    ],
    "buildings": 403,
-   "pois": 0
+   "pois": 1
   },
   {
    "cell_x_m": [
@@ -287,7 +287,7 @@
   "mosques": {
    "official_rows": 778,
    "unique_normalized_names": 477,
-   "name_matches_in_osm_window": 254,
+   "name_matches_in_osm_window": 255,
    "note": "Awqaf Irbid directorate lists (whole directorates, incl. villages outside the play area). No coordinates; matching is by name only and generic names (e.g. Abu Bakr Al-Siddiq) can match a different mosque, so this is an upper bound, never used to place anything."
   },
   "schools": {

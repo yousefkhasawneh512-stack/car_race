@@ -159,6 +159,6 @@ void facPat(float gd,inout vec3 col,out float gl,out vec3 em,out float ht){
 const facMat=GFX.on?gfxPatch(gfxReg(new T.MeshStandardMaterial({color:0xffffff,roughness:.9,metalness:0,envMapIntensity:.6})),'fac'):null;
 // one facade box: x,y(centre),z,ry,sx,sy,sz,colour, style, front sign (local z of the street side), variant (glass top for style 2, else random)
 function bldF(x,y,z,ry,sx,sy,sz,col,sty,fr,vr){if(GFX.on&&facMat)FACI.push([x,y,z,ry,sx,sy,sz,col,sty,Math.random(),fr,vr===undefined?Math.random():vr]);else BOXI.push([x,y,z,ry,sx,sy,sz,col])}
-function instF(items){if(!items.length||!facMat)return;chunkBy(items,(L,cx,cz)=>{const g=new T.BoxGeometry(1,1,1);g.boundingSphere=BS;const at=new Float32Array(L.length*4),m=new T.InstancedMesh(g,facMat,L.length);
+function instF(items){if(!items.length||!facMat)return;chunkBy(items,(L,cx,cz)=>{const g=new T.BoxGeometry(1,1,1);g.boundingSphere=BS;const at=new Float32Array(L.length*4),m=new T.InstancedMesh(g,facMat,L.length);m.frustumCulled=true;
  L.forEach((p,i)=>{o3.position.set(p[0]-cx,p[1],p[2]-cz);o3.rotation.set(0,p[3]||0,0);o3.scale.set(p[4]||1,p[5]||1,p[6]||1);o3.updateMatrix();m.setMatrixAt(i,o3.matrix);m.setColorAt(i,tc.setHex(p[7]));at[i*4]=p[8];at[i*4+1]=p[9];at[i*4+2]=p[10];at[i*4+3]=p[11]});
  g.setAttribute('aSty',new T.InstancedBufferAttribute(at,4));m.position.set(cx,0,cz);m.castShadow=true;m.receiveShadow=true;scene.add(m)})}

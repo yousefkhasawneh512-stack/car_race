@@ -66,7 +66,10 @@ def classify(t):
     if t.get('place'):return('place','Place: '+t['place'])
     if 'addr:housenumber' in t:return('address','Address point')
     if a:return('poi',a.replace('_',' ').capitalize())
+    # a node with a name and nothing that says what it is (common for shops here, and for 'Wasfi AlTal square'): kept, never given a made-up category
+    if t.get('name') and all(k.split(':')[0] in NAMEISH for k in t):return('poi','Named point (no category tag)')
     return None
+NAMEISH={'name','name_1','official_name','alt_name','old_name','short_name','int_name','loc_name','addr','phone','contact','website','opening_hours','note','description','source','fixme','email','check_date'}
 # ---------- names ----------
 AR_DIAC=re.compile('[ً-ٰٟـ]')
 def norm(s):
@@ -74,6 +77,43 @@ def norm(s):
     for a,b in(('أ','ا'),('إ','ا'),('آ','ا'),('ة','ه'),('ى','ي'),('ؤ','و'),('ئ','ي')):s=s.replace(a,b)
     s=re.sub(r'\b(مسجد|جامع|مدرسه|المدرسه|روضه|mosque|masjid|school)\b','',s)
     s=re.sub(r'[^\w؀-ۿ]+',' ',s);return ' '.join(s.split())
+NV=('name:ar','name:en','official_name','official_name:en','official_name:ar','alt_name','alt_name:en','alt_name:ar','old_name','old_name:en','short_name','loc_name','int_name','brand','brand:en','brand:ar')
+LAT=re.compile(r'[A-Za-z]');ARB=re.compile(r'[؀-ۿ]')
+MIX=re.compile(r"^\s*([A-Za-z0-9][A-Za-z0-9 '&.,_-]*?)\s+([؀-ۿ][؀-ۿ0-9 ً-ْ-]*?)\s*$|^\s*([؀-ۿ][؀-ۿ0-9 ً-ْ-]*?)\s+([A-Za-z][A-Za-z0-9 '&.,_-]*?)\s*$")
+GENERIC={norm(w) for w in('mosque','masjid','pharmacy','school','bakery','supermarket','market','restaurant','cafe','shop','store','clinic','bank','salon','barber','مسجد','جامع','صيدلية','مدرسة','مخبز','سوبرماركت','بقالة','مطعم','كافيه','محل','عيادة','بنك','صالون','حلاق','دكان','مول')}
+CORR=[];REVIEW=[]
+# consonant skeletons: an Arabic word and its Latin transliteration reduce to the same letters (vowels, alif/waw/ya, the article dropped)
+ASK=dict(zip('بتثجحخدذرزسشصضطظغفقكلمنهـ','bttjhkddrssssdtsgfkklmnh'))
+TRW={'mosque':'مسجد','masjid':'مسجد','school':'مدرسة','park':'حديقة','mall':'مول','market':'سوق','pharmacy':'صيدلية','bakery':'مخبز','stores':'ستورز','store':'ستور'}
+def ask(w):
+    w=re.sub('^(ال|لل)','',w);return ''.join(ASK.get(c,'') for c in w)
+def lsk(w):
+    w=w.lower();w=re.sub('^(al|el)(?=[a-z]{3})','',w)
+    for a,b in(('ph','f'),('th','t'),('sh','s'),('kh','k'),('gh','g'),('ch','s'),('q','k'),('c','k'),('v','f'),('p','b'),('x','ks'),('z','s'),('j','j'),('g','j')):w=w.replace(a,b)
+    return re.sub('[^a-z]','',re.sub('[aeiouwy]','',w))
+def same_name(lat,ar):
+    lt=[w for w in re.split(r'[^A-Za-z]+',lat) if w and w.lower() not in('al','el','the')];at=[w for w in ar.split() if w]
+    if not lt or not at:return False
+    ak={ask(w) for w in at}|{ask(w) for w in at}
+    ok=lambda w:(w.lower() in TRW and TRW[w.lower()] in at) or (lsk(w) and lsk(w) in ak)
+    used=set(at);mat=lambda a:any((l.lower() in TRW and TRW[l.lower()]==a) or (ask(a) and ask(a)==lsk(l)) for l in lt)
+    return all(ok(w) for w in lt) and all(mat(a) for a in at)
+def clean(rec):
+    # rule-based, logged name fixes only (whitespace; an Arabic+Latin name with no name:en split into name/name_en). Everything else is flagged, never guessed.
+    nm=rec['name'];n2=re.sub(r'\s+',' ',nm).strip()
+    if n2!=nm:CORR.append({'id':rec['id'],'field':'name','from':nm,'to':n2,'rule':'whitespace'});rec['name']=nm=n2
+    m=MIX.match(nm) if nm and not rec['name_en'] else None
+    if m:
+        lat,ar=(m.group(1),m.group(2)) if m.group(1) else (m.group(4),m.group(3))
+        if same_name(lat,ar):
+            CORR.append({'id':rec['id'],'field':'name/name_en','from':nm,'to':[ar.strip(),lat.strip()],'rule':'one name tag held the Arabic and the Latin spelling of the same name (every word matches by transliteration); split, the game shows the Latin one as it does for name:en'})
+            rec['name'],rec['name_en']=ar.strip(),lat.strip();nm=rec['name'];rec['flags'].append('name split from mixed-script tag')
+        else:REVIEW.append({'id':rec['id'],'name':nm,'issue':'Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped'})
+    if nm and norm(nm) in GENERIC:rec['flags'].append('generic name');REVIEW.append({'id':rec['id'],'name':nm,'issue':'name is only a category word; the real business name is unknown'})
+    if nm and re.search(r'\d{7,}',nm.replace(' ','')):rec['flags'].append('phone number in name');REVIEW.append({'id':rec['id'],'name':nm,'issue':'name contains a phone number'})
+    if nm and LAT.search(nm) and not ARB.search(nm) and nm==nm.lower() and len(nm)>3:rec['flags'].append('lower-case name');REVIEW.append({'id':rec['id'],'name':nm,'issue':'all lower-case Latin name (style only; not changed without a source)'})
+    en=rec['names'].get('name:en','')
+    if en and nm and LAT.search(nm) and not ARB.search(nm) and norm(en)!=norm(nm):REVIEW.append({'id':rec['id'],'name':nm,'issue':'name and name:en are both Latin and differ: '+en})
 def pos(e):
     if e['type']=='node':return e.get('lat'),e.get('lon')
     c=e.get('center') or {};return c.get('lat'),c.get('lon')
@@ -90,7 +130,9 @@ for e in P['elements']:
     recs.append({'id':'osm:'+e['type'][0]+str(e['id']),'osm_type':e['type'],'osm_id':e['id'],'name':nm,'name_en':t.get('name:en','') if t.get('name:en','')!=nm else '',
       'kind':k[0],'category':k[1],'lat':round(la,7),'lon':round(lo,7),'x':round(x,1),'z':round(z,1),'geometry':'point' if e['type']=='node' else e['type']+' centre',
       'tags':{q:t[q] for q in('amenity','shop','leisure','tourism','historic','healthcare','education','religion','denomination','building','wikidata','wikipedia','wikimedia_commons','image','website','addr:street','addr:housenumber','addr:city','opening_hours','operator','isced:level') if q in t},
+      'names':{q:t[q] for q in NV if q in t},
       'source':'OpenStreetMap (Overpass API)','retrieved':STAMP,'flags':[] if nm else ['unnamed']})
+    clean(recs[-1])
 # de-duplication: (1) same OSM object is unique already; (2) same kind + same normalized name within 80 m -> one place (prefer the
 # polygon, it carries the footprint); (3) an UNNAMED mosque/school node within 40 m of a same-kind polygon -> the node marks that building.
 # Different names are never merged, however close (neighbouring shops stay separate).
@@ -112,6 +154,15 @@ for i in order:
                 same=(na and nb and na==nb and d<80) or (not nb and a['kind'] in('mosque','school') and a['osm_type']!='node' and d<40)
                 if same:dead.add(j);a.setdefault('merged',[]).append(b['id']);dups.append([a['id'],b['id'],round(d,1),b['name']])
 places=[r for i,r in enumerate(recs) if i not in dead]
+# ---------- hand-built landmarks that ARE an OSM feature (same facility, checked by name + footprint; NAME_CORRECTIONS.md). The game shows the
+# landmark (model + label) and adds the OSM names to its search aliases instead of a second label. Everything else is a separate place, however close.
+LANDMARK_OSM={'osm:w696141881':'Dar As Saraya Ottoman Museum','osm:w1173930235':"Arar's Cultural House (Beit Arar)",'osm:w1173930712':'The Nabulsi House (Beit Al-Nabulsi)',
+ 'osm:w1173940939':'Clock Tower Square','osm:n2450661245':'Wasfi Al-Tal Square','osm:w468735683':'Emaar Irbid Park','osm:n9648242752':'Arabella Mall',
+ 'osm:n3255400345':'Sameh Mall','osm:n4579615689':'MK Super Market','osm:n5549599194':'Nissan Irbid Showroom','osm:w101717092':'Al-Hassan Stadium',
+ 'osm:n13574046361':'Al-Hassan Sports City (Madinat Al-Hasan)','osm:w237116926':'Irbid National University','osm:w237116986':'Jadara University',
+ 'osm:w105641867':'Yarmouk University','osm:w237088320':'Jordan University of Science & Technology (JUST)','osm:w402029495':'King Abdullah University Hospital'}
+for r in places:
+    if r['id'] in LANDMARK_OSM:r['in_game_as']=LANDMARK_OSM[r['id']]
 # ---------- in-game status: real places the current build shows (POID rows, 1 decimetre grid) ----------
 poid_src=open(os.path.join(ROOT,'src','parts','03c_poi_data.js'),encoding='utf-8').read()
 POID=json.loads(re.search(r'const POID=(\[.*\]);',poid_src,re.S).group(1))
@@ -124,7 +175,8 @@ def in_game(r):
             for q in pg[(gx+dx,gz+dz)]:
                 if math.hypot(q[0]/10-r['x'],q[1]/10-r['z'])<60 and (norm(q[3])==nr or (q[4] and norm(q[4])==norm(r['name_en'] or r['name']))):return True
     return False
-for r in places:r['in_game']=bool(r['name']) and in_game(r)
+GAME_IDS={q[6] for q in POID if len(q)>6}
+for r in places:r['in_game']=bool(r['name']) and (r['id'] in GAME_IDS or r['id'] in LANDMARK_OSM or in_game(r))
 # ---------- photos (manifest/photos.json, built separately by osm/photos/commons.py) ----------
 ph={}
 pf=os.path.join(ROOT,'manifest','photos.json')
@@ -204,16 +256,37 @@ os.makedirs(os.path.join(ROOT,'manifest'),exist_ok=True)
 json.dump({'generated_by':'osm/overpass/build.py','licence':'ODbL 1.0, (c) OpenStreetMap contributors','retrieved':STAMP,'count':len(places),'places':places},open(os.path.join(ROOT,'manifest','places.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=0)
 json.dump(summary,open(os.path.join(ROOT,'manifest','geo_summary.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
 json.dump(dups,open(os.path.join(H,'out','duplicates.json'),'w',encoding='utf-8'),ensure_ascii=False)
+json.dump({'generated_by':'osm/overpass/build.py','retrieved':STAMP,'applied':CORR,'needs_review':REVIEW},open(os.path.join(ROOT,'manifest','name_review.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
+print('name fixes applied',len(CORR),'flagged for review',len(REVIEW))
+# ---------- unresolved / uncertain places (for review; nothing here is placed or renamed on a guess) ----------
+LANDMARK_ISSUES=[
+ {'place':'Wasfi Al-Tal Park','issue':'no OSM feature of this name; park polygon and name come from the original game','status':'kept, marked "name not in OSM (unverified)" in search'},
+ {'place':'Museum of Jordanian Heritage','issue':'real museum at Yarmouk University, but OSM has no point for it; position is a campus offset','status':'kept, marked "position estimated"'},
+ {'place':'Souq Al-Balad','issue':'generic name for the downtown market streets; no single OSM feature','status':'kept, marked "position estimated"'},
+ {'place':'University Circle / Al-Qubbah Circle / Al-Thaqafah Circle','issue':'hand-assigned roundabout names; the OSM roundabouts there are unnamed','status':'unverified; names kept (race/teleport menu strings)'},
+ {'place':'King Abdullah University Hospital','issue':'OSM tags the hospital building at JUST as "King Abdullah II Hospital" (way 402029495); its official name is King Abdullah University Hospital','status':'marker moved to the OSM building; game name kept; OSM name searchable; conflict to report upstream'},
+ {'place':'Arabella Mall','issue':'OSM node 9648242752 spells it "Arbila Mall / اربيلا مول"','status':'game spelling kept, OSM spelling searchable; needs a local check'},
+ {'place':'Irbid National University','issue':'OSM way 237116926 is named "Irbed National University" (spelling)','status':'game spelling kept; OSM spelling searchable'},
+ {'place':'Sameh Mall','issue':'the old game name claimed a "Thaqafah Circle Branch"; OSM only says سامح مول and the nearest roundabouts are unnamed','status':'renamed to the OSM name'},
+ {'place':'The Nabulsi House','issue':'the old sign said "1922"; no source in this project supports a date','status':'date removed'},
+ {'place':'Bank (heist), Apex Drift Customs, Al-Hassan Drift Zone','issue':'gameplay locations, not real businesses','status':'kept (game mechanics); not counted as real places'},
+ {'place':'Speed bumps (90)','issue':'estimated positions near schools/clinics/parks, not surveyed','status':'unchanged; owner decision pending (PLAN.md)'}]
+json.dump({'generated_by':'osm/overpass/build.py','retrieved':STAMP,'landmarks':LANDMARK_ISSUES,
+  'names_needing_review':REVIEW,'unnamed_pois_kept_unnamed':sum(1 for r in places if not r['name']),
+  'official_lists_without_coordinates':{k:v for k,v in OFF.items()}},open(os.path.join(ROOT,'manifest','unresolved_places.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
 print(json.dumps({k:summary[k] for k in('pois','buildings','records_total')},ensure_ascii=False)[:1500])
 print('official',json.dumps(OFF,ensure_ascii=False)[:800])
 # ---------- optional: regenerate the in-game POI part ----------
 if '--game' in sys.argv:
-    G={'food','cafe','medical','hospital','auto','dealer','bank','school','dukkan','civic','gym','park','poi','museum','landmark','mosque','church','grocery','mall','barber','pet'}
+    G={'food','cafe','medical','hospital','auto','dealer','bank','school','dukkan','civic','gym','park','poi','museum','landmark','mosque','church','grocery','mall','barber','pet','transport','place'}
+    AREA={'Place: neighbourhood','Place: suburb','Place: quarter','Place: village','Place: town','Place: city','Place: hamlet','Place: locality'}
     rows_g=[]
     for r in places:
-        if not r['name'] or r['kind'] not in G or r['category'] in('ATM','Parking','Sports pitch','Playground','Taxi stand'):continue
-        if r['kind']=='park' and re.search(r'استراحة|Trees|مدينة الحسن|Circle|دوار',r['name']):continue
-        rows_g.append([round(r['x']*10),round(r['z']*10),r['kind'],r['name'],r['name_en'],r['category'],r['id']])
+        if not r['name'] or r['kind'] not in G or r['category'] in('ATM','Taxi stand'):continue
+        if r['kind']=='place' and r['category'] not in AREA:continue          # plots, region/state outlines; squares are landmarks
+        if r['kind']=='park' and re.search(r'استراحة|Trees|Circle|دوار',r['name']):continue
+        al=' '.join(dict.fromkeys(v for k,v in r['names'].items() if k!='name:en' and v and v!=r['name'] and v!=r['name_en']))
+        rows_g.append([round(r['x']*10),round(r['z']*10),'area' if r['kind']=='place' else r['kind'],r['name'],r['name_en'],r['category'].replace('Place: ',''),r['id'],al])
     # rows the previous build had keep their OLD order (RLP() below is a first-match lookup that seeds landmarks); new rows follow by OSM id
     rank={}
     for i,q in enumerate(POID):rank.setdefault((q[3],round(q[0]/100),round(q[1]/100)),i)
@@ -224,8 +297,10 @@ if '--game' in sys.argv:
                 if i is not None:return(0,i,'')
         return(1,0,q[6])
     rows_g.sort(key=rk);kept=sum(1 for q in rows_g if rk(q)[0]==0)
-    js=('// GENERATED by osm/overpass/build.py --game from OpenStreetMap via the Overpass API ('+STAMP+'), ODbL (c) OpenStreetMap contributors. POID rows: [x*10 m, z*10 m, kind, name, nameEn, category label, OSM id]. Do not hand-edit.\n'
+    js=('// GENERATED by osm/overpass/build.py --game from OpenStreetMap via the Overpass API ('+STAMP+'), ODbL (c) OpenStreetMap contributors. POID rows: [x*10 m, z*10 m, kind, name, nameEn, category label, OSM id, other verified names (name:ar/official/alt/old/brand)]. Do not hand-edit.\n'
         '// Rows that existed in the previous build keep their order, because RLP() (landmark seeding) takes the first match.\n'
         'const POID='+json.dumps(rows_g,ensure_ascii=False,separators=(',',':'))+';\n'
-        'const RLP=(re,fb)=>{const q=POID.find(n=>re.test(n[3])||re.test(n[4]));return q?[q[0]/10,q[1]/10]:fb};\n')
+        'const RLP=(re,fb)=>{const q=POID.find(n=>re.test(n[3])||re.test(n[4]));return q?[q[0]/10,q[1]/10]:fb};\n'
+        '// OSM features that are the same facility as a hand-built landmark (osm/overpass/build.py LANDMARK_OSM): merged into that landmark, not labelled twice\n'
+        'const POID_LM='+json.dumps(LANDMARK_OSM,ensure_ascii=False,separators=(',',':'))+';\n')
     open(os.path.join(ROOT,'src','parts','03c_poi_data.js'),'w',encoding='utf-8',newline='\n').write(js);print('wrote 03c_poi_data.js rows',len(rows_g),'kept from previous build',kept,'of',len(POID))

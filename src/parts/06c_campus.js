@@ -11,7 +11,7 @@ function spotIn(k,cx,cz,w,d,ry,maxR){maxR=maxR||450;for(let r=0;r<=maxR;r+=12){c
   const o=obb(x,z,w,d,ry);if(onRoadFoot(o,3)||!occFree(o,2))continue;return[x,z]}}return null}
 // lattice of faculty blocks inside the polygon
 // v35: where the real OSM extract already has buildings, the generated faculty blocks are not added (real footprints are placed later by placeReal)
-const RBGRID=(()=>{const m=new Map(),Q=BLDD.p;for(let i=0;i<Q.length;i+=7){const k=Math.floor(Q[i]/10/50)*100000+Math.floor(Q[i+1]/10/50);m.set(k,(m.get(k)||0)+1)}return m})();
+const RBGRID=(()=>{const m=new Map();for(const Q of[BLDD.p,BLDO.p])for(let i=0;i<Q.length;i+=7){const k=Math.floor(Q[i]/10/50)*100000+Math.floor(Q[i+1]/10/50);m.set(k,(m.get(k)||0)+1)}return m})();   // v40: + BLDO (real buildings outside the extract)
 const realCnt=(x,z,r)=>{let n=0;for(let i=Math.floor((x-r)/50);i<=Math.floor((x+r)/50);i++)for(let j=Math.floor((z-r)/50);j<=Math.floor((z+r)/50);j++)n+=RBGRID.get(i*100000+j)||0;return n};
 function campusFill(k,step,wr,dr,hr,inset,ry0){const b=pBox(k);let n=0,sk=0;for(let x=b.x0+step/2;x<b.x1;x+=step)for(let z=b.z0+step/2;z<b.z1;z+=step){const jx=x+R(-step*.22,step*.22),jz=z+R(-step*.22,step*.22);
   if(!inPoly(k,jx,jz)||pDist(k,jx,jz)<inset)continue;if(realCnt(jx,jz,step*.5)>=2){sk++;continue}if(campusBld(jx,jz,R(wr[0],wr[1]),R(dr[0],dr[1]),R(hr[0],hr[1]),ry0,0))n++}if(sk)console.log('campus',k,'cells left to real OSM buildings',sk);return n}

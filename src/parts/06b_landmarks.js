@@ -18,7 +18,11 @@ const ST=roadSpot('Baghdad Street',...O(150,86)),START={x:ST.x+ST.nx*4,z:ST.z+ST
  for(const k of[-1,1])Mi(g,new T.BoxGeometry(1.8,7.5,1.8),LM_(0xd9c27a),k*6.2,3.75,0);Mi(g,new T.BoxGeometry(15,2.2,2),LM_(0xc9ae66),0,8.1,0);Mi(g,new T.ConeGeometry(2.4,2.6,4),LM_(0xb8935a),0,10.6,0);
  signAt(g,'SOUQ AL-BALAD',0,13.2,0,22);SOUQG.x=s.x;SOUQG.z=s.z;boxCol(s.x+s.nx*6.2,s.z+s.nz*6.2,1.8,1.8,0);boxCol(s.x-s.nx*6.2,s.z-s.nz*6.2,1.8,1.8,0);SPAWNKEEP.push([s.x,s.z,14]);
  const ac=[0xc0392b,0x2980b9,0xf39c12,0x27ae60,0x8e44ad,0xe67e22];EDGES.forEach(e=>{if(!(SOUQ(e)&&e.w<6.5&&e.len>10))return;for(let u=4;u<e.len-4;u+=6.5)for(const sd of[-1,1]){const p=edgePt(e,u);AWN.push([p[0]+sd*p[2]*(e.w/2+.1),3.5,p[1]+sd*p[3]*(e.w/2+.1),Math.atan2(p[2],p[3]),5.8,.12,2.6,pick(ac)])}})}
-{const c=roadSpot('Clock Tower Lane',...RL(/Clock Tower Square/,O(-320,-60))),cx=c.x+c.nx*14,cz=c.z+c.nz*14,g=grp(cx,0,cz,0),sd=LM_(0xdccf9f);Mi(g,new T.BoxGeometry(6,24,6),sd,0,12,0);Mi(g,new T.CylinderGeometry(0,5,7,4).rotateY(Math.PI/4),LM_(0x8a3b2a),0,27.5,0);
+// v40: the tower stands IN the real Clock Tower Square (OSM way 1173940939, 'دوار الساعة': the median between the two carriageways of
+// Faddel Aldalgamouni St), not 14 m off a legacy street line 36 m north of it. Falls back to the old spot if the data point is missing or too close to a road.
+const CLK_SITE=(()=>{const q=RL(/Clock Tower Square/,null);if(q&&!roadAt(q[0],q[1])){let m=99;for(const e of EDGES)for(let i=1;i<e.pts.length;i++){const a=e.pts[i-1],b=e.pts[i],dx=b[0]-a[0],dz=b[1]-a[1],L=dx*dx+dz*dz||1,t=Math.max(0,Math.min(1,((q[0]-a[0])*dx+(q[1]-a[1])*dz)/L)),d=Math.hypot(q[0]-a[0]-dx*t,q[1]-a[1]-dz*t)-e.w/2;if(d<m)m=d}
+ if(m>=4.5)return{x:q[0],z:q[1],cl:m,real:true}}const c=roadSpot('Clock Tower Lane',...RL(/Clock Tower Square/,O(-320,-60)));return{x:c.x+c.nx*14,z:c.z+c.nz*14,cl:9.5,real:false}})();
+{const cx=CLK_SITE.x,cz=CLK_SITE.z,g=grp(cx,0,cz,0),sd=LM_(0xdccf9f);Mi(g,new T.BoxGeometry(6,24,6),sd,0,12,0);Mi(g,new T.CylinderGeometry(0,5,7,4).rotateY(Math.PI/4),LM_(0x8a3b2a),0,27.5,0);
  for(const[a,b]of[[0,3.1],[0,-3.1]])Mi(g,new T.CircleGeometry(2,20),new T.MeshBasicMaterial({color:0xfff6dc,side:T.DoubleSide}),a,20,b);for(const[a,b]of[[3.1,0],[-3.1,0]]){const m=Mi(g,new T.CircleGeometry(2,20),new T.MeshBasicMaterial({color:0xfff6dc,side:T.DoubleSide}),a,20,b);m.rotation.y=Math.PI/2}
  boxCol(cx,cz,6,6,0);SPAWNKEEP.push([cx,cz,12]);CLKG.x=cx;CLKG.z=cz}
 // Wasfi Al-Tal Park

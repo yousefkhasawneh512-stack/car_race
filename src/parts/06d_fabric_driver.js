@@ -1,7 +1,8 @@
 // ---- fabric along every road, then flush everything into instanced meshes ----
 // building fabric along the real streets, budgeted per hub (the detail budget is a performance choice, not map data): each hub fills from its centre outward
 const BCAP=FACQ?7500:3500,HSH=[.36,.18,.14,.10,.05,.07,.05,.05],BLD_STAT={placed:0,tries:0};
-// ---- real OpenStreetMap building footprints (BLDD, BBBike extract): placed first; the generated fabric below only fills OUTSIDE the extract ----
+// ---- real OpenStreetMap building footprints (BLDD, BBBike extract + v40 BLDO, Overpass, everything outside it): placed first; the generated fabric below only fills
+// places with no real OSM building within ~50 m (realCnt, 06c), i.e. where OpenStreetMap has nothing mapped ----
 const inCover=(()=>{const q=BLDD.cover;return(x,z)=>{let sg=0;for(let i=0;i<4;i++){const a=q[i],b=q[(i+1)&3],c=(b[0]-a[0])*(z-a[1])-(b[1]-a[1])*(x-a[0]);if(c===0)continue;const g=c>0?1:-1;if(!sg)sg=g;else if(sg!==g)return false}return true}})();
 const RB={pieces:0,placed:0,road:0,occ:0,zone:0,shrunk:0,sty:[0,0,0,0,0,0,0,0,0]},notTn=e=>!e.tn;
 function roadHit(x,z,pad){const ci=Math.floor(x/HC2),cj=Math.floor(z/HC2);for(let i=ci-1;i<=ci+1;i++)for(let j=cj-1;j<=cj+1;j++){const L=HASH.get(hk(i,j));if(!L)continue;for(let q=0;q<L.length;q++){const s=L[q];if(s.e.tn)continue;const th=Math.max(s.hw+pad,2.4);let t=((x-s.x0)*s.dx+(z-s.z0)*s.dz)*s.il2;t=t<0?0:t>1?1:t;const ex=x-s.x0-s.dx*t,ez=z-s.z0-s.dz*t;if(ex*ex+ez*ez<th*th)return true}}return false}
@@ -17,8 +18,8 @@ function realStyle(tc,w,d,h,rn,zone){const area=w*d;
 const colFor=sty=>sty===1?rowC():sty===2?pick(SHOPC):sty===3?pick(APTC):sty===4?pick(SANDC.concat(LIMEP,CONC)):sty===5?pick(VILC):sty===6?pick(LIMEP.concat(WHITEW)):sty===7?pick(CONC):pick([0xcfd8dc,0xb9c4cc,0xdcdcd6]);
 const RBG=new Map(),RBK=(x,z)=>Math.floor(x/60)*100000+Math.floor(z/60);
 function rbAt(x,z){const L=RBG.get(RBK(x,z));if(!L)return null;for(const r of L){const o=r[0],dx=x-o.x,dz=z-o.z,lx=dx*o.c-dz*o.s,lz=dx*o.s+dz*o.c;if(Math.abs(lx)<=o.hw+.5&&Math.abs(lz)<=o.hd+.5)return r}return null}
-function placeReal(){const P=BLDD.p,N=P.length/7,pass=[];
- for(let i=0;i<N;i++){const o=i*7;let x=P[o]/10,z=P[o+1]/10,w=P[o+2]/10,d=P[o+3]/10,ry=P[o+4]/100;const h=P[o+5]/2,tcf=P[o+6];RB.pieces++;
+function placeReal(){const pass=[];
+ for(const P of[BLDD.p,BLDO.p])for(let i=0,N=P.length/7;i<N;i++){const o=i*7;let x=P[o]/10,z=P[o+1]/10,w=P[o+2]/10,d=P[o+3]/10,ry=P[o+4]/100;const h=P[o+5]/2,tcf=P[o+6];RB.pieces++;
   if(w<2.5||d<2.5||noBR(x,z)||Math.hypot(x-BANKP.x,z-BANKP.z)<60||Math.hypot(x-SHOPP.x,z-SHOPP.z)<50||SPAWNKEEP.some(q=>Math.hypot(x-q[0],z-q[1])<q[2])){RB.zone++;continue}
   const rn=roadNear(x,z,45,notTn),fa=()=>{if(!rn)return[0,1];const c=Math.cos(ry),s=Math.sin(ry),vx=rn.px-x,vz=rn.pz-z;return[vx*c-vz*s,vx*s+vz*c]};
   let[lx,lz]=fa();if(Math.abs(lx)>Math.abs(lz)*1.2){const t=w;w=d;d=t;ry+=Math.PI/2;[lx,lz]=fa()}
@@ -40,7 +41,7 @@ function placeReal(){const P=BLDD.p,N=P.length/7,pass=[];
  heroes(hAB,'Al-Balad',3);heroes(hPS,'Petra Street',1);heroes(hAI,'Aidun',1);
  console.log('real buildings: pieces',RB.pieces,'placed',RB.placed,'dropped zone/road/occupied',RB.zone,RB.road,RB.occ,'shrunk',RB.shrunk,'styles',RB.sty.join('/'),'heroes',have['Al-Balad'],have['Petra Street'],have['Aidun'])}
 placeReal();
-function styleFor(e,x,z){if(inCover(x,z))return null;const dn=distName(x,z),k=e.kind;
+function styleFor(e,x,z){if(inCover(x,z)||realCnt(x,z,25))return null;const dn=distName(x,z),k=e.kind;
  if(dn==='Al-Balad')return['row',1,dn];if(dn==='University Street')return ZR_UNI(e)?['shop',.96,dn]:['apt',.7,dn];
  if(dn==='Petra Street'||dn==='Aidun')return(k==='petra'||k==='local'||k==='main')?['villa',.62,dn]:null;
  if(dn==='Irbid')return k==='arch'?['apt',.35,dn]:k==='local'?['house',.75,dn]:['apt',.85,dn];

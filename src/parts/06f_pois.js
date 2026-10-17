@@ -26,7 +26,7 @@ function siteNear(x,z,w,d,set,o,name){const D=d+set,R2=Math.hypot(w,D)/2,okE=e=>
    const cx=fx-dx*set/2,cz=fz-dz*set/2,tx=q.tx,tz=q.tz;occAdd(fob);if(!(o&&o.nocol))boxCol(cx,cz,w,d,ry);
    return{cx,cz,ry,sd:1,w,d,set,c:Math.cos(ry),s:Math.sin(ry),p:{x:q.px,z:q.pz,tx,tz,nx:-tz,nz:tx},tp:[q.px-tz*q.e.w/4,q.pz+tx*q.e.w/4,Math.atan2(tx,tz)],g:o&&o.nogrp?null:grp(cx,0,cz,ry)}}}
  throw new Error('no free plot near '+name)}
-const wl=(S,lx,lz)=>[S.cx+lx*S.c+lz*S.s,S.cz-lx*S.s+lz*S.c];   // local -> world
+const wl=(S,lx,lz)=>{if(S.kx){lx*=S.kx;lz*=S.kz}return[S.cx+lx*S.c+lz*S.s,S.cz-lx*S.s+lz*S.c]};   // local -> world (S.kx/kz: a model scaled onto a real footprint, siteReal)
 function showCar(S,lx,lz,a,name,col){const q=wl(S,lx,lz);SHOWCARS.push({x:q[0],z:q[1],h:S.ry+Math.PI+(a||0),name,col})}
 const bxi=(S,lx,y,lz,w,h,d,col)=>{const q=wl(S,lx,lz);BOXI.push([q[0],y,q[1],S.ry,w,h,d,col])};
 const bxf=(S,lx,y,lz,w,h,d,col,sty,fr,vr)=>{const q=wl(S,lx,lz);bldF(q[0],y,q[1],S.ry,w,h,d,col,sty,fr,vr)};
@@ -101,7 +101,7 @@ if(!REALP){const S=siteBeside('Aidun South Street',...O(3250,640),96,58,34,{}),g
  instO(new T.ConeGeometry(.35,.7,6),baseMat,CN);occAdd(obb(cx,cz,2*(DZR+22),2*(DZR+22),0));
  gantry('Al-Hassan Sports City Road',SC[0],SC[1],'AL-HASSAN SPORTS CITY · DRIFT ZONE',34);
  const tp=tpRoad('Al-Hassan Sports City Road',SC[0],SC[1]);
- addPlace('Al-Hassan Stadium Sports Complex',cx,cz,{r:90,kind:'stadium',tp,tour:true,sub:'Eastern Municipal District'});
+ addPlace('Al-Hassan Stadium',cx,cz,{r:90,kind:'stadium',tp,tour:true,sub:'Eastern Municipal District'}).alias='Al-Hassan Stadium Sports Complex';
  addPlace('Al-Hassan Drift Zone',cx,cz-DZR,{r:60,kind:'drift',sub:'Eastern Municipal District',ax:cx,az:cz-DZR});SPAWNKEEP.push([cx,cz,DZR+30])}
 // ---- hair salons data structure: explicit named entries (the generic Al-Balad barbers are placed by placeShops) ----
 const SALONS=[{name:'Corner Salon for Men',type:'Local Guide Approved Barber',zone:'Map Intersection Corner',description:'A highly visible corner barber shop featuring signature white styling lights and high-performance grooming stations.'}];
@@ -164,15 +164,15 @@ if(!REALP){const S=siteBeside('King Hussein Street',...O(-80,480),44,34,10,{noco
  signAt(g,'CENTRAL BANK OF JORDAN · IRBID BRANCH',0,16.5,d/2-23.5,44);poiAt(S,'Central Bank of Jordan - Irbid Branch',{r:34,kind:'bank',tag:'Mid-City Sector Corridor',sub:'Mid-City Sector Corridor · High-Security Stone Complex'});SPAWNKEEP.push([S.cx,S.cz,26])}
 // ---- existing landmarks, registered by name for search / HUD ----
 {const sp=(n,x,z)=>tpRoad(n,x,z);
- {const pcx=(PARK.x0+PARK.x1)/2,pcz=(PARK.z0+PARK.z1)/2,prn=roadNear(pcx,pcz,500);addPlace('Wasfi Al-Tal Park',pcx,pcz,{r:110,kind:'park',sub:'City center green space',tp:sp('Park South Street',pcx,pcz),tour:true,ax:prn?prn.px:pcx,az:prn?prn.pz:pcz})}
- {const mx=MALL.r?MALL.x:UL(880,415)[0],mz=MALL.r?MALL.z:UL(880,415)[1],mrn=roadNear(mx,mz,400);addPlace('Arabella Mall',mx,mz,{r:140,kind:'mall',sub:'King Abdullah II Street',tp:mrn?[mrn.px-mrn.tz*mrn.e.w/4,mrn.pz+mrn.tx*mrn.e.w/4,Math.atan2(mrn.tx,mrn.tz)]:sp('King Abdullah II Street',mx,mz),tour:true,ax:mrn?mrn.px:mx,az:mrn?mrn.pz:mz})}
+ {const pcx=(PARK.x0+PARK.x1)/2,pcz=(PARK.z0+PARK.z1)/2,prn=roadNear(pcx,pcz,500);addPlace('Wasfi Al-Tal Park',pcx,pcz,{r:110,kind:'park',sub:'City center green space · name not in OSM (unverified)',tp:sp('Park South Street',pcx,pcz),tour:true,ax:prn?prn.px:pcx,az:prn?prn.pz:pcz})}
+ {const mx=MALL.r?MALL.x:UL(880,415)[0],mz=MALL.r?MALL.z:UL(880,415)[1],mrn=roadNear(mx,mz,400);const ap=addPlace('Arabella Mall',mx,mz,{r:140,kind:'mall',sub:'King Abdullah II Street',tp:mrn?[mrn.px-mrn.tz*mrn.e.w/4,mrn.pz+mrn.tx*mrn.e.w/4,Math.atan2(mrn.tx,mrn.tz)]:sp('King Abdullah II Street',mx,mz),tour:true,ax:mrn?mrn.px:mx,az:mrn?mrn.pz:mz});ap.onReal=BLDD.n.some(n=>/^Arabella Mall/.test(n[2])&&Math.hypot(n[0]-mx,n[1]-mz)<40)}
  addPlace('Bank',BANK.x,BANK.z,{r:30,kind:'bank',sub:'Palestine Street · E to rob'});addPlace('Apex Drift Customs',SHOPP.x,SHOPP.z,{r:28,kind:'garage',sub:'Baghdad Street · U for upgrades'});
- addPlace('Souq Al-Balad',SOUQG.x,SOUQG.z,{r:40,kind:'market',sub:'Al-Balad'});addPlace('Clock Tower',CLKG.x,CLKG.z,{r:20,kind:'landmark',sub:'Al-Balad'});
+ addPlace('Souq Al-Balad',SOUQG.x,SOUQG.z,{r:40,kind:'market',sub:'Al-Balad · position estimated'});addPlace('Clock Tower',CLKG.x,CLKG.z,{r:20,kind:'landmark',sub:'Al-Balad'});
  const uc=UL(1496,70);addPlace('Yarmouk University',uc[0],uc[1],{r:120,kind:'campus',sub:'Main Stone Gate'});
- addPlace('Museum of Jordanian Heritage',UL(1275,335)[0],UL(1275,335)[1],{r:40,kind:'landmark',sub:'Yarmouk University',ax:UL(1275,185)[0],az:UL(1275,185)[1]});
+ addPlace('Museum of Jordanian Heritage',UL(1275,335)[0],UL(1275,335)[1],{r:40,kind:'landmark',sub:'Yarmouk University · position estimated',ax:UL(1275,185)[0],az:UL(1275,185)[1]});
  addPlace('Jordan University of Science & Technology (JUST)',JC[0],JC[1],{r:200,kind:'campus',sub:'far east',ax:JC[0]-390,az:JC[1]});
  addPlace('Jadara University',HC[0],HC[1],{r:60,kind:'campus',sub:'southern hill'});addPlace('Irbid National University',INC[0],INC[1],{r:60,kind:'campus',sub:'Irbid–Syria Highway'});
- {const a=3*Math.PI/16;addPlace('King Abdullah University Hospital',JC[0]+375*Math.cos(a),JC[1]+375*Math.sin(a),{r:40,kind:'hospital',sub:'JUST'})}}
+ {const a=3*Math.PI/16,q=RLP(/^King Abdullah II Hospital$/,[JC[0]+375*Math.cos(a),JC[1]+375*Math.sin(a)]),rn=roadNear(q[0],q[1],300);addPlace('King Abdullah University Hospital',q[0],q[1],{r:60,kind:'hospital',sub:'JUST',ax:rn?rn.px:undefined,az:rn?rn.pz:undefined})}}
 // ---- modular ground-floor shops: Al-Balad barber & hair salons, Thalatheen Street pet supplies ----
 const POLES=[],PAWS=[];
 function placeShops(){if(REALP)return;

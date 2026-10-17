@@ -15,7 +15,7 @@ function generate1000PlusIrbidPlaces() {
   const proceduralPlaces = [];
   let placeCounter = 1;
   proceduralPlaces.push(
-    { id: "Medeenat_Al_Hasan", name: "Medeenat Al-Hasan (Al-Hassan Sports City)", zone: "Eastern Municipal Districts", type: "Major Sports Complex & Drifting Arena" },
+    { id: "Medeenat_Al_Hasan", name: "Al-Hassan Sports City (Madinat Al-Hasan)", zone: "Eastern Municipal Districts", type: "Major Sports Complex & Drifting Arena" },
     { id: "Hydrogen_Plus_Gym", name: "Hydrogen Plus Fitness & Spa (Hydrogym)", zone: "Irbid-Al Hisn Road", type: "Premium Aquatic Fitness Hub" },
     { id: "Oxygen_Gym", name: "Oxygen Gym", zone: "University Street District", type: "Mega Fitness Center" },
     { id: "Power_House_Gym", name: "Power House Gym", zone: "Thalatheen Street Corridor", type: "Hardcore Weight Training Center" },
@@ -64,7 +64,7 @@ function runGen(){
  const have=n=>PLACES.some(p=>p.name===n);
  for(const it of maximumIrbidPlaces.slice(0,5)){
   if(have(it.name))continue;
-  if(it.id==='Medeenat_Al_Hasan'){addPlace(it.name,SC[0],SC[1],{r:8,kind:'stadium',sub:it.type+' · '+it.zone,tp:tpRoad('Al-Hassan Sports City Road',SC[0],SC[1]),tour:false,ax:SC[0],az:SC[1]-DZR});continue}
+  if(it.id==='Medeenat_Al_Hasan'){addPlace(it.name,SC[0],SC[1],{r:8,kind:'stadium',sub:it.type+' · '+it.zone,tp:tpRoad('Al-Hassan Sports City Road',SC[0],SC[1]),tour:false,ax:SC[0],az:SC[1]-DZR}).alias='Medeenat Al-Hasan';continue}
   try{gymBuild({name:it.name,type:it.type,zone:it.zone});GEN_OK++}catch(e){GEN_FAIL.push(it.name+': '+e.message)}}
  const L=maximumIrbidPlaces.slice(5).filter(it=>!it.name.startsWith('Supermarket ')).map(it=>{const bt=businessTypes.find(b=>it.name.startsWith(b+' '));const ft=genFit(bt,+(it.name.match(/#(\d+)/)||[0,0])[1]);return{name:it.name,type:ft?ft.type:it.type,zone:ft?ft.zone:it.zone,cat:GEN_CAT[bt]||'dukkan',gen:true,fbr:ft?ft.fbr:undefined}});
  const ord=c=>({dealer:0,medical:1,auto:2,gym:2}[c]??3);L.sort((a,b)=>ord(a.cat)-ord(b.cat));

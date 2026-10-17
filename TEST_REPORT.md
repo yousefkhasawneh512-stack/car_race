@@ -4,7 +4,31 @@ Machine: Windows 11, Node v24.20.0, Python 3.15 + Playwright 1.64 (Chromium, Swi
 repo root unless noted (Node harness tests were run from a scratch directory because they write output files).
 Build: `python build.py` → `dist/irbid-drive.html` 3,374,297 chars / 3,216 lines.
 
-## New tests
+## v40 (Phase 1: real map and places), 2026-10-17, build 4,225,808 chars
+
+All run on the final v40 build. Node suites from a scratch directory, Playwright from the repo root.
+
+| Test | v39c | v40 |
+|---|---|---|
+| `val_net` | 400 ok, 0 unroutable | same |
+| `boot` | build 3.9 s, 465k instances | build 4.6 s, 831k instances (2.4× real buildings) |
+| `h2` / `h13` / `h20` / `h16` | finite / 0 mismatches / unchanged / fines 0 | same |
+| `h14` | bad 2 | bad 2 |
+| `h21` places | 1,473 | **1,659** (laz 1,489) |
+| `h24` / `vg` | bad 6 / bad 9 | **bad 6 / bad 9** (test names updated to the corrected landmark names; old names stay searchable) |
+| `tour` / `dyn_check` / `terr_check` | 0 off-road / bad 0 / 0 groups off terrain | same |
+| `phys_brake` | Focus RS 0–100 4.99 s, vmax 245.4 | identical |
+| `realism_test` / `damage_test` | 29/29 / 50/50 | 29/29 / 50/50 |
+| `off_trace` | hash = v38 | **physics (collider-free) hash = v38** (`b4f220ee…`, checked on v38, v39c and v40); the with-world hash changed because the clock tower, heritage houses and new buildings near the start are at their real positions. The test now checks both |
+| `lmchk` | Dar As-Saraya 76 m, Nabulsi 37 m, Clock 36 m, Arar 16 m, Nissan 47 m | **all ≤ 5 m** |
+| `dc2` draw calls / triangles | 2,110–2,577 / 1.26–1.33 M | **538–1,060 / 83k–281k** (view-culling fix) |
+| `disp`, `ios`, `shopt`, `wheel_test` 30/30, `drive_pw`, `damage_pw` 7/7 | pass | pass, no page errors |
+
+Visual checks (Chromium screenshots, inspected): Dar As-Saraya, Beit Nabulsi and Beit Arar on their real footprints; the clock tower in the
+square median; JUST and Jadara show real OSM buildings instead of generated blocks; the same downtown and JUST views before/after show no
+geometry lost to culling. Not tested: phones (frame rate with the extra buildings), G29 hardware.
+
+## v39: New tests
 
 ### `node tests/damage_test.js dist/irbid-drive.html`: 50/50 PASS
 

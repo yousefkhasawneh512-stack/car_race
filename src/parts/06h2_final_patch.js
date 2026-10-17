@@ -3,8 +3,8 @@
 const final_missing_places_patch=[
  {id:"vogo_cafe",name:"Vogo Cafe",zone:"University Street Corridor",type:"Premium Neon Student Lounge & Cafe",description:"A high-density glowing social hub positioned right along the main student strip, heavily illuminated with custom cyan wireframe fixtures."},
  {id:"dar_as_saraya_museum",name:"Dar As Saraya Ottoman Museum",zone:"Al-Balad Old Core / Top of Irbid Hill",type:"Historical Ottoman Citadel Landmark",description:"Built originally as an Ottoman castle and prison in 1886. Features heritage stone archways and sharp 3D vector-edge brick layouts."},
- {id:"irbid_clock_tower_square",name:"Irbid Clock Memorial Square",zone:"Downtown Market Center",type:"Central Roundabout & Tower Monument",description:"The absolute landmark focal point of the historic old town, serving as a complex radial intersection grid node."},
- {id:"eimar_irbid_park",name:"Eimar Irbid Park",zone:"Northern Residential Districts",type:"Premium Public Green Space Arena",description:"Clean municipal park layout featuring sharp neon perimeter vector borders and concrete walkways."},
+ {id:"irbid_clock_tower_square",name:"Clock Tower Square",zone:"Downtown Market Center",type:"Central Roundabout & Tower Monument",description:"The absolute landmark focal point of the historic old town, serving as a complex radial intersection grid node."},
+ {id:"eimar_irbid_park",name:"Emaar Irbid Park",zone:"Northern Residential Districts",type:"Premium Public Green Space Arena",description:"Clean municipal park layout featuring sharp neon perimeter vector borders and concrete walkways."},
  {id:"summit_international_academy",name:"Summit International Academy",zone:"Al-Husn Street Sector",type:"Private Institutional Multi-Building Campus",description:"A prominent private secondary education complex providing a highly recognizable architectural grid asset."}];
 const FMP_OK=[],FMP_SKIP=[],FMP_FAIL=[];
 const VOGO_N=GFX.on?new T.MeshBasicMaterial({color:new T.Color(.1,2.4,2.8)}):BMB(0x19e6ff);

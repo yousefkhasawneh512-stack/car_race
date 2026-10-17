@@ -170,6 +170,8 @@ place **and** a distinctive word of the place's name appears in its title or cat
   share-alike. Creator, licence URL and source page are stored per entry.
 - **1,523 places have no verified photo** (listed in `no_photo`). Commons has only 257 geotagged files anywhere near the checked
   places, and most show unrelated scenes. No mosque or school has a verified photo.
+- **v40, Openverse:** it holds 718 images mentioning Irbid (347 are Commons mirrors). 1 more photo was accepted (Flickr "Irbid Archaeological
+  Museum", CC BY 2.0, medium confidence: name match, no coordinates); 85 name matches were rejected for NC/ND licences.
 - OSM `image=` tags in the area link to Facebook, postimg and ibb with no licence, so they were rejected. Mapillary was not used
   (needs a token).
 - **Use:** reference only. The game does not download or show these photos (single offline file, no new hosts).

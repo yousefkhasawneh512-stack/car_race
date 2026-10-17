@@ -124,7 +124,7 @@ function packShop(it){if(REALP)return null;const ck=it.cat==='dukkan'&&/Supermar
  lazyLabel(P0,S,it.name.toUpperCase(),dl?7:5.3,Math.min(15,Math.max(8.5,w*1.05)));return S}
 // ---- custom structural venues ----
 const FENCE_M=new T.MeshLambertMaterial({color:0x9aa0a6,transparent:true,opacity:.4});
-function wallC(S,lx,lz,ww,dd){const q=wl(S,lx,lz);boxCol(q[0],q[1],ww,dd,S.ry)}
+function wallC(S,lx,lz,ww,dd){const q=wl(S,lx,lz);boxCol(q[0],q[1],ww*(S.kx||1),dd*(S.kz||1),S.ry)}
 function gymBuild(G){if(REALP)return;const cfg={'Oxygen Gym':[36,22,12,0x2b2f36,0x19c3ff],'Glow Gym & Spa':[28,20,13,0xefe3ee,0xff4fd8],'Power House Gym':[30,20,10,0x7a3a2a,0xff3b30],"Gold's Gym Irbid (Simulated)":[40,24,12,0xf3f1ea,0xffc400],'Champion Fitness Center':[30,20,10,0x1d3557,0x4da3ff],'Iron Body Club':[20,14,6.5,0x4a4d54,0xff8a00],'Hydrogen Plus Fitness & Spa (Hydrogym)':[32,22,12,0xe6f2f5,0x00c2d1]}[G.name]||[30,20,11,0x2b2f36,0xff4d6d];
  const[w,d,h,bc,ac]=cfg,iron=G.name==='Iron Body Club',S=packSite(G.zone,w,d,iron?8:14,{}),g=S.g;
  BX(g,w,h,d,bc,0,h/2,0);BX(g,w+.8,.8,d+.8,0x1d1f24,0,h+.4,0);

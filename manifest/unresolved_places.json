@@ -1,0 +1,743 @@
+{
+ "generated_by": "osm/overpass/build.py",
+ "retrieved": "2026-10-17T08:23:49Z",
+ "landmarks": [
+  {
+   "place": "Wasfi Al-Tal Park",
+   "issue": "no OSM feature of this name; park polygon and name come from the original game",
+   "status": "kept, marked \"name not in OSM (unverified)\" in search"
+  },
+  {
+   "place": "Museum of Jordanian Heritage",
+   "issue": "real museum at Yarmouk University, but OSM has no point for it; position is a campus offset",
+   "status": "kept, marked \"position estimated\""
+  },
+  {
+   "place": "Souq Al-Balad",
+   "issue": "generic name for the downtown market streets; no single OSM feature",
+   "status": "kept, marked \"position estimated\""
+  },
+  {
+   "place": "University Circle / Al-Qubbah Circle / Al-Thaqafah Circle",
+   "issue": "hand-assigned roundabout names; the OSM roundabouts there are unnamed",
+   "status": "unverified; names kept (race/teleport menu strings)"
+  },
+  {
+   "place": "King Abdullah University Hospital",
+   "issue": "OSM tags the hospital building at JUST as \"King Abdullah II Hospital\" (way 402029495); its official name is King Abdullah University Hospital",
+   "status": "marker moved to the OSM building; game name kept; OSM name searchable; conflict to report upstream"
+  },
+  {
+   "place": "Arabella Mall",
+   "issue": "OSM node 9648242752 spells it \"Arbila Mall / اربيلا مول\"",
+   "status": "game spelling kept, OSM spelling searchable; needs a local check"
+  },
+  {
+   "place": "Irbid National University",
+   "issue": "OSM way 237116926 is named \"Irbed National University\" (spelling)",
+   "status": "game spelling kept; OSM spelling searchable"
+  },
+  {
+   "place": "Sameh Mall",
+   "issue": "the old game name claimed a \"Thaqafah Circle Branch\"; OSM only says سامح مول and the nearest roundabouts are unnamed",
+   "status": "renamed to the OSM name"
+  },
+  {
+   "place": "The Nabulsi House",
+   "issue": "the old sign said \"1922\"; no source in this project supports a date",
+   "status": "date removed"
+  },
+  {
+   "place": "Bank (heist), Apex Drift Customs, Al-Hassan Drift Zone",
+   "issue": "gameplay locations, not real businesses",
+   "status": "kept (game mechanics); not counted as real places"
+  },
+  {
+   "place": "Speed bumps (90)",
+   "issue": "estimated positions near schools/clinics/parks, not surveyed",
+   "status": "unchanged; owner decision pending (PLAN.md)"
+  }
+ ],
+ "names_needing_review": [
+  {
+   "id": "osm:n7504262765",
+   "name": "مسجد",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n7293021123",
+   "name": "mini coffee",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9593980320",
+   "name": "city market",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n2450837660",
+   "name": "the college mosque",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n13624903402",
+   "name": "مسجد",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n4608589840",
+   "name": "M. S Resident",
+   "issue": "name and name:en are both Latin and differ: M. S Residency"
+  },
+  {
+   "id": "osm:n7281810260",
+   "name": "touch",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810263",
+   "name": "pink",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810268",
+   "name": "fancy",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810269",
+   "name": "blusher",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810270",
+   "name": "rancy",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810276",
+   "name": "smile man",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282180386",
+   "name": "sugar rivers",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282312584",
+   "name": "mango",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282321897",
+   "name": "you & me",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282322889",
+   "name": "cafe jeevan",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282322890",
+   "name": "super market",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282322892",
+   "name": "mango cake",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282322897",
+   "name": "malabari",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7287951201",
+   "name": "pause",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7287951202",
+   "name": "ajnadeen",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7287951209",
+   "name": "brands",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810262",
+   "name": "smile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810264",
+   "name": "smile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810273",
+   "name": "pally",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281810274",
+   "name": "omobile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282023427",
+   "name": "dilvin",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282074707",
+   "name": "evet",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7293300825",
+   "name": "azhar alfarooq",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281792536",
+   "name": "plus",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281792539",
+   "name": "karaz",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281792540",
+   "name": "7 days",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281792547",
+   "name": "7 days",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281792549",
+   "name": "snack boys",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281814227",
+   "name": "loai alzoubi",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281814229",
+   "name": "uni zone",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281814231",
+   "name": "me and you",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281820689",
+   "name": "pretty",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281820693",
+   "name": "nutella flowers",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281820696",
+   "name": "look for gift",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281820700",
+   "name": "over out let",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281820711",
+   "name": "pink",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281825401",
+   "name": "green cup",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281825402",
+   "name": "coffe house",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281825416",
+   "name": "alrayan",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282139376",
+   "name": "golden gate",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282161833",
+   "name": "green cup",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284296558",
+   "name": "nadeen optics center",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284296562",
+   "name": "zain",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284318935",
+   "name": "cran gust",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284362996",
+   "name": "florence",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284362997",
+   "name": "canon للأحبار والطابعات",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:n7284410814",
+   "name": "much more music",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284410824",
+   "name": "khattab",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284410828",
+   "name": "sonar",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284410840",
+   "name": "tunes mobile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284605818",
+   "name": "rain",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7287554669",
+   "name": "senan cafe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282161845",
+   "name": "doozy",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284802822",
+   "name": "سند Top fation",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:n7284850028",
+   "name": "hana",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284919398",
+   "name": "the crepe and cafe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648174294",
+   "name": "candy club",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648174297",
+   "name": "villa group",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648174298",
+   "name": "city cut",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648174299",
+   "name": "sweet",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648174303",
+   "name": "shereen",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7282161839",
+   "name": "corner",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080058",
+   "name": "hawawi mobile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080061",
+   "name": "al-kurdi samsung",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080062",
+   "name": "taimour mobile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080065",
+   "name": "oppo mobile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080067",
+   "name": "data line",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080068",
+   "name": "legrand",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284080070",
+   "name": "hawawi original mobile",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284665103",
+   "name": "fagle",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284621913",
+   "name": "samerey brazilian",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284665098",
+   "name": "just fashion",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284667247",
+   "name": "golden city",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284708202",
+   "name": "milano",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284942471",
+   "name": "omer sky",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7284991600",
+   "name": "omer sky",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7285033996",
+   "name": "kutkut",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7287726024",
+   "name": "falcon",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7287730162",
+   "name": "power",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7480332281",
+   "name": "mar sky",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7480332284",
+   "name": "مطعم",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n12826097461",
+   "name": "meat golden",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9602604500",
+   "name": "assfor",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9786865707",
+   "name": "بقالة",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n7426254785",
+   "name": "community health center",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7426290885",
+   "name": "pharmacy",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n7426290885",
+   "name": "pharmacy",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7426323385",
+   "name": "Pharmacy",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n7282050113",
+   "name": "legends sport",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9591456050",
+   "name": "iris",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9654187175",
+   "name": "cappado cafe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9654187178",
+   "name": "white pearl dental center",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9654187189",
+   "name": "asia 4 kitchens",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9654187191",
+   "name": "abdeen home center",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9655353103",
+   "name": "فرشات evosleep",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:n7282084003",
+   "name": "spider cafe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9124608090",
+   "name": "alrousan travel & tourism",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7291701813",
+   "name": "abu ahmed shekho",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7291701814",
+   "name": "midan alssaeih",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9644918101",
+   "name": "سوبر ماركت Zain",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:n9645063385",
+   "name": "tik tok",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648252793",
+   "name": "baskin robbins",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648294908",
+   "name": "steaks out",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648295482",
+   "name": "cavalier",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648308518",
+   "name": "MASA آلمنيوم",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:n9654561259",
+   "name": "lord caffe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9655345087",
+   "name": "moment",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9646488455",
+   "name": "الاردنية السعودية للتوظيف J.S.R",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:n9646494941",
+   "name": "party masters",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9646496143",
+   "name": "365 silutions",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9646515581",
+   "name": "cannoli restaurant&cafe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648254493",
+   "name": "alkarmi",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n9648264549",
+   "name": "yolo",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n5703078728",
+   "name": "hair place",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n5698742321",
+   "name": "fil and mil",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n802821409",
+   "name": "sal",
+   "issue": "name and name:en are both Latin and differ: Bushra"
+  },
+  {
+   "id": "osm:n5606534687",
+   "name": "مدرسه",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n9595702205",
+   "name": "haleem sweets",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n5606636782",
+   "name": "مدرسة",
+   "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n5698742221",
+   "name": "hookah store - everything",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:w1041752023",
+   "name": "down town cafe",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:w1223151496",
+   "name": "The Family Hub محطة العائلة",
+   "issue": "Arabic and Latin text in one name that are NOT the same name (brand + description?); left as mapped"
+  },
+  {
+   "id": "osm:w1385380172",
+   "name": "meat golden",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:w1043366054",
+   "name": "that alntaqin",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:w1460687630",
+   "name": "مطعم",
+   "issue": "name is only a category word; the real business name is unknown"
+  }
+ ],
+ "unnamed_pois_kept_unnamed": 494,
+ "official_lists_without_coordinates": {
+  "mosques": {
+   "official_rows": 778,
+   "unique_normalized_names": 477,
+   "name_matches_in_osm_window": 255,
+   "note": "Awqaf Irbid directorate lists (whole directorates, incl. villages outside the play area). No coordinates; matching is by name only and generic names (e.g. Abu Bakr Al-Siddiq) can match a different mosque, so this is an upper bound, never used to place anything."
+  },
+  "schools": {
+   "official_rows_irbid_governorate": 1358,
+   "by_district": {
+    "لواء قصبة اربد": 488,
+    "لواء بني عبيد": 202,
+    "لواء الرمثا": 155,
+    "لواء الكورة": 143,
+    "لواء بني كنانة": 124,
+    "لواء الاغوار الشمالية": 93,
+    "لواء المزار الشمالي": 75,
+    "لواء الطيبة": 41,
+    "لواء الوسطية": 37
+   },
+   "name_matches_in_osm_window": 30,
+   "note": "Ministry of Education list dated 2018 (published 2018, re-listed 2025): Irbid governorate, all districts, no coordinates. Name match is an upper bound."
+  }
+ }
+}

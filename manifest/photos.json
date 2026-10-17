@@ -4,7 +4,7 @@
  "radius_m": 150,
  "rule": "geotagged within radius AND distinctive name word in title/category (or Wikidata P18 of the OSM-linked item)",
  "places_checked": 1535,
- "places_with_verified_photo": 12,
+ "places_with_verified_photo": 13,
  "photos": [
   {
    "place_id": "osm:w237088320",
@@ -606,6 +606,28 @@
    ],
    "confidence": "medium",
    "use": "reference only (not bundled or displayed in the game)"
+  },
+  {
+   "place_id": "osm:w696141881",
+   "place_name": "Dar As Saraya Ottoman Museum",
+   "lat": 32.5577977,
+   "lon": 35.8480225,
+   "file": "Irbid Archaeological Museum",
+   "source_url": "https://www.flickr.com/photos/79721788@N00/36600170362",
+   "thumbnail": "https://api.openverse.org/v1/images/5fd42e5c-1efc-404d-8704-664bf12fe1d2/thumb/",
+   "creator": "D-Stanley",
+   "licence": "CC BY 2.0",
+   "licence_url": "https://creativecommons.org/licenses/by/2.0/",
+   "provider": "flickr",
+   "distance_m": null,
+   "match": "openverse title/tags",
+   "matched_words": [
+    "archaeological"
+   ],
+   "confidence": "medium (name match, no coordinates)",
+   "redistributable": true,
+   "use": "reference only (not bundled or displayed in the game)",
+   "source": "Openverse"
   }
  ],
  "no_photo": [
@@ -2051,7 +2073,6 @@
   "osm:w664987386",
   "osm:w672889626",
   "osm:w672889631",
-  "osm:w696141881",
   "osm:w696141882",
   "osm:w696141883",
   "osm:w742811632",
@@ -2087,5 +2108,440 @@
   "osm:w801941250",
   "osm:w847538214",
   "osm:w986054758"
- ]
+ ],
+ "openverse": {
+  "retrieved": "2026-10-17",
+  "places_checked": 271,
+  "corpus_images_mentioning_irbid": 718,
+  "commons_mirrors_skipped": 347,
+  "accepted": 1,
+  "rejected_licence": [
+   {
+    "place": "PROJECT SITE",
+    "file": "Site near Irbid [Beit Ras Islamic 'Shrine', cemetery]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "PROJECT SITE",
+    "file": "Site Near Irbid [Beit Ras / Capitolias Reservoir]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Tell Johfiyeh",
+    "file": "Tell Irbid",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Latin Church",
+    "file": "Irbid Church",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Yarmouk University",
+    "file": "Gree fields - Irbid",
+    "licence": "CC BY-NC-SA 2.0"
+   },
+   {
+    "place": "Yarmouk University",
+    "file": "16 May 2005 - 1 - Irbid 050",
+    "licence": "CC BY-NC 2.0"
+   },
+   {
+    "place": "Yarmouk University",
+    "file": "Gree fields - Irbid",
+    "licence": "CC BY-NC-SA 2.0"
+   },
+   {
+    "place": "Yarmouk University",
+    "file": "16 May 2005 - 1 - Irbid 048",
+    "licence": "CC BY-NC 2.0"
+   },
+   {
+    "place": "Yarmouk University",
+    "file": "16 May 2005 - 1 - Irbid 049",
+    "licence": "CC BY-NC 2.0"
+   },
+   {
+    "place": "Yarmouk University - South Campus",
+    "file": "Gree fields - Irbid",
+    "licence": "CC BY-NC-SA 2.0"
+   },
+   {
+    "place": "Yarmouk University - South Campus",
+    "file": "16 May 2005 - 1 - Irbid 050",
+    "licence": "CC BY-NC 2.0"
+   },
+   {
+    "place": "Yarmouk University - South Campus",
+    "file": "Gree fields - Irbid",
+    "licence": "CC BY-NC-SA 2.0"
+   },
+   {
+    "place": "Yarmouk University - South Campus",
+    "file": "16 May 2005 - 1 - Irbid 048",
+    "licence": "CC BY-NC 2.0"
+   },
+   {
+    "place": "Yarmouk University - South Campus",
+    "file": "16 May 2005 - 1 - Irbid 049",
+    "licence": "CC BY-NC 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Pits, cisterns, and looting Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid Area Cloverleaf Intersection",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; orchards; Wadi 'Ain Rahub",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; orchards and infrastructure development",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area looting?",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; orchards; Wadi 'Ain Rahub",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; olive groves",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid bypass; Irbid area windfarm",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area looting?",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid bypass; Irbid area windfarm",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; orchards and infrastructure development",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area looting?",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; orchards; Wadi 'Ain Rahub",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area looting?",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Trees area",
+    "file": "Irbid area; Irbid by-pass construction; bridge",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Greek Orthodox Church",
+    "file": "Irbid Church",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Arar's Cultural House (Beit Arar)",
+    "file": "Site near Irbid [Beit Ras Islamic 'Shrine', cemetery]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Arar's Cultural House (Beit Arar)",
+    "file": "Site Near Irbid [Beit Ras / Capitolias Reservoir]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "The Nabulsi House (Beit Al-Nabulsi)",
+    "file": "Site near Irbid [Beit Ras Islamic 'Shrine', cemetery]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "The Nabulsi House (Beit Al-Nabulsi)",
+    "file": "Site Near Irbid [Beit Ras / Capitolias Reservoir]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Capitolias",
+    "file": "Site near Irbid [Beit Ras Islamic 'Shrine', cemetery]",
+    "licence": "CC BY-NC-ND 2.0"
+   },
+   {
+    "place": "Capitolias",
+    "file": "Site Near Irbid [Beit Ras / Capitolias Reservoir]",
+    "licence": "CC BY-NC-ND 2.0"
+   }
+  ],
+  "rule": "distinctive name word AND Irbid in title/tags; Commons mirrors skipped; CC0/PDM/CC BY/CC BY-SA only"
+ }
 }

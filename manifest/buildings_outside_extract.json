@@ -1,0 +1,11 @@
+{
+ "retrieved": "2026-10-17T08:39:19Z",
+ "ways": 46217,
+ "missing_geometry": 0,
+ "in_window": 45915,
+ "inside_extract_skipped": 19483,
+ "buildings_written": 26432,
+ "pieces": 28153,
+ "with_height_or_levels": 123,
+ "bytes": 823156
+}

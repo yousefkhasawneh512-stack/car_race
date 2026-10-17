@@ -56,7 +56,7 @@ Each item needs evidence before a change, a test, and a CLAUDE.md note. Unverifi
    setting, (c) remove until real `traffic_calming` data exists. Needs an owner answer.
 3. **Denser terrain** (250 m grid or a licensed DEM tile processed offline), to resolve wadis and cuts; re-run `terr_check`/`slope_stats`.
 4. **Bridges/tunnels at real heights** (deck profile + ramps) instead of ground level.
-5. **Landmark placement:** put landmarks at their OSM seed (Dar As-Saraya is 76 m off, Nabulsi House 36 m, Clock Square 35 m, Nissan 47 m);
+5. **Done in v40:** **Landmark placement:** put landmarks at their OSM seed (Dar As-Saraya is 76 m off, Nabulsi House 36 m, Clock Square 35 m, Nissan 47 m);
    keep the road-snapped point only as the nav anchor. Verify the landmark checklist against imagery before changing any facade.
 6. **Per-car physics from manufacturer data only** (mass, power, gearing); then a simple gear/RPM and lateral-grip-by-surface model.
    Lateral grip off-road changes drift scoring, so it needs owner approval (economy constraint).
@@ -120,6 +120,14 @@ Approved by the owner (explicit requests) and now part of the reference behaviou
   suspension, alignment), per-wheel tyre load/slip/heat/wear, drivetrain-dependent burnouts, energy-based breakable/bendable/movable
   roadside objects, diagnostics panel. **Damage Off stays byte-identical to v37/v38 physics** (`tests/off_trace.js`); burnouts, pull,
   lateral-grip loss and object give-way only exist in Cosmetic/Full. Repairs stay free (economy unchanged).
+- v40 (owner request 2026-10-17, "Phase 1: fix the real map and all place data"; this request also approves changing landmark names
+  shown in "Passing:", an exception to constraint 7): landmark names corrected to their OSM names (Clock Tower Square, Wasfi Al-Tal
+  Square, Emaar Irbid Park, MK Super Market, Sameh Mall, Al-Hassan Stadium, Al-Hassan Sports City; old names stay searchable); Dar
+  As-Saraya, Beit Arar and Beit Nabulsi built ON their real OSM footprints; the clock tower in the real square; landmark markers at their
+  OSM points; the 42 m "landmark already there" rule replaced by OSM-id identity (POID_LM); neighbourhoods/villages, bus stations,
+  pitches, playgrounds and name-only OSM points added (1,473 -> 1,659 places); 26,432 real OSM buildings outside the old extract
+  replace generated filler (JUST, Jadara, INU, villages); chunked InstancedMeshes are frustum-culled (three r128 default was off).
+  Physics with damage Off is unchanged (`off_trace` collider-free hash = v38); the with-world trace changed because buildings moved.
 
 Still needs approval before implementing: a fixed-timestep physics loop, lateral grip by surface (affects drift scoring), removing or
 gating the estimated speed bumps, any pause/start/audio features, and the refactor phases below.

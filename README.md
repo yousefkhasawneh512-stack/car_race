@@ -28,7 +28,7 @@ Three.js loads from cdnjs. The world takes a few seconds to build.
 | U or P | Apex Drift Customs upgrade shop (when near it) |
 | G | wheel spin (unlock cars with JD) |
 | N / B | cycle owned cars |
-| M | search places / turn-by-turn directions |
+| M | search places, neighbourhoods and streets / turn-by-turn directions |
 | I | vehicle damage mode: Off / Cosmetic / Full |
 | O | vehicle diagnostics: damage report, per-wheel tyres, repair |
 | J / K | stunt ramps / landmark tour teleport |
@@ -90,6 +90,9 @@ More detail for contributors:
 
 - Road centrelines, building footprints and places are real OpenStreetMap data. Road widths and speed limits are typical
   values for each road class unless OSM tags them. Building heights are mostly estimated, and OSM coverage of Irbid is incomplete.
+- About 1,660 searchable places (shops, mosques, schools, landmarks, neighbourhoods, villages) and about 46,000 real buildings across the
+  whole map. Where OSM has no buildings, simple generated ones fill in. Landmarks stand at their OSM positions; see
+  `PLACE_IMPORT_REPORT.md` and `NAME_CORRECTIONS.md` for what was checked, corrected and is still uncertain.
 - The terrain uses a 1 km SRTM grid, so narrow valleys are smoothed out.
 - The speed bumps are **estimated** positions near mapped schools, clinics and parks, not surveyed locations.
 - Car durability, masses, handling and economy values are gameplay balance, not real-world data. The cars are simple
@@ -99,6 +102,6 @@ More detail for contributors:
 ## Data attribution
 
 - Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), available under the Open Database
-  License (ODbL). Building data come from a BBBike extract of OSM (2026-10-10); places from the Overpass API (2026-10-16).
+  License (ODbL). Building data come from a BBBike extract of OSM (2026-10-10) and the Overpass API (2026-10-17, outside that extract); places from the Overpass API (2026-10-17).
 - Elevation: NASA SRTM v3 (1 arc-second), retrieved via the OpenTopoData API.
 - [Three.js](https://threejs.org) r128 (MIT).

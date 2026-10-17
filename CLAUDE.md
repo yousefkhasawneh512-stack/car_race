@@ -9,9 +9,10 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 
 Companion files (read before non-trivial work):
 - `PLAN.md`: approved behaviour changes, the realism roadmap, the on-hold refactor plan, expected pre-existing test results.
-- `CHANGELOG.md`: per-version notes v22–v39 (history, honest limits, tests added per feature).
+- `CHANGELOG.md`: per-version notes v22–v40 (history, honest limits, tests added per feature).
 - `AUDIT_REPORT.md`: v39 audit (damage/tyre/object systems, map data, photos, car assets; what is real vs estimated). The v37 audit is `docs/AUDIT_v37.md`.
-- `DATA_SOURCES_AND_LICENCES.md`, `manifest/` (cars, places, photos, world objects, `DATASET_REPORT.md`), `TEST_REPORT.md`.
+- `DATA_SOURCES_AND_LICENCES.md`, `manifest/` (cars, places, photos, world objects, `DATASET_REPORT.md`, `name_review.json`,
+  `unresolved_places.json`), `TEST_REPORT.md`, `PLACE_IMPORT_REPORT.md` + `NAME_CORRECTIONS.md` (v40 place audit).
 - `REALISM_FEATURES.md`: player-facing description of damage modes, tyres, diagnostics.
 
 ## Commands
@@ -36,9 +37,10 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
   Also run `realism_test` (29 checks), `damage_test` (50 checks: zones, modes, per-car durability, tyres, burnouts, objects,
-  switching, diagnostics) and `off_trace` (damage Off physics hash must equal v38's); all exit 1 on failure. Visual: `damage_pw.py`.
-  Expected results (v39b, 2026-10-16; v37/v38 identical except places 1038): `h24` "bad 6", `vg` "bad 9" (searches for removed invented
-  shops), `h21` places 1473, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0. `boot`/`h2`/`h13`/race/traffic output varies
+  switching, diagnostics) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
+  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py`. Landmarks vs OSM: `lmchk`.
+  Expected results (v40, 2026-10-17): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
+  1659 (laz 1489), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060. `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
   Broken or obsolete scripts (they fail the same way on v37): `val` (pre-OSM graph; use `val_net`), `csv_test`/`cs_check`
   (CSV nodes removed in v35b), `gen_fit`/`h18` (removed shops/places), `llchk` (expects `new.html`), `dups` (needs npm `acorn`).
@@ -49,12 +51,15 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - Visual checks need a real browser (`page.screenshot`). Headless SwiftShader runs ~2 fps and RAF ticks unreliably, so
   force game state instead of driving (see `tests/wheel_test.py` for a manual RAF stepper).
 - `osm/` holds the data pipelines that GENERATE `src/parts/03a`–`03d` (`gen_world.py`+`net.py` → `03a_net_data.js`,
-  `bld/conv.py` → `03b_bld_data.js`, `overpass/fetch.py`+`overpass/build.py --game` → `03c_poi_data.js` (since v39; `bld/pois.py` is the
+  `bld/conv.py` → `03b_bld_data.js` (BBBike extract rectangle), `overpass/fetch.py buildings_geom`+`bld/conv_overpass.py` → `03e_bld_out.js`
+  (`BLDO`: every OSM building outside that rectangle; pure Python, no shapely), `overpass/fetch.py`+`overpass/build.py --game` → `03c_poi_data.js` (since v39; `bld/pois.py` is the
   old BBBike route), `terrain/gen_terrain.py` → `03d_terrain_data.js`). `overpass/build.py` also writes `manifest/places.json` and
-  `geo_summary.json`; it keeps previous POID rows in their old order because `RLP()` seeds landmarks by first match.
-  `osm/overpass/proj.py` is the game projection in Python. `osm/photos/commons.py` → `manifest/photos.json`;
+  `geo_summary.json`, `name_review.json`, `unresolved_places.json`; it keeps previous POID rows in their old order because `RLP()` seeds
+  landmarks by first match. Its `LANDMARK_OSM` (-> `POID_LM` in 03c) says which OSM ids ARE a hand-built landmark (merged, not labelled twice).
+  `fetch.py` caches raw layers for 30 days (`--refresh` forces a download).
+  `osm/overpass/proj.py` is the game projection in Python. `osm/photos/commons.py` then `osm/photos/openverse.py` → `manifest/photos.json`;
   `tools/gen_car_manifest.js` → `manifest/cars.json` + `world_objects.json` (generated from the build; never hand-edit).
-  Never hand-edit those four parts; change the pipeline and regenerate. **Raw OSM/SRTM input files (`osm/**/*.json`,
+  Never hand-edit those five parts; change the pipeline and regenerate. **Raw OSM/SRTM input files (`osm/**/*.json`,
   `*.gpkg`, `osm/official/*.xls*`, `osm/overpass/out/`) are local-only and git-ignored. The owner does not want them published; never commit them.** The scripts are tracked.
 
 ## Architecture
@@ -68,7 +73,7 @@ Current order and roles:
 | Stage | Parts | Role |
 |---|---|---|
 | Engine | `01b_post_lib`, `02_setup`, `02b_sky`, `02c_facade` | three r128 post-processing libs, renderer (fixed 1920x1080 buffer, `DISP`), sky/GFX switch, facade shader |
-| Data (generated) | `03a_net_data`, `03b_bld_data`, `03c_poi_data`, `03d_terrain_data` | `NETD/NETE` roads, `BLDD` footprints + `RL()`, `POID` places + `RLP()`, `TERR` heights |
+| Data (generated) | `03a_net_data`, `03b_bld_data`, `03e_bld_out`, `03c_poi_data`, `03d_terrain_data` | `NETD/NETE` roads, `BLDD` footprints + `RL()`, `BLDO` footprints outside the extract, `POID` places + `RLP()` + `POID_LM`, `TERR` heights |
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
 | Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
@@ -106,8 +111,10 @@ camera → HUD `innerHTML` → `drawMap` → `gfxRender`. Communication is throu
 inside `updP`. The touch pads and the shop overlay use 1920x1080 canvas coordinates. Wheel button bindings dispatch synthetic
 `keydown`/`keyup` events, so each action keeps one code path.
 
-**Places:** `PLACES` holds ~1,000 real OSM POIs (`06l_real_pois`, `p.real=true`) plus ~36 hand-built landmarks seeded at real
-OSM points via `RL()`/`RLP()` and the `'@'` pseudo-street in `siteBeside`. `REALP=true` (`06a_fabric.js`) disables every
+**Places:** `PLACES` holds ~1,640 real OSM places (`06l_real_pois`, `p.real=true`; 147 of them `kind:'area'` neighbourhoods/villages,
+searchable only) plus ~23 hand-built landmarks seeded at real OSM points via `RL()`/`RLP()` and the `'@'` pseudo-street in `siteBeside`.
+Heritage houses use `siteReal()` (06g2: built on their BLDD footprint, scaled with `S.kx/S.kz`); the clock tower uses `CLK_SITE` (06b).
+Landmark markers sit on the OSM point (`06l` moves them when > 15 m off, unless `p.onReal`). `REALP=true` (`06a_fabric.js`) disables every
 invented shop/venue builder. The early-return guards keep the `PR()` call order intact, so don't delete them.
 
 **Storage:** `irbid-save` (`{fines,spent,owned,cur,dt,tune}`, `07b_tune.js`) is the only one that matters for compatibility.
@@ -160,11 +167,14 @@ schools/clinics/parks, not survey data. Whether to keep them is an open owner de
 ## Open issues worth knowing
 
 - Test DOM stubs need `dataset`, `setAttribute`, `window` and `document.body.appendChild` (07f appends its panel).
+- Chunked InstancedMeshes (`instO`, `instF`) are frustum-culled against their chunk sphere (`BS`, 520 m; `CS*.72+30` for small chunks). three
+  r128 creates InstancedMesh with `frustumCulled=false`; the terrain pass turns culling off again for a chunk whose instances spread > 440 m.
 - No licensed 3D car models: Sketchfab downloads need the owner's account and a licence/trademark decision, and GLBs conflict with
   the single-file rule. Photos in `manifest/photos.json` are reference-only (showing them would add a network host).
 - The attribution line is long on phones and overlaps the GAS pad. Damage durability numbers are balance estimates.
 - Not modelled: mass/CoM, torque curves, gears, suspension, a tyre model, OSM `surface` tags (`surfK()` is a heuristic).
 - 1 km SRTM sampling misses narrow wadis. Rigid landmark groups may float or sink slightly at slope edges.
-- OSM coverage is partial (empty blocks, rectangle footprints, generated heights). Outside the building extract
-  (JUST, Jadara, INU) buildings are still procedural, although 26,591 real OSM buildings exist there (`manifest/DATASET_REPORT.md`).
+- OSM coverage is partial (empty blocks, rectangle footprints, generated heights).
+  Since v40 the 26,432 real OSM buildings outside the BBBike rectangle are placed too (`03e`); generated fabric only fills where OSM has
+  no building within ~50 m. Footprints are still rectangles (1–8 pieces per building) and most heights are estimates.
   Schools are badly under-mapped in OSM (146 in the play area vs 1,358 on the MoE list for the governorate).

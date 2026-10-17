@@ -130,3 +130,31 @@ Owner request "realistic cars, damage physics, tyre wear, accurate Irbid map". A
   `manifest/photos.json` (`osm/photos/commons.py`), `AUDIT_REPORT.md` (v37 audit moved to `docs/AUDIT_v37.md`),
   `DATA_SOURCES_AND_LICENCES.md`, `manifest/DATASET_REPORT.md`, `TEST_REPORT.md`.
 - Not done: licensed 3D car models (none downloaded), real building outlines / buildings outside the extract, photos shown in game.
+
+## v40 (2026-10-17): Phase 1, real map and place data
+
+Owner request "Phase 1: fix the real map and all place data" (approval recorded in PLAN.md, including landmark name changes in "Passing:").
+Backup tag `v39c-backup-before-phase1`. Details: `PLACE_IMPORT_REPORT.md`, `NAME_CORRECTIONS.md`.
+- **Places 1,473 -> 1,659.** `06l_real_pois.js`: the "anything within 42 m (80 m same kind) of a landmark is skipped" rule is gone. An OSM row is
+  merged into a hand-built landmark only when `POID_LM` (OSM id -> landmark, `osm/overpass/build.py` `LANDMARK_OSM`) says it is the same facility.
+  7 real neighbours come back (Cairo Bank at the Clock Tower, Greek Orthodox Church beside Beit Arar, mosque نوح القضاة at Yarmouk, Jordan Kuwait
+  Bank, an optician, a food truck, امنية). New: 147 neighbourhoods/villages/localities (`kind:'area'`: searchable, no label, r 150 so never "Passing:"),
+  4 bus stations, 11 sports pitches, 1 playground, and name-only OSM points (`fetch.py` now asks `node["name"]`, which is how "Wasfi AlTal square"
+  is mapped). POID rows gained column 8 (other verified names: `name:ar`, `official_name`, `alt_name`, `old_name`, `brand` …), all searchable.
+- **Names:** landmark names corrected to their OSM names; the old ones are aliases. OSM names: whitespace fixes, plus a split of one tag holding
+  Arabic + Latin spellings of the same name (transliteration-checked; 7 records); 131 others flagged in `manifest/name_review.json`, not changed.
+- **Positions:** `siteReal()` (06g2) builds Dar As-Saraya, Beit Arar and Beit Nabulsi ON their BLDD footprint (model scaled via `S.kx/S.kz`,
+  honoured by `wl()` and `wallC()`). `CLK_SITE` (06b) puts the clock tower in the real square median (plaza scaled to the 6.9 m clearance,
+  kiosks/benches dropped). Landmark markers move to the OSM point when > 15 m off (Wasfi Al-Tal Square 681 m, KAUH 1.19 km, MK 46 m,
+  Nissan 47 m, Sameh 34 m, Emaar 19 m), except campuses and models already on their real footprint (`p.onReal`, Arabella).
+- **Buildings:** `osm/bld/conv_overpass.py` (pure-Python port of `conv.py`, game projection) -> `03e_bld_out.js` (`BLDO`, 26,432 buildings /
+  28,153 pieces outside the BBBike extract). `placeReal` places BLDD + BLDO (47,001 pieces placed, was 19,959). Generated fabric and generated
+  campus blocks only fill where no real building lies within ~50 m (`realCnt`).
+- **Performance:** chunked InstancedMeshes now `frustumCulled=true` against their chunk sphere (three r128 creates them with culling off,
+  so every building chunk in the city was drawn every frame). `dc2`: 540–1,060 draw calls, 83k–281k triangles (v39: 2,110–2,577 calls, 1.26–1.33 M).
+  Build size 3.40 -> 4.23 MB.
+- **Importer:** `fetch.py` caches raw layers for 30 days (`--refresh` to force), writes atomically, keeps the old file on failure;
+  `build.py` writes `manifest/name_review.json` and `manifest/unresolved_places.json`; Openverse photo pass `osm/photos/openverse.py`.
+- Tests: `off_trace` now checks a collider-free hash (pure physics, = v38) and reports the with-world hash separately (it changes when buildings
+  near the start move). Test scripts use the new landmark names. Baselines after v40: `h21` places 1659 (laz 1489), `h24` bad 6, `vg` bad 9,
+  `h14` bad 2, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` all landmarks <= 5 m from their OSM point.
