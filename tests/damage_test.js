@@ -16,7 +16,8 @@ const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8');
 (0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+`
 ;global.__s={updP,keys,PORS,setPlayerCar,P,groundH,TH,COL,traffic,bots,heist,DESTRUCTIBLE_INSTANCES,SIGN_PLATES,FALLING_POLES,MOVERS,DEBRIS,
  damageEffects,registerPlayerImpact,registerLanding,breakObstacle,objectImpact,objectsTick,damageTick,repairCurrentCar,currentDamageRecord,getDamageRecord,carSpec,
- carMeshParts,tyreMu,TYS,OBJ_CLASS,objClass,diagToggle,diagRender,IMPACT,damageRecords,
+ carMeshParts,tyreMu,TYS,OBJ_CLASS,objClass,diagToggle,diagRender,IMPACT,damageRecords,repairItems,repairPart,payRepair,renderRepairs,dentZone,
+ get fines(){return fines},set fines(v){fines=v},get spent(){return spent},set spent(v){spent=v},
  get mode(){return damageMode},set mode(v){damageMode=v},get clock(){return clock},set clock(v){clock=v}};`);
 (0,eval)('redLight=function(){};wrongWay=function(){return false};fine=function(){};toast=function(){}');
 console.log=cl0;
@@ -151,7 +152,26 @@ const tree=byType('tree');r=S.objectImpact(tree,15,1500,0,-1);ck('tree: rigid',r
 
 // 13. diagnostics renders from live state
 S.mode=2;car('Ford Focus RS');hit(20,0,-1);S.diagToggle(true);
-ck('diagnostics panel lists components, zones and four tyres',/Engine/.test(lastHTML)&&/front-left/.test(lastHTML)&&/RR/.test(lastHTML)&&/Repair all/.test(lastHTML)&&/tread/.test(lastHTML));
-S.diagToggle(false);S.mode=0;
+ck('diagnostics panel lists components, zones and four tyres',/Engine/.test(lastHTML)&&/front-left/.test(lastHTML)&&/RR/.test(lastHTML)&&/Apex Drift Customs/.test(lastHTML)&&!/free\)/.test(lastHTML)&&/tread/.test(lastHTML));
+S.diagToggle(false);
+
+// 14. Apex Drift Customs repair bay (v42): per-part repairs paid from the JD balance (fines - spent)
+S.mode=2;car('Ford Focus RS');place(OX,OZ);hit(20,0,-1);hit(20,0,1);R().wheels[2].tread=40;R().wheels[3].punct=true;
+let L=S.repairItems();const ids=L.map(q=>q.id),pr=id=>(L.find(q=>q.id===id)||{}).price;
+ck('repair list itemises panels, mechanical parts and single tyres with JD prices',ids.some(i=>i.startsWith('z:f'))&&ids.some(i=>i.startsWith('z:r'))&&ids.includes('t:2')&&ids.includes('t:3')&&ids.some(i=>i.startsWith('c:'))&&L.every(q=>q.price>0&&q.label&&Number.isFinite(q.cond)),ids.join(' '));
+S.fines=0;S.spent=0;const fl0=R().zones.fl;
+ck('no balance: repair refused, nothing changes',S.payRepair(['t:2'])===false&&R().wheels[2].tread===40&&S.spent===0);
+S.fines=100000;let p0=S.spent,tp=pr('t:2');S.payRepair(['t:2']);
+ck('repairing tyre RL fixes only RL and charges its price',R().wheels[2].tread===100&&R().wheels[3].punct&&R().zones.fl===fl0&&S.spent-p0===tp,'charged '+(S.spent-p0)+' JD');
+const fz=ids.find(i=>i.startsWith('z:f')),rz=ids.find(i=>i.startsWith('z:r')),zk=fz.slice(2),sp0=S.carSpec(P.idx);
+const dOther=R().dents.filter(d=>S.dentZone(d,sp0)!==zk).length;p0=S.spent;tp=pr(fz);S.payRepair([fz]);
+ck('repairing one front panel removes only its dents; the rear stays damaged',R().zones[zk]===100&&R().dents.every(d=>S.dentZone(d,sp0)!==zk)&&R().dents.length===dOther&&dOther>0&&R().zones[rz.slice(2)]<100&&S.spent-p0===tp,zk+' fixed, '+dOther+' other dents kept');
+L=S.repairItems();const tot=L.reduce((a,q)=>a+q.price,0);S.fines=S.spent+tot-1;
+ck('repair all refused when the balance is 1 JD short',S.payRepair(L.map(q=>q.id))===false);
+S.fines=100000;p0=S.spent;S.payRepair(L.map(q=>q.id));
+ck('repair all fixes everything and charges the listed total',S.repairItems().length===0&&R().dents.length===0&&R().wheels.every(w=>w.tread===100&&!w.punct)&&S.spent-p0===tot,'total '+tot+' JD');
+car('Ford Focus RS');R().wheels[0].tread=50;const pc=S.repairItems()[0].price;const leg=S.PORS.findIndex((m,i)=>{S.setPlayerCar(i);return P.rt===4});S.repairCurrentCar();R().wheels[0].tread=50;
+ck('prices scale with the car rarity tier (estimate)',S.repairItems()[0].price>pc,pc+' vs '+S.repairItems()[0].price+' JD ('+S.PORS[leg][0]+')');
+S.repairCurrentCar();S.setPlayerCar(idx('Ford Focus RS'));S.fines=0;S.spent=0;S.mode=0;
 
 console.log(bad?'damage: '+bad+' FAILED':'damage: all passed');process.exit(bad?1:0);

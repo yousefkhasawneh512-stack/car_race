@@ -4,7 +4,7 @@ function buyPart(i){const t=tl(),c=price(i,t[i]);if(t[i]>=MAXL||drift.total<c)re
 function renderShop(){const t=tl();shopPts.textContent='Your Bank: '+fmt(drift.total)+' drift points · '+cur+' ['+RARN[P.rt]+' ×'+P.rm.toFixed(1)+' drift pts]';shopBody.innerHTML='';
  PARTS.forEach((pt,i)=>{const c=price(i,t[i]),mx=t[i]>=MAXL,row=document.createElement('div');row.className='row';
   row.innerHTML='<div><b>'+pt[0]+' '+pt[2]+'</b> · Level '+(t[i]+1)+(mx?' (MAX)':'')+'<br><small>'+pt[1]+(mx?'':' · Next upgrade: '+fmt(c)+' pts')+'</small></div>';
-  const b=document.createElement('button');b.textContent=mx?'MAX':'Upgrade · '+fmt(c);b.disabled=mx||drift.total<c;b.onclick=()=>{buyPart(i);renderShop()};row.appendChild(b);shopBody.appendChild(row)})}
+  const b=document.createElement('button');b.textContent=mx?'MAX':'Upgrade · '+fmt(c);b.disabled=mx||drift.total<c;b.onclick=()=>{buyPart(i);renderShop()};row.appendChild(b);shopBody.appendChild(row)});if(typeof renderRepairs==='function')renderRepairs(shopBody)}
 function openShop(){if(ui||Math.hypot(P.x-SHOP.x,P.z-SHOP.z)>14)return;ui=true;for(const k in keys)keys[k]=0;unfocus();renderShop();shopEl.style.display='flex'}
 function closeShop(){if(shopEl.style.display!=='flex')return;ui=false;shopEl.style.display='none';unfocus()}
 document.getElementById('shopx').onclick=closeShop;

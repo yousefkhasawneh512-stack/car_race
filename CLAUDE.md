@@ -12,7 +12,7 @@ Companion files (read before non-trivial work):
 - `CHANGELOG.md`: per-version notes v22–v41 (history, honest limits, tests added per feature).
 - `AUDIT_REPORT.md`: v39 audit (damage/tyre/object systems, map data, photos, car assets; what is real vs estimated). The v37 audit is `docs/AUDIT_v37.md`.
 - `DATA_SOURCES_AND_LICENCES.md`, `manifest/` (cars, places, photos, world objects, `DATASET_REPORT.md`, `name_review.json`,
-  `unresolved_places.json`), `TEST_REPORT.md`, `PLACE_IMPORT_REPORT.md` + `NAME_CORRECTIONS.md` (v40 place audit), `CAR_ASSETS_AND_SPECS.md`,
+  `unresolved_places.json`), `TEST_REPORT.md`, `PLACE_IMPORT_REPORT.md` + `NAME_CORRECTIONS.md` (v40 place audit) + `PLACE_REVIEW.csv` (`tools/place_review_csv.py`), `G29_TEST_REPORT.md` (v42), `CAR_ASSETS_AND_SPECS.md`,
   `DAMAGE_AND_TIRE_WEAR_REPORT.md`, `ROAD_AND_TERRAIN_REPORT.md` (v41).
 - `REALISM_FEATURES.md`: player-facing description of damage modes, tyres, diagnostics.
 
@@ -37,9 +37,9 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
-  Also run `realism_test` (29 checks), `damage_test` (50 checks: zones, modes, per-car durability, tyres, burnouts, objects,
-  switching, diagnostics) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
-  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py`. Landmarks vs OSM: `lmchk`.
+  Also run `realism_test` (29 checks), `damage_test` (58 checks: zones, modes, per-car durability, tyres, burnouts, objects,
+  switching, diagnostics, paid per-part repairs) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
+  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py` (10 checks incl. the repair bay). Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
   Realistic handling: `handling_test` (writes the per-car powertrain table if given a 2nd arg: `manifest/car_powertrain.json`). Buildings vs OSM: `bld_check`.
   Expected results (v40, 2026-10-17): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
   1659 (laz 1489), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060. `boot`/`h2`/`h13`/race/traffic output varies
@@ -79,7 +79,7 @@ Current order and roles:
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
 | Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
-| Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
+| Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
 | Frame | `12a_fx`, `12b_post`, `12c_terrain`, `12_hud_loop` | effects, HDR bloom/grade chain, the terrain pass, minimap/HUD/camera and the **main loop** |
 
 Order facts that have broken things before: `06h2_final_patch` runs before `06h_gen`, and `06d_fabric_driver` runs after it.
@@ -120,7 +120,7 @@ Landmark markers sit on the OSM point (`06l` moves them when > 15 m off, unless 
 invented shop/venue builder. The early-return guards keep the `PR()` call order intact, so don't delete them.
 
 **Storage:** `irbid-save` (`{fines,spent,owned,cur,dt,tune}`, `07b_tune.js`) is the only one that matters for compatibility.
-`irbid-wheel` (G29 setup), `irbid-drive-realism-v1` (damage mode + per-car condition) and `irbid-drive-handling-v1` (0 Arcade / 1 Realistic)
+`irbid-wheel` (G29 setup incl. pedal/clutch calibration, `pdz` dead zone, chosen `dev`), `irbid-drive-realism-v1` (damage mode + per-car condition) and `irbid-drive-handling-v1` (0 Arcade / 1 Realistic)
 are separate keys on purpose.
 
 **Handling (v41, `07g_drive.js`):** key H, `handlingMode` 0 Arcade (default) / 1 Realistic. Every Realistic term in `updP` is behind
@@ -133,7 +133,8 @@ v37/v38, proved by `tests/off_trace.js`; keep it that way** (every new `updP` te
 `dfx.pull=0`, `burnoutState` false, `tyreStep` returns). `registerPlayerImpact(v,collider,nx,nz)` is called from `colB` (when `o===P`)
 and from the traffic/bot code in `updP`; it returns the speed the car loses when the object GAVE WAY (broke/shoved), and `colB` then
 skips the bounce. `n` points from the obstacle to the car. Mesh frame: +x = car's LEFT, +z = forward; wheels FL,FR,RL,RR = 0..3.
-`carSpec(i)` is the per-car profile (cached); records are per car NAME, schema `v:2`, v38 records migrate in `migrateRecord`.
+`carSpec(i)` is the per-car profile (cached); records are per car NAME, schema `v:2`, v38 records migrate in `migrateRecord` (new fields such as wheel `km`/`tmax` are filled by `Object.assign(newWheel(),…)`).
+Repairs: `repairItems`/`repairPart`/`payRepair` (`08d`); `repairCurrentCar` is a free full reset kept for tests only.
 `damageEffects()` fills the shared `DFX`. Mesh parts are tagged in `mkPorsche` (`userData.part` body/glass/hl/tl/tyre/rim). Object
 classes live in `OBJ_CLASS` (`07e`); breakables use `breakAt` = speed for a 1,500 kg car (energy-based); attached instances use keys
 `<key>/arm|/head|/pool|/xf`, sign plates are in `SIGN_PLATES` (merged-mesh vertex range); instances are registered by `instO`
@@ -148,6 +149,7 @@ item slot `p[8]`. Speed bumps (always on, even with damage Off): 2 from OSM `tra
    `runPack`/`runLandmarks`/`runGen` decide procedural coordinates. Never add `PR()` calls before them or reorder them.
    New visual layers use `Math.random`.
 3. **Economy unchanged.** Upgrade price `base·2^level` (Speed 1,500 / Accel 1,200 / Handling 800 / Extra Drift 3,000; 5 levels).
+   Repairs (v42, approved) cost JD per part in the Apex Drift Customs repair bay (`08d_repair.js`, estimates; × rarity tier).
    Wheel 10,000 JD, odds 50/35/10/4/1 %, 5,000 JD duplicate refund. Rarity drift multipliers ×1.0/1.2/1.5/2.0/3.0. Fines
    15/20/50/30 JD. Heist +500 / −50. Quirk to preserve: `fine()` *adds* to `fines` and balance = `fines − spent`, so fines raise the balance.
 4. **Save compatibility.** The `irbid-save` shape must keep loading; there is no schema version.

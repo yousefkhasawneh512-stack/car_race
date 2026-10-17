@@ -1,7 +1,33 @@
-# Irbid Drive: v39 audit (realistic cars, damage, tyres, map data). 2026-10-16
+# Irbid Drive: audit (v39 systems, v42 master-repair status). Updated 2026-10-17
 
 What the project was, what changed, what is real, what is estimated, and what is still missing. The previous (v37) realism audit is
 `docs/AUDIT_v37.md`. Test evidence is in `TEST_REPORT.md`; sources and licences are in `DATA_SOURCES_AND_LICENCES.md`.
+
+## 0. v42 master-repair status (2026-10-17)
+
+The status below was measured on the v42 build: backup tag `backup-v41`; tests in `TEST_REPORT.md` (v42 section). "Done" means it is implemented and covered by an
+automated test. "Simulated" means it was tested with mocks only.
+
+**Source of truth.** The files that power the game are `src/parts/*` and `build.py`, which produce `dist/irbid-drive.html`. `osm/` and `tools/` generate the
+data parts. `tests/` holds the test harnesses, some of them obsolete (listed in CLAUDE.md).
+
+**Other copies found.** `Downloads/irbid-drive-updated*.zip/html` are byte-identical to git v38. `irbid-drive-source.zip` is a v38-era snapshot. Both are older
+than the current project and were not merged.
+
+| Phase | Status |
+|---|---|
+| 1 Inspect / back up | Done. Projection, origin, units, terrain and colliders are documented in CLAUDE.md. |
+| 2 Place database | Done in v40; re-verified in v42 (places 1,659).<br>Added `PLACE_REVIEW.csv`: 2,171 rows with review status.<br>The official school and mosque lists have no coordinates (PLACE_IMPORT_REPORT §5), so they could only be compared, not imported.<br>10,000 *named* places are not supported by the data; ~46,000 buildings are counted separately. |
+| 3 Coordinates / roads | Done in v40/v41 (ROAD_AND_TERRAIN_REPORT).<br>One projection is used for everything.<br>Widths, lanes and speeds are estimates where OSM has no tag.<br>2 real OSM traffic-calming bumps; 88 labelled estimates.<br>Not done: bridge decks at real heights. |
+| 4 Buildings / landmarks | Partly done. Real footprints and heights (tagged or estimated).<br>Heritage houses stand on their OSM footprints.<br>Photos are reference-only, which would otherwise add a network host.<br>No new landmark models or photo facades. |
+| 5 Car models / specs | Partly done. 217 cars inventoried; Sketchfab candidates for 176 of them.<br>Nothing downloaded: needs an account, a licence/trademark decision and a change to the single-file rule.<br>All physical specs are labelled estimates (CAR_ASSETS_AND_SPECS). |
+| 6 Localized damage | Done in v39.<br>Contact point, normal and normal speed, with a once-per-contact guard.<br>Dents, scuffs, lights and glass on the struck side.<br>Per-zone repair removes only that zone's dents.<br>Not done: detachable panels. |
+| 7 Durability / mechanical | Done in v39. Per-car profiles; components engine, cooling, transmission, driveline, steering, brakes and suspension ×4; three modes. |
+| 8 Per-wheel tyres | Done in v39, extended in v42.<br>Per wheel: tread, carcass, temperature (+ peak), load, longitudinal and lateral slip, spinning flag, surface grip, km, wear by cause.<br>RWD, FWD and AWD burnouts; drift wear on the sliding wheels.<br>A puncture differs from a worn tyre. |
+| 9 G29 | Extended in v42.<br>Detect and disconnect; released/pressed calibration; combined pedals; clutch (display only); dead zones; live readings; clear messages.<br>Tested **simulated only** (G29_TEST_REPORT). |
+| 10 Repair garage | Done in v42.<br>The Apex Drift Customs repair bay prices and repairs each part separately from the JD balance.<br>Prices are estimates (owner-approved economy change, PLAN.md). |
+| 11 World objects | Done in v39. Breakable, bendable, movable and rigid classes, energy-based. |
+| 12 Data / perf / tests | Done. Manifests, frustum culling (v40), the test suite. Real phones and a real G29 are untested. |
 
 ## 1. Starting point (v38, commit a852390, tag `v38-backup-before-v39`)
 

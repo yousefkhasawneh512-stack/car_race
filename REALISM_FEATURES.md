@@ -58,8 +58,8 @@ Each of the four tyres has its own tread, carcass, temperature and load. Wear co
 
 ## Diagnostics (key **O**)
 
-Body map, every component with its condition, how it affects the car, a card per wheel, recent impacts, and free
-**Repair all** / **Replace tyres** buttons. Warning lights for engine temperature, punctures, worn tyres, brakes and steering show under
+Body map, every component with its condition, how it affects the car, a card per wheel (tread, carcass, temperature, load,
+longitudinal/lateral slip, spinning flag, surface grip, distance on the tyre, peak temperature, wear by cause), recent impacts and the racing-wheel status. Warning lights for engine temperature, punctures, worn tyres, brakes and steering show under
 the Damage button in Full mode.
 
 ## Honest limits
@@ -72,3 +72,19 @@ the Damage button in Full mode.
 - Realistic handling has no clutch, no manual gearbox, no differential model, no EV regenerative braking and no per-wheel suspension
   geometry; the body springs are visual plus the bump hop.
 - Speed bumps: 2 are mapped in OpenStreetMap and placed as real; the other 88 are **estimated** positions near mapped schools, clinics and parks.
+
+## Repair bay (v42)
+
+At **Apex Drift Customs** (Baghdad Street) the shop (U or P) lists every damaged part separately:
+- the eight body zones, with their dents;
+- each light and window;
+- engine, cooling, transmission, driveline, steering and brakes;
+- each suspension corner, including its alignment;
+- each tyre.
+
+Each item shows its condition, effect and price. You can repair a single item, or everything at once with **Repair all**.
+Repairing one part leaves every other part as it was.
+
+Payment comes from the JD balance (fines + loot − spending). Prices are a labour charge plus a charge per % of condition lost, multiplied
+by the car's rarity tier (×1 … ×2.8). They are **gameplay estimates, not workshop quotes**. Away from the garage, the Repair button and the
+diagnostics button set a route to it.

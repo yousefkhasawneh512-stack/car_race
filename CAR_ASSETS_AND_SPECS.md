@@ -81,3 +81,9 @@ factors. All **estimates**; there is no manufacturer crash-test data in the game
 Keyboard (W/S/A/D/Space, arrows), touch pads and the Logitech G29 (analog throttle/brake/steer, force feedback, button bindings) work in
 both handling modes. `tests/wheel_test.py` passes 30/30 with Arcade and with Realistic handling. Vehicle selection, the unlock wheel, rarity
 and upgrade prices are unchanged; upgrades scale torque (Acceleration) and gearing/drag (Speed) in Realistic mode.
+
+## 5. v42 status
+
+Unchanged since v41: no licensed model was downloaded, for the same four reasons (account, size versus the single-file build, identity checks,
+trademarks). The candidate list (`manifest/car_model_candidates.json`) and the powertrain table (`manifest/car_powertrain.json`) are the asset manifest.
+v42 adds per-part **repair prices** (gameplay estimates, × rarity tier; see `DAMAGE_AND_TIRE_WEAR_REPORT.md` §10). No car specification was added or changed.

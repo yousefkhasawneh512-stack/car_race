@@ -44,7 +44,7 @@ function tyreStep(dt,thr,brk,hb,st,fs,ls,frozen){
   w.temp=cl(w.temp+(pw*TY_HEAT*sp.tyre.heat*(road?1:.8)-(w.temp-TYRE_AMB)*(.05+.006*au)-Math.max(0,w.temp-150)*.5)*dt,TYRE_AMB-5,320);
   // wear: strongly non-linear in slip power and faster when hot; abrasive unpaved ground adds more; plus a tiny rolling wear per metre
   const tm=1+Math.max(0,(w.temp-90)/45)**2,kw=Math.pow(pw/1000,2)*TY_WEAR*tm*(road?1:1.6)/sp.tyre.dur*dt,roll=au*dt*2.5e-6*(road?1:3);
-  w.tread=Math.max(0,w.tread-kw-roll);w.wear.roll+=roll;
+  w.tread=Math.max(0,w.tread-kw-roll);w.wear.roll+=roll;w.km+=au*dt/1000;if(w.temp>w.tmax)w.tmax=w.temp;
   if(kw>0){const fa2=pa/(pw||1),lw=kw*(1-fa2);w.wear.slide+=kw*fa2;if(TYS.burn&&isD)w.wear.burn+=lw;else if(!front&&hb&&au>1)w.wear.lock+=lw;else w.wear.spin+=lw}
   // the carcass suffers once the tread is gone or the rubber blisters; below 10 % it fails (blow-out)
   if(w.tread<3&&pw>2000)w.health=Math.max(0,w.health-pw/1000*.25*dt);if(w.temp>230)w.health=Math.max(0,w.health-(w.temp-230)*.05*dt);

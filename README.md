@@ -25,16 +25,16 @@ Three.js loads from cdnjs. The world takes a few seconds to build.
 | C | camera (chase / hood) |
 | R | start a race at the nearest circuit, or duel the car next to you |
 | E | rob the bank (when near it) |
-| U or P | Apex Drift Customs upgrade shop (when near it) |
+| U or P | Apex Drift Customs: upgrades (drift points) and the repair bay (JD, priced per part) when near it |
 | G | wheel spin (unlock cars with JD) |
 | N / B | cycle owned cars |
 | M | search places, neighbourhoods and streets / turn-by-turn directions |
 | H | handling: Arcade (default) / Realistic (engine, gears, traction, suspension) |
 | I | vehicle damage mode: Off / Cosmetic / Full |
-| O | vehicle diagnostics: damage report, per-wheel tyres, repair |
+| O | vehicle diagnostics: damage report, per-wheel tyres, racing-wheel status |
 | J / K | stunt ramps / landmark tour teleport |
 | T / F | +1 hour / reset to start |
-| V | racing-wheel setup (Logitech G29, with force feedback via WebHID in Chromium) |
+| V | racing-wheel setup (Logitech G29: live readings, pedal/clutch calibration incl. combined pedals, force feedback via WebHID in Chromium) |
 
 On touch devices, on-screen pads appear (steer left/right, brake, gas, drift).
 
@@ -47,7 +47,10 @@ On touch devices, on-screen pads appear (steer left/right, brake, gas, drift).
 | **Full** | Everything above, plus mechanical damage: engine/radiator (overheating), transmission, driveline, steering, brakes, suspension per corner, wheel alignment (the car pulls), worn/overheated/punctured tyres lose grip. Hard landings damage the suspension. |
 
 - **Diagnostics (O):** every component with its condition and effect, a top-down body map, and a card per wheel (tread,
-  carcass, temperature, grip, load, slip, wear by cause). "Repair all" and "Replace tyres" are free.
+  carcass, temperature, grip, load, slip, wear by cause, distance on the tyre).
+- **Repairs** are done at **Apex Drift Customs** (Baghdad Street; U/P there; the Repair button routes you there). Each body panel,
+  light, window, mechanical part, suspension corner and tyre is listed with its condition, effect and price in JD; repair one part
+  or everything. Prices come out of your JD balance and are gameplay estimates, not real workshop quotes.
 - **Burnout** (Cosmetic/Full): throttle + brake at a standstill (front-wheel drive: throttle + handbrake). It only works if the car
   has the power to overcome its driven wheels' grip, so strong rear-drive cars can, all-wheel drive and weak cars can't. Burnouts and
   drifts heat and wear the tyres that are actually spinning or sliding.

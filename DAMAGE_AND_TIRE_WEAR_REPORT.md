@@ -13,8 +13,8 @@ manufacturer or crash-test data behind them.
 | Cosmetic | dents, scuffs, broken lights, cracked glass, tyre wear shown | none (all multipliers 1) | identical to Off except burnouts / object give-way |
 | Full | as Cosmetic | engine, cooling, transmission, driveline, steering, brakes, per-corner suspension and alignment, tyres | progressive penalties |
 
-Records are per car **name** (`irbid-drive-realism-v1`, schema v2; v38 records migrate). Switching cars never carries damage across. Repairs
-are free (economy unchanged): **Repair all** or **Replace tyres** in the diagnostics panel (key O).
+Records are per car **name** (`irbid-drive-realism-v1`, schema v2; v38 records migrate). Switching cars never carries damage across.
+**Repairs (v42)** are paid per part in the Apex Drift Customs repair bay (§10); repairing one part never touches another.
 
 ## 2. Per-car durability profile (`carSpec`, `manifest/cars.json`)
 
@@ -52,7 +52,8 @@ the engine loses power and smokes). In Realistic handling these act through the 
 
 ## 6. Tyres (`07d_tyres.js`), per wheel
 
-Each wheel has tread, carcass health, temperature, load and a wear breakdown (burnout / slide / spin / lock / rolling).
+Each wheel has tread, carcass health, temperature, peak temperature, distance driven on it, load, longitudinal and lateral slip, surface grip and a
+wear breakdown (burnout / slide / spin / lock / rolling). Diagnostics flag a wheel that is spinning or locked (longitudinal slip > 3 m/s).
 - **Load:** static weight split + longitudinal and lateral load transfer (centre-of-gravity height, wheelbase and track from the car's
   dimensions).
 - **Slip:** longitudinal (wheelspin under power, lock-up under braking) and lateral (slip angle from the car's motion) per axle, with the
@@ -105,3 +106,24 @@ Debris is a small pooled set (no allocation per impact, no explosions). `damage_
 No detachable panels, no deformation of traffic cars, no per-wheel suspension geometry, no Pacejka tyre curves or wheel rotation state.
 Strengths are relative between cars (pickup > hatch > supercar > race car), not certified values. Dents are checked visually on the Focus RS
 only, not on every one of the 217 body shapes.
+
+## 10. Repair bay (v42, `08d_repair.js`)
+
+Apex Drift Customs (Baghdad Street, U/P near it) lists every damaged item separately:
+
+| Item | Repairs | Price (JD, × rarity tier 1 / 1.25 / 1.6 / 2.1 / 2.8) |
+|---|---|---|
+| Body zone (front-left … underbody) | zone condition to 100 % and the dents nearest that zone (other zones' dents stay) | 30 + 4 per % lost |
+| Light (each) / window (each) | that light / that window | 35 / 90 (windscreen, rear screen), 50 (side) |
+| Engine, cooling, transmission, driveline, steering, brakes | that component (engine/cooling also reset the temperature) | 60+6/%, 25+2.5/%, 50+5/%, 30+3/%, 30+3/%, 20+2.5/% |
+| Suspension per corner | that corner + its alignment | 25 + 2.5 per % (+20 if the toe is bent) |
+| Tyre per wheel | that tyre only (new tread, carcass, no puncture) | 45 |
+
+Payment comes from the JD balance (`fines − spent`); an order is refused unless the balance covers all of it. Prices are **gameplay
+estimates**; no local workshop price data was used. Tests: `damage_test` §14 (7 checks) and `damage_pw` (the shop buttons clicked in Chromium):
+- the list is itemised;
+- with no balance nothing changes;
+- tyre RL only: RL new, RR still punctured, front body unchanged, exactly its price charged;
+- one front panel: only its dents removed, the rear stays dented;
+- repair all is refused 1 JD short, then fixes everything for the listed total;
+- prices rise with the rarity tier.

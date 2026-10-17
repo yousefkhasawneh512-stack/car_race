@@ -20,7 +20,7 @@ canvas{display:block}html,body{overscroll-behavior:none;-webkit-tap-highlight-co
 #wheel .box{text-align:center;max-width:92vw}#wheel button{margin:6px;padding:8px 16px;font-size:16px;border-radius:8px;border:0;cursor:pointer}#wheel button:disabled{opacity:.4;cursor:default}#wres{min-height:44px;font-size:17px;margin:8px 0}
 #heist{left:50%;top:calc(52px + env(safe-area-inset-top));transform:translateX(-50%);font-size:20px;font-weight:700;color:#ff6b6b;text-align:center}
 #shop{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:5}
-#shop .box{background:#14161a;padding:18px 20px;border-radius:12px;min-width:min(440px,92vw);max-width:92vw}
+#shop .box{background:#14161a;padding:18px 20px;border-radius:12px;min-width:min(440px,92vw);max-width:92vw;max-height:92vh;overflow:auto}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #fff2}.row small{opacity:.7}
 #shop button{padding:8px 14px;font-size:15px;border-radius:8px;border:0;cursor:pointer}#shop button:disabled{opacity:.4;cursor:default}#shoppts{margin-bottom:6px;color:#ffd24a;font-weight:700}
 #osmcr{position:fixed;right:6px;bottom:4px;z-index:5;font:11px/1.2 Arial,sans-serif;color:rgba(255,255,255,.78);background:rgba(0,0,0,.38);padding:2px 6px;border-radius:4px;pointer-events:auto;text-shadow:0 1px 2px #000}#osmcr a{color:#bfe3ff;text-decoration:none}
@@ -38,7 +38,7 @@ canvas{display:block}html,body{overscroll-behavior:none;-webkit-tap-highlight-co
 #ndS{max-height:26vh;overflow:auto;position:relative}.st{padding:5px 10px;font-size:13px;display:flex;gap:6px;align-items:baseline;opacity:.85}.st b{width:20px;flex:none;text-align:center}.st small{margin-left:auto;opacity:.6;white-space:nowrap}.st.cur{background:#27406b;opacity:1}.st.done{opacity:.35}
 #navBan{left:50%;top:calc(176px + env(safe-area-inset-top));transform:translateX(-50%);max-width:min(560px,90vw);text-align:center;font-size:18px;font-weight:700}#navBan:not(:empty){background:#0b2f66e6;padding:7px 16px;border-radius:10px;border:1px solid #6db3ff88}#navBan .gl{font-size:22px;margin-right:4px}
 </style></head><body>
-<div id="top" class="h"></div><select id="car"></select><button id="damageBtn" type="button" title="Click to change vehicle damage mode (I)">Damage: Off</button><button id="repairBtn" type="button" title="Repair the current car">Repair car</button><div id="heist" class="h"></div><div id="shop"><div class="box"><h2 style="margin:0 0 6px">🔧 Apex Drift Customs</h2><div id="shoppts"></div><div id="shopbody"></div><button id="shopx" style="margin-top:12px">Close</button></div></div><button id="spinBtn"></button><div id="wheel"><div class="box"><h2 style="margin:0 0 8px">Wheel spin</h2><canvas id="wc" width="300" height="300"></canvas><div id="wres"></div><div id="wcred"></div><button id="wgo">Spin (10,000 JD)</button><button id="wx">Close</button></div></div><div id="race" class="h"></div><div id="toast" class="h"></div>
+<div id="top" class="h"></div><select id="car"></select><button id="damageBtn" type="button" title="Click to change vehicle damage mode (I)">Damage: Off</button><button id="repairBtn" type="button" title="Repair at Apex Drift Customs (priced per part)">Repair car</button><div id="heist" class="h"></div><div id="shop"><div class="box"><h2 style="margin:0 0 6px">🔧 Apex Drift Customs</h2><div id="shoppts"></div><div id="shopbody"></div><button id="shopx" style="margin-top:12px">Close</button></div></div><button id="spinBtn"></button><div id="wheel"><div class="box"><h2 style="margin:0 0 8px">Wheel spin</h2><canvas id="wc" width="300" height="300"></canvas><div id="wres"></div><div id="wcred"></div><button id="wgo">Spin (10,000 JD)</button><button id="wx">Close</button></div></div><div id="race" class="h"></div><div id="toast" class="h"></div>
 <div id="nav"><div id="navDir"><div id="ndT"></div><div id="ndS"></div></div><div id="navRes"></div><div id="navbar"><input id="navIn" type="text" placeholder="🔍 Search a place or street — M" autocomplete="off" spellcheck="false"><button id="navX" title="Stop navigation">✕</button></div></div><div id="navBan" class="h"></div>
 <div id="drift" class="h"></div><div id="spd" class="h"></div><canvas id="map" width="150" height="150"></canvas><div id="osmcr">Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> (ODbL) · terrain: NASA SRTM · speed-bump estimates near schools/clinics</div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -2124,7 +2124,7 @@ function carSpec(i){
 // ---- per-car damage record (stored per car NAME under irbid-drive-realism-v1, so switching cars never transfers damage) ----
 const ZONES=['fl','fr','l','r','rl','rr','roof','u'],ZONE_NAMES={fl:'front-left',fr:'front-right',l:'left side',r:'right side',rl:'rear-left',rr:'rear-right',roof:'roof',u:'underbody'};
 const WHEEL_NAMES=['FL','FR','RL','RR'],LIGHT_NAMES=['left headlight','right headlight','left tail light','right tail light'],GLASS_NAMES=['windscreen','rear screen','left windows','right windows'];
-function newWheel(){return{tread:100,temp:25,health:100,punct:false,wear:{burn:0,slide:0,spin:0,lock:0,roll:0}}}
+function newWheel(){return{tread:100,temp:25,health:100,punct:false,km:0,tmax:25,wear:{burn:0,slide:0,spin:0,lock:0,roll:0}}}
 function newDamageRecord(i){return{v:2,durability:durabilityForCar(i),body:100,engine:100,tyres:100,suspension:100,brakes:100,cooling:100,trans:100,driveline:100,steer:100,
  zones:{fl:100,fr:100,l:100,r:100,rl:100,rr:100,roof:100,u:100},susp:[100,100,100,100],align:[0,0,0,0],lights:[0,0,0,0],glass:[0,0,0,0],
  wheels:[newWheel(),newWheel(),newWheel(),newWheel()],dents:[],engTemp:90,impacts:0,lastHit:-99,lastX:0,lastZ:0,log:[]}}
@@ -2221,7 +2221,7 @@ function refreshDamageVisual(){
 }
 function updateDamageButton(){if(damageButton){damageButton.textContent='Damage: '+DAMAGE_MODE_NAMES[damageMode];damageButton.dataset.mode=String(damageMode);damageButton.setAttribute('aria-label','Vehicle damage setting: '+DAMAGE_MODE_NAMES[damageMode]+'. Click to change.')}if(repairButton){const s=currentDamageRecord(),hurt=['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer'].some(k=>s[k]<99.9)||s.dents.length>0||s.lights.some(Boolean)||s.glass.some(Boolean)||s.wheels.some(w=>w.tread<99.9);repairButton.style.display=damageMode!==0&&hurt?'block':'none'}if(diagReady)diagSync()}
 function cycleDamageMode(){damageMode=(damageMode+1)%3;persistDamage();updateDamageButton();refreshDamageVisual();const n=DAMAGE_MODE_NAMES[damageMode];toast('Vehicle damage: '+n+(damageMode===2?' — tyres, engine, suspension and brakes active':damageMode===1?' — visual damage only':' — disabled'));}
-if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',()=>repairCurrentCar());
+if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',()=>garageGo());
 addEventListener('keydown',e=>{if(e.code==='KeyI'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')){e.preventDefault();cycleDamageMode()}});
 
 // ---- impacts ----
@@ -2320,11 +2320,12 @@ function damageTick(dt){
 }
 let smokePuff=null;
 try{smokePuff=new T.Mesh(new T.SphereGeometry(1,7,5),new T.MeshBasicMaterial({color:0x777c80,transparent:true,opacity:.18,depthWrite:false}));smokePuff.visible=false;scene.add(smokePuff)}catch(e){smokePuff=null}
-// repairs are free (the economy is unchanged by request); 'tyres' replaces the four tyres only
+// full reset of the record (tests / internal use). Player repairs are paid per part in the Apex Drift Customs repair bay (08d_repair.js, v42)
 function repairCurrentCar(what){const s=currentDamageRecord(),i=P.idx||0;
  if(what==='tyres'){s.wheels=[newWheel(),newWheel(),newWheel(),newWheel()];toast('Tyres replaced')}
  else{const n=newDamageRecord(i);for(const k in n)if(k!=='durability')s[k]=n[k];s.lastHit=-99;toast('Vehicle repaired')}
  syncAggregates(s);persistDamage();refreshDamageVisual();updateDamageButton()}
+function garageGo(){if(typeof openShop!=='function')return;if(Math.hypot(P.x-SHOP.x,P.z-SHOP.z)<=14){if(typeof diagToggle==='function')diagToggle(false);openShop()}else{toast('🔧 Repairs are done at Apex Drift Customs (Baghdad Street) — route set');if(typeof navGo==='function')navGo('Apex Drift Customs')}}
 window.irbidVehicleRealism={cycleDamageMode,repairCurrentCar,getMode:()=>damageMode,getCurrentState:()=>JSON.parse(JSON.stringify(currentDamageRecord())),getEffects:damageEffects,getSpec:()=>carSpec(P.idx||0)};
 
 // ---- place up to 90 estimated low-speed humps near mapped sensitive destinations ----
@@ -2425,7 +2426,7 @@ function tyreStep(dt,thr,brk,hb,st,fs,ls,frozen){
   w.temp=cl(w.temp+(pw*TY_HEAT*sp.tyre.heat*(road?1:.8)-(w.temp-TYRE_AMB)*(.05+.006*au)-Math.max(0,w.temp-150)*.5)*dt,TYRE_AMB-5,320);
   // wear: strongly non-linear in slip power and faster when hot; abrasive unpaved ground adds more; plus a tiny rolling wear per metre
   const tm=1+Math.max(0,(w.temp-90)/45)**2,kw=Math.pow(pw/1000,2)*TY_WEAR*tm*(road?1:1.6)/sp.tyre.dur*dt,roll=au*dt*2.5e-6*(road?1:3);
-  w.tread=Math.max(0,w.tread-kw-roll);w.wear.roll+=roll;
+  w.tread=Math.max(0,w.tread-kw-roll);w.wear.roll+=roll;w.km+=au*dt/1000;if(w.temp>w.tmax)w.tmax=w.temp;
   if(kw>0){const fa2=pa/(pw||1),lw=kw*(1-fa2);w.wear.slide+=kw*fa2;if(TYS.burn&&isD)w.wear.burn+=lw;else if(!front&&hb&&au>1)w.wear.lock+=lw;else w.wear.spin+=lw}
   // the carcass suffers once the tread is gone or the rubber blisters; below 10 % it fails (blow-out)
   if(w.tread<3&&pw>2000)w.health=Math.max(0,w.health-pw/1000*.25*dt);if(w.temp>230)w.health=Math.max(0,w.health-(w.temp-230)*.05*dt);
@@ -2539,7 +2540,7 @@ function diagSync(){const on=damageMode!==0;diagBtn.style.display=on||diagOpen?'
 function diagToggle(f){diagOpen=f===undefined?!diagOpen:!!f;diagPanel.style.display=diagOpen?'block':'none';diagSync();if(diagOpen)diagRender()}
 diagBtn.addEventListener('click',()=>diagToggle());
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='KeyO'&&!e.repeat){e.preventDefault();diagToggle()}else if(e.code==='Escape'&&diagOpen)diagToggle(false)});
-diagPanel.addEventListener('click',e=>{const b=e.target&&e.target.dataset&&e.target.dataset.act;if(b==='close')diagToggle(false);else if(b==='repair')repairCurrentCar();else if(b==='tyres')repairCurrentCar('tyres');if(b)diagRender()});
+diagPanel.addEventListener('click',e=>{const b=e.target&&e.target.dataset&&e.target.dataset.act;if(b==='close')diagToggle(false);else if(b==='garage')garageGo();if(b)diagRender()});
 // effect wording comes from the same formulas damageEffects() uses
 function diagRows(s,sp,full){const ev=sp.ev,rows=[],eff=(t)=>full?t:'<i>visual only in Cosmetic mode</i>',lim=s.engTemp>112?cl(1-(s.engTemp-112)/50,.55,1):1;
  const hE=s.engine/100,hT=s.trans/100;
@@ -2558,6 +2559,7 @@ function diagRender(){
  h+='<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b style="font-size:15px">'+sp.name+'</b><button data-act="close" style="background:#ffffff1a;color:#fff;border:0;border-radius:6px;padding:3px 9px;cursor:pointer">✕</button></div>';
  h+='<div style="opacity:.8;margin:2px 0 8px">Damage mode: <b>'+DAMAGE_MODE_NAMES[damageMode]+'</b> (I to change) · '+sp.mass+' kg <i>est.</i> · '+sp.drive+' <i>'+sp.driveSrc+'</i> · '+({F:'front',M:'mid',R:'rear'})[sp.eng]+(sp.ev?' motor':' engine')+' · durability '+Math.round(sp.durability)+'</div>';
  {const q=ptSpec(P.idx||0);h+='<div style="opacity:.8;margin:-4px 0 8px">Handling: <b>'+(handlingMode?'Realistic':'Arcade')+'</b> (H) · '+(q.ev?'single-speed EV':q.ng+' gears, redline '+q.red)+' · peak torque '+Math.round(q.T)+' Nm · tyre μ '+q.mu.toFixed(2)+(q.gov?' · limited at '+Math.round(q.vmax*3.6/.98)+' km/h':'')+' · springs '+q.fn+' Hz <i>(all estimates, solved from the game 0-100 and top speed)</i></div>'}
+ if(typeof WH==='object'){const q=WH.state;h+='<div style="opacity:.8;margin:-4px 0 8px">Racing wheel: '+(q.on?'<b>'+q.id.replace(/\s*\(.*$/,'')+'</b> · steer '+Math.round(q.steer*100)+'% · throttle '+Math.round(q.thr*100)+'% · brake '+Math.round(q.brk*100)+'%':q.blocked?'gamepad access blocked by the page (open the game in its own tab)':'none detected')+' (V: setup)</div>'}
  if(!on){diagPanel.innerHTML=h+'<p>Damage is <b>Off</b>: nothing is recorded'+(handlingMode?' (Realistic handling is on: H for Arcade).':' and the car drives exactly as before.')+' Press <b>I</b> (or the Damage button) for Cosmetic or Full simulation.</p>';return}
  // body: top-down zone map
  const z=s.zones,cell=(k,lab)=>{const v=z[k],c=sev(v)[1];return'<div style="padding:4px 2px;text-align:center;border-radius:5px;background:'+c+'22;border:1px solid '+c+'88"><div style="font-size:11px;opacity:.8">'+lab+'</div><b>'+pct(v)+'</b></div>'};
@@ -2572,10 +2574,10 @@ function diagRender(){
  h+='<div style="font-weight:650;margin:10px 0 4px">Tyres (per wheel)'+(full?'':' <span style="font-weight:400;opacity:.7">wear tracked; grip effect only in Full</span>')+'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
  for(let j=0;j<4;j++){const w=s.wheels[j],mu=tyreMu(w),drv=(j<2)?sp.drive!=='RWD':sp.drive!=='FWD',st=w.punct?['PUNCTURED','#ff6b6b']:w.temp>150?['overheated','#ff9a5c']:w.tread<20?['worn','#ffcf6b']:['OK','#7fd68a'],wr=w.wear;
   h+='<div style="padding:6px;border-radius:6px;background:#ffffff0d;border:1px solid '+st[1]+'66"><b>'+WHEEL_NAMES[j]+'</b> <span style="font-size:11px;opacity:.7">'+(drv?'driven':'free')+'</span> <span style="color:'+st[1]+';float:right">'+st[0]+'</span><br>tread '+bar(w.tread,46)+' '+pct(w.tread)+'<br>carcass '+bar(w.health,38)+' '+pct(w.health)+'<br>temp <b>'+Math.round(w.temp)+' °C</b> · grip ×'+mu.toFixed(2)
-   +'<br><span style="font-size:11px;opacity:.75">load '+Math.round(TYS.fz[j])+' N · slip '+TYS.sl[j].toFixed(1)+'/'+TYS.sa[j].toFixed(1)+' m/s<br>wear: burnout '+wr.burn.toFixed(1)+' · slide '+wr.slide.toFixed(1)+' · spin '+wr.spin.toFixed(1)+' · lock '+wr.lock.toFixed(1)+' · road '+wr.roll.toFixed(2)+' %</span></div>'}
+   +'<br><span style="font-size:11px;opacity:.75">load '+Math.round(TYS.fz[j])+' N · slip long '+TYS.sl[j].toFixed(1)+' / lat '+TYS.sa[j].toFixed(1)+' m/s'+(TYS.sl[j]>3?' · <b>spinning/locked</b>':'')+' · surface ×'+surfK().toFixed(2)+'<br>on this tyre '+w.km.toFixed(1)+' km · peak '+Math.round(w.tmax)+' °C<br>wear: burnout '+wr.burn.toFixed(1)+' · slide '+wr.slide.toFixed(1)+' · spin '+wr.spin.toFixed(1)+' · lock '+wr.lock.toFixed(1)+' · road '+wr.roll.toFixed(2)+' %</span></div>'}
  h+='</div><div style="font-size:11px;opacity:.65;margin-top:4px">'+(TYS.burn?'<b style="color:#ff9a5c">BURNOUT</b> · ':'')+'Burnout: throttle + brake at a standstill (FWD: throttle + handbrake). Whether the wheels break loose depends on power, weight split and drivetrain.</div>';
  if(s.log.length){h+='<div style="font-weight:650;margin:10px 0 4px">Recent impacts</div><div style="font-size:12px">'+s.log.map(q=>q.kmh+' km/h · '+q.zone+' · '+q.obj+(q.ebs?' · '+q.ebs+' km/h barrier-equivalent':'')).join('<br>')+'</div>'}
- h+='<div style="margin-top:10px;display:flex;gap:8px"><button data-act="repair" style="flex:1;padding:7px;border-radius:7px;border:1px solid #ffffff40;background:#2b6b3a;color:#fff;cursor:pointer">Repair all (free)</button><button data-act="tyres" style="flex:1;padding:7px;border-radius:7px;border:1px solid #ffffff40;background:#33414d;color:#fff;cursor:pointer">Replace tyres (free)</button></div>';
+ h+='<div style="margin-top:10px;display:flex;gap:8px"><button data-act="garage" style="flex:1;padding:7px;border-radius:7px;border:1px solid #ffffff40;background:#2b6b3a;color:#fff;cursor:pointer">Repairs: Apex Drift Customs (U) · route</button></div><div style="font-size:11px;opacity:.65;margin-top:3px">Each part is repaired and paid for separately (JD balance) at the garage.</div>';
  h+='<div style="font-size:11px;opacity:.55;margin-top:8px">All masses, layouts and thresholds are gameplay estimates unless marked doc; no manufacturer crash data is used. See manifest/cars.json.</div>';
  diagPanel.innerHTML=h}
 // dashboard warnings (Full only), refreshed twice a second
@@ -2690,7 +2692,7 @@ function buyPart(i){const t=tl(),c=price(i,t[i]);if(t[i]>=MAXL||drift.total<c)re
 function renderShop(){const t=tl();shopPts.textContent='Your Bank: '+fmt(drift.total)+' drift points · '+cur+' ['+RARN[P.rt]+' ×'+P.rm.toFixed(1)+' drift pts]';shopBody.innerHTML='';
  PARTS.forEach((pt,i)=>{const c=price(i,t[i]),mx=t[i]>=MAXL,row=document.createElement('div');row.className='row';
   row.innerHTML='<div><b>'+pt[0]+' '+pt[2]+'</b> · Level '+(t[i]+1)+(mx?' (MAX)':'')+'<br><small>'+pt[1]+(mx?'':' · Next upgrade: '+fmt(c)+' pts')+'</small></div>';
-  const b=document.createElement('button');b.textContent=mx?'MAX':'Upgrade · '+fmt(c);b.disabled=mx||drift.total<c;b.onclick=()=>{buyPart(i);renderShop()};row.appendChild(b);shopBody.appendChild(row)})}
+  const b=document.createElement('button');b.textContent=mx?'MAX':'Upgrade · '+fmt(c);b.disabled=mx||drift.total<c;b.onclick=()=>{buyPart(i);renderShop()};row.appendChild(b);shopBody.appendChild(row)});if(typeof renderRepairs==='function')renderRepairs(shopBody)}
 function openShop(){if(ui||Math.hypot(P.x-SHOP.x,P.z-SHOP.z)>14)return;ui=true;for(const k in keys)keys[k]=0;unfocus();renderShop();shopEl.style.display='flex'}
 function closeShop(){if(shopEl.style.display!=='flex')return;ui=false;shopEl.style.display='none';unfocus()}
 document.getElementById('shopx').onclick=closeShop;
@@ -2727,6 +2729,44 @@ const TuningShopInterface={
  // per frame: redraw the overlay only when the shop opens/closes (shop can also be closed by Esc or its own X)
  tick:function(){if(!this.ctx)return;const o=shopEl.style.display==='flex',sg=MobilePCInputController.sig();if(o!==this.isOpen||this.dirty||sg!==this.sg){this.isOpen=o;this.dirty=false;this.sg=sg;this.ctx.clearRect(0,0,DISP.w,DISP.h);iOSBypassEngine.drawPads(this.ctx);this.drawHUDButton(this.ctx)}}};
 TuningShopInterface.init(ren.domElement);
+// ---- Apex Drift Customs repair bay (v42): per-component repairs paid from the JD balance (fines - spent) ----
+// Owner-approved economy change (PLAN.md, v42): repairs used to be free. Prices are GAMEPLAY ESTIMATES (not workshop quotes):
+// a base labour charge plus a charge per % of condition lost, scaled by the car's rarity tier. Repairing one item only touches that item.
+const REP_TIER=[1,1.25,1.6,2.1,2.8],REP_ZC={fl:[.3,.45],fr:[-.3,.45],l:[.5,0],r:[-.5,0],rl:[.3,-.45],rr:[-.3,-.45]};
+const REP_ZN={fl:'Front-left panels (bumper, wing)',fr:'Front-right panels (bumper, wing)',l:'Left side panels (doors, sill)',r:'Right side panels (doors, sill)',rl:'Rear-left panels (bumper, quarter)',rr:'Rear-right panels (bumper, quarter)',roof:'Roof',u:'Underbody / floor'};
+// which body zone a dent belongs to (nearest zone centre, the same centres registerPlayerImpact spreads damage with)
+function dentZone(d,sp){let b='',bd=1e9;for(const z in REP_ZC){const q=Math.hypot(d[0]-REP_ZC[z][0]*sp.W,d[2]-REP_ZC[z][1]*sp.L);if(q<bd){bd=q;b=z}}return b}
+function repairItems(){
+ const s=currentDamageRecord(),sp=carSpec(P.idx||0),cf=REP_TIER[P.rt||0],it=[],pr=(b,k,loss)=>Math.round((b+k*loss)*cf),dr=diagRows(s,sp,true);
+ for(const z of ZONES){const loss=100-s.zones[z],nd=z in REP_ZC?s.dents.filter(d=>dentZone(d,sp)===z).length:0;if(loss<.5&&!nd)continue;
+  it.push({id:'z:'+z,grp:'Body',label:REP_ZN[z],cond:s.zones[z],eff:(nd?nd+' dent'+(nd>1?'s':'')+' · ':'')+(z==='u'?'scrapes from landings / bumps':'scuffs'),price:pr(30,4,loss)})}
+ for(let j=0;j<4;j++)if(s.lights[j])it.push({id:'li:'+j,grp:'Body',label:LIGHT_NAMES[j][0].toUpperCase()+LIGHT_NAMES[j].slice(1),cond:0,eff:'broken',price:pr(35,0,0)});
+ for(let j=0;j<4;j++)if(s.glass[j]>0)it.push({id:'gl:'+j,grp:'Body',label:GLASS_NAMES[j][0].toUpperCase()+GLASS_NAMES[j].slice(1),cond:100-s.glass[j]*100,eff:'cracked',price:pr(j<2?90:50,0,0)});
+ const M=[['engine',0,60,6],['cooling',1,25,2.5],['trans',2,50,5],['driveline',3,30,3],['steer',4,30,3],['brakes',5,20,2.5]];
+ for(const[k,r,b,c]of M){const loss=100-s[k];if(loss<.5)continue;it.push({id:'c:'+k,grp:'Mechanical',label:dr[r][0],cond:s[k],eff:dr[r][2],price:pr(b,c,loss)})}
+ for(let j=0;j<4;j++){const loss=100-s.susp[j],al=Math.abs(s.align[j])>.01;if(loss<.5&&!al)continue;
+  it.push({id:'s:'+j,grp:'Suspension',label:'Suspension '+WHEEL_NAMES[j]+(al?' + alignment':''),cond:s.susp[j],eff:dr[6+j][2]+(al?' · toe '+s.align[j].toFixed(1)+'°':''),price:pr(25,2.5,loss)+(al?Math.round(20*cf):0)})}
+ for(let j=0;j<4;j++){const w=s.wheels[j],c=w.punct?0:Math.min(w.tread,w.health);if(c>99.5&&w.temp<200)continue;
+  it.push({id:'t:'+j,grp:'Tyres',label:'Tyre '+WHEEL_NAMES[j],cond:c,eff:w.punct?'punctured':'tread '+Math.round(w.tread)+'% · carcass '+Math.round(w.health)+'%',price:pr(45,0,0)})}
+ return it}
+// apply one repair to the record (no charge here; payRepair charges)
+function repairPart(id){const s=currentDamageRecord(),sp=carSpec(P.idx||0),[k,a]=id.split(':'),j=+a;
+ if(k==='z'){s.zones[a]=100;if(a in REP_ZC)s.dents=s.dents.filter(d=>dentZone(d,sp)!==a)}
+ else if(k==='li')s.lights[j]=0;else if(k==='gl')s.glass[j]=0;
+ else if(k==='c'){s[a]=100;if(a==='cooling'||a==='engine')s.engTemp=90}
+ else if(k==='s'){s.susp[j]=100;s.align[j]=0}else if(k==='t')s.wheels[j]=newWheel();else return false;
+ syncAggregates(s);return true}
+const repBal=()=>fines-spent;
+function payRepair(ids){const L=repairItems().filter(q=>ids.includes(q.id)),tot=L.reduce((a,q)=>a+q.price,0);if(!L.length||repBal()<tot)return false;
+ spent+=tot;for(const q of L)repairPart(q.id);save();persistDamage();refreshDamageVisual();updateDamageButton();
+ toast('🔧 Repaired: '+(L.length>2?L.length+' items':L.map(q=>q.label).join(', '))+' · −'+fmt(tot)+' JD');return tot}
+function renderRepairs(el){const L=repairItems(),tot=L.reduce((a,q)=>a+q.price,0),bal=repBal(),sec=document.createElement('div');
+ let h='<h3 style="margin:14px 0 4px;border-top:1px solid #ffffff26;padding-top:10px">🛠 Repair bay</h3><div style="font-size:12px;opacity:.75;margin-bottom:6px">Balance: <b>'+fmt(bal)+' JD</b> · prices are gameplay estimates, not workshop quotes</div>';
+ if(!L.length)h+='<div style="opacity:.8">No damage recorded on this car.'+(damageMode===0?' Damage is Off (press I for Cosmetic or Full).':'')+'</div>';
+ else{let g='';for(const q of L){if(q.grp!==g){g=q.grp;h+='<div style="font-weight:650;margin:8px 0 2px;color:#ffd24a">'+g+'</div>'}const[w,c]=sev(q.cond);
+  h+='<div class="row" style="padding:4px 0"><div style="font-size:13px"><b>'+q.label+'</b> <span style="color:'+c+'">'+Math.round(q.cond)+'% '+w+'</span><br><small>'+q.eff+'</small></div><button data-rep="'+q.id+'"'+(bal<q.price?' disabled':'')+'>Repair · '+fmt(q.price)+' JD</button></div>'}
+  h+='<div class="row" style="margin-top:8px"><div><b>Total for everything</b>: '+fmt(tot)+' JD'+(bal<tot?' <small style="color:#ff9a5c">(not enough balance)</small>':'')+'</div><button data-rep="*"'+(bal<tot?' disabled':'')+' style="background:#2b6b3a;color:#fff">Repair all · '+fmt(tot)+' JD</button></div>'}
+ sec.innerHTML=h;sec.addEventListener('click',e=>{const id=e.target&&e.target.dataset&&e.target.dataset.rep;if(!id)return;payRepair(id==='*'?L.map(q=>q.id):[id]);renderShop()});el.appendChild(sec)}
 // ---- agents that follow the road graph: traffic, race bots, police ----
 const traffic=[],bots=['Samer','Layth','Omar'].map((n,i)=>({n,x:1e4,z:1e4,h:Math.PI/2,v:0,prog:0,fin:false,skill:.96+i*.02,rad:1.3,m:mkPorsche(i),P:[],C:[],Lm:[],Mk:[],pi:0}));
 bots.forEach((b,i)=>{setModel(b,i);b.m.position.set(1e4,TH(1e4,1e4),1e4)});
@@ -2875,14 +2915,14 @@ iOSBypassEngine.initAppleFix(ren.domElement);
 //         `lg4ff` driver (report of 7 bytes: 0x11 slot-1 constant force, 0x13 stop, 0xf5 autocenter off, 0xf8 0x81 range).
 //         If WebHID is unavailable the game falls back to gamepad rumble (if the pad exposes it) and otherwise just drives without force.
 // Settings live in their own localStorage key `irbid-wheel` (the `irbid-save` format is not touched).
-const WHN={on:false,steer:0,thr:0,brk:0,hb:false,raw:0};
+const WHN={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0};
 const WH=(()=>{
- const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'');
+ const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'')||(!!cfg.dev&&id===cfg.dev);
  const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Rob bank'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
- const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,range:900,lock:540,dead:.015,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
+ const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
  let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)cfg=Object.assign(DEF(),s,{btn:Object.assign(DEF().btn,s.btn||{})})}catch(e){}
  const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},cl2=(v,a,b)=>v<a?a:v>b?b:v;
- const S={on:false,steer:0,thr:0,brk:0,hb:false,raw:0,id:'',blocked:''};
+ const S={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0,id:'',blocked:'',seen:0,others:[]};
  let pi=-1,pad=null,scanT=9,cap=null,wzOn=false,rev=[],prev=new Uint8Array(64),said='';
  const rebuild=()=>{rev=[];for(const[a]of ACT){const i=cfg.btn[a];if(i>=0)rev[i]=a}};rebuild();
  const hasGP=()=>typeof navigator!=='undefined'&&typeof navigator.getGamepads==='function';
@@ -2905,18 +2945,21 @@ const WH=(()=>{
  if(hasHID()){try{navigator.hid.addEventListener('disconnect',e=>{if(e.device===FF.dev){FF.dev=null;FF.st='Force feedback: wheel disconnected'}})}catch(e){}}
  // ================= input polling (called once per frame from updP) =================
  function onConnect(g){S.id=g.id;if(said!==g.id){said=g.id;toast('🎮 Wheel detected: '+g.id.replace(/\s*\(.*$/,''));if(!cfg.setup)setTimeout(()=>{if(!ui&&!wzOn)wzOpen()},900);else if(cfg.thr<0)toast('Press V to set up the pedals')}}
- function capAxis(g,dt){const c=cap;if(!c.base){c.base=Array.from(g.axes);c.idx=-1;c.maxd=0;c.stall=0;c.ext=0}
+ function capAxis(g,dt){const c=cap;if(!c.base){c.base=Array.from(g.axes);c.idx=-1;c.maxd=0;c.stall=0;c.ext=0;c.rt=0;c.n=1}
+  if(c.rest&&c.rt<.4){c.rt+=dt;c.n++;for(let i=0;i<g.axes.length;i++)c.base[i]+=(g.axes[i]-c.base[i])/c.n;if(c.rt>=.4)c.msg=c.msg2;return}  // pedals: average the RELEASED value first
   let bi=-1,bd=0;for(let i=0;i<g.axes.length;i++){if(c.skip&&c.skip.indexOf(i)>=0)continue;const d=Math.abs(g.axes[i]-c.base[i]);if(d>bd){bd=d;bi=i}}
   if(bd>.5&&(c.idx<0||bi===c.idx)){c.idx=bi;if(bd>c.maxd+.01){c.maxd=bd;c.stall=0;c.ext=g.axes[bi]}else c.stall+=dt;if(c.maxd>=1.6||c.stall>.6){const f=c.fn,i=c.idx,b=c.base[i],e=c.ext;cap=null;f(i,b,e)}}}
  function poll(dt){
   if(!hasGP())return WHN;const L=GP();if(!L)return WHN;
   if(pi<0||!L[pi]||!L[pi].connected){pi=-1;pad=null;scanT+=dt;if(scanT>1){scanT=0;for(let i=0;i<L.length;i++){const g=L[i];if(g&&g.connected&&isW(g.id)){pi=i;onConnect(g);break}}}
-   if(pi<0){S.on=false;S.steer=S.thr=S.brk=S.raw=0;S.hb=false;return S}}
-  const g=L[pi];pad=g;S.on=true;const ax=g.axes;
+   if(pi<0){S.on=false;S.steer=S.thr=S.brk=S.clu=S.raw=0;S.hb=false;if(scanT===0){S.others.length=0;for(const g of L)if(g&&g.connected)S.others.push(g.id)}return S}}
+  const g=L[pi];pad=g;S.on=true;S.seen++;const ax=g.axes;
   let a=ax[cfg.wheel]||0;if(cfg.wInv)a=-a;S.raw=a;
   let n=cl2(a*cfg.range/cfg.lock,-1,1);const d=cfg.dead;n=Math.abs(n)<d?0:Math.sign(n)*(Math.abs(n)-d)/(1-d);S.steer=n;
-  const ped=(i,r,f)=>{if(i<0||i>=ax.length)return 0;const q=f-r;if(Math.abs(q)<.2)return 0;const p=cl2((ax[i]-r)/q,0,1);return p<.03?0:Math.min(1,(p-.03)/.94)};
-  S.thr=ped(cfg.thr,cfg.tr,cfg.tf);S.brk=ped(cfg.brk,cfg.br,cfg.bf);
+  // pedal read: dead zone at both ends; a reading beyond the released end moves that end (some browsers report 0 until a pedal is first touched)
+  const pz=cfg.pdz,ped=(i,rk,fk)=>{if(i<0||i>=ax.length)return 0;const r=cfg[rk],f=cfg[fk],q=f-r;if(Math.abs(q)<.2)return 0;const u=(ax[i]-r)/q;
+   if(u<-.06&&cfg.thr!==cfg.brk&&!cap){cfg[rk]=ax[i];store()}const p=cl2(u,0,1);return p<pz?0:Math.min(1,(p-pz)/(1-2*pz))};
+  S.thr=ped(cfg.thr,'tr','tf');S.brk=ped(cfg.brk,'br','bf');S.clu=ped(cfg.clu,'cr','cf');
   if(cap&&cap.t==='axis')capAxis(g,dt);
   const B=g.buttons;let hb=false;
   for(let i=0;i<B.length&&i<64;i++){const p=B[i].pressed?1:0,a2=rev[i];
@@ -2960,11 +3003,14 @@ const WH=(()=>{
  function build(){const st=document.createElement('style');st.textContent='#whz{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:7;font:14px system-ui,sans-serif;color:#fff}#whz .box{background:#14161a;padding:16px 18px;border-radius:12px;width:min(580px,94vw);max-height:92vh;overflow:auto}#whz h3{margin:0 0 8px}#whz h4{margin:14px 0 6px;color:#ffd24a}#whz .r{display:flex;gap:8px;align-items:center;margin:5px 0;flex-wrap:wrap}#whz .r>span{flex:1;min-width:120px}#whz button{padding:6px 11px;border-radius:7px;border:0;cursor:pointer;font-size:13px}#whz .bar{height:10px;background:#333;border-radius:5px;position:relative;flex:2;min-width:140px;overflow:hidden}#whz .bar i{position:absolute;top:0;bottom:0;background:#4aa3ff;left:0;width:0}#whz .msg{background:#2b3f66;padding:7px 10px;border-radius:8px;margin:8px 0;display:none}#whz small{opacity:.7}';document.head.appendChild(st);
   wz=document.createElement('div');wz.id='whz';document.body.appendChild(wz);
   wz.innerHTML='<div class="box"><h3>🎮 Racing wheel setup</h3><div id="wzd"></div><div class="msg" id="wzm"></div>'
-  +'<h4>Steering</h4><div class="r"><span>Wheel position</span><div class="bar"><i id="wzs"></i></div><button data-a="axw">Detect axis</button></div>'
+  +'<h4>Steering</h4><div class="r"><span>Wheel position <b id="wzsv"></b></span><div class="bar"><i id="wzs"></i></div><button data-a="axw">Detect axis</button></div>'
   +'<div class="r"><span>Wheel range (degrees)</span><select id="wzr"><option>270</option><option>360</option><option>540</option><option>720</option><option>900</option></select></div>'
   +'<div class="r"><span>Full steering lock = <b id="wzlv"></b>° lock-to-lock</span><input type="range" id="wzl" min="180" max="900" step="30"></div>'
   +'<div class="r"><span>Invert steering</span><input type="checkbox" id="wzi"></div>'
-  +'<h4>Pedals</h4><div class="r"><span>Throttle</span><div class="bar"><i id="wzt"></i></div><button data-a="axt">Calibrate</button></div><div class="r"><span>Brake / reverse</span><div class="bar"><i id="wzk"></i></div><button data-a="axb">Calibrate</button></div>'
+  +'<h4>Pedals</h4><div class="r"><small>Calibrate measures each pedal released (keep your feet off for a moment), then fully pressed. Reversed axes and pedals sharing one axis (combined mode) are handled.</small></div>'
+  +'<div class="r"><span>Throttle <b id="wztv"></b></span><div class="bar"><i id="wzt"></i></div><button data-a="axt">Calibrate</button></div><div class="r"><span>Brake / reverse <b id="wzkv"></b></span><div class="bar"><i id="wzk"></i></div><button data-a="axb">Calibrate</button></div>'
+  +'<div class="r"><span>Clutch <b id="wzcv"></b> <small>(shown only: the game has an automatic gearbox)</small></span><div class="bar"><i id="wzc"></i></div><button data-a="axc">Calibrate</button><button data-a="nclu">×</button></div>'
+  +'<div class="r"><span>Pedal dead zone <b id="wzdzv"></b>%</span><input type="range" id="wzdz" min="0" max="15" step="1"></div><div class="r"><small id="wzpi"></small></div><div class="r"><small id="wzax" style="font-family:monospace"></small></div>'
   +'<h4>Buttons</h4><div id="wzb"></div><div class="r"><small>Currently pressed: <b id="wzp">–</b></small></div>'
   +'<h4>Force feedback</h4><div class="r"><span id="wzf"></span></div><div class="r"><button data-a="ffc">Connect force feedback</button><button data-a="ftl">Test ◀</button><button data-a="ftr">Test ▶</button><button data-a="ffp">Auto-detect direction</button></div>'
   +'<div class="r"><span>Force strength <b id="wzgv"></b>%</span><input type="range" id="wzg" min="0" max="100" step="5"></div><div class="r"><span>Force feedback on</span><input type="checkbox" id="wzo"></div><div class="r"><span>Reverse force direction</span><input type="checkbox" id="wzv"></div>'
@@ -2974,16 +3020,22 @@ const WH=(()=>{
    if(a==='cls')wzClose();else if(a==='ffc')hidAsk();else if(a==='ftl')ffTest(-1);else if(a==='ftr')ffTest(1);else if(a==='ffp')ffProbe();
    else if(a==='rst'){cfg=DEF();rebuild();store();wzRender()}
    else if(a==='axw')cap={t:'axis',skip:[],msg:'Turn the wheel all the way to the RIGHT and hold it…',fn:(i,b,x)=>{cfg.wheel=i;cfg.wInv=x<b;store();wzRender()}};
-   else if(a==='axt')cap={t:'axis',skip:[cfg.wheel],msg:'Press the THROTTLE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.thr=i;cfg.tr=b;cfg.tf=x;store();wzRender()}};
-   else if(a==='axb')cap={t:'axis',skip:[cfg.wheel,cfg.thr],msg:'Press the BRAKE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.brk=i;cfg.br=b;cfg.bf=x;store();wzRender()}};
+   else if(a==='axt')cap={t:'axis',rest:true,skip:[cfg.wheel],msg:'Keep ALL pedals released…',msg2:'Now press the THROTTLE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.thr=i;cfg.tr=b;cfg.tf=x;store();wzRender()}};
+   else if(a==='axb')cap={t:'axis',rest:true,skip:[cfg.wheel],msg:'Keep ALL pedals released…',msg2:'Now press the BRAKE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.brk=i;cfg.br=b;cfg.bf=x;store();wzRender()}};
+   else if(a==='axc')cap={t:'axis',rest:true,skip:[cfg.wheel,cfg.thr,cfg.brk],msg:'Keep ALL pedals released…',msg2:'Now press the CLUTCH pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.clu=i;cfg.cr=b;cfg.cf=x;store();wzRender()}};
+   else if(a==='nclu'){cfg.clu=-1;store();wzRender()}
+   else if(a.startsWith('dev:')){cfg.dev=S.others[+a.slice(4)]||'';pi=-1;scanT=9;said='';store();wzRender()}
    else if(a.startsWith('b:')){const k=a.slice(2),lb=ACT.find(q=>q[0]===k)[1];cap={t:'btn',msg:'Press the wheel button for “'+lb+'”…',fn:i=>{for(const q of ACT)if(cfg.btn[q[0]]===i)cfg.btn[q[0]]=-1;cfg.btn[k]=i;rebuild();store();wzRender()}}}
    else if(a.startsWith('u:')){cfg.btn[a.slice(2)]=-1;rebuild();store();wzRender()}});
-  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
- function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;
+  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzdz')cfg.pdz=e.target.value/100;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
+ function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;q('#wzdz').value=Math.round(cfg.pdz*100);q('#wzdzv').textContent=Math.round(cfg.pdz*100);
+  q('#wzpi').textContent='Throttle: '+(cfg.thr>=0?'axis '+cfg.thr:'not calibrated')+' · Brake: '+(cfg.brk>=0?'axis '+cfg.brk:'not calibrated')+(cfg.thr>=0&&cfg.thr===cfg.brk?' (combined pedal axis)':'')+' · Clutch: '+(cfg.clu>=0?'axis '+cfg.clu:'not set');
   for(const[a]of ACT)q('#wzb_'+a).textContent=nm(cfg.btn[a]);}
  function wzLive(){if(!wz)return;const q=s=>wz.querySelector(s),m=q('#wzm');
-  q('#wzd').innerHTML=S.blocked==='gamepad'?'<small>The browser blocked gamepad access for this embedded page. Open the game in its own tab/window.</small>':(pad?'Device: <b>'+pad.id+'</b>':'<small>No wheel found yet. Turn the wheel or press a wheel button so the browser reports it (Chrome / Edge on desktop).</small>');
-  q('#wzs').style.cssText='left:'+((S.raw+1)/2*100-1.5).toFixed(1)+'%;width:3%';q('#wzt').style.width=(S.thr*100).toFixed(0)+'%';q('#wzk').style.width=(S.brk*100).toFixed(0)+'%';
+  q('#wzd').innerHTML=!hasGP()?'<small>This browser does not provide the Gamepad API, so no wheel input can be read. Use Chrome or Edge on a desktop.</small>':S.blocked==='gamepad'?'<small>The browser blocked gamepad access for this embedded page. Open the game in its own tab/window.</small>':(pad?'Device: <b>'+pad.id+'</b> · <span style="color:#7fd68a">input live</span>':'<small style="color:#ffcf6b">No wheel detected: the readings below are not live. Turn the wheel or press a wheel button so the browser reports it (Chrome / Edge on desktop; close G HUB profiles that capture the wheel).</small>'+(S.others.length?'<br><small>Other controllers seen:</small> '+S.others.map((d,i)=>'<button data-a="dev:'+i+'">Use '+d.replace(/\s*\(.*$/,'').slice(0,40)+'</button>').join(' '):''));
+  q('#wzs').style.cssText='left:'+((S.raw+1)/2*100-1.5).toFixed(1)+'%;width:3%';q('#wzt').style.width=(S.thr*100).toFixed(0)+'%';q('#wzk').style.width=(S.brk*100).toFixed(0)+'%';q('#wzc').style.width=(S.clu*100).toFixed(0)+'%';
+  const lv=!!pad;q('#wzsv').textContent=lv?(S.steer>=0?'+':'')+(S.steer*100).toFixed(0)+'%':'–';q('#wztv').textContent=lv?(S.thr*100).toFixed(0)+'%':'–';q('#wzkv').textContent=lv?(S.brk*100).toFixed(0)+'%':'–';q('#wzcv').textContent=lv&&cfg.clu>=0?(S.clu*100).toFixed(0)+'%':'–';
+  q('#wzax').textContent=pad?'raw axes: '+Array.from(pad.axes,(v,i)=>i+':'+(v>=0?'+':'')+v.toFixed(2)).join(' '):'';
   m.style.display=cap?'block':'none';if(cap)m.textContent=cap.msg;q('#wzf').textContent=FF.st;
   let pr='';if(pad)for(let i=0;i<pad.buttons.length;i++)if(pad.buttons[i].pressed)pr+=i+' ';q('#wzp').textContent=pr||'–'}
  function wzOpen(){if(ui&&!wzOn)return;if(!wz)build();wzOn=true;ui=true;for(const k in keys)keys[k]=0;wz.style.display='flex';wzRender();wzLive();clearInterval(wzT);wzT=setInterval(wzLive,100)}

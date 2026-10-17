@@ -4,6 +4,30 @@ Machine: Windows 11, Node v24.20.0, Python 3.15 + Playwright 1.64 (Chromium, Swi
 repo root unless noted (Node harness tests were run from a scratch directory because they write output files).
 Build: `python build.py` → `dist/irbid-drive.html` 3,374,297 chars / 3,216 lines.
 
+## v42 (master repair: repair bay, G29, tyre state, place review), 2026-10-17, build 4,245,300 chars
+
+| Test | Result |
+|---|---|
+| `val_net` | 400/400 routable, avg detour 1.30 |
+| `boot`, `h2`, `h13`, `h20` | run clean; same shape as v41 (prices table unchanged) |
+| `h24` / `vg` / `h14` | bad 6 / bad 9 / bad 2 (expected, unchanged) |
+| `h21` | places 1659, laz 1489 (unchanged) |
+| `tour` / `dyn_check` / `h16` | 0 off-road / bad 0 / fines 0 |
+| `lmchk` | landmarks at their OSM points (0 m) |
+| `terr_check` | runs; terrain range −243…466 m |
+| `phys_brake` | handbrake hold 0.00 km/h; 0–100 uphill 6.85 s / downhill 3.80 s |
+| `realism_test` | all passed (29) |
+| `damage_test` | **58/58** (new: 7 repair-bay checks; diagnostics now point to the garage) |
+| `off_trace` | Off + Arcade physics identical to v38; world hash 67ecbca6 (unchanged from v41) |
+| `handling_test` | all passed |
+| `bld_check` | all passed (95.9 % of footprint pieces placed) |
+| `wheel_test.py` | **40/40** (new: released-then-pressed calibration, live readouts, clutch, combined pedals, released-end correction, dead zone, disconnect/reconnect); `blocked` 2/2 |
+| `damage_pw.py` | **10/10** (repair bay listed, tyre FL repaired alone and charged, Repair all, "No damage recorded") |
+| `shopt`, `disp`, `ios`, `drive_pw` | pass, no page errors |
+| `dc2` | 473–1,036 draw calls |
+
+All hardware results are **simulated** (mock Gamepad/WebHID). No physical G29, phone or tablet was tested.
+
 ## v41 (Phase 2: handling, traffic calming, audits), 2026-10-17, build 4,235,847 chars
 
 All on the final v41 build (`runall`: Node from a scratch directory, Playwright from the repo root).

@@ -132,6 +132,12 @@ Approved by the owner (explicit requests) and now part of the reference behaviou
   engine torque, gears, traction by drivetrain, drag, engine braking, spring-damper body, suspension-absorbed bumps). It is opt-in: Arcade stays
   the default and identical to v38, so drift scoring and the existing feel are unchanged unless the player switches. OSM traffic calming
   placed as real bumps. HUD gains gear/rpm in Realistic only.
+- v42 (owner request 2026-10-17, "complete master repair and realism upgrade", Phase 10): **repairs cost JD** (an economy change to
+  constraint 3). The Apex Drift Customs shop gains a repair bay that prices and repairs each part separately (body zones, lights, glass,
+  engine, cooling, transmission, driveline, steering, brakes, suspension per corner, tyres per wheel) and charges the JD balance (adds to
+  `spent`). The free "Repair all / Replace tyres" buttons in diagnostics are removed; the Repair button routes to the garage. Prices are
+  gameplay estimates (base + per-% loss, × rarity tier 1/1.25/1.6/2.1/2.8). All other prices, odds and fines are unchanged. The G29 setup
+  gains released/pressed pedal calibration, combined pedals, clutch display, pedal dead zone and live readings (input handling only).
 
 Still needs approval before implementing: a fixed-timestep physics loop, lateral grip by surface (affects drift scoring), removing or
 gating the estimated speed bumps, any pause/start/audio features, and the refactor phases below.

@@ -5,14 +5,14 @@
 //         `lg4ff` driver (report of 7 bytes: 0x11 slot-1 constant force, 0x13 stop, 0xf5 autocenter off, 0xf8 0x81 range).
 //         If WebHID is unavailable the game falls back to gamepad rumble (if the pad exposes it) and otherwise just drives without force.
 // Settings live in their own localStorage key `irbid-wheel` (the `irbid-save` format is not touched).
-const WHN={on:false,steer:0,thr:0,brk:0,hb:false,raw:0};
+const WHN={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0};
 const WH=(()=>{
- const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'');
+ const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'')||(!!cfg.dev&&id===cfg.dev);
  const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Rob bank'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
- const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,range:900,lock:540,dead:.015,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
+ const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
  let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)cfg=Object.assign(DEF(),s,{btn:Object.assign(DEF().btn,s.btn||{})})}catch(e){}
  const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},cl2=(v,a,b)=>v<a?a:v>b?b:v;
- const S={on:false,steer:0,thr:0,brk:0,hb:false,raw:0,id:'',blocked:''};
+ const S={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0,id:'',blocked:'',seen:0,others:[]};
  let pi=-1,pad=null,scanT=9,cap=null,wzOn=false,rev=[],prev=new Uint8Array(64),said='';
  const rebuild=()=>{rev=[];for(const[a]of ACT){const i=cfg.btn[a];if(i>=0)rev[i]=a}};rebuild();
  const hasGP=()=>typeof navigator!=='undefined'&&typeof navigator.getGamepads==='function';
@@ -35,18 +35,21 @@ const WH=(()=>{
  if(hasHID()){try{navigator.hid.addEventListener('disconnect',e=>{if(e.device===FF.dev){FF.dev=null;FF.st='Force feedback: wheel disconnected'}})}catch(e){}}
  // ================= input polling (called once per frame from updP) =================
  function onConnect(g){S.id=g.id;if(said!==g.id){said=g.id;toast('🎮 Wheel detected: '+g.id.replace(/\s*\(.*$/,''));if(!cfg.setup)setTimeout(()=>{if(!ui&&!wzOn)wzOpen()},900);else if(cfg.thr<0)toast('Press V to set up the pedals')}}
- function capAxis(g,dt){const c=cap;if(!c.base){c.base=Array.from(g.axes);c.idx=-1;c.maxd=0;c.stall=0;c.ext=0}
+ function capAxis(g,dt){const c=cap;if(!c.base){c.base=Array.from(g.axes);c.idx=-1;c.maxd=0;c.stall=0;c.ext=0;c.rt=0;c.n=1}
+  if(c.rest&&c.rt<.4){c.rt+=dt;c.n++;for(let i=0;i<g.axes.length;i++)c.base[i]+=(g.axes[i]-c.base[i])/c.n;if(c.rt>=.4)c.msg=c.msg2;return}  // pedals: average the RELEASED value first
   let bi=-1,bd=0;for(let i=0;i<g.axes.length;i++){if(c.skip&&c.skip.indexOf(i)>=0)continue;const d=Math.abs(g.axes[i]-c.base[i]);if(d>bd){bd=d;bi=i}}
   if(bd>.5&&(c.idx<0||bi===c.idx)){c.idx=bi;if(bd>c.maxd+.01){c.maxd=bd;c.stall=0;c.ext=g.axes[bi]}else c.stall+=dt;if(c.maxd>=1.6||c.stall>.6){const f=c.fn,i=c.idx,b=c.base[i],e=c.ext;cap=null;f(i,b,e)}}}
  function poll(dt){
   if(!hasGP())return WHN;const L=GP();if(!L)return WHN;
   if(pi<0||!L[pi]||!L[pi].connected){pi=-1;pad=null;scanT+=dt;if(scanT>1){scanT=0;for(let i=0;i<L.length;i++){const g=L[i];if(g&&g.connected&&isW(g.id)){pi=i;onConnect(g);break}}}
-   if(pi<0){S.on=false;S.steer=S.thr=S.brk=S.raw=0;S.hb=false;return S}}
-  const g=L[pi];pad=g;S.on=true;const ax=g.axes;
+   if(pi<0){S.on=false;S.steer=S.thr=S.brk=S.clu=S.raw=0;S.hb=false;if(scanT===0){S.others.length=0;for(const g of L)if(g&&g.connected)S.others.push(g.id)}return S}}
+  const g=L[pi];pad=g;S.on=true;S.seen++;const ax=g.axes;
   let a=ax[cfg.wheel]||0;if(cfg.wInv)a=-a;S.raw=a;
   let n=cl2(a*cfg.range/cfg.lock,-1,1);const d=cfg.dead;n=Math.abs(n)<d?0:Math.sign(n)*(Math.abs(n)-d)/(1-d);S.steer=n;
-  const ped=(i,r,f)=>{if(i<0||i>=ax.length)return 0;const q=f-r;if(Math.abs(q)<.2)return 0;const p=cl2((ax[i]-r)/q,0,1);return p<.03?0:Math.min(1,(p-.03)/.94)};
-  S.thr=ped(cfg.thr,cfg.tr,cfg.tf);S.brk=ped(cfg.brk,cfg.br,cfg.bf);
+  // pedal read: dead zone at both ends; a reading beyond the released end moves that end (some browsers report 0 until a pedal is first touched)
+  const pz=cfg.pdz,ped=(i,rk,fk)=>{if(i<0||i>=ax.length)return 0;const r=cfg[rk],f=cfg[fk],q=f-r;if(Math.abs(q)<.2)return 0;const u=(ax[i]-r)/q;
+   if(u<-.06&&cfg.thr!==cfg.brk&&!cap){cfg[rk]=ax[i];store()}const p=cl2(u,0,1);return p<pz?0:Math.min(1,(p-pz)/(1-2*pz))};
+  S.thr=ped(cfg.thr,'tr','tf');S.brk=ped(cfg.brk,'br','bf');S.clu=ped(cfg.clu,'cr','cf');
   if(cap&&cap.t==='axis')capAxis(g,dt);
   const B=g.buttons;let hb=false;
   for(let i=0;i<B.length&&i<64;i++){const p=B[i].pressed?1:0,a2=rev[i];
@@ -90,11 +93,14 @@ const WH=(()=>{
  function build(){const st=document.createElement('style');st.textContent='#whz{position:fixed;inset:0;background:#000d;display:none;align-items:center;justify-content:center;z-index:7;font:14px system-ui,sans-serif;color:#fff}#whz .box{background:#14161a;padding:16px 18px;border-radius:12px;width:min(580px,94vw);max-height:92vh;overflow:auto}#whz h3{margin:0 0 8px}#whz h4{margin:14px 0 6px;color:#ffd24a}#whz .r{display:flex;gap:8px;align-items:center;margin:5px 0;flex-wrap:wrap}#whz .r>span{flex:1;min-width:120px}#whz button{padding:6px 11px;border-radius:7px;border:0;cursor:pointer;font-size:13px}#whz .bar{height:10px;background:#333;border-radius:5px;position:relative;flex:2;min-width:140px;overflow:hidden}#whz .bar i{position:absolute;top:0;bottom:0;background:#4aa3ff;left:0;width:0}#whz .msg{background:#2b3f66;padding:7px 10px;border-radius:8px;margin:8px 0;display:none}#whz small{opacity:.7}';document.head.appendChild(st);
   wz=document.createElement('div');wz.id='whz';document.body.appendChild(wz);
   wz.innerHTML='<div class="box"><h3>🎮 Racing wheel setup</h3><div id="wzd"></div><div class="msg" id="wzm"></div>'
-  +'<h4>Steering</h4><div class="r"><span>Wheel position</span><div class="bar"><i id="wzs"></i></div><button data-a="axw">Detect axis</button></div>'
+  +'<h4>Steering</h4><div class="r"><span>Wheel position <b id="wzsv"></b></span><div class="bar"><i id="wzs"></i></div><button data-a="axw">Detect axis</button></div>'
   +'<div class="r"><span>Wheel range (degrees)</span><select id="wzr"><option>270</option><option>360</option><option>540</option><option>720</option><option>900</option></select></div>'
   +'<div class="r"><span>Full steering lock = <b id="wzlv"></b>° lock-to-lock</span><input type="range" id="wzl" min="180" max="900" step="30"></div>'
   +'<div class="r"><span>Invert steering</span><input type="checkbox" id="wzi"></div>'
-  +'<h4>Pedals</h4><div class="r"><span>Throttle</span><div class="bar"><i id="wzt"></i></div><button data-a="axt">Calibrate</button></div><div class="r"><span>Brake / reverse</span><div class="bar"><i id="wzk"></i></div><button data-a="axb">Calibrate</button></div>'
+  +'<h4>Pedals</h4><div class="r"><small>Calibrate measures each pedal released (keep your feet off for a moment), then fully pressed. Reversed axes and pedals sharing one axis (combined mode) are handled.</small></div>'
+  +'<div class="r"><span>Throttle <b id="wztv"></b></span><div class="bar"><i id="wzt"></i></div><button data-a="axt">Calibrate</button></div><div class="r"><span>Brake / reverse <b id="wzkv"></b></span><div class="bar"><i id="wzk"></i></div><button data-a="axb">Calibrate</button></div>'
+  +'<div class="r"><span>Clutch <b id="wzcv"></b> <small>(shown only: the game has an automatic gearbox)</small></span><div class="bar"><i id="wzc"></i></div><button data-a="axc">Calibrate</button><button data-a="nclu">×</button></div>'
+  +'<div class="r"><span>Pedal dead zone <b id="wzdzv"></b>%</span><input type="range" id="wzdz" min="0" max="15" step="1"></div><div class="r"><small id="wzpi"></small></div><div class="r"><small id="wzax" style="font-family:monospace"></small></div>'
   +'<h4>Buttons</h4><div id="wzb"></div><div class="r"><small>Currently pressed: <b id="wzp">–</b></small></div>'
   +'<h4>Force feedback</h4><div class="r"><span id="wzf"></span></div><div class="r"><button data-a="ffc">Connect force feedback</button><button data-a="ftl">Test ◀</button><button data-a="ftr">Test ▶</button><button data-a="ffp">Auto-detect direction</button></div>'
   +'<div class="r"><span>Force strength <b id="wzgv"></b>%</span><input type="range" id="wzg" min="0" max="100" step="5"></div><div class="r"><span>Force feedback on</span><input type="checkbox" id="wzo"></div><div class="r"><span>Reverse force direction</span><input type="checkbox" id="wzv"></div>'
@@ -104,16 +110,22 @@ const WH=(()=>{
    if(a==='cls')wzClose();else if(a==='ffc')hidAsk();else if(a==='ftl')ffTest(-1);else if(a==='ftr')ffTest(1);else if(a==='ffp')ffProbe();
    else if(a==='rst'){cfg=DEF();rebuild();store();wzRender()}
    else if(a==='axw')cap={t:'axis',skip:[],msg:'Turn the wheel all the way to the RIGHT and hold it…',fn:(i,b,x)=>{cfg.wheel=i;cfg.wInv=x<b;store();wzRender()}};
-   else if(a==='axt')cap={t:'axis',skip:[cfg.wheel],msg:'Press the THROTTLE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.thr=i;cfg.tr=b;cfg.tf=x;store();wzRender()}};
-   else if(a==='axb')cap={t:'axis',skip:[cfg.wheel,cfg.thr],msg:'Press the BRAKE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.brk=i;cfg.br=b;cfg.bf=x;store();wzRender()}};
+   else if(a==='axt')cap={t:'axis',rest:true,skip:[cfg.wheel],msg:'Keep ALL pedals released…',msg2:'Now press the THROTTLE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.thr=i;cfg.tr=b;cfg.tf=x;store();wzRender()}};
+   else if(a==='axb')cap={t:'axis',rest:true,skip:[cfg.wheel],msg:'Keep ALL pedals released…',msg2:'Now press the BRAKE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.brk=i;cfg.br=b;cfg.bf=x;store();wzRender()}};
+   else if(a==='axc')cap={t:'axis',rest:true,skip:[cfg.wheel,cfg.thr,cfg.brk],msg:'Keep ALL pedals released…',msg2:'Now press the CLUTCH pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.clu=i;cfg.cr=b;cfg.cf=x;store();wzRender()}};
+   else if(a==='nclu'){cfg.clu=-1;store();wzRender()}
+   else if(a.startsWith('dev:')){cfg.dev=S.others[+a.slice(4)]||'';pi=-1;scanT=9;said='';store();wzRender()}
    else if(a.startsWith('b:')){const k=a.slice(2),lb=ACT.find(q=>q[0]===k)[1];cap={t:'btn',msg:'Press the wheel button for “'+lb+'”…',fn:i=>{for(const q of ACT)if(cfg.btn[q[0]]===i)cfg.btn[q[0]]=-1;cfg.btn[k]=i;rebuild();store();wzRender()}}}
    else if(a.startsWith('u:')){cfg.btn[a.slice(2)]=-1;rebuild();store();wzRender()}});
-  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
- function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;
+  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzdz')cfg.pdz=e.target.value/100;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
+ function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;q('#wzdz').value=Math.round(cfg.pdz*100);q('#wzdzv').textContent=Math.round(cfg.pdz*100);
+  q('#wzpi').textContent='Throttle: '+(cfg.thr>=0?'axis '+cfg.thr:'not calibrated')+' · Brake: '+(cfg.brk>=0?'axis '+cfg.brk:'not calibrated')+(cfg.thr>=0&&cfg.thr===cfg.brk?' (combined pedal axis)':'')+' · Clutch: '+(cfg.clu>=0?'axis '+cfg.clu:'not set');
   for(const[a]of ACT)q('#wzb_'+a).textContent=nm(cfg.btn[a]);}
  function wzLive(){if(!wz)return;const q=s=>wz.querySelector(s),m=q('#wzm');
-  q('#wzd').innerHTML=S.blocked==='gamepad'?'<small>The browser blocked gamepad access for this embedded page. Open the game in its own tab/window.</small>':(pad?'Device: <b>'+pad.id+'</b>':'<small>No wheel found yet. Turn the wheel or press a wheel button so the browser reports it (Chrome / Edge on desktop).</small>');
-  q('#wzs').style.cssText='left:'+((S.raw+1)/2*100-1.5).toFixed(1)+'%;width:3%';q('#wzt').style.width=(S.thr*100).toFixed(0)+'%';q('#wzk').style.width=(S.brk*100).toFixed(0)+'%';
+  q('#wzd').innerHTML=!hasGP()?'<small>This browser does not provide the Gamepad API, so no wheel input can be read. Use Chrome or Edge on a desktop.</small>':S.blocked==='gamepad'?'<small>The browser blocked gamepad access for this embedded page. Open the game in its own tab/window.</small>':(pad?'Device: <b>'+pad.id+'</b> · <span style="color:#7fd68a">input live</span>':'<small style="color:#ffcf6b">No wheel detected: the readings below are not live. Turn the wheel or press a wheel button so the browser reports it (Chrome / Edge on desktop; close G HUB profiles that capture the wheel).</small>'+(S.others.length?'<br><small>Other controllers seen:</small> '+S.others.map((d,i)=>'<button data-a="dev:'+i+'">Use '+d.replace(/\s*\(.*$/,'').slice(0,40)+'</button>').join(' '):''));
+  q('#wzs').style.cssText='left:'+((S.raw+1)/2*100-1.5).toFixed(1)+'%;width:3%';q('#wzt').style.width=(S.thr*100).toFixed(0)+'%';q('#wzk').style.width=(S.brk*100).toFixed(0)+'%';q('#wzc').style.width=(S.clu*100).toFixed(0)+'%';
+  const lv=!!pad;q('#wzsv').textContent=lv?(S.steer>=0?'+':'')+(S.steer*100).toFixed(0)+'%':'–';q('#wztv').textContent=lv?(S.thr*100).toFixed(0)+'%':'–';q('#wzkv').textContent=lv?(S.brk*100).toFixed(0)+'%':'–';q('#wzcv').textContent=lv&&cfg.clu>=0?(S.clu*100).toFixed(0)+'%':'–';
+  q('#wzax').textContent=pad?'raw axes: '+Array.from(pad.axes,(v,i)=>i+':'+(v>=0?'+':'')+v.toFixed(2)).join(' '):'';
   m.style.display=cap?'block':'none';if(cap)m.textContent=cap.msg;q('#wzf').textContent=FF.st;
   let pr='';if(pad)for(let i=0;i<pad.buttons.length;i++)if(pad.buttons[i].pressed)pr+=i+' ';q('#wzp').textContent=pr||'–'}
  function wzOpen(){if(ui&&!wzOn)return;if(!wz)build();wzOn=true;ui=true;for(const k in keys)keys[k]=0;wz.style.display='flex';wzRender();wzLive();clearInterval(wzT);wzT=setInterval(wzLive,100)}

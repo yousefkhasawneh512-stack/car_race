@@ -54,7 +54,7 @@ function carSpec(i){
 // ---- per-car damage record (stored per car NAME under irbid-drive-realism-v1, so switching cars never transfers damage) ----
 const ZONES=['fl','fr','l','r','rl','rr','roof','u'],ZONE_NAMES={fl:'front-left',fr:'front-right',l:'left side',r:'right side',rl:'rear-left',rr:'rear-right',roof:'roof',u:'underbody'};
 const WHEEL_NAMES=['FL','FR','RL','RR'],LIGHT_NAMES=['left headlight','right headlight','left tail light','right tail light'],GLASS_NAMES=['windscreen','rear screen','left windows','right windows'];
-function newWheel(){return{tread:100,temp:25,health:100,punct:false,wear:{burn:0,slide:0,spin:0,lock:0,roll:0}}}
+function newWheel(){return{tread:100,temp:25,health:100,punct:false,km:0,tmax:25,wear:{burn:0,slide:0,spin:0,lock:0,roll:0}}}
 function newDamageRecord(i){return{v:2,durability:durabilityForCar(i),body:100,engine:100,tyres:100,suspension:100,brakes:100,cooling:100,trans:100,driveline:100,steer:100,
  zones:{fl:100,fr:100,l:100,r:100,rl:100,rr:100,roof:100,u:100},susp:[100,100,100,100],align:[0,0,0,0],lights:[0,0,0,0],glass:[0,0,0,0],
  wheels:[newWheel(),newWheel(),newWheel(),newWheel()],dents:[],engTemp:90,impacts:0,lastHit:-99,lastX:0,lastZ:0,log:[]}}
@@ -151,7 +151,7 @@ function refreshDamageVisual(){
 }
 function updateDamageButton(){if(damageButton){damageButton.textContent='Damage: '+DAMAGE_MODE_NAMES[damageMode];damageButton.dataset.mode=String(damageMode);damageButton.setAttribute('aria-label','Vehicle damage setting: '+DAMAGE_MODE_NAMES[damageMode]+'. Click to change.')}if(repairButton){const s=currentDamageRecord(),hurt=['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer'].some(k=>s[k]<99.9)||s.dents.length>0||s.lights.some(Boolean)||s.glass.some(Boolean)||s.wheels.some(w=>w.tread<99.9);repairButton.style.display=damageMode!==0&&hurt?'block':'none'}if(diagReady)diagSync()}
 function cycleDamageMode(){damageMode=(damageMode+1)%3;persistDamage();updateDamageButton();refreshDamageVisual();const n=DAMAGE_MODE_NAMES[damageMode];toast('Vehicle damage: '+n+(damageMode===2?' — tyres, engine, suspension and brakes active':damageMode===1?' — visual damage only':' — disabled'));}
-if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',()=>repairCurrentCar());
+if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',()=>garageGo());
 addEventListener('keydown',e=>{if(e.code==='KeyI'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')){e.preventDefault();cycleDamageMode()}});
 
 // ---- impacts ----
@@ -250,11 +250,12 @@ function damageTick(dt){
 }
 let smokePuff=null;
 try{smokePuff=new T.Mesh(new T.SphereGeometry(1,7,5),new T.MeshBasicMaterial({color:0x777c80,transparent:true,opacity:.18,depthWrite:false}));smokePuff.visible=false;scene.add(smokePuff)}catch(e){smokePuff=null}
-// repairs are free (the economy is unchanged by request); 'tyres' replaces the four tyres only
+// full reset of the record (tests / internal use). Player repairs are paid per part in the Apex Drift Customs repair bay (08d_repair.js, v42)
 function repairCurrentCar(what){const s=currentDamageRecord(),i=P.idx||0;
  if(what==='tyres'){s.wheels=[newWheel(),newWheel(),newWheel(),newWheel()];toast('Tyres replaced')}
  else{const n=newDamageRecord(i);for(const k in n)if(k!=='durability')s[k]=n[k];s.lastHit=-99;toast('Vehicle repaired')}
  syncAggregates(s);persistDamage();refreshDamageVisual();updateDamageButton()}
+function garageGo(){if(typeof openShop!=='function')return;if(Math.hypot(P.x-SHOP.x,P.z-SHOP.z)<=14){if(typeof diagToggle==='function')diagToggle(false);openShop()}else{toast('🔧 Repairs are done at Apex Drift Customs (Baghdad Street) — route set');if(typeof navGo==='function')navGo('Apex Drift Customs')}}
 window.irbidVehicleRealism={cycleDamageMode,repairCurrentCar,getMode:()=>damageMode,getCurrentState:()=>JSON.parse(JSON.stringify(currentDamageRecord())),getEffects:damageEffects,getSpec:()=>carSpec(P.idx||0)};
 
 // ---- place up to 90 estimated low-speed humps near mapped sensitive destinations ----

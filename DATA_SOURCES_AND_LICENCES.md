@@ -23,6 +23,11 @@ which would need its own attribution. It was not used. **Openverse** (`osm/photo
 [API](https://api.openverse.org/v1/), anonymous) was queried once for every image mentioning Irbid (718; 347 are Commons mirrors, which were skipped):
 1 photo accepted (CC BY 2.0, Flickr), 85 name matches rejected because their licence is NC or ND.
 
+### Review file (v42)
+
+`PLACE_REVIEW.csv` is derived from the OSM data above (ODbL; keep the attribution if you redistribute it). Repair prices in the game are
+gameplay estimates; no workshop price source was used.
+
 ## Photographs (`manifest/photos.json`)
 
 Wikimedia Commons files found by `osm/photos/commons.py` (API: `https://commons.wikimedia.org/w/api.php`). Each entry carries its

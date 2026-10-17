@@ -179,3 +179,26 @@ Owner request "Phase 2: realistic cars, buildings, roads, physics and damage" (a
 - Docs: `CAR_ASSETS_AND_SPECS.md`, `DAMAGE_AND_TIRE_WEAR_REPORT.md`, `ROAD_AND_TERRAIN_REPORT.md`, `REALISM_FEATURES.md` (handling section).
 - Not done: licensed 3D car models (account + licence/trademark decision + single-file conflict), bridge decks at real heights, denser terrain,
   OSM surface grip, new landmark models or lighting changes, real-device tests.
+
+## v42 (2026-10-17): master repair: paid per-part repair bay, G29 calibration, tyre state, place review
+
+Owner request "Irbid Drive: complete master repair and realism upgrade" (approval in PLAN.md). Backup tag `backup-v41` (pushed).
+- **Comparison with other copies:** `Downloads/irbid-drive-updated*.zip/html` are byte-identical to git v38 (`24a84ae`). `irbid-drive-source.zip` is
+  a v38-era snapshot (between v38 and the v38 review fixes). Both are superseded by v39–v41, so nothing was merged. `Downloads/irbid-drive-place-name-review.csv`
+  (1,111 rows from an older snapshot, flags only, no corrections) was cross-checked: 198 rows have the same OSM id in the current data, 893 the same name within
+  60 m, 4 the same name elsewhere, and 16 are not in the current OSM place data.
+- **Repair bay (`08d_repair.js`, new; hooked into `renderShop`):** `repairItems()` lists damaged parts with condition, effect (the diagnostics
+  wording) and a JD price; `repairPart(id)` fixes one item (`z:<zone>` also removes the dents nearest that zone, `li:`/`gl:` one light/window,
+  `c:<component>`, `s:<corner>` + alignment, `t:<wheel>`); `payRepair(ids)` charges `spent` only when the balance covers the whole order.
+  Diagnostics' free buttons are replaced by a route to the garage (`garageGo`). `repairCurrentCar()` stays as an internal full reset (tests).
+- **G29 (`10c_wheel.js`):** two-step pedal calibration (released value averaged 0.4 s, then full press); brake may share the throttle axis
+  (combined pedals); clutch axis (display only, automatic gearbox); pedal dead zone slider; a released end that the axis later passes is moved
+  (browsers that report 0 until first touch); live % readouts and raw axes; "Other controllers seen → Use" for pads whose id is not
+  recognised; clear "no Gamepad API / blocked / no wheel (not live)" messages. Diagnostics show the wheel status line.
+- **Tyres:** each wheel also keeps the distance driven on it (`km`) and its peak temperature (`tmax`); diagnostics label slip as longitudinal / lateral, flag
+  spinning or locked wheels and show the surface grip.
+- **Places:** `tools/place_review_csv.py` → `PLACE_REVIEW.csv` (2,171 rows: 1,531 ok, 494 unnamed (kept unnamed), 125 needs review,
+  10 corrected, 11 landmark issues). No place data changed (`h21` places 1659, same as v41).
+- Tests: `damage_test` 58/58 (7 new repair-bay checks), `wheel_test` 40/40 (10 new), `damage_pw` 10/10 (repair bay clicked in Chromium),
+  everything else unchanged from v41 (see TEST_REPORT.md). New doc `G29_TEST_REPORT.md`.
+- Not done: licensed 3D car models, new landmark models/photo facades, bridge decks, denser terrain, real G29 hardware test, real-device tests.
