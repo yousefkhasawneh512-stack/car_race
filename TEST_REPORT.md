@@ -4,6 +4,12 @@ Machine: Windows 11, Node v24.20.0, Python 3.15 + Playwright 1.64 (Chromium, Swi
 repo root unless noted (Node harness tests were run from a scratch directory because they write output files).
 Build: `python build.py` → `dist/irbid-drive.html` 3,374,297 chars / 3,216 lines.
 
+## v43 (accuracy audit), 2026-10-17, build 4,247,424 chars
+
+Full results and the evidence categories (automated / visual / live / physical G29 / phone) are in `FINAL_TEST_REPORT.md`.
+New: `tests/place_audit.py` 29/29. `damage_test` 59/59, `damage_pw` 11/11, `wheel_test` 40/40, `off_trace` identical to v38, `h21` places 1655,
+`h24` bad 6, `vg` bad 9, `h14` bad 2, `tour` 0 off-road, `dyn_check` bad 0. Startup with the network blocked now shows an explanatory message.
+
 ## v42 (master repair: repair bay, G29, tyre state, place review), 2026-10-17, build 4,245,300 chars
 
 | Test | Result |

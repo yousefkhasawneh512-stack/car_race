@@ -64,3 +64,9 @@ To test it yourself:
 3. Turn the wheel and check the live bars and the "raw axes" line.
 4. Calibrate the pedals.
 5. Press **Connect force feedback**, then **Auto-detect direction**.
+
+## v43 (2026-10-17)
+
+No wheel code changed. `wheel_test` 40/40 and `blocked` 2/2 on the v43 build. One run under heavy machine load failed the centring
+check by 1 unit (121 vs < 120) and passed when rerun alone (also 40/40 on v42): a timing-sensitive check, noted in FINAL_TEST_REPORT.md.
+**Still no physical G29 test.**

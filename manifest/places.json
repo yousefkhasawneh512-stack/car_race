@@ -2,7 +2,7 @@
 "generated_by": "osm/overpass/build.py",
 "licence": "ODbL 1.0, (c) OpenStreetMap contributors",
 "retrieved": "2026-10-17T08:23:49Z",
-"count": 2160,
+"count": 2158,
 "places": [
 {
 "id": "osm:n5606753002",
@@ -10,8 +10,8 @@
 "osm_id": 5606753002,
 "name": "مركز صحي راسون",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.4011573,
 "lon": 35.7574984,
 "x": -8702.5,
@@ -24,7 +24,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -291,8 +293,8 @@
 "osm_id": 5606667153,
 "name": "مدرسة زوبيا الاساسية للبنين",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "school",
+"category": "School (by name)",
 "lat": 32.4350057,
 "lon": 35.7650072,
 "x": -7993.1,
@@ -309,7 +311,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -320,8 +324,8 @@
 "osm_id": 5606667147,
 "name": "مركز صحي زوبيا",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.4326352,
 "lon": 35.7709676,
 "x": -7432.7,
@@ -338,7 +342,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -406,8 +412,8 @@
 "osm_id": 5606667150,
 "name": "بلدية زوبيا",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "civic",
+"category": "Municipality",
 "lat": 32.4324431,
 "lon": 35.7712476,
 "x": -7406.4,
@@ -424,7 +430,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -493,8 +501,8 @@
 "osm_id": 5606667156,
 "name": "مدرسة زوبيا الثانوية للبنات",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "school",
+"category": "School (by name)",
 "lat": 32.4341108,
 "lon": 35.7701505,
 "x": -7509.5,
@@ -510,7 +518,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -521,8 +531,8 @@
 "osm_id": 5606667152,
 "name": "مدرسة زوبيا الثانوية للبنين",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "school",
+"category": "School (by name)",
 "lat": 32.4243356,
 "lon": 35.7855917,
 "x": -6057.9,
@@ -539,7 +549,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -1417,8 +1429,8 @@
 "osm_id": 5606740202,
 "name": "مركز صحي دير يوسف",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.4847937,
 "lon": 35.8040965,
 "x": -4314.6,
@@ -1433,7 +1445,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "merged": [
 "osm:n5606771826"
 ],
@@ -3896,7 +3910,7 @@
 "osm_id": 9605886807,
 "name": "مكتبة المنار",
 "name_en": "",
-"kind": "school",
+"kind": "civic",
 "category": "Library",
 "lat": 32.4770717,
 "lon": 35.9084725,
@@ -4595,8 +4609,8 @@
 "osm_id": 13477569166,
 "name": "مدرسة أكاديمية القمة الدولية",
 "name_en": "",
-"kind": "poi",
-"category": "Office: educational institution",
+"kind": "school",
+"category": "School (by name)",
 "lat": 32.5101246,
 "lon": 35.8809123,
 "x": 2904.7,
@@ -4606,7 +4620,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -5042,8 +5058,8 @@
 "osm_id": 5606637254,
 "name": "مركز صحي الصريح",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.5113278,
 "lon": 35.8950554,
 "x": 4233.6,
@@ -5060,7 +5076,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -5097,8 +5115,8 @@
 "osm_id": 13476996350,
 "name": "مدرسة عمار بن ياسر الأساسية للبنين",
 "name_en": "",
-"kind": "poi",
-"category": "Office: educational institution",
+"kind": "school",
+"category": "School (by name)",
 "lat": 32.5136374,
 "lon": 35.895118,
 "x": 4239.4,
@@ -5108,7 +5126,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -5520,7 +5540,7 @@
 "osm_id": 13038700101,
 "name": "المكتبة",
 "name_en": "Library",
-"kind": "school",
+"kind": "civic",
 "category": "Library",
 "lat": 32.4945871,
 "lon": 35.9914483,
@@ -6515,8 +6535,8 @@
 "osm_id": 5606732707,
 "name": "مركز صحي كفريوبا الشامل",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.540579,
 "lon": 35.801449,
 "x": -4560.6,
@@ -6530,7 +6550,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -7334,8 +7356,8 @@
 "osm_id": 7390377610,
 "name": "مركز صحي زحر",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.5625442,
 "lon": 35.780483,
 "x": -6528.5,
@@ -7348,7 +7370,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "merged": [
 "osm:n7468749889"
 ],
@@ -9749,12 +9773,12 @@
 "tags": {
 "amenity": "fast_food"
 },
-"names": {
-"brand": "Dunkin' Donuts"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -9991,12 +10015,12 @@
 "tags": {
 "amenity": "fast_food"
 },
-"names": {
-"brand": "Dunkin' Donuts"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -10476,12 +10500,12 @@
 "tags": {
 "shop": "supermarket"
 },
-"names": {
-"brand": "Spar"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -10818,12 +10842,12 @@
 "tags": {
 "amenity": "restaurant"
 },
-"names": {
-"brand": "PizzaExpress"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -11020,12 +11044,12 @@
 "tags": {
 "amenity": "bank"
 },
-"names": {
-"brand": "Capital Bank"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -11182,7 +11206,7 @@
 "osm_id": 7287951196,
 "name": "الهدف",
 "name_en": "",
-"kind": "school",
+"kind": "civic",
 "category": "Library",
 "lat": 32.5318214,
 "lon": 35.8535091,
@@ -12186,7 +12210,7 @@
 "id": "osm:n7282024382",
 "osm_type": "node",
 "osm_id": 7282024382,
-"name": "مجوهرات الزعبي;lilas",
+"name": "مجوهرات الزعبي",
 "name_en": "",
 "kind": "dukkan",
 "category": "Jewelry",
@@ -12198,7 +12222,9 @@
 "tags": {
 "shop": "jewelry"
 },
-"names": {},
+"names": {
+"alias:split0": "lilas"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -12270,13 +12296,12 @@
 "tags": {
 "shop": "shoes"
 },
-"names": {
-"brand": "Payless ShoeSource"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"unnamed"
+"unnamed",
+"preset brand dropped"
 ],
 "in_game": false,
 "photo": [],
@@ -14114,12 +14139,12 @@
 "tags": {
 "shop": "convenience"
 },
-"names": {
-"brand": "Mobil Mart"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -14192,12 +14217,12 @@
 "tags": {
 "shop": "convenience"
 },
-"names": {
-"brand": "Mobil Mart"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -14393,12 +14418,12 @@
 "tags": {
 "shop": "convenience"
 },
-"names": {
-"brand": "Mobil Mart"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -14542,13 +14567,12 @@
 "tags": {
 "shop": "convenience"
 },
-"names": {
-"brand": "Mobil Mart"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -14570,13 +14594,12 @@
 "tags": {
 "shop": "mobile_phone"
 },
-"names": {
-"brand": "Mobil Mart"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -14653,6 +14676,9 @@
 "flags": [
 "lower-case name"
 ],
+"merged": [
+"osm:n7281820697"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -14685,7 +14711,7 @@
 "id": "osm:n7281820692",
 "osm_type": "node",
 "osm_id": 7281820692,
-"name": "عادل;روعة",
+"name": "عادل",
 "name_en": "",
 "kind": "dukkan",
 "category": "Books",
@@ -14697,7 +14723,9 @@
 "tags": {
 "shop": "books"
 },
-"names": {},
+"names": {
+"alias:split0": "روعة"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -14804,30 +14832,6 @@
 "flags": [
 "lower-case name"
 ],
-"in_game": true,
-"photo": [],
-"confidence": "osm-mapped"
-},
-{
-"id": "osm:n7281820697",
-"osm_type": "node",
-"osm_id": 7281820697,
-"name": "pretty;كراميش 2",
-"name_en": "",
-"kind": "dukkan",
-"category": "Gift",
-"lat": 32.5416096,
-"lon": 35.8523735,
-"x": 223.0,
-"z": 930.5,
-"geometry": "point",
-"tags": {
-"shop": "gift;jewelry"
-},
-"names": {},
-"source": "OpenStreetMap (Overpass API)",
-"retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -15046,13 +15050,12 @@
 "tags": {
 "amenity": "restaurant"
 },
-"names": {
-"brand": "Hard Rock Cafe"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -15216,12 +15219,12 @@
 "tags": {
 "amenity": "bank"
 },
-"names": {
-"brand": "Access Bank"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -15242,13 +15245,12 @@
 "tags": {
 "amenity": "restaurant"
 },
-"names": {
-"brand": "Hard Rock Cafe"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -15431,7 +15433,7 @@
 "osm_id": 7282160282,
 "name": "عمارة مهدي الطوافشه",
 "name_en": "",
-"kind": "school",
+"kind": "civic",
 "category": "Library",
 "lat": 32.5360357,
 "lon": 35.8522467,
@@ -15887,13 +15889,12 @@
 "tags": {
 "shop": "optician"
 },
-"names": {
-"brand": "Opticalia"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -16085,12 +16086,12 @@
 "tags": {
 "shop": "supermarket"
 },
-"names": {
-"brand": "Simply Market"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -16137,13 +16138,12 @@
 "tags": {
 "shop": "optician"
 },
-"names": {
-"brand": "Opticalia"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -17380,12 +17380,12 @@
 "tags": {
 "shop": "mobile_phone"
 },
-"names": {
-"brand": "T-Mobile"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -17575,12 +17575,12 @@
 "tags": {
 "shop": "sports"
 },
-"names": {
-"brand": "Intersport"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -19791,13 +19791,12 @@
 "tags": {
 "shop": "supermarket"
 },
-"names": {
-"brand": "Market Basket"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"name split from mixed-script tag"
+"name split from mixed-script tag",
+"preset brand dropped"
 ],
 "in_game": true,
 "photo": [],
@@ -20249,8 +20248,8 @@
 "osm_id": 7284778606,
 "name": "المستوى للسياحة والسفر",
 "name_en": "",
-"kind": "gym",
-"category": "Sports centre",
+"kind": "dukkan",
+"category": "Travel agency (by name)",
 "lat": 32.5475026,
 "lon": 35.85471,
 "x": 442.4,
@@ -20259,12 +20258,13 @@
 "tags": {
 "leisure": "sports_centre"
 },
-"names": {
-"brand": "iFLY"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)",
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -20372,7 +20372,7 @@
 "id": "osm:n7284859502",
 "osm_type": "node",
 "osm_id": 7284859502,
-"name": "No name",
+"name": "",
 "name_en": "",
 "kind": "dukkan",
 "category": "Clothes",
@@ -20387,10 +20387,13 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
-"in_game": true,
+"flags": [
+"unnamed",
+"placeholder name removed"
+],
+"in_game": false,
 "photo": [],
-"confidence": "osm-mapped"
+"confidence": "osm-mapped (no name tag)"
 },
 {
 "id": "osm:n7284873147",
@@ -21553,12 +21556,12 @@
 "shop": "mobile_phone",
 "operator": "شارع الحصن"
 },
-"names": {
-"brand": "T-Mobile"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "merged": [
 "osm:n9647899735"
 ],
@@ -21785,8 +21788,8 @@
 "osm_id": 7284664788,
 "name": "الأمل للسياحة والسفر",
 "name_en": "",
-"kind": "gym",
-"category": "Sports centre",
+"kind": "dukkan",
+"category": "Travel agency (by name)",
 "lat": 32.54633,
 "lon": 35.8556154,
 "x": 527.4,
@@ -21795,12 +21798,13 @@
 "tags": {
 "leisure": "sports_centre"
 },
-"names": {
-"brand": "iFLY"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)",
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -21895,12 +21899,12 @@
 "tags": {
 "shop": "supermarket"
 },
-"names": {
-"brand": "Simply Market"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -22118,12 +22122,12 @@
 "tags": {
 "shop": "clothes"
 },
-"names": {
-"brand": "Dress Barn"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -22667,12 +22671,12 @@
 "shop": "coffee",
 "opening_hours": "Mo-Su 08:00-18:00; Apr 10-15 off; Jun 08:00-14:00; Aug off; Dec 25 off"
 },
-"names": {
-"brand": "Coffee Lab"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -24016,13 +24020,12 @@
 "religion": "christian",
 "denomination": "catholic"
 },
-"names": {
-"brand": "Church b"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"unnamed"
+"unnamed",
+"preset brand dropped"
 ],
 "in_game": false,
 "photo": [],
@@ -24823,12 +24826,12 @@
 "tags": {
 "amenity": "bank"
 },
-"names": {
-"brand": "mBank"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -24849,13 +24852,12 @@
 "tags": {
 "shop": "supermarket"
 },
-"names": {
-"brand": "Simply Market"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"lower-case name"
+"lower-case name",
+"preset brand dropped"
 ],
 "merged": [
 "osm:n7284991600"
@@ -24989,7 +24991,7 @@
 "id": "osm:n7284992368",
 "osm_type": "node",
 "osm_id": 7284992368,
-"name": "no name fation and more;بلعاوي",
+"name": "بلعاوي",
 "name_en": "",
 "kind": "food",
 "category": "Fast food",
@@ -25005,7 +25007,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"placeholder part removed"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -25149,12 +25153,12 @@
 "tags": {
 "shop": "optician"
 },
-"names": {
-"brand": "Optical Center"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -25917,12 +25921,12 @@
 "tags": {
 "shop": "travel_agency"
 },
-"names": {
-"brand": "Turkish Airlines"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -27417,8 +27421,8 @@
 "osm_id": 5606628584,
 "name": "مركز صحي حنينا",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.5703597,
 "lon": 35.8600172,
 "x": 940.7,
@@ -27433,7 +27437,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "merged": [
 "osm:n5606628597"
 ],
@@ -28792,8 +28798,8 @@
 "osm_id": 10315720419,
 "name": "مركز صحي فوعرا",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.6151048,
 "lon": 35.7641324,
 "x": -8059.3,
@@ -28808,7 +28814,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -30166,8 +30174,8 @@
 "osm_id": 4346249699,
 "name": "محطة توليد كهرباء أربد",
 "name_en": "",
-"kind": "dukkan",
-"category": "Outdoor",
+"kind": "civic",
+"category": "Utility (power station, by name)",
 "lat": 32.5347923,
 "lon": 35.8656347,
 "x": 1468.7,
@@ -30180,6 +30188,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "CAT-001",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -30200,13 +30209,12 @@
 "tags": {
 "shop": "cosmetics"
 },
-"names": {
-"brand": "The Body Shop"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
-"unnamed"
+"unnamed",
+"preset brand dropped"
 ],
 "in_game": false,
 "photo": [],
@@ -30316,8 +30324,8 @@
 "osm_id": 7282077301,
 "name": "الحذاء الإيطالي",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "dukkan",
+"category": "Shoes (OSM says hospital)",
 "lat": 32.5345302,
 "lon": 35.8626266,
 "x": 1186.2,
@@ -30327,12 +30335,13 @@
 "amenity": "hospital",
 "healthcare": "hospital"
 },
-"names": {
-"brand": "Payless ShoeSource"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
+"audit": "OSM-002",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -33208,7 +33217,7 @@
 "osm_type": "node",
 "osm_id": 9648242752,
 "name": "اربيلا مول",
-"name_en": "Arbila Mall",
+"name_en": "Arabella Mall",
 "kind": "mall",
 "category": "Mall",
 "lat": 32.5382174,
@@ -33219,12 +33228,16 @@
 "tags": {
 "shop": "mall"
 },
-"names": {},
+"names": {
+"alias:audit0": "Arbila Mall",
+"alias:audit1": "أرابيلا مول"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [
 "name split from mixed-script tag"
 ],
+"audit": "NAME-001",
 "in_game_as": "Arabella Mall",
 "in_game": true,
 "photo": [],
@@ -33549,7 +33562,7 @@
 "id": "osm:n7291701817",
 "osm_type": "node",
 "osm_id": 7291701817,
-"name": "fire snack;طعميه",
+"name": "fire snack",
 "name_en": "",
 "kind": "food",
 "category": "Restaurant",
@@ -33561,10 +33574,14 @@
 "tags": {
 "amenity": "restaurant"
 },
-"names": {},
+"names": {
+"alias:split0": "طعميه"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"lower-case name"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -34060,7 +34077,7 @@
 "id": "osm:n9644930915",
 "osm_type": "node",
 "osm_id": 9644930915,
-"name": "دولما;كروش و روس",
+"name": "دولما",
 "name_en": "",
 "kind": "food",
 "category": "Restaurant",
@@ -34073,10 +34090,15 @@
 "amenity": "restaurant",
 "opening_hours": "24/7"
 },
-"names": {},
+"names": {
+"alias:split0": "كروش و روس"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"merged": [
+"osm:n9645091590"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -34085,7 +34107,7 @@
 "id": "osm:n9644972219",
 "osm_type": "node",
 "osm_id": 9644972219,
-"name": "مطعم الفدين للبخاري;TiK ToK",
+"name": "مطعم الفدين للبخاري",
 "name_en": "",
 "kind": "poi",
 "category": "Cafe;restaurant",
@@ -34098,7 +34120,9 @@
 "amenity": "cafe;restaurant",
 "opening_hours": "12_12;24/7"
 },
-"names": {},
+"names": {
+"alias:split0": "TiK ToK"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -34134,7 +34158,7 @@
 "id": "osm:n9644972225",
 "osm_type": "node",
 "osm_id": 9644972225,
-"name": ";شعبان مول",
+"name": "شعبان مول",
 "name_en": "",
 "kind": "grocery",
 "category": "Supermarket",
@@ -34268,30 +34292,6 @@
 "lon": 35.8741037,
 "x": 2264.2,
 "z": 1282.2,
-"geometry": "point",
-"tags": {
-"amenity": "restaurant"
-},
-"names": {},
-"source": "OpenStreetMap (Overpass API)",
-"retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
-"in_game": true,
-"photo": [],
-"confidence": "osm-mapped"
-},
-{
-"id": "osm:n9645091590",
-"osm_type": "node",
-"osm_id": 9645091590,
-"name": "دولما",
-"name_en": "",
-"kind": "food",
-"category": "Restaurant",
-"lat": 32.5378934,
-"lon": 35.8722427,
-"x": 2089.4,
-"z": 1342.4,
 "geometry": "point",
 "tags": {
 "amenity": "restaurant"
@@ -34597,7 +34597,7 @@
 "id": "osm:n9647821338",
 "osm_type": "node",
 "osm_id": 9647821338,
-"name": "No Comment;Oppo",
+"name": "No Comment",
 "name_en": "",
 "kind": "cafe",
 "category": "Cafe",
@@ -34610,7 +34610,9 @@
 "amenity": "cafe",
 "shop": "mobile_phone"
 },
-"names": {},
+"names": {
+"alias:split0": "Oppo"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -36842,7 +36844,7 @@
 "id": "osm:n9644930916",
 "osm_type": "node",
 "osm_id": 9644930916,
-"name": "شيري كيك;Classic",
+"name": "شيري كيك",
 "name_en": "",
 "kind": "food",
 "category": "Restaurant",
@@ -36856,7 +36858,9 @@
 "shop": "confectionery;clothes",
 "opening_hours": "24/7"
 },
-"names": {},
+"names": {
+"alias:split0": "Classic"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -36868,7 +36872,7 @@
 "id": "osm:n9644972217",
 "osm_type": "node",
 "osm_id": 9644972217,
-"name": "flREFLY;قهوة عرب",
+"name": "flREFLY",
 "name_en": "",
 "kind": "poi",
 "category": "Cafe;restaurant",
@@ -36881,7 +36885,9 @@
 "amenity": "cafe;restaurant",
 "opening_hours": "12_12;24/7"
 },
-"names": {},
+"names": {
+"alias:split0": "قهوة عرب"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -36918,7 +36924,7 @@
 "id": "osm:n9644972224",
 "osm_type": "node",
 "osm_id": 9644972224,
-"name": "دجاج عصفور;للمأكولات البحرية الطازجه",
+"name": "دجاج عصفور",
 "name_en": "",
 "kind": "food",
 "category": "Restaurant",
@@ -36931,7 +36937,9 @@
 "amenity": "restaurant",
 "opening_hours": "24/7"
 },
-"names": {},
+"names": {
+"alias:split0": "للمأكولات البحرية الطازجه"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
@@ -38664,8 +38672,8 @@
 "osm_id": 4228235389,
 "name": "نادي ضباط الشمال",
 "name_en": "",
-"kind": "poi",
-"category": "Hotel",
+"kind": "civic",
+"category": "Officers' club (OSM says hotel; lodging unverified)",
 "lat": 32.5517878,
 "lon": 35.8641042,
 "x": 1324.7,
@@ -38678,6 +38686,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "CAT-005",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -39326,7 +39335,7 @@
 "name": "الطرزي للاسكان 2",
 "name_en": "",
 "kind": "poi",
-"category": "Motel",
+"category": "Housing / apartments (by name; OSM says motel)",
 "lat": 32.5638313,
 "lon": 35.8789095,
 "x": 2714.9,
@@ -39339,6 +39348,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "CAT-004",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -39767,8 +39777,8 @@
 "osm_id": 5606496742,
 "name": "مركز صحي سال",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.5711767,
 "lon": 35.9117581,
 "x": 5799.3,
@@ -39785,7 +39795,9 @@
 "names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -40636,18 +40648,23 @@
 "osm_id": 5606766135,
 "name": "مدرسه حكما الاساسيه للاناث",
 "name_en": "",
-"kind": "poi",
-"category": "Named point (no category tag)",
+"kind": "school",
+"category": "School (by name)",
 "lat": 32.5910365,
 "lon": 35.8828403,
 "x": 3083.1,
 "z": -4551.3,
 "geometry": "point",
 "tags": {},
-"names": {},
+"names": {
+"alias:audit0": "حكما الاساسية للبنات"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
+"audit": "OSM-001",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -40726,8 +40743,12 @@
 },
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
-"in_game": true,
+"flags": [
+"kept out of the game (audit)"
+],
+"exclude": true,
+"audit": "CAT-006",
+"in_game": false,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -44070,12 +44091,12 @@
 "opening_hours": "24/7",
 "operator": "Tesla"
 },
-"names": {
-"brand": "Tesla Supercharger"
-},
+"names": {},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"preset brand dropped"
+],
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -44141,7 +44162,7 @@
 "name": "Latin Church",
 "name_en": "",
 "kind": "church",
-"category": "Church",
+"category": "Church (Latin / Roman Catholic, by name)",
 "lat": 32.4859414,
 "lon": 35.8822928,
 "x": 3035.2,
@@ -44155,6 +44176,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "OSM-004",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -45315,8 +45337,8 @@
 "osm_id": 1042041062,
 "name": "مركز صحي كفرعان",
 "name_en": "",
-"kind": "hospital",
-"category": "Hospital",
+"kind": "medical",
+"category": "Health centre",
 "lat": 32.5505163,
 "lon": 35.7612174,
 "x": -8338.8,
@@ -45331,7 +45353,9 @@
 },
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
-"flags": [],
+"flags": [
+"category from name (tags conflict)"
+],
 "merged": [
 "osm:n9592824073"
 ],
@@ -46452,7 +46476,7 @@
 "osm_id": 1076653937,
 "name": "مكتبة الحسين بن طلال",
 "name_en": "",
-"kind": "school",
+"kind": "civic",
 "category": "Library",
 "lat": 32.5394124,
 "lon": 35.8532575,
@@ -47613,11 +47637,13 @@
 "building": "yes"
 },
 "names": {
-"name:ar": "متحف سرايا إربد"
+"name:ar": "متحف سرايا إربد",
+"alias:audit0": "دار السرايا"
 },
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "heritage",
 "in_game_as": "Dar As Saraya Ottoman Museum",
 "in_game": true,
 "photo": [
@@ -47643,10 +47669,14 @@
 "religion": "muslim",
 "building": "yes"
 },
-"names": {},
+"names": {
+"alias:audit0": "مسجد اربد الكبير",
+"alias:audit1": "الجامع الكبير"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "heritage",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -47827,10 +47857,13 @@
 "religion": "christian",
 "building": "yes"
 },
-"names": {},
+"names": {
+"alias:audit0": "كنيسة الروم الأرثوذكس"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "GAP-011",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -47853,11 +47886,14 @@
 "building": "yes"
 },
 "names": {
-"name:ar": "بيت عرار الثقافي"
+"name:ar": "بيت عرار الثقافي",
+"alias:audit0": "منزل عرار",
+"alias:audit1": "بيت عرار"
 },
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "GAP-006",
 "in_game_as": "Arar's Cultural House (Beit Arar)",
 "in_game": true,
 "photo": [
@@ -47885,11 +47921,13 @@
 "building": "yes"
 },
 "names": {
-"name:ar": "بيت النابلسي"
+"name:ar": "بيت النابلسي",
+"alias:audit0": "بيت النابلسي"
 },
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "heritage",
 "in_game_as": "The Nabulsi House (Beit Al-Nabulsi)",
 "in_game": true,
 "photo": [
@@ -52300,7 +52338,7 @@
 "name": "عيادة شلبي",
 "name_en": "",
 "kind": "barber",
-"category": "Beauty salon",
+"category": "Beauty / cosmetic clinic (unverified)",
 "lat": 32.5293137,
 "lon": 35.8777347,
 "x": 2605.6,
@@ -52316,6 +52354,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "CAT-003",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"

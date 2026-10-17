@@ -127,3 +127,10 @@ estimates**; no local workshop price data was used. Tests: `damage_test` §14 (7
 - one front panel: only its dents removed, the rear stays dented;
 - repair all is refused 1 JD short, then fixes everything for the listed total;
 - prices rise with the rarity tier.
+
+## v43 (2026-10-17)
+
+The repair bay gained a **full inspection**: all 30 parts (8 body zones, 4 lights, 4 windows, engine, cooling, gearbox, driveline, steering,
+brakes, 4 suspension corners, 4 tyres) with their condition. Damaged parts keep their own paid Repair button; undamaged ones show
+"OK · no charge". `damage_test` 59/59 (new: inspection list; repairing one tyre leaves the other tyres, panels and suspension untouched),
+`damage_pw` 11/11. The simulation itself is unchanged: it is a gameplay approximation (no wheel-force tyre model, no suspension geometry).

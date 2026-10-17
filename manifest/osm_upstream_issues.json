@@ -1,0 +1,412 @@
+{
+ "generated_by": "osm/overpass/build.py (v43)",
+ "note": "Suspected errors in OpenStreetMap itself. The game corrects its own copy; OSM is NOT edited automatically. Check each on site before editing OSM.",
+ "issues": [
+  {
+   "id": "osm:n5606753002",
+   "name": "مركز صحي راسون",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606667153",
+   "name": "مدرسة زوبيا الاساسية للبنين",
+   "osm_tags_say": "Hospital",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606667147",
+   "name": "مركز صحي زوبيا",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606667150",
+   "name": "بلدية زوبيا",
+   "osm_tags_say": "Hospital",
+   "name_says": "Municipality",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606667156",
+   "name": "مدرسة زوبيا الثانوية للبنات",
+   "osm_tags_say": "Hospital",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606667152",
+   "name": "مدرسة زوبيا الثانوية للبنين",
+   "osm_tags_say": "Hospital",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606740202",
+   "name": "مركز صحي دير يوسف",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606771826",
+   "name": "مركز صحي دير يوسف",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n13477569166",
+   "name": "مدرسة أكاديمية القمة الدولية",
+   "osm_tags_say": "Office: educational institution",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606637254",
+   "name": "مركز صحي الصريح",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n13476996350",
+   "name": "مدرسة عمار بن ياسر الأساسية للبنين",
+   "osm_tags_say": "Office: educational institution",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606732707",
+   "name": "مركز صحي كفريوبا الشامل",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n9592824073",
+   "name": "مركز صحي كفرعان",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n7390377610",
+   "name": "مركز صحي زحر",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n7468749889",
+   "name": "مركز صحي زحر",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n7282160273",
+   "name": "Donuts factory",
+   "osm_tags_say": "brand=Dunkin' Donuts",
+   "name_says": "Donuts factory",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7282160284",
+   "name": "' Donuts house",
+   "osm_tags_say": "brand=Dunkin' Donuts",
+   "name_says": "' Donuts house",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7282321887",
+   "name": "ابو حصوه",
+   "osm_tags_say": "brand=Spar",
+   "name_says": "ابو حصوه",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7282322886",
+   "name": "بيت البيتزاء الايطالي",
+   "osm_tags_say": "brand=PizzaExpress",
+   "name_says": "بيت البيتزاء الايطالي",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7282322895",
+   "name": "البنك العربي",
+   "osm_tags_say": "brand=Capital Bank",
+   "name_says": "البنك العربي",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7282053331",
+   "name": "",
+   "osm_tags_say": "brand=Payless ShoeSource",
+   "name_says": "",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281792538",
+   "name": "أقساط",
+   "osm_tags_say": "brand=Mobil Mart",
+   "name_says": "أقساط",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281792541",
+   "name": "Maxx mobile",
+   "osm_tags_say": "brand=Mobil Mart",
+   "name_says": "Maxx mobile",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281792550",
+   "name": "الحريري",
+   "osm_tags_say": "brand=Mobil Mart",
+   "name_says": "الحريري",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281814229",
+   "name": "uni zone",
+   "osm_tags_say": "brand=Mobil Mart",
+   "name_says": "uni zone",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281814231",
+   "name": "me and you",
+   "osm_tags_say": "brand=Mobil Mart",
+   "name_says": "me and you",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281825402",
+   "name": "coffe house",
+   "osm_tags_say": "brand=Hard Rock Cafe",
+   "name_says": "coffe house",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281825413",
+   "name": "بنك الاتحاد",
+   "osm_tags_say": "brand=Access Bank",
+   "name_says": "بنك الاتحاد",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7281825416",
+   "name": "alrayan",
+   "osm_tags_say": "brand=Hard Rock Cafe",
+   "name_says": "alrayan",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284296558",
+   "name": "nadeen optics center",
+   "osm_tags_say": "brand=Opticalia",
+   "name_says": "nadeen optics center",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284339515",
+   "name": "T10 Market",
+   "osm_tags_say": "brand=Simply Market",
+   "name_says": "T10 Market",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284362996",
+   "name": "florence",
+   "osm_tags_say": "brand=Opticalia",
+   "name_says": "florence",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7287570353",
+   "name": "كرم",
+   "osm_tags_say": "brand=T-Mobile",
+   "name_says": "كرم",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7287602294",
+   "name": "أبراج الرياضة",
+   "osm_tags_say": "brand=Intersport",
+   "name_says": "أبراج الرياضة",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n9648242756",
+   "name": "السيفوي",
+   "osm_tags_say": "brand=Market Basket",
+   "name_says": "السيفوي",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284778606",
+   "name": "المستوى للسياحة والسفر",
+   "osm_tags_say": "Sports centre",
+   "name_says": "Travel agency (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n7284778606",
+   "name": "المستوى للسياحة والسفر",
+   "osm_tags_say": "brand=iFLY",
+   "name_says": "المستوى للسياحة والسفر",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284080063",
+   "name": "Samsung",
+   "osm_tags_say": "brand=T-Mobile",
+   "name_says": "Samsung",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284664788",
+   "name": "الأمل للسياحة والسفر",
+   "osm_tags_say": "Sports centre",
+   "name_says": "Travel agency (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n7284664788",
+   "name": "الأمل للسياحة والسفر",
+   "osm_tags_say": "brand=iFLY",
+   "name_says": "الأمل للسياحة والسفر",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284692417",
+   "name": "Lz MarkEt",
+   "osm_tags_say": "brand=Simply Market",
+   "name_says": "Lz MarkEt",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284869268",
+   "name": "ميرامار",
+   "osm_tags_say": "brand=Dress Barn",
+   "name_says": "ميرامار",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n9647899732",
+   "name": "Al_ARABE COFFEE",
+   "osm_tags_say": "brand=Coffee Lab",
+   "name_says": "Al_ARABE COFFEE",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284585074",
+   "name": "",
+   "osm_tags_say": "brand=Church b",
+   "name_says": "",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284938841",
+   "name": "البنك الأردني الكويتي",
+   "osm_tags_say": "brand=mBank",
+   "name_says": "البنك الأردني الكويتي",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284942471",
+   "name": "omer sky",
+   "osm_tags_say": "brand=Simply Market",
+   "name_says": "omer sky",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7284991600",
+   "name": "omer sky",
+   "osm_tags_say": "brand=Simply Market",
+   "name_says": "omer sky",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7287654981",
+   "name": "البيروتي للبصريات",
+   "osm_tags_say": "brand=Optical Center",
+   "name_says": "البيروتي للبصريات",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7287730171",
+   "name": "لوريت",
+   "osm_tags_say": "brand=Turkish Airlines",
+   "name_says": "لوريت",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n5606628584",
+   "name": "مركز صحي حنينا",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606628597",
+   "name": "مركز صحي حنينا",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n10315720419",
+   "name": "مركز صحي فوعرا",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n7282049979",
+   "name": "",
+   "osm_tags_say": "brand=The Body Shop",
+   "name_says": "",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n7282077301",
+   "name": "الحذاء الإيطالي",
+   "osm_tags_say": "brand=Payless ShoeSource",
+   "name_says": "الحذاء الإيطالي",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:n5606496742",
+   "name": "مركز صحي سال",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606766135",
+   "name": "مدرسه حكما الاساسيه للاناث",
+   "osm_tags_say": "Named point (no category tag)",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:w1391017489",
+   "name": "Supercharger Al Noaymah, Jordan",
+   "osm_tags_say": "brand=Tesla Supercharger",
+   "name_says": "Supercharger Al Noaymah, Jordan",
+   "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
+  },
+  {
+   "id": "osm:w1042041062",
+   "name": "مركز صحي كفرعان",
+   "osm_tags_say": "Hospital",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  }
+ ]
+}

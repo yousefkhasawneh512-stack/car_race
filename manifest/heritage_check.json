@@ -1,0 +1,347 @@
+{
+ "generated_by": "osm/overpass/build.py (v43) from osm/overpass/corrections.py",
+ "source": "Greater Irbid Municipality heritage list (irbid.gov.jo/?page_id=6711, read 2026-10-17)",
+ "heritage": [
+  {
+   "name_ar": "تل إربد القديم",
+   "name_en": "Old Tell Irbid",
+   "status": "absent",
+   "note": "No OSM outline for the tell. The Saraya, Great Mosque, Orthodox church, old municipality and Arar/Nabulsi houses all stand on it; not drawn as a separate area (no source geometry)."
+  },
+  {
+   "name_ar": "سور إربد",
+   "name_en": "Old Irbid Wall",
+   "status": "absent",
+   "note": "No OSM or official geometry; largely lost. Not drawn."
+  },
+  {
+   "name_ar": "بيت علي خلقي الشرايري",
+   "name_en": "Ali Khalqi Al-Sharairi House",
+   "status": "absent",
+   "note": "Only a street of that name is mapped (OSM ways 101814644 etc.); the house is not. Not placed."
+  },
+  {
+   "name_ar": "بيت النابلسي",
+   "name_en": "Nabulsi House",
+   "status": "landmark:osm:w1173930712",
+   "note": "Hand-built landmark on the OSM footprint (1 m, tests/lmchk.js)."
+  },
+  {
+   "name_ar": "بيت محمود جمعة",
+   "name_en": "Mahmoud Jumaa House",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "بيت الجودة",
+   "name_en": "Al-Joudah House",
+   "status": "absent",
+   "note": "Not in OSM (not the Al-Joud Hotel, osm:n4788897120). Not placed."
+  },
+  {
+   "name_ar": "منزل عرار",
+   "name_en": "Arar House (Beit Arar)",
+   "status": "landmark:osm:w1173930235",
+   "note": "Hand-built landmark on the OSM footprint (2 m)."
+  },
+  {
+   "name_ar": "بيت أبو رجيع وسعيد جمعة",
+   "name_en": "Abu Rujai and Saeed Jumaa House",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "مدرسة إربد التجهيزية (الرشيدية) / مدرسة حسن كامل الصباح",
+   "name_en": "Rashidiya / Hasan Kamel Al-Sabbah School",
+   "status": "absent",
+   "note": "MoE 2018: \"حسن كامل الصباح الثانويه الشاملة للبنين\", حي التل, street حسن كامل الصباح (no coordinates). Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "مدرسة وصفي التل الثانوية الشاملة (الصناعية)",
+   "name_en": "Wasfi Al-Tal Comprehensive Secondary School",
+   "status": "absent",
+   "note": "MoE 2018: \"وصفي التل الثانويه الشاملة للبنين\", حي التل, شارع الشرطة (no coordinates). The OSM \"وصفي التل\" (way 1042579410) is a mosque 5.5 km south, unrelated. Not placed."
+  },
+  {
+   "name_ar": "الجامع الغربي (المملوكي)",
+   "name_en": "Western (Mamluk) Mosque / Abu Dhar Al-Ghifari",
+   "status": "absent",
+   "note": "Petra: now called Abu Dhar Al-Ghifari, west of the Great Mosque. The only OSM \"ابو ذر الغفاري\" (node 7508280382) is 7.4 km north: a different mosque, NOT moved or renamed. Not placed."
+  },
+  {
+   "name_ar": "مسجد إربد الكبير",
+   "name_en": "Irbid Great Mosque",
+   "status": "osm:w696141883",
+   "note": "OSM building; municipal name added as alias."
+  },
+  {
+   "name_ar": "كنيسة الروم الأرثوذكس",
+   "name_en": "Greek Orthodox Church",
+   "status": "osm:w696141882",
+   "note": "OSM building (christian); municipal name added as alias. The Greek Catholic church (node 7285033997) is separate."
+  },
+  {
+   "name_ar": "مبنى بلدية إربد القديم",
+   "name_en": "Old Irbid Municipality Building",
+   "status": "candidate:osm:w1173930713",
+   "note": "OSM \"Irbid Municipality Building\" (townhall) stands on the tell beside the Saraya; that it is the OLD building is likely but unverified, so no alias added."
+  },
+  {
+   "name_ar": "دار السرايا",
+   "name_en": "Dar As-Saraya",
+   "status": "landmark:osm:w696141881",
+   "note": "Hand-built landmark on the OSM footprint (3 m)."
+  },
+  {
+   "name_ar": "برج المراقبة",
+   "name_en": "Watch Tower",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "متحف عرار",
+   "name_en": "Arar Museum",
+   "status": "candidate:osm:w1173930235",
+   "note": "Possibly the museum inside Beit Arar; not confirmed, so not merged and not added."
+  },
+  {
+   "name_ar": "متحف بلدية إربد (المتحف الشعبي سابقاً)",
+   "name_en": "Irbid Municipal Museum",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "سوق الصاغة القديم",
+   "name_en": "Old Goldsmiths' Market",
+   "status": "absent",
+   "note": "Not in OSM; an area, not a point. Not placed."
+  },
+  {
+   "name_ar": "مقاما الشيخ خليل التميمي والشيخ عوض الهامي",
+   "name_en": "Shrines of Sheikh Khalil Al-Tamimi and Sheikh Awad Al-Hami",
+   "status": "absent",
+   "note": "Not in OSM (only a street/shops named الهامي). Not placed."
+  },
+  {
+   "name_ar": "بوابير الطحين",
+   "name_en": "Historic flour mills",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "مضافة آل التل",
+   "name_en": "Al-Tal Family Guesthouse",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "مضافة آل سعد البطاينة",
+   "name_en": "Al-Saad Al-Batayneh Guesthouse",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "خان حدو",
+   "name_en": "Khan Hadu",
+   "status": "absent",
+   "note": "Not in OSM. Not placed."
+  },
+  {
+   "name_ar": "قصر الملكة مصباح",
+   "name_en": "Queen Misbah Palace",
+   "status": "absent",
+   "note": "Listed as heritage \"in memory\"; not in OSM. Not placed."
+  },
+  {
+   "name_ar": "سوق التجارية القديم",
+   "name_en": "Old Commercial Market",
+   "status": "absent",
+   "note": "Listed \"in memory\"; an area. Not placed."
+  },
+  {
+   "name_ar": "ساحة الأفراح",
+   "name_en": "Celebrations Square",
+   "status": "absent",
+   "note": "Listed \"in memory\". OSM has a neighbourhood \"حي الافراح\" (node 7548472329) and a street \"الأفراح\"; not proven to be the square. Not placed."
+  }
+ ],
+ "businesses": [
+  {
+   "name": "Arabella Mall",
+   "status": "in OSM (node 9648242752) + hand-built landmark",
+   "note": "arabellamall.jo map pin 32.5384089, 35.8621412 is 34 m from the OSM node; English name corrected."
+  },
+  {
+   "name": "Irbid Mall Center (اربد مول سنتر)",
+   "status": "absent",
+   "note": "irbidmallgrand.com: opened 6 Sep 2006, \"west of the university\". Its map link resolves to a Google place id only; no coordinate published, nothing in OSM. Not placed."
+  },
+  {
+   "name": "Irbid Mall Grand (اربد مول جراند)",
+   "status": "absent",
+   "note": "irbidmallgrand.com: eastern entrance of Irbid, \"Sari Al-Nasser street, Aydoun\" / Petra street. No coordinate published, nothing in OSM. Not placed."
+  },
+  {
+   "name": "Irbid Mall Hypermarket",
+   "status": "absent",
+   "note": "a section inside Irbid Mall (official site); the game has no interiors. Not placed."
+  },
+  {
+   "name": "Irbid City Centre (إربد سيتي سنتر)",
+   "status": "absent",
+   "note": "Wikipedia gives about 32.5355, 35.8650 but its address text is wrong (Hong Kong \"Nathan Road\") and operating status is unconfirmed; nothing in OSM. Not placed."
+  }
+ ],
+ "same_name_groups": [
+  {
+   "name": "JO Petrol",
+   "kind": "auto",
+   "ids": [
+    "osm:n9171476311",
+    "osm:n9171448245",
+    "osm:n9171427478"
+   ],
+   "spread_m": 20932
+  },
+  {
+   "name": "مسجد عمر بن الخطاب",
+   "kind": "mosque",
+   "ids": [
+    "osm:n9595006229",
+    "osm:n3111983618",
+    "osm:n7504043960",
+    "osm:n4461931390",
+    "osm:n5606496740"
+   ],
+   "spread_m": 14489
+  },
+  {
+   "name": "Total",
+   "kind": "auto",
+   "ids": [
+    "osm:n9171505230",
+    "osm:n9171487236",
+    "osm:n7282312583",
+    "osm:n9565169967",
+    "osm:n9171463525"
+   ],
+   "spread_m": 15639
+  },
+  {
+   "name": "QahwaBLK",
+   "kind": "cafe",
+   "ids": [
+    "osm:n14254015366",
+    "osm:n14201861591",
+    "osm:n14201906775",
+    "osm:n14201896529"
+   ],
+   "spread_m": 14037
+  },
+  {
+   "name": "مسجد أبو بكر الصديق",
+   "kind": "mosque",
+   "ids": [
+    "osm:n7491329500",
+    "osm:n9595142106",
+    "osm:w1065720348"
+   ],
+   "spread_m": 16998
+  },
+  {
+   "name": "pink",
+   "kind": "dukkan",
+   "ids": [
+    "osm:n7281810263",
+    "osm:n7281820711",
+    "osm:n9648191412"
+   ],
+   "spread_m": 2028
+  },
+  {
+   "name": "صيدليه الرازي",
+   "kind": "medical",
+   "ids": [
+    "osm:n7287951198",
+    "osm:n9642579868",
+    "osm:n7282139380",
+    "osm:n9642428165",
+    "osm:n9647899747",
+    "osm:n9646466635",
+    "osm:n9655345292",
+    "osm:n9645527823"
+   ],
+   "spread_m": 3128
+  },
+  {
+   "name": "Capital Bank",
+   "kind": "bank",
+   "ids": [
+    "osm:n7284080072",
+    "osm:n13321603454",
+    "osm:n13321603467"
+   ],
+   "spread_m": 3190
+  },
+  {
+   "name": "Market Basket",
+   "kind": "grocery",
+   "ids": [
+    "osm:n9645396235",
+    "osm:n7282083127",
+    "osm:n9648206209"
+   ],
+   "spread_m": 2210
+  },
+  {
+   "name": "طارق بن زياد",
+   "kind": "mosque",
+   "ids": [
+    "osm:n9670918223",
+    "osm:w1041892675",
+    "osm:w672889626"
+   ],
+   "spread_m": 9293
+  },
+  {
+   "name": "مدرسه سال الاساسيه المختلطه",
+   "kind": "school",
+   "ids": [
+    "osm:n5606617398",
+    "osm:n5606536333"
+   ],
+   "spread_m": 549
+  },
+  {
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "kind": "school",
+   "ids": [
+    "osm:w1068635484",
+    "osm:w1337602841",
+    "osm:w1337602864",
+    "osm:w1337609603"
+   ],
+   "spread_m": 464
+  },
+  {
+   "name": "Omar Fakr al-Schalabi School",
+   "kind": "school",
+   "ids": [
+    "osm:w511464296",
+    "osm:w1337592563"
+   ],
+   "spread_m": 613
+  },
+  {
+   "name": "Football Fields",
+   "kind": "gym",
+   "ids": [
+    "osm:w1292495632",
+    "osm:w1313321373",
+    "osm:w1313321374",
+    "osm:w1313321375"
+   ],
+   "spread_m": 52
+  }
+ ]
+}

@@ -15,28 +15,28 @@
  "pois": {
   "raw_elements": 2307,
   "classified": 2222,
-  "duplicates_merged": 62,
-  "unique": 2160,
-  "named": 1666,
-  "unnamed": 494,
+  "duplicates_merged": 64,
+  "unique": 2158,
+  "named": 1663,
+  "unnamed": 495,
   "by_kind": {
-   "dukkan": 484,
+   "dukkan": 485,
    "mosque": 211,
-   "food": 199,
-   "poi": 186,
-   "school": 175,
+   "food": 198,
+   "poi": 182,
+   "school": 176,
    "place": 168,
    "cafe": 125,
-   "medical": 100,
+   "medical": 110,
    "grocery": 77,
-   "gym": 76,
+   "gym": 74,
    "park": 66,
    "landmark": 51,
    "bank": 47,
    "barber": 45,
-   "hospital": 43,
+   "civic": 41,
    "auto": 39,
-   "civic": 33,
+   "hospital": 28,
    "mall": 13,
    "transport": 9,
    "dealer": 4,
@@ -54,8 +54,8 @@
    "named": 100
   },
   "education_by_category": {
+   "School (by name)": 6,
    "School": 146,
-   "Library": 5,
    "College": 3,
    "University": 18,
    "Driving school": 2,
@@ -63,7 +63,7 @@
   },
   "with_wikidata": 10,
   "with_commons_or_image": 7,
-  "in_current_game": 1653
+  "in_current_game": 1649
  },
  "buildings": {
   "osm_in_window": 46142,
@@ -120,10 +120,10 @@
   "outside window": 7
  },
  "records_total": {
-  "pois_unique": 2160,
+  "pois_unique": 2158,
   "buildings": 46142,
   "highway_ways": 14546,
-  "sum": 62848
+  "sum": 62846
  },
  "poi_sparse_cells_2km": [
   {
@@ -303,7 +303,7 @@
     "لواء الطيبة": 41,
     "لواء الوسطية": 37
    },
-   "name_matches_in_osm_window": 30,
+   "name_matches_in_osm_window": 32,
    "note": "Ministry of Education list dated 2018 (published 2018, re-listed 2025): Irbid governorate, all districts, no coordinates. Name match is an upper bound."
   }
  }

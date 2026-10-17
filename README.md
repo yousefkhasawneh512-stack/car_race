@@ -50,7 +50,8 @@ On touch devices, on-screen pads appear (steer left/right, brake, gas, drift).
   carcass, temperature, grip, load, slip, wear by cause, distance on the tyre).
 - **Repairs** are done at **Apex Drift Customs** (Baghdad Street; U/P there; the Repair button routes you there). Each body panel,
   light, window, mechanical part, suspension corner and tyre is listed with its condition, effect and price in JD; repair one part
-  or everything. Prices come out of your JD balance and are gameplay estimates, not real workshop quotes.
+  or everything. "Full inspection" shows all 30 parts, including the ones in good condition. Prices come out of your JD balance
+  and are gameplay estimates, not real workshop quotes.
 - **Burnout** (Cosmetic/Full): throttle + brake at a standstill (front-wheel drive: throttle + handbrake). It only works if the car
   has the power to overcome its driven wheels' grip, so strong rear-drive cars can, all-wheel drive and weak cars can't. Burnouts and
   drifts heat and wear the tyres that are actually spinning or sliding.

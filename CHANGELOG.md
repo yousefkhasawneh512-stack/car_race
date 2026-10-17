@@ -202,3 +202,28 @@ Owner request "Irbid Drive: complete master repair and realism upgrade" (approva
 - Tests: `damage_test` 58/58 (7 new repair-bay checks), `wheel_test` 40/40 (10 new), `damage_pw` 10/10 (repair bay clicked in Chromium),
   everything else unchanged from v41 (see TEST_REPORT.md). New doc `G29_TEST_REPORT.md`.
 - Not done: licensed 3D car models, new landmark models/photo facades, bridge decks, denser terrain, real G29 hardware test, real-device tests.
+
+## v43 (2026-10-17): place accuracy audit (owner's `irbid-place-database-issues.csv`), full repair inspection
+
+Owner request "Irbid Drive: complete accuracy audit and repair". Backup tag `backup/v42`. Every CSV issue re-checked against the current data and
+the official sources; per-issue status in AUDIT_REPORT.md (v43 table).
+- **Importer (`osm/overpass/build.py` + new `corrections.py`):** fixed the POID read-back regex (it swallowed `OSM_CALM` and crashed);
+  libraries are civic, not schools; placeholder names ("no name") are dropped; a name tag with several ";" values keeps the first as the
+  name and the rest as aliases; a name that states what the place is (مدرسة/مركز صحي/بلدية/مسجد/كنيسة/travel agency) overrides contradicting
+  tags (23 records: Zubiya schools and 14 health centres were "Hospital", travel agencies were "Sports centre"); editor-preset `brand` tags
+  that do not match the name are not used as aliases (35; fuel stations and ATMs exempt); per-record overrides with evidence and confidence
+  (CAT-001…006, NAME-001, OSM-002/004, heritage aliases). Outputs `manifest/heritage_check.json` (27 municipal heritage sites + 5 malls) and
+  `manifest/osm_upstream_issues.json` (58 suspected OSM errors; OSM is not edited). Same-name groups and same-name pairs of different kinds
+  are flagged, never merged. New owner-verified import file `osm/manual/verified_places.json` (empty; needs a source and a verifier per entry).
+- **Places:** 4 rows removed (Hakama "mosque", "No name", 2 duplicates revealed by the ";" split), 68 changed, 0 moved, 0 added (no candidate
+  had a usable coordinate). `h21` places 1659 → 1655 (laz 1489 → 1485). Estimated speed bumps re-derived from the corrected kinds (still 90).
+- **Repair bay:** "Full inspection" list in the Apex Drift Customs shop: all 30 parts (8 body zones, 4 lights, 4 windows, engine, cooling,
+  gearbox, driveline, steering, brakes, 4 suspension corners, 4 tyres) with condition; damaged ones keep their own Repair button, the rest
+  show "OK · no charge" (`inspectRows()` in `08d_repair.js`).
+- **Offline start:** if three.js cannot load from cdnjs (no network), the page shows "Irbid Drive could not start" with the fix (go online or
+  open the offline copy with three.js inlined) instead of a black screen (`01_head.html`).
+- Docs: new `BUILDING_LANDMARK_REPORT.md`, `FINAL_TEST_REPORT.md`; NAME_CORRECTIONS, PLACE_IMPORT_REPORT, PLACE_REVIEW.csv (2,259 rows),
+  AUDIT_REPORT, DATA_SOURCES updated.
+- Tests: new `tests/place_audit.py` (29 checks); `damage_test` 59 (inspection list; a tyre repair leaves suspension untouched);
+  `damage_pw` +1 (inspection list in Chromium). Everything else as v42.
+- Not done: irregular building footprints, landmark photo facades, licensed car/landmark models, bridge decks, physical G29 and phone tests.

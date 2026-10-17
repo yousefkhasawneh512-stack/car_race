@@ -1,7 +1,52 @@
-# Irbid Drive: audit (v39 systems, v42 master-repair status). Updated 2026-10-17
+# Irbid Drive: audit (v39 systems, v42 master-repair status, v43 accuracy audit). Updated 2026-10-17
 
 What the project was, what changed, what is real, what is estimated, and what is still missing. The previous (v37) realism audit is
-`docs/AUDIT_v37.md`. Test evidence is in `TEST_REPORT.md`; sources and licences are in `DATA_SOURCES_AND_LICENCES.md`.
+`docs/AUDIT_v37.md`. Test evidence is in `TEST_REPORT.md` and `FINAL_TEST_REPORT.md`; sources and licences are in `DATA_SOURCES_AND_LICENCES.md`.
+
+## v43 accuracy audit: every issue of `irbid-place-database-issues.csv` (2026-10-17)
+
+Backup: git tag `backup/v42` (commit 2d44088). The CSV was written against an older 1,027-row POI table; each issue was re-checked
+against the current data (1,652 OSM places, OSM base 2026-10-17) and the official sources. Details and evidence: `NAME_CORRECTIONS.md`
+(v43 section), `BUILDING_LANDMARK_REPORT.md`, `PLACE_REVIEW.csv`. Tested by `tests/place_audit.py` (29 checks).
+
+| Id | Sev. | Status | What was done / why not |
+|---|---|---|---|
+| CAT-001 power station as shop | High | **Fixed** (medium) | shown as "Utility (power station, by name)"; OSM tag shop=outdoor contradicts the name. Facility not verified on site |
+| CAT-002 library as school | High | **Fixed** (high) | all OSM libraries are civic "Library", not schools (5 records). It is Yarmouk University's library (operator tag) |
+| CAT-003 Shalabi clinic as salon | High | **Relabelled** (medium) | "Beauty / cosmetic clinic (unverified)": name says clinic, tag says beauty; both fit a cosmetic clinic |
+| CAT-004 housing as motel | Med | **Relabelled** (medium) | "Housing / apartments (by name; OSM says motel)" |
+| CAT-005 officers' club as hotel | Med | **Relabelled** (medium) | "Officers' club (OSM says hotel; lodging unverified)" |
+| CAT-006 Hakama as mosque | Med | **Fixed** (medium) | gazetteer village node tagged place_of_worship: kept out of the game; the village (area) stays searchable |
+| CAT-007 الكردي | Med | **Checked, unchanged** | different names, 58 m apart; no evidence of the supermarket. Both kept |
+| NAME-001 Arbila → Arabella | Med | **Fixed** (high) | official site + its map pin 34 m from the OSM node; OSM spelling is an alias |
+| NAME-002 Hashim Pipers Mosqe | Med | **Open** | no Arabic name in OSM, no match in the Awqaf lists. Not guessed; flagged |
+| NAME-003 "No name" | Med | **Fixed** (high) | placeholder removed: not labelled in game (rule applies to any "no name") |
+| NAME-004 "no name fation and more;بلعاوي" | Med | **Fixed** (medium) | placeholder part removed, name "بلعاوي" flagged unverified. 12 ";" names in all were split (first = name, others = aliases) |
+| NAME-005/006/007 spellings | Low | **Open** | signs unverified; spelling kept. "coffe house" lost a wrong "Hard Rock Cafe" alias |
+| DUP-001 ابواب العلم | High | **Already merged** (v40, 2.5–8.2 m, 4 nodes); MoE lists the school (175523) |
+| DUP-002 / DUP-003 الصالحين, عمر بن الخطاب | High | **Already merged** (v40, 3.8 m / 1.6 m). Other same-name mosques are km apart: different mosques |
+| DUP-004 شعبان مول | Med | **Fixed** stray ";"; mall and supermarket kept separate (12.8 m, different tags) |
+| DUP-005 / DUP-006 TiK Tok, Alta Moda | Low | **Already merged** (15.2 m / 9 m); the restaurant node "مطعم الفدين للبخاري;TiK ToK" split |
+| DUP-007 Prince Hassan school ×4 | High | **Open, flagged** | MoE: one such school (Al-Qusayla); 4 OSM buildings up to 464 m apart. Which is right is unknown; none moved |
+| OSM-001 Zubiya schools as hospital | Med | **Fixed** (high) | rule: name says school, tag says hospital → school. Also بلدية زوبيا → municipality, Hakama girls' school (MoE alias) |
+| OSM-002 الحذاء الإيطالي hospital | Low | **Fixed** (high) | it WAS still a hospital in the game; now a shoe shop, "Payless" alias removed |
+| OSM-003 health centres as hospital | Low | **Fixed** (high) | 14 "مركز صحي" records tagged hospital → Health centre (all 16 "مركز صحي" are now medical) |
+| OSM-004 Latin Church | Low | **Confirmed** church; denomination (Latin/Roman Catholic) from the name |
+| GAP-001…024 heritage list | Med–High | **Cross-checked** | 5 present (2 OSM + 3 landmarks, municipal names added as aliases), 2 candidates, 20 absent: **not placed** (no coordinates anywhere). Workflow: `osm/manual/verified_places.json` |
+| GAP-010 Mamluk mosque | High | **Open** | the only OSM Abu Dhar mosque is 7.4 km north: not the historic one; not moved |
+| GAP-025…028 Irbid Mall ×2, City Centre, Hypermarket | High | **Open** | no published coordinates, nothing in OSM; Google coordinates not used |
+| DATA-001 schools vs MoE | High | **Compared by name** | the 2018 list has no coordinates: names only (30 matches); nothing placed from it |
+| DATA-002 mosques vs Awqaf | High | **Compared by name** | 778 rows, no coordinates; 255 name matches (upper bound) |
+| DATA-003 unverified POIs | High | **Unchanged** | every POI now carries its OSM id; 196 review flags in `name_review.json` |
+| (new) preset brands | Med | **Fixed** (high) | 35 local shops carried an international chain's `brand` from an editor preset (Arab Bank as "Capital Bank", "T-Mobile", "iFLY" travel agencies shown as **sports centres**). Removed from aliases; agencies reclassified |
+| (new) importer bug | — | **Fixed** | `build.py` could not re-read 03c (greedy POID regex) |
+
+In-game effect: 4 rows removed (Hakama "mosque", "No name", 2 genuine duplicates found after splitting ";" names), 68 rows changed,
+0 rows moved. Places 1,659 → 1,655 (`h21`). 58 suspected OSM errors are listed in `manifest/osm_upstream_issues.json` (OSM not edited).
+
+Phases 4–12 of the v43 prompt: landmark offsets re-measured (all ≤ 5 m, `lmchk`); repair bay gained a **full inspection** list (every
+part with its condition, undamaged parts "OK · no charge"); damage, tyres, G29 and car assets are unchanged since v42 (see their reports).
+Not done: irregular footprints, landmark photo facades, licensed car/landmark models, bridge decks, physical G29 and phone tests.
 
 ## 0. v42 master-repair status (2026-10-17)
 

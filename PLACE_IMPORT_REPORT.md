@@ -1,10 +1,42 @@
-# Place import report: v40 (Phase 1, real map and place data), 2026-10-17
+# Place import report: v40 (Phase 1, real map and place data) + v43 audit, 2026-10-17
 
 Backup before the change: git tag `v39c-backup-before-phase1` (v38 original: `v38-backup-before-v39`).
 Source: OpenStreetMap via the Overpass API, OSM base **2026-10-17 08:23 UTC** (POIs) and **08:39 UTC** (building outlines), ODbL.
 Playable boundary: the road network's own window, x −9,408…19,757 m, z −7,782…16,630 m (29.2 × 24.4 km; lat 32.39986–32.62013,
 lon 35.74976–36.06051). Production files: `dist/irbid-drive.html`, built from `src/parts/03c_poi_data.js` (places), `03b_bld_data.js` +
 **new `03e_bld_out.js`** (buildings), `03a_net_data.js` (roads, unchanged) by `build.py`. Test fixtures were not touched as data.
+
+## v43 accuracy audit (2026-10-17): places added, removed and changed
+
+Same OSM data (base 2026-10-17); `osm/overpass/build.py` now applies `osm/overpass/corrections.py` (rules + per-record overrides with
+evidence and confidence, logged in `manifest/name_review.json`). Backup: tag `backup/v42`.
+
+| | v42 | v43 |
+|---|---|---|
+| in-game OSM place rows (03c) | 1,652 | **1,648** |
+| `h21` places (incl. landmarks) | 1,659 | **1,655** |
+| rows whose kind/category/name/aliases changed | — | 68 |
+| rows moved | — | **0** |
+| places **added** | — | **0** (see below) |
+| corrections logged | 11 | 100 |
+| review flags | 131 | 196 |
+| suspected OSM errors listed for an on-site check | — | 58 (`manifest/osm_upstream_issues.json`) |
+
+**Removed from the game (4):** "حكما / Hakama" (village gazetteer node tagged as a mosque, CAT-006), "No name" (placeholder, NAME-003),
+and two exact duplicates that appeared once ";" names were split (`pretty` 3.3 m and `دولما` 10.2 m from a same-name, same-kind node).
+
+**Added: none.** Every candidate checked in v43 lacks a usable coordinate:
+- 20 of the 27 municipal heritage sites are not in OSM, and the municipal page has no addresses (`BUILDING_LANDMARK_REPORT.md` §3).
+- Irbid Mall Center, Irbid Mall Grand and Irbid City Centre have no published coordinate and are not in OSM (§4 there).
+- The MoE school list (1,358 Irbid rows) and the Awqaf mosque lists (778 rows) have names and district text only.
+
+Adding them anyway would mean inventing positions. Instead the importer now reads `osm/manual/verified_places.json`: an owner-verified
+point (name, kind, category, lat, lon, `source_url`, `verified_by`) becomes an in-game place on the next `build.py --game`, marked
+"manual (owner-verified)". It is empty today.
+
+Main changes (full list: `NAME_CORRECTIONS.md`, v43 section): 23 name-vs-tag conflicts (4 schools incl. 3 in Zubiya, 2 education offices, 14 health centres and 1 municipality no
+longer hospitals or untyped, 2 travel agencies no longer sports centres), the "Italian Shoe" shop no longer a hospital, 12 ";" names split, 35 editor-preset
+chain brands removed from aliases, libraries no longer schools, Arabella Mall's English name, heritage aliases on 5 buildings.
 
 ## 1. Counts before → after
 

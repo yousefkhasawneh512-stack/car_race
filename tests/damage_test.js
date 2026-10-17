@@ -16,7 +16,7 @@ const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8');
 (0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+`
 ;global.__s={updP,keys,PORS,setPlayerCar,P,groundH,TH,COL,traffic,bots,heist,DESTRUCTIBLE_INSTANCES,SIGN_PLATES,FALLING_POLES,MOVERS,DEBRIS,
  damageEffects,registerPlayerImpact,registerLanding,breakObstacle,objectImpact,objectsTick,damageTick,repairCurrentCar,currentDamageRecord,getDamageRecord,carSpec,
- carMeshParts,tyreMu,TYS,OBJ_CLASS,objClass,diagToggle,diagRender,IMPACT,damageRecords,repairItems,repairPart,payRepair,renderRepairs,dentZone,
+ carMeshParts,tyreMu,TYS,OBJ_CLASS,objClass,diagToggle,diagRender,IMPACT,damageRecords,repairItems,repairPart,payRepair,renderRepairs,dentZone,inspectRows,
  get fines(){return fines},set fines(v){fines=v},get spent(){return spent},set spent(v){spent=v},
  get mode(){return damageMode},set mode(v){damageMode=v},get clock(){return clock},set clock(v){clock=v}};`);
 (0,eval)('redLight=function(){};wrongWay=function(){return false};fine=function(){};toast=function(){}');
@@ -159,10 +159,12 @@ S.diagToggle(false);
 S.mode=2;car('Ford Focus RS');place(OX,OZ);hit(20,0,-1);hit(20,0,1);R().wheels[2].tread=40;R().wheels[3].punct=true;
 let L=S.repairItems();const ids=L.map(q=>q.id),pr=id=>(L.find(q=>q.id===id)||{}).price;
 ck('repair list itemises panels, mechanical parts and single tyres with JD prices',ids.some(i=>i.startsWith('z:f'))&&ids.some(i=>i.startsWith('z:r'))&&ids.includes('t:2')&&ids.includes('t:3')&&ids.some(i=>i.startsWith('c:'))&&L.every(q=>q.price>0&&q.label&&Number.isFinite(q.cond)),ids.join(' '));
+{const I=S.inspectRows(),g=k=>I.filter(q=>q.grp===k).length,ok=I.filter(q=>!q.price);
+ck('full inspection (v43) lists every part: 16 body items (8 zones, 4 lights, 4 windows), 6 mechanical, 4 suspension corners, 4 tyres; undamaged ones free',I.length===30&&g('Body')===16&&g('Mechanical')===6&&g('Suspension')===4&&g('Tyres')===4&&ok.length>0&&ok.every(q=>q.cond>99.4||q.id.startsWith('t:'))&&I.filter(q=>q.price).every(q=>q.price===pr(q.id)),I.length+' rows, '+ok.length+' OK')}
 S.fines=0;S.spent=0;const fl0=R().zones.fl;
 ck('no balance: repair refused, nothing changes',S.payRepair(['t:2'])===false&&R().wheels[2].tread===40&&S.spent===0);
-S.fines=100000;let p0=S.spent,tp=pr('t:2');S.payRepair(['t:2']);
-ck('repairing tyre RL fixes only RL and charges its price',R().wheels[2].tread===100&&R().wheels[3].punct&&R().zones.fl===fl0&&S.spent-p0===tp,'charged '+(S.spent-p0)+' JD');
+const su0=JSON.stringify(R().susp);S.fines=100000;let p0=S.spent,tp=pr('t:2');S.payRepair(['t:2']);
+ck('repairing tyre RL fixes only RL (other tyres, panels, suspension untouched) and charges its price',R().wheels[2].tread===100&&R().wheels[3].punct&&R().zones.fl===fl0&&JSON.stringify(R().susp)===su0&&S.spent-p0===tp,'charged '+(S.spent-p0)+' JD');
 const fz=ids.find(i=>i.startsWith('z:f')),rz=ids.find(i=>i.startsWith('z:r')),zk=fz.slice(2),sp0=S.carSpec(P.idx);
 const dOther=R().dents.filter(d=>S.dentZone(d,sp0)!==zk).length;p0=S.spent;tp=pr(fz);S.payRepair([fz]);
 ck('repairing one front panel removes only its dents; the rear stays damaged',R().zones[zk]===100&&R().dents.every(d=>S.dentZone(d,sp0)!==zk)&&R().dents.length===dOther&&dOther>0&&R().zones[rz.slice(2)]<100&&S.spent-p0===tp,zk+' fixed, '+dOther+' other dents kept');

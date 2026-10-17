@@ -8,6 +8,7 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 **The current game is the reference implementation:** don't redesign gameplay.
 
 Companion files (read before non-trivial work):
+- `BUILDING_LANDMARK_REPORT.md` + `FINAL_TEST_REPORT.md` (v43 accuracy audit; per-issue status in AUDIT_REPORT.md).
 - `PLAN.md`: approved behaviour changes, the realism roadmap, the on-hold refactor plan, expected pre-existing test results.
 - `CHANGELOG.md`: per-version notes v22–v41 (history, honest limits, tests added per feature).
 - `AUDIT_REPORT.md`: v39 audit (damage/tyre/object systems, map data, photos, car assets; what is real vs estimated). The v37 audit is `docs/AUDIT_v37.md`.
@@ -37,12 +38,12 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
-  Also run `realism_test` (29 checks), `damage_test` (58 checks: zones, modes, per-car durability, tyres, burnouts, objects,
-  switching, diagnostics, paid per-part repairs) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
-  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py` (10 checks incl. the repair bay). Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
+  Also run `realism_test` (29 checks), `place_audit.py` (29 checks, Python: every place correction of the v43 audit), `damage_test` (59 checks: zones, modes, per-car durability, tyres, burnouts, objects,
+  switching, diagnostics, paid per-part repairs, full inspection) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
+  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py` (11 checks incl. the repair bay). `damage_test`, `realism_test`, `off_trace`, `handling_test` and `bld_check` load three from `node_modules`, so run them from the repo root. Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
   Realistic handling: `handling_test` (writes the per-car powertrain table if given a 2nd arg: `manifest/car_powertrain.json`). Buildings vs OSM: `bld_check`.
-  Expected results (v40, 2026-10-17): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
-  1659 (laz 1489), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060. `boot`/`h2`/`h13`/race/traffic output varies
+  Expected results (v43, 2026-10-17): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
+  1655 (laz 1485), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060. `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
   Broken or obsolete scripts (they fail the same way on v37): `val` (pre-OSM graph; use `val_net`), `csv_test`/`cs_check`
   (CSV nodes removed in v35b), `gen_fit`/`h18` (removed shops/places), `llchk` (expects `new.html`), `dups` (needs npm `acorn`).
@@ -59,6 +60,9 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   `geo_summary.json`, `name_review.json`, `unresolved_places.json`; it keeps previous POID rows in their old order because `RLP()` seeds
   landmarks by first match. Its `LANDMARK_OSM` (-> `POID_LM` in 03c) says which OSM ids ARE a hand-built landmark (merged, not labelled twice).
   `fetch.py` caches raw layers for 30 days (`--refresh` forces a download).
+  **Place corrections (v43) live in `osm/overpass/corrections.py`** (name-vs-tag rules, per-OSM-id overrides with evidence + confidence, the heritage/mall
+  cross-check); every change is logged in `manifest/name_review.json`. Never fix a place by hand-editing 03c. A place OSM lacks enters only through
+  `osm/manual/verified_places.json` (tracked; needs lat/lon, `source_url`, `verified_by`). Google Maps coordinates are not a source.
   `osm/overpass/proj.py` is the game projection in Python. `osm/photos/commons.py` then `osm/photos/openverse.py` → `manifest/photos.json`;
   `tools/gen_car_manifest.js` → `manifest/cars.json` + `world_objects.json` (generated from the build; never hand-edit).
   Never hand-edit those five parts; change the pipeline and regenerate. **Raw OSM/SRTM input files (`osm/**/*.json`,

@@ -260,6 +260,11 @@
    "issue": "all lower-case Latin name (style only; not changed without a source)"
   },
   {
+   "id": "osm:n7281820697",
+   "name": "pretty",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
    "id": "osm:n7281820700",
    "name": "over out let",
    "issue": "all lower-case Latin name (style only; not changed without a source)"
@@ -470,6 +475,11 @@
    "issue": "all lower-case Latin name (style only; not changed without a source)"
   },
   {
+   "id": "osm:n7284992368",
+   "name": "بلعاوي",
+   "issue": "the name tag also held placeholder text (\"no name fation and more\"); the remaining name is unverified"
+  },
+  {
    "id": "osm:n7285033996",
    "name": "kutkut",
    "issue": "all lower-case Latin name (style only; not changed without a source)"
@@ -582,6 +592,11 @@
   {
    "id": "osm:n7291701814",
    "name": "midan alssaeih",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7291701817",
+   "name": "fire snack",
    "issue": "all lower-case Latin name (style only; not changed without a source)"
   },
   {
@@ -713,9 +728,319 @@
    "id": "osm:w1460687630",
    "name": "مطعم",
    "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n4346249699",
+   "name": "محطة توليد كهرباء أربد",
+   "issue": "CAT-001 (changed, confidence medium): name \"محطة توليد كهرباء أربد\" = Irbid electricity generating station; the only tag is shop=outdoor (camping/outdoor goods), which contradicts it. Shown as a utility; exact facility unverified."
+  },
+  {
+   "id": "osm:n4228235389",
+   "name": "نادي ضباط الشمال",
+   "issue": "CAT-005 (changed, confidence medium): name \"نادي ضباط الشمال\" = North Officers' Club; OSM tourism=hotel. Shown as a club; whether it also offers rooms is not verified."
+  },
+  {
+   "id": "osm:n4178791194",
+   "name": "الطرزي للاسكان 2",
+   "issue": "CAT-004 (changed, confidence medium): name \"الطرزي للاسكان 2\" = \"Al-Tarazi Housing 2\" (a housing project name); OSM tourism=motel. Not shown as a motel; real use unverified."
+  },
+  {
+   "id": "osm:n798858301",
+   "name": "حكما",
+   "issue": "CAT-006 (changed, confidence medium): \"حكما / Hakama\" is the village name (name:de/fr, int_name and is_in come from a gazetteer import of the village) on a node tagged place_of_worship 0.8 km from the OSM village node. Not shown as a mosque named \"Hakama\"; the village stays searchable. A mosque may exist there: unverified."
+  },
+  {
+   "id": "osm:w1150288656",
+   "name": "عيادة شلبي",
+   "issue": "CAT-003 (changed, confidence medium): name \"عيادة شلبي\" = Shalabi Clinic; OSM shop=beauty. Both fit a cosmetic clinic; kept in the beauty group, labelled as a clinic, flagged for a local check."
+  },
+  {
+   "id": "osm:n9171476311",
+   "name": "JO Petrol",
+   "issue": "3 separate OSM features carry this auto name (up to 20932 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171448245",
+   "name": "JO Petrol",
+   "issue": "3 separate OSM features carry this auto name (up to 20932 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171427478",
+   "name": "JO Petrol",
+   "issue": "3 separate OSM features carry this auto name (up to 20932 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9595006229",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n3111983618",
+   "name": "عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7504043960",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n4461931390",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n5606496740",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171505230",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171487236",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7282312583",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9565169967",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171463525",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14254015366",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14201861591",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14201906775",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14201896529",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7491329500",
+   "name": "مسجد أبو بكر الصديق",
+   "issue": "3 separate OSM features carry this mosque name (up to 16997 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9595142106",
+   "name": "مسجد ابو بكر الصديق",
+   "issue": "3 separate OSM features carry this mosque name (up to 16997 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1065720348",
+   "name": "مسجد ابو بكر الصديق",
+   "issue": "3 separate OSM features carry this mosque name (up to 16997 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7281810263",
+   "name": "pink",
+   "issue": "3 separate OSM features carry this dukkan name (up to 2028 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7281820711",
+   "name": "pink",
+   "issue": "3 separate OSM features carry this dukkan name (up to 2028 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9648191412",
+   "name": "PINK",
+   "issue": "3 separate OSM features carry this dukkan name (up to 2028 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7287951198",
+   "name": "صيدليه الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9642579868",
+   "name": "صيدليه الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7282139380",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9642428165",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9647899747",
+   "name": "صيدليه الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9646466635",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9655345292",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9645527823",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7284080072",
+   "name": "Capital Bank",
+   "issue": "3 separate OSM features carry this bank name (up to 3189 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n13321603454",
+   "name": "Capital Bank",
+   "issue": "3 separate OSM features carry this bank name (up to 3189 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n13321603467",
+   "name": "Capital Bank",
+   "issue": "3 separate OSM features carry this bank name (up to 3189 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9645396235",
+   "name": "Market Basket",
+   "issue": "3 separate OSM features carry this grocery name (up to 2209 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7282083127",
+   "name": "Market Basket",
+   "issue": "3 separate OSM features carry this grocery name (up to 2209 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9648206209",
+   "name": "Market Basket",
+   "issue": "3 separate OSM features carry this grocery name (up to 2209 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9670918223",
+   "name": "طارق بن زياد",
+   "issue": "3 separate OSM features carry this mosque name (up to 9293 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1041892675",
+   "name": "طارق بن زياد",
+   "issue": "3 separate OSM features carry this mosque name (up to 9293 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w672889626",
+   "name": "مسجد طارق بن زياد",
+   "issue": "3 separate OSM features carry this mosque name (up to 9293 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n5606617398",
+   "name": "مدرسه سال الاساسيه المختلطه",
+   "issue": "2 separate OSM features carry this school name (up to 548 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n5606536333",
+   "name": "مدرسه سال الاساسيه المختلطه",
+   "issue": "2 separate OSM features carry this school name (up to 548 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1068635484",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337602841",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337602864",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337609603",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w511464296",
+   "name": "Omar Fakr al-Schalabi School",
+   "issue": "2 separate OSM features carry this school name (up to 613 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337592563",
+   "name": "Omar Fakr al-Schalabi School",
+   "issue": "2 separate OSM features carry this school name (up to 613 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1292495632",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1313321373",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1313321374",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1313321375",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7281792547",
+   "name": "7 days",
+   "issue": "same name as osm:n7281792540 (7 days, grocery) 2 m away but a different kind (poi): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:n7284109047",
+   "name": "كشك الشطرنج",
+   "issue": "same name as osm:n7281792542 (كشك الشطرنج, cafe) 0 m away but a different kind (dukkan): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:n9645113836",
+   "name": "محمص كردش",
+   "issue": "same name as osm:n9644972220 (محمص كردش, cafe) 9 m away but a different kind (grocery): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:n9645113835",
+   "name": "شعبان مول",
+   "issue": "same name as osm:n9644972225 (شعبان مول, grocery) 12 m away but a different kind (mall): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:w1090247380",
+   "name": "عرابي ستورز",
+   "issue": "same name as osm:n9986133423 (عرابي ستورز, mall) 1 m away but a different kind (dukkan): a business inside another, or one feature mapped twice. Not merged."
   }
  ],
- "unnamed_pois_kept_unnamed": 494,
+ "unnamed_pois_kept_unnamed": 495,
  "official_lists_without_coordinates": {
   "mosques": {
    "official_rows": 778,
@@ -736,7 +1061,7 @@
     "لواء الطيبة": 41,
     "لواء الوسطية": 37
    },
-   "name_matches_in_osm_window": 30,
+   "name_matches_in_osm_window": 32,
    "note": "Ministry of Education list dated 2018 (published 2018, re-listed 2025): Irbid governorate, all districts, no coordinates. Name match is an upper bound."
   }
  }

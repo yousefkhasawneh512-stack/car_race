@@ -46,6 +46,8 @@ with sync_playwright() as p:
     ev("diagToggle(false);fines=spent+5000;warp(SHOP.x,SHOP.z,0);openShop()");pg.wait_for_timeout(800)
     rows=ev("return Array.from(document.querySelectorAll('#shop [data-rep]')).map(b=>b.dataset.rep+'|'+b.textContent)")
     ok('repair bay lists priced parts in the shop',any(r.startswith('t:0|Repair') and 'JD' in r for r in rows) and any(r.startswith('*|') for r in rows),rows[:6])
+    ok('full inspection (v43) lists every part, OK parts without a charge',ev("return document.querySelectorAll('#repInspect .row').length")==30 and ev("return /OK · no charge/.test(document.getElementById('repInspect').innerHTML)"))
+    ev("document.getElementById('repInspect').open=true");pg.wait_for_timeout(300)
     pg.screenshot(path=SP+'/damage_pw_repair.png')
     b0=ev("return fines-spent")
     ev("document.querySelector('#shop [data-rep=\"t:0\"]').click()");pg.wait_for_timeout(400)

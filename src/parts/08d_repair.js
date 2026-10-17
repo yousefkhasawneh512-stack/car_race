@@ -25,6 +25,16 @@ function repairPart(id){const s=currentDamageRecord(),sp=carSpec(P.idx||0),[k,a]
  else if(k==='c'){s[a]=100;if(a==='cooling'||a==='engine')s.engTemp=90}
  else if(k==='s'){s.susp[j]=100;s.align[j]=0}else if(k==='t')s.wheels[j]=newWheel();else return false;
  syncAggregates(s);return true}
+// full inspection (v43): every part's condition, damaged or not, with its repair id/price when it needs work
+function inspectRows(){const s=currentDamageRecord(),it={},R=[];for(const q of repairItems())it[q.id]=q;
+ const add=(id,grp,label,cond)=>R.push({id,grp,label,cond:it[id]?it[id].cond:cond,price:it[id]?it[id].price:0});
+ for(const z of ZONES)add('z:'+z,'Body',REP_ZN[z],s.zones[z]);
+ for(let j=0;j<4;j++)add('li:'+j,'Body',LIGHT_NAMES[j][0].toUpperCase()+LIGHT_NAMES[j].slice(1),s.lights[j]?0:100);
+ for(let j=0;j<4;j++)add('gl:'+j,'Body',GLASS_NAMES[j][0].toUpperCase()+GLASS_NAMES[j].slice(1),100-s.glass[j]*100);
+ for(const[k,l]of[['engine','Engine'],['cooling','Cooling / radiator'],['trans','Gearbox'],['driveline','Driveline'],['steer','Steering'],['brakes','Brakes']])add('c:'+k,'Mechanical',l,s[k]);
+ for(let j=0;j<4;j++)add('s:'+j,'Suspension','Suspension '+WHEEL_NAMES[j],s.susp[j]);
+ for(let j=0;j<4;j++){const w=s.wheels[j];add('t:'+j,'Tyres','Tyre '+WHEEL_NAMES[j],w.punct?0:Math.min(w.tread,w.health))}
+ return R}
 const repBal=()=>fines-spent;
 function payRepair(ids){const L=repairItems().filter(q=>ids.includes(q.id)),tot=L.reduce((a,q)=>a+q.price,0);if(!L.length||repBal()<tot)return false;
  spent+=tot;for(const q of L)repairPart(q.id);save();persistDamage();refreshDamageVisual();updateDamageButton();
@@ -35,4 +45,8 @@ function renderRepairs(el){const L=repairItems(),tot=L.reduce((a,q)=>a+q.price,0
  else{let g='';for(const q of L){if(q.grp!==g){g=q.grp;h+='<div style="font-weight:650;margin:8px 0 2px;color:#ffd24a">'+g+'</div>'}const[w,c]=sev(q.cond);
   h+='<div class="row" style="padding:4px 0"><div style="font-size:13px"><b>'+q.label+'</b> <span style="color:'+c+'">'+Math.round(q.cond)+'% '+w+'</span><br><small>'+q.eff+'</small></div><button data-rep="'+q.id+'"'+(bal<q.price?' disabled':'')+'>Repair · '+fmt(q.price)+' JD</button></div>'}
   h+='<div class="row" style="margin-top:8px"><div><b>Total for everything</b>: '+fmt(tot)+' JD'+(bal<tot?' <small style="color:#ff9a5c">(not enough balance)</small>':'')+'</div><button data-rep="*"'+(bal<tot?' disabled':'')+' style="background:#2b6b3a;color:#fff">Repair all · '+fmt(tot)+' JD</button></div>'}
+ {const I=inspectRows();let g='';h+='<details id="repInspect" style="margin-top:10px"><summary style="cursor:pointer;font-weight:650">🔍 Full inspection: every part ('+I.length+')</summary>';
+  for(const q of I){if(q.grp!==g){g=q.grp;h+='<div style="font-weight:650;margin:6px 0 2px;color:#ffd24a">'+g+'</div>'}const[w,c]=sev(q.cond);
+   h+='<div class="row" style="padding:2px 0;font-size:12px"><div>'+q.label+' <span style="color:'+c+'">'+Math.round(q.cond)+'% '+w+'</span></div>'+(q.price?'<button data-rep="'+q.id+'"'+(bal<q.price?' disabled':'')+'>Repair · '+fmt(q.price)+' JD</button>':'<span style="opacity:.6">OK · no charge</span>')+'</div>'}
+  h+='</details>'}
  sec.innerHTML=h;sec.addEventListener('click',e=>{const id=e.target&&e.target.dataset&&e.target.dataset.rep;if(!id)return;payRepair(id==='*'?L.map(q=>q.id):[id]);renderShop()});el.appendChild(sec)}

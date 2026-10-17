@@ -10,6 +10,30 @@
    "rule": "whitespace"
   },
   {
+   "id": "osm:n7282024382",
+   "field": "name",
+   "from": "مجوهرات الزعبي;lilas",
+   "to": "مجوهرات الزعبي",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281820692",
+   "field": "name",
+   "from": "عادل;روعة",
+   "to": "عادل",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281820697",
+   "field": "name",
+   "from": "pretty;كراميش 2",
+   "to": "pretty",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
    "id": "osm:n9648242756",
    "field": "name/name_en",
    "from": "Safeway السيفوي",
@@ -18,6 +42,22 @@
     "Safeway"
    ],
    "rule": "one name tag held the Arabic and the Latin spelling of the same name (every word matches by transliteration); split, the game shows the Latin one as it does for name:en"
+  },
+  {
+   "id": "osm:n7284859502",
+   "field": "name",
+   "from": "No name",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284992368",
+   "field": "name",
+   "from": "no name fation and more;بلعاوي",
+   "to": "بلعاوي",
+   "rule": "placeholder text (\"no name\") is not a name; several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "medium"
   },
   {
    "id": "osm:n9648242752",
@@ -35,6 +75,70 @@
     "Arbila Mall"
    ],
    "rule": "one name tag held the Arabic and the Latin spelling of the same name (every word matches by transliteration); split, the game shows the Latin one as it does for name:en"
+  },
+  {
+   "id": "osm:n7291701817",
+   "field": "name",
+   "from": "fire snack;طعميه",
+   "to": "fire snack",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9644930915",
+   "field": "name",
+   "from": "دولما;كروش و روس",
+   "to": "دولما",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9644972219",
+   "field": "name",
+   "from": "مطعم الفدين للبخاري;TiK ToK",
+   "to": "مطعم الفدين للبخاري",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9644972225",
+   "field": "name",
+   "from": ";شعبان مول",
+   "to": "شعبان مول",
+   "rule": "stray \";\" removed",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9647821338",
+   "field": "name",
+   "from": "No Comment;Oppo",
+   "to": "No Comment",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9644930916",
+   "field": "name",
+   "from": "شيري كيك;Classic",
+   "to": "شيري كيك",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9644972217",
+   "field": "name",
+   "from": "flREFLY;قهوة عرب",
+   "to": "flREFLY",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9644972224",
+   "field": "name",
+   "from": "دجاج عصفور;للمأكولات البحرية الطازجه",
+   "to": "دجاج عصفور",
+   "rule": "several values in one name tag (\";\"): the first is the name, the others become search aliases",
+   "conf": "high"
   },
   {
    "id": "osm:n9646482500",
@@ -99,6 +203,769 @@
     "Orabi Stores"
    ],
    "rule": "one name tag held the Arabic and the Latin spelling of the same name (every word matches by transliteration); split, the game shows the Latin one as it does for name:en"
+  },
+  {
+   "id": "osm:n5606753002",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606667153",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606667147",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606667150",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "civic",
+    "Municipality"
+   ],
+   "rule": "the name says municipality, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606667156",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606667152",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606740202",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606771826",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n13477569166",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Office: educational institution"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say office: educational institution; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606637254",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n13476996350",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Office: educational institution"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say office: educational institution; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606732707",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9592824073",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7390377610",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7468749889",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282160273",
+   "field": "alias brand",
+   "from": "Dunkin' Donuts",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Dunkin' Donuts\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282160284",
+   "field": "alias brand",
+   "from": "Dunkin' Donuts",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Dunkin' Donuts\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282321887",
+   "field": "alias brand",
+   "from": "Spar",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Spar\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282322886",
+   "field": "alias brand",
+   "from": "PizzaExpress",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"PizzaExpress\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282322895",
+   "field": "alias brand",
+   "from": "Capital Bank",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Capital Bank\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282053331",
+   "field": "alias brand",
+   "from": "Payless ShoeSource",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Payless ShoeSource\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281792538",
+   "field": "alias brand",
+   "from": "Mobil Mart",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Mobil Mart\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281792541",
+   "field": "alias brand",
+   "from": "Mobil Mart",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Mobil Mart\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281792550",
+   "field": "alias brand",
+   "from": "Mobil Mart",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Mobil Mart\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281814229",
+   "field": "alias brand",
+   "from": "Mobil Mart",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Mobil Mart\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281814231",
+   "field": "alias brand",
+   "from": "Mobil Mart",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Mobil Mart\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281825402",
+   "field": "alias brand",
+   "from": "Hard Rock Cafe",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Hard Rock Cafe\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281825413",
+   "field": "alias brand",
+   "from": "Access Bank",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Access Bank\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7281825416",
+   "field": "alias brand",
+   "from": "Hard Rock Cafe",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Hard Rock Cafe\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284296558",
+   "field": "alias brand",
+   "from": "Opticalia",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Opticalia\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284339515",
+   "field": "alias brand",
+   "from": "Simply Market",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Simply Market\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284362996",
+   "field": "alias brand",
+   "from": "Opticalia",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Opticalia\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7287570353",
+   "field": "alias brand",
+   "from": "T-Mobile",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"T-Mobile\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7287602294",
+   "field": "alias brand",
+   "from": "Intersport",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Intersport\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9648242756",
+   "field": "alias brand",
+   "from": "Market Basket",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Market Basket\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284778606",
+   "field": "kind/category",
+   "from": [
+    "gym",
+    "Sports centre"
+   ],
+   "to": [
+    "dukkan",
+    "Travel agency (by name)"
+   ],
+   "rule": "the name says travel agency, the OSM tags say sports centre; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284778606",
+   "field": "alias brand",
+   "from": "iFLY",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"iFLY\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284080063",
+   "field": "alias brand",
+   "from": "T-Mobile",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"T-Mobile\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284664788",
+   "field": "kind/category",
+   "from": [
+    "gym",
+    "Sports centre"
+   ],
+   "to": [
+    "dukkan",
+    "Travel agency (by name)"
+   ],
+   "rule": "the name says travel agency, the OSM tags say sports centre; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284664788",
+   "field": "alias brand",
+   "from": "iFLY",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"iFLY\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284692417",
+   "field": "alias brand",
+   "from": "Simply Market",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Simply Market\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284869268",
+   "field": "alias brand",
+   "from": "Dress Barn",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Dress Barn\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9647899732",
+   "field": "alias brand",
+   "from": "Coffee Lab",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Coffee Lab\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284585074",
+   "field": "alias brand",
+   "from": "Church b",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Church b\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284938841",
+   "field": "alias brand",
+   "from": "mBank",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"mBank\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284942471",
+   "field": "alias brand",
+   "from": "Simply Market",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Simply Market\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7284991600",
+   "field": "alias brand",
+   "from": "Simply Market",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Simply Market\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7287654981",
+   "field": "alias brand",
+   "from": "Optical Center",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Optical Center\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7287730171",
+   "field": "alias brand",
+   "from": "Turkish Airlines",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Turkish Airlines\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606628584",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606628597",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n10315720419",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n4346249699",
+   "field": "kind",
+   "from": "dukkan",
+   "to": "civic",
+   "rule": "CAT-001: name \"محطة توليد كهرباء أربد\" = Irbid electricity generating station; the only tag is shop=outdoor (camping/outdoor goods), which contradicts it. Shown as a utility; exact facility unverified.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:n4346249699",
+   "field": "category",
+   "from": "Outdoor",
+   "to": "Utility (power station, by name)",
+   "rule": "CAT-001: name \"محطة توليد كهرباء أربد\" = Irbid electricity generating station; the only tag is shop=outdoor (camping/outdoor goods), which contradicts it. Shown as a utility; exact facility unverified.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:n7282049979",
+   "field": "alias brand",
+   "from": "The Body Shop",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"The Body Shop\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282077301",
+   "field": "alias brand",
+   "from": "Payless ShoeSource",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Payless ShoeSource\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282077301",
+   "field": "kind",
+   "from": "hospital",
+   "to": "dukkan",
+   "rule": "OSM-002: name \"الحذاء الإيطالي\" = \"The Italian Shoe\"; OSM amenity=hospital + brand=Payless ShoeSource (an editor preset). A shoe shop, not a hospital.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n7282077301",
+   "field": "category",
+   "from": "Hospital",
+   "to": "Shoes (OSM says hospital)",
+   "rule": "OSM-002: name \"الحذاء الإيطالي\" = \"The Italian Shoe\"; OSM amenity=hospital + brand=Payless ShoeSource (an editor preset). A shoe shop, not a hospital.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9648242752",
+   "field": "name_en",
+   "from": "Arbila Mall",
+   "to": "Arabella Mall",
+   "rule": "NAME-001: official site arabellamall.jo spells it Arabella Mall / أرابيلا مول; its map pin (32.5384089, 35.8621412) is 34 m from this OSM node. OSM spelling \"Arbila Mall\" kept as an alias.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9648242752",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "Arbila Mall",
+    "أرابيلا مول"
+   ],
+   "rule": "NAME-001: official site arabellamall.jo spells it Arabella Mall / أرابيلا مول; its map pin (32.5384089, 35.8621412) is 34 m from this OSM node. OSM spelling \"Arbila Mall\" kept as an alias.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n4228235389",
+   "field": "kind",
+   "from": "poi",
+   "to": "civic",
+   "rule": "CAT-005: name \"نادي ضباط الشمال\" = North Officers' Club; OSM tourism=hotel. Shown as a club; whether it also offers rooms is not verified.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:n4228235389",
+   "field": "category",
+   "from": "Hotel",
+   "to": "Officers' club (OSM says hotel; lodging unverified)",
+   "rule": "CAT-005: name \"نادي ضباط الشمال\" = North Officers' Club; OSM tourism=hotel. Shown as a club; whether it also offers rooms is not verified.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:n4178791194",
+   "field": "category",
+   "from": "Motel",
+   "to": "Housing / apartments (by name; OSM says motel)",
+   "rule": "CAT-004: name \"الطرزي للاسكان 2\" = \"Al-Tarazi Housing 2\" (a housing project name); OSM tourism=motel. Not shown as a motel; real use unverified.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:n5606496742",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606766135",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Named point (no category tag)"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say named point (no category tag); the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606766135",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "حكما الاساسية للبنات"
+   ],
+   "rule": "OSM-001: MoE 2018 lists \"حكما الاساسية للبنات\" (girls = اناث); the OSM node has only a name, no tags.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n798858301",
+   "field": "in_game",
+   "from": true,
+   "to": false,
+   "rule": "CAT-006: \"حكما / Hakama\" is the village name (name:de/fr, int_name and is_in come from a gazetteer import of the village) on a node tagged place_of_worship 0.8 km from the OSM village node. Not shown as a mosque named \"Hakama\"; the village stays searchable. A mosque may exist there: unverified.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:w1391017489",
+   "field": "alias brand",
+   "from": "Tesla Supercharger",
+   "to": "",
+   "rule": "brand tag does not match the name (an editor preset, e.g. a local shop tagged \"Tesla Supercharger\"); not used as a search alias",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w1380644968",
+   "field": "category",
+   "from": "Church",
+   "to": "Church (Latin / Roman Catholic, by name)",
+   "rule": "OSM-004: name \"Latin Church\" next to the Latin Patriarchate school; never a mosque. Denomination not tagged in OSM; taken from the name only.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w1042041062",
+   "field": "kind/category",
+   "from": [
+    "hospital",
+    "Hospital"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say hospital; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w696141881",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "دار السرايا"
+   ],
+   "rule": "heritage: OSM \"Irbid Archaeological Museum / متحف سرايا إربد\" = municipal list \"دار السرايا\".",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w696141883",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "مسجد اربد الكبير",
+    "الجامع الكبير"
+   ],
+   "rule": "heritage: OSM \"Irbid Great Mosque\" = municipal list \"مسجد اربد الكبير\".",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w696141882",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "كنيسة الروم الأرثوذكس"
+   ],
+   "rule": "GAP-011: OSM \"Greek Orthodox Church\" (religion=christian) on Tell Irbid = municipal list \"كنيسة الروم الأرثوذكس\". Not the Greek Catholic church (node 7285033997), which stays separate.",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w1173930235",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "منزل عرار",
+    "بيت عرار"
+   ],
+   "rule": "GAP-006: OSM \"Arar House / بيت عرار الثقافي\" = municipal list \"منزل عرار\" and Visit Jordan \"Beit Arar\".",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w1173930712",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "بيت النابلسي"
+   ],
+   "rule": "heritage: OSM Nabulsi House = municipal list \"بيت النابلسي\".",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w1150288656",
+   "field": "category",
+   "from": "Beauty salon",
+   "to": "Beauty / cosmetic clinic (unverified)",
+   "rule": "CAT-003: name \"عيادة شلبي\" = Shalabi Clinic; OSM shop=beauty. Both fit a cosmetic clinic; kept in the beauty group, labelled as a clinic, flagged for a local check.",
+   "conf": "medium"
   }
  ],
  "needs_review": [
@@ -300,6 +1167,11 @@
   {
    "id": "osm:n7281820696",
    "name": "look for gift",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7281820697",
+   "name": "pretty",
    "issue": "all lower-case Latin name (style only; not changed without a source)"
   },
   {
@@ -513,6 +1385,11 @@
    "issue": "all lower-case Latin name (style only; not changed without a source)"
   },
   {
+   "id": "osm:n7284992368",
+   "name": "بلعاوي",
+   "issue": "the name tag also held placeholder text (\"no name fation and more\"); the remaining name is unverified"
+  },
+  {
    "id": "osm:n7285033996",
    "name": "kutkut",
    "issue": "all lower-case Latin name (style only; not changed without a source)"
@@ -625,6 +1502,11 @@
   {
    "id": "osm:n7291701814",
    "name": "midan alssaeih",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:n7291701817",
+   "name": "fire snack",
    "issue": "all lower-case Latin name (style only; not changed without a source)"
   },
   {
@@ -756,6 +1638,316 @@
    "id": "osm:w1460687630",
    "name": "مطعم",
    "issue": "name is only a category word; the real business name is unknown"
+  },
+  {
+   "id": "osm:n4346249699",
+   "name": "محطة توليد كهرباء أربد",
+   "issue": "CAT-001 (changed, confidence medium): name \"محطة توليد كهرباء أربد\" = Irbid electricity generating station; the only tag is shop=outdoor (camping/outdoor goods), which contradicts it. Shown as a utility; exact facility unverified."
+  },
+  {
+   "id": "osm:n4228235389",
+   "name": "نادي ضباط الشمال",
+   "issue": "CAT-005 (changed, confidence medium): name \"نادي ضباط الشمال\" = North Officers' Club; OSM tourism=hotel. Shown as a club; whether it also offers rooms is not verified."
+  },
+  {
+   "id": "osm:n4178791194",
+   "name": "الطرزي للاسكان 2",
+   "issue": "CAT-004 (changed, confidence medium): name \"الطرزي للاسكان 2\" = \"Al-Tarazi Housing 2\" (a housing project name); OSM tourism=motel. Not shown as a motel; real use unverified."
+  },
+  {
+   "id": "osm:n798858301",
+   "name": "حكما",
+   "issue": "CAT-006 (changed, confidence medium): \"حكما / Hakama\" is the village name (name:de/fr, int_name and is_in come from a gazetteer import of the village) on a node tagged place_of_worship 0.8 km from the OSM village node. Not shown as a mosque named \"Hakama\"; the village stays searchable. A mosque may exist there: unverified."
+  },
+  {
+   "id": "osm:w1150288656",
+   "name": "عيادة شلبي",
+   "issue": "CAT-003 (changed, confidence medium): name \"عيادة شلبي\" = Shalabi Clinic; OSM shop=beauty. Both fit a cosmetic clinic; kept in the beauty group, labelled as a clinic, flagged for a local check."
+  },
+  {
+   "id": "osm:n9171476311",
+   "name": "JO Petrol",
+   "issue": "3 separate OSM features carry this auto name (up to 20932 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171448245",
+   "name": "JO Petrol",
+   "issue": "3 separate OSM features carry this auto name (up to 20932 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171427478",
+   "name": "JO Petrol",
+   "issue": "3 separate OSM features carry this auto name (up to 20932 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9595006229",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n3111983618",
+   "name": "عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7504043960",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n4461931390",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n5606496740",
+   "name": "مسجد عمر بن الخطاب",
+   "issue": "5 separate OSM features carry this mosque name (up to 14489 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171505230",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171487236",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7282312583",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9565169967",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9171463525",
+   "name": "Total",
+   "issue": "5 separate OSM features carry this auto name (up to 15639 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14254015366",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14201861591",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14201906775",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n14201896529",
+   "name": "QahwaBLK",
+   "issue": "4 separate OSM features carry this cafe name (up to 14037 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7491329500",
+   "name": "مسجد أبو بكر الصديق",
+   "issue": "3 separate OSM features carry this mosque name (up to 16997 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9595142106",
+   "name": "مسجد ابو بكر الصديق",
+   "issue": "3 separate OSM features carry this mosque name (up to 16997 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1065720348",
+   "name": "مسجد ابو بكر الصديق",
+   "issue": "3 separate OSM features carry this mosque name (up to 16997 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7281810263",
+   "name": "pink",
+   "issue": "3 separate OSM features carry this dukkan name (up to 2028 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7281820711",
+   "name": "pink",
+   "issue": "3 separate OSM features carry this dukkan name (up to 2028 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9648191412",
+   "name": "PINK",
+   "issue": "3 separate OSM features carry this dukkan name (up to 2028 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7287951198",
+   "name": "صيدليه الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9642579868",
+   "name": "صيدليه الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7282139380",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9642428165",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9647899747",
+   "name": "صيدليه الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9646466635",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9655345292",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9645527823",
+   "name": "صيدلية الرازي",
+   "issue": "8 separate OSM features carry this medical name (up to 3127 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7284080072",
+   "name": "Capital Bank",
+   "issue": "3 separate OSM features carry this bank name (up to 3189 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n13321603454",
+   "name": "Capital Bank",
+   "issue": "3 separate OSM features carry this bank name (up to 3189 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n13321603467",
+   "name": "Capital Bank",
+   "issue": "3 separate OSM features carry this bank name (up to 3189 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9645396235",
+   "name": "Market Basket",
+   "issue": "3 separate OSM features carry this grocery name (up to 2209 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7282083127",
+   "name": "Market Basket",
+   "issue": "3 separate OSM features carry this grocery name (up to 2209 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9648206209",
+   "name": "Market Basket",
+   "issue": "3 separate OSM features carry this grocery name (up to 2209 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n9670918223",
+   "name": "طارق بن زياد",
+   "issue": "3 separate OSM features carry this mosque name (up to 9293 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1041892675",
+   "name": "طارق بن زياد",
+   "issue": "3 separate OSM features carry this mosque name (up to 9293 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w672889626",
+   "name": "مسجد طارق بن زياد",
+   "issue": "3 separate OSM features carry this mosque name (up to 9293 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n5606617398",
+   "name": "مدرسه سال الاساسيه المختلطه",
+   "issue": "2 separate OSM features carry this school name (up to 548 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n5606536333",
+   "name": "مدرسه سال الاساسيه المختلطه",
+   "issue": "2 separate OSM features carry this school name (up to 548 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1068635484",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337602841",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337602864",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337609603",
+   "name": "مدرسة الامير حسن الثانوية للبنين",
+   "issue": "4 separate OSM features carry this school name (up to 464 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w511464296",
+   "name": "Omar Fakr al-Schalabi School",
+   "issue": "2 separate OSM features carry this school name (up to 613 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1337592563",
+   "name": "Omar Fakr al-Schalabi School",
+   "issue": "2 separate OSM features carry this school name (up to 613 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1292495632",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1313321373",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1313321374",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:w1313321375",
+   "name": "Football Fields",
+   "issue": "4 separate OSM features carry this gym name (up to 52 m apart); at most one may be the named facility, or they are branches. Not merged."
+  },
+  {
+   "id": "osm:n7281792547",
+   "name": "7 days",
+   "issue": "same name as osm:n7281792540 (7 days, grocery) 2 m away but a different kind (poi): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:n7284109047",
+   "name": "كشك الشطرنج",
+   "issue": "same name as osm:n7281792542 (كشك الشطرنج, cafe) 0 m away but a different kind (dukkan): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:n9645113836",
+   "name": "محمص كردش",
+   "issue": "same name as osm:n9644972220 (محمص كردش, cafe) 9 m away but a different kind (grocery): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:n9645113835",
+   "name": "شعبان مول",
+   "issue": "same name as osm:n9644972225 (شعبان مول, grocery) 12 m away but a different kind (mall): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:w1090247380",
+   "name": "عرابي ستورز",
+   "issue": "same name as osm:n9986133423 (عرابي ستورز, mall) 1 m away but a different kind (dukkan): a business inside another, or one feature mapped twice. Not merged."
   }
  ]
 }

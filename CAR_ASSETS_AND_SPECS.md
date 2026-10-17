@@ -87,3 +87,10 @@ and upgrade prices are unchanged; upgrades scale torque (Acceleration) and geari
 Unchanged since v41: no licensed model was downloaded, for the same four reasons (account, size versus the single-file build, identity checks,
 trademarks). The candidate list (`manifest/car_model_candidates.json`) and the powertrain table (`manifest/car_powertrain.json`) are the asset manifest.
 v42 adds per-part **repair prices** (gameplay estimates, × rarity tier; see `DAMAGE_AND_TIRE_WEAR_REPORT.md` §10). No car specification was added or changed.
+
+## v43 status (2026-10-17)
+
+Unchanged since v42. No licensed car model was added: every candidate (`manifest/car_model_candidates.json`, 176 of 217 cars with a CC BY
+Sketchfab candidate) still needs the owner's Sketchfab account, a licence and trademark decision, and a change to the single-file rule
+(GLB files are separate assets). All 217 cars use the procedural mesh sized to the car's dimensions; it is **not** the real car's shape.
+Dimensions, top speed and 0–100 are the game's own data; mass, torque, drag and durability are labelled estimates.

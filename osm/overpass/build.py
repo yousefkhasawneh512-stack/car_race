@@ -14,6 +14,7 @@ coordinates are never placed."""
 import json,os,sys,re,math,collections,csv,unicodedata
 H=os.path.dirname(os.path.abspath(__file__));ROOT=os.path.abspath(os.path.join(H,'..','..'));sys.path.insert(0,H)
 from proj import ll2xz
+import corrections as CX
 raw=lambda k:json.load(open(os.path.join(H,'raw',k+'.json'),encoding='utf-8'))
 P,B,HW=raw('pois'),raw('buildings'),raw('highways')
 WIN=P['window_game_m'];STAMP=P['osm3s']['timestamp_osm_base']
@@ -25,7 +26,7 @@ SHOP_BARB={'hairdresser':'Hairdresser / barber','barber':'Barber','beauty':'Beau
 AMEN={'restaurant':('food','Restaurant'),'fast_food':('food','Fast food'),'food_court':('food','Food court'),'ice_cream':('food','Ice cream'),'cafe':('cafe','Cafe'),
  'pharmacy':('medical','Pharmacy'),'clinic':('medical','Clinic'),'dentist':('medical','Dentist'),'doctors':('medical','Doctor'),'hospital':('hospital','Hospital'),'veterinary':('medical','Veterinary'),
  'fuel':('auto','Fuel station'),'car_wash':('auto','Car wash'),'car_rental':('dealer','Car rental'),'bank':('bank','Bank'),'atm':('bank','ATM'),'bureau_de_change':('bank','Exchange'),
- 'school':('school','School'),'kindergarten':('school','Kindergarten'),'college':('school','College'),'university':('school','University'),'library':('school','Library'),'training':('school','Training centre'),'language_school':('school','Language school'),'driving_school':('school','Driving school'),
+ 'school':('school','School'),'kindergarten':('school','Kindergarten'),'college':('school','College'),'university':('school','University'),'library':('civic','Library'),'training':('school','Training centre'),'language_school':('school','Language school'),'driving_school':('school','Driving school'),
  'marketplace':('dukkan','Market'),'townhall':('civic','Town hall'),'police':('civic','Police'),'post_office':('civic','Post office'),'community_centre':('civic','Community centre'),'courthouse':('civic','Court'),'fire_station':('civic','Fire station'),
  'social_facility':('civic','Social facility'),'public_building':('civic','Public building'),'bus_station':('poi','Bus station'),'taxi':('poi','Taxi stand'),'parking':('poi','Parking'),'events_venue':('poi','Events venue'),'theatre':('poi','Theatre'),'cinema':('poi','Cinema'),'arts_centre':('museum','Arts centre'),
  'place_of_worship':None}
@@ -100,7 +101,16 @@ def same_name(lat,ar):
     return all(ok(w) for w in lt) and all(mat(a) for a in at)
 def clean(rec):
     # rule-based, logged name fixes only (whitespace; an Arabic+Latin name with no name:en split into name/name_en). Everything else is flagged, never guessed.
-    nm=rec['name'];n2=re.sub(r'\s+',' ',nm).strip()
+    nm=rec['name']
+    if nm and (';' in nm or CX.PLACEHOLDER.match(nm)):
+        parts=[q.strip() for q in nm.split(';') if q.strip()];keep=[q for q in parts if not CX.PLACEHOLDER.match(q)]
+        rule=('placeholder text ("no name") is not a name' if len(keep)<len(parts) else '')+('; ' if len(keep)<len(parts) and len(parts)>1 else '')+('several values in one name tag (";"): the first is the name, the others become search aliases' if len(parts)>1 else '' if len(keep)<len(parts) else 'stray ";" removed')
+        CORR.append({'id':rec['id'],'field':'name','from':nm,'to':keep[0] if keep else '','rule':rule,'conf':'high' if not keep or len(keep)==len(parts) else 'medium'})
+        for i,q in enumerate(keep[1:]):rec['names']['alias:split%d'%i]=q
+        rec['name']=nm=keep[0] if keep else ''
+        if not keep:rec['flags'].append('unnamed');rec['flags'].append('placeholder name removed')
+        elif len(keep)<len(parts):rec['flags'].append('placeholder part removed');REVIEW.append({'id':rec['id'],'name':nm,'issue':'the name tag also held placeholder text ("'+parts[0]+'"); the remaining name is unverified'})
+    n2=re.sub(r'\s+',' ',nm).strip()
     if n2!=nm:CORR.append({'id':rec['id'],'field':'name','from':nm,'to':n2,'rule':'whitespace'});rec['name']=nm=n2
     m=MIX.match(nm) if nm and not rec['name_en'] else None
     if m:
@@ -133,6 +143,37 @@ for e in P['elements']:
       'names':{q:t[q] for q in NV if q in t},
       'source':'OpenStreetMap (Overpass API)','retrieved':STAMP,'flags':[] if nm else ['unnamed']})
     clean(recs[-1])
+# ---------- v43 local corrections (osm/overpass/corrections.py): name-vs-tag conflicts, preset brands, per-record overrides ----------
+UPSTREAM=[]
+def bsk(s):return lsk(re.sub(r'[^A-Za-z]','',s))
+def brand_fits(r,b):
+    hay=norm(r['name']+' '+(r['name_en'] or ''));bw=[w for w in norm(b).split() if len(w)>=3]
+    if (bw and all(w in hay.split() for w in bw)) or norm(b).replace(' ','') in hay.replace(' ',''):return True
+    if ARB.search(b):return norm(b) in hay
+    k=bsk(b);return bool(k) and any(ask(w)==k or lsk(w)==k for w in hay.split())
+for r in recs:
+    t0=(r['kind'],r['category'])
+    for rx,frm,k,c in CX.NAME_KIND:
+        if r['name'] and rx.search(r['name']) and r['kind'] in frm:
+            CORR.append({'id':r['id'],'field':'kind/category','from':list(t0),'to':[k,c],'rule':'the name says '+c.split(' (')[0].lower()+', the OSM tags say '+t0[1].lower()+'; the name wins (local game copy only)','conf':'high'})
+            UPSTREAM.append({'id':r['id'],'name':r['name'],'osm_tags_say':t0[1],'name_says':c,'suggested_check':'verify on site, then fix the OSM tags through the normal OSM editing process'})
+            r['kind'],r['category']=k,c;r['flags'].append('category from name (tags conflict)');break
+    # fuel stations and ATMs: the brand IS the operator (JO Petrol, a bank), so it stays even when the station name differs
+    for bk in [q for q in('brand','brand:en','brand:ar') if q in r['names'] and r['category'] not in('Fuel station','ATM')]:
+        b=r['names'][bk]
+        if not brand_fits(r,b):
+            del r['names'][bk];r['flags'].append('preset brand dropped')
+            CORR.append({'id':r['id'],'field':'alias '+bk,'from':b,'to':'','rule':'brand tag does not match the name (an editor preset, e.g. a local shop tagged "'+b+'"); not used as a search alias','conf':'high'})
+            UPSTREAM.append({'id':r['id'],'name':r['name'],'osm_tags_say':bk+'='+b,'name_says':r['name'],'suggested_check':'brand tag looks like an editor preset; remove it in OSM if the shop is not that chain'})
+    o=CX.OVERRIDES.get(r['id'])
+    if o:
+        for f,v in o.get('set',{}).items():CORR.append({'id':r['id'],'field':f,'from':r.get(f),'to':v,'rule':o['audit']+': '+o['why'],'conf':o['conf']});r[f]=v
+        for i,a in enumerate(o.get('alias',[])):r['names']['alias:audit%d'%i]=a
+        if o.get('alias'):CORR.append({'id':r['id'],'field':'aliases','from':'','to':o['alias'],'rule':o['audit']+': '+o['why'],'conf':o['conf']})
+        for bk in o.get('drop_alias',[]):r['names'].pop(bk,None)
+        if o.get('exclude'):r['exclude']=True;r['flags'].append('kept out of the game (audit)');CORR.append({'id':r['id'],'field':'in_game','from':True,'to':False,'rule':o['audit']+': '+o['why'],'conf':o['conf']})
+        r['audit']=o['audit']
+        if o['conf']!='high':REVIEW.append({'id':r['id'],'name':r['name'],'issue':o['audit']+' (changed, confidence '+o['conf']+'): '+o['why']})
 # de-duplication: (1) same OSM object is unique already; (2) same kind + same normalized name within 80 m -> one place (prefer the
 # polygon, it carries the footprint); (3) an UNNAMED mosque/school node within 40 m of a same-kind polygon -> the node marks that building.
 # Different names are never merged, however close (neighbouring shops stay separate).
@@ -154,6 +195,33 @@ for i in order:
                 same=(na and nb and na==nb and d<80) or (not nb and a['kind'] in('mosque','school') and a['osm_type']!='node' and d<40)
                 if same:dead.add(j);a.setdefault('merged',[]).append(b['id']);dups.append([a['id'],b['id'],round(d,1),b['name']])
 places=[r for i,r in enumerate(recs) if i not in dead]
+# ---------- review only (never merged automatically): one name on several features, and same-name pairs of different kinds ----------
+byname=collections.defaultdict(list)
+for r in places:
+    if r['name'] and r['kind'] not in('place','address','transport') and norm(r['name']) not in GENERIC:byname[(norm(r['name']),r['kind'])].append(r)
+SAMENAME=[]
+for (n,k),L in byname.items():
+    if len(L)<2:continue
+    far=max(math.hypot(a['x']-b['x'],a['z']-b['z']) for a in L for b in L)
+    if k in('school','hospital','civic','museum','church') or len(L)>=3:
+        SAMENAME.append({'name':L[0]['name'],'kind':k,'ids':[r['id'] for r in L],'spread_m':round(far)})
+        for r in L:REVIEW.append({'id':r['id'],'name':r['name'],'issue':'%d separate OSM features carry this %s name (up to %d m apart); at most one may be the named facility, or they are branches. Not merged.'%(len(L),k,far)})
+for i,a in enumerate(places):
+    if not a['name']:continue
+    for b in places[i+1:]:
+        if b['name'] and b['kind']!=a['kind'] and norm(a['name'])==norm(b['name']) and math.hypot(a['x']-b['x'],a['z']-b['z'])<40:
+            REVIEW.append({'id':b['id'],'name':b['name'],'issue':'same name as %s (%s, %s) %d m away but a different kind (%s): a business inside another, or one feature mapped twice. Not merged.'%(a['id'],a['name'],a['kind'],math.hypot(a['x']-b['x'],a['z']-b['z']),b['kind'])})
+# ---------- owner-verified points (osm/manual/verified_places.json): the only way to add a place OSM does not have. Each entry needs a source. ----------
+MANUAL=[]
+mp=os.path.join(ROOT,'osm','manual','verified_places.json')
+if os.path.exists(mp):
+    for q in json.load(open(mp,encoding='utf-8')).get('places',[]):
+        if not(q.get('lat') and q.get('lon') and q.get('name') and q.get('source_url') and q.get('verified_by')):print('manual place skipped (needs name, lat, lon, source_url, verified_by):',q.get('name'));continue
+        x,z=ll2xz(q['lat'],q['lon'])
+        r={'id':'manual:'+re.sub(r'\W+','-',q.get('name_en') or q['name']).strip('-').lower(),'osm_type':'manual','osm_id':'','name':q['name'],'name_en':q.get('name_en',''),'kind':q['kind'],'category':q['category'],
+           'lat':q['lat'],'lon':q['lon'],'x':round(x,1),'z':round(z,1),'geometry':'point (manually verified)','tags':{},'names':{'alias:%d'%i:a for i,a in enumerate(q.get('aliases',[]))},
+           'source':q['source_url'],'retrieved':q.get('verified_on',''),'flags':['manual (owner-verified)'],'verified_by':q['verified_by']}
+        places.append(r);MANUAL.append(r['id'])
 # ---------- hand-built landmarks that ARE an OSM feature (same facility, checked by name + footprint; NAME_CORRECTIONS.md). The game shows the
 # landmark (model + label) and adds the OSM names to its search aliases instead of a second label. Everything else is a separate place, however close.
 LANDMARK_OSM={'osm:w696141881':'Dar As Saraya Ottoman Museum','osm:w1173930235':"Arar's Cultural House (Beit Arar)",'osm:w1173930712':'The Nabulsi House (Beit Al-Nabulsi)',
@@ -165,7 +233,7 @@ for r in places:
     if r['id'] in LANDMARK_OSM:r['in_game_as']=LANDMARK_OSM[r['id']]
 # ---------- in-game status: real places the current build shows (POID rows, 1 decimetre grid) ----------
 poid_src=open(os.path.join(ROOT,'src','parts','03c_poi_data.js'),encoding='utf-8').read()
-POID=json.loads(re.search(r'const POID=(\[.*\]);',poid_src,re.S).group(1))
+POID=json.loads(re.search(r'const POID=(\[.*?\]);\n',poid_src,re.S).group(1))
 pg=collections.defaultdict(list)
 for q in POID:pg[(round(q[0]/10/60),round(q[1]/10/60))].append(q)
 def in_game(r):
@@ -176,7 +244,7 @@ def in_game(r):
                 if math.hypot(q[0]/10-r['x'],q[1]/10-r['z'])<60 and (norm(q[3])==nr or (q[4] and norm(q[4])==norm(r['name_en'] or r['name']))):return True
     return False
 GAME_IDS={q[6] for q in POID if len(q)>6}
-for r in places:r['in_game']=bool(r['name']) and (r['id'] in GAME_IDS or r['id'] in LANDMARK_OSM or in_game(r))
+for r in places:r['in_game']=bool(r['name']) and not r.get('exclude') and (r['id'] in GAME_IDS or r['id'] in LANDMARK_OSM or in_game(r))
 # ---------- photos (manifest/photos.json, built separately by osm/photos/commons.py) ----------
 ph={}
 pf=os.path.join(ROOT,'manifest','photos.json')
@@ -257,7 +325,11 @@ json.dump({'generated_by':'osm/overpass/build.py','licence':'ODbL 1.0, (c) OpenS
 json.dump(summary,open(os.path.join(ROOT,'manifest','geo_summary.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
 json.dump(dups,open(os.path.join(H,'out','duplicates.json'),'w',encoding='utf-8'),ensure_ascii=False)
 json.dump({'generated_by':'osm/overpass/build.py','retrieved':STAMP,'applied':CORR,'needs_review':REVIEW},open(os.path.join(ROOT,'manifest','name_review.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
-print('name fixes applied',len(CORR),'flagged for review',len(REVIEW))
+print('name fixes applied',len(CORR),'flagged for review',len(REVIEW),'manual places',len(MANUAL))
+json.dump({'generated_by':'osm/overpass/build.py (v43)','note':'Suspected errors in OpenStreetMap itself. The game corrects its own copy; OSM is NOT edited automatically. Check each on site before editing OSM.','issues':UPSTREAM},
+  open(os.path.join(ROOT,'manifest','osm_upstream_issues.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
+json.dump({'generated_by':'osm/overpass/build.py (v43) from osm/overpass/corrections.py','source':CX.MUN,'heritage':[{'name_ar':a,'name_en':b,'status':c,'note':d} for a,b,c,d in CX.HERITAGE],
+  'businesses':[{'name':a,'status':b,'note':c} for a,b,c in CX.BUSINESS],'same_name_groups':SAMENAME},open(os.path.join(ROOT,'manifest','heritage_check.json'),'w',encoding='utf-8'),ensure_ascii=False,indent=1)
 # ---------- unresolved / uncertain places (for review; nothing here is placed or renamed on a guess) ----------
 LANDMARK_ISSUES=[
  {'place':'Wasfi Al-Tal Park','issue':'no OSM feature of this name; park polygon and name come from the original game','status':'kept, marked "name not in OSM (unverified)" in search'},
@@ -282,7 +354,7 @@ if '--game' in sys.argv:
     AREA={'Place: neighbourhood','Place: suburb','Place: quarter','Place: village','Place: town','Place: city','Place: hamlet','Place: locality'}
     rows_g=[]
     for r in places:
-        if not r['name'] or r['kind'] not in G or r['category'] in('ATM','Taxi stand'):continue
+        if not r['name'] or r.get('exclude') or r['kind'] not in G or r['category'] in('ATM','Taxi stand'):continue
         if r['kind']=='place' and r['category'] not in AREA:continue          # plots, region/state outlines; squares are landmarks
         if r['kind']=='park' and re.search(r'استراحة|Trees|Circle|دوار',r['name']):continue
         al=' '.join(dict.fromkeys(v for k,v in r['names'].items() if k!='name:en' and v and v!=r['name'] and v!=r['name_en']))

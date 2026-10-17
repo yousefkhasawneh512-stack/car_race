@@ -12,3 +12,4 @@ osm/**/*.gpkg
 osm/official/*.xls
 osm/official/*.xlsx
 osm/overpass/out/
+!osm/manual/verified_places.json
