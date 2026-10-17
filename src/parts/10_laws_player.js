@@ -29,14 +29,14 @@ const MobilePCInputController={steeringAngle:0,isAccelerating:false,isBraking:fa
 function surfK(){if(inDrift.was)return 1;const r=RI;if(r&&r.e&&r.d<=r.e.w/2+.3)return r.e.hw==='track'?.75:1;return urbanK(P.x,P.z)>.5?.9:.65}
 function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;
  let fx=Math.sin(P.h),fz=Math.cos(P.h),fs=P.vx*fx+P.vz*fz;
- P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
+ P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*(handlingMode?ptSteer():1)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);const rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
  const sfc=surfK()*dfx.grip,vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
  const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);
- if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
+ if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
   if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
   if(!(bo||Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
-  if(hb)fs*=1-.8*dt;if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt;ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*dt)}
+  if(hb)fs*=1-.8*dt;if(!handlingMode){if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt}ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*(handlingMode?ptLat():1)*dt)}
  P.vx=fx*fs+rx*ls;P.vz=fz*fs+rz*ls;if(frozen)P.vx=P.vz=0;P.al=(fs-pfs)/dt;if(typeof tyreStep==='function')tyreStep(dt,th?thA:0,br?brA:0,hb,st,fs,ls,frozen);
  const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),spm=Math.hypot(P.vx,P.vz);
  if(P.gnd&&spm>8&&sa>.22-.012*P.dr&&!frozen){drift.t+=dt;drift.off=0;drift.pts+=sa*spm*8*dt*(1+Math.min(4,drift.t/3))*(1+.2*P.dr)*(P.rm||1)}
@@ -48,7 +48,7 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  const sl=(groundH(P.x+fx*2,P.z+fz*2)-groundH(P.x-fx*2,P.z-fz*2))/4,pt=P.gnd?-Math.atan(sl):-Math.atan2(P.vy,Math.max(fs,5))*.7;
  P.pitch+=(pt-P.pitch)*Math.min(1,dt*8);
  {const yr=wrap(P.h-P.h0)/dt;P.h0=P.h;const al=P.gnd&&!frozen?cl(P.al,-12,8):0,ay=P.gnd&&!frozen?cl(fs*yr,-12,12):0;P.bp+=(-al*.0022-P.bp)*Math.min(1,dt*6);P.br+=(ay*.0065-P.br)*Math.min(1,dt*6)}
- P.m.position.set(P.x,P.y,P.z);P.m.rotation.set(P.pitch+P.bp,P.h,P.br);
+ P.m.position.set(P.x,P.y,P.z);P.m.rotation.set(P.pitch+P.bp,P.h,P.br);if(handlingMode)ptBody(dt,frozen,fs);
  for(const c of traffic){const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(d<3.4&&P.y<TH(P.x,P.z)+2){const nx=dx/(d||1),nz=dz/(d||1);P.x+=nx*(3.4-d)*.6;P.z+=nz*(3.4-d)*.6;
   const relX=P.vx-(Math.sin(c.h||0)*(c.v||0)),relZ=P.vz-(Math.cos(c.h||0)*(c.v||0)),rvn=relX*nx+relZ*nz;if(rvn< -1.8&&typeof registerPlayerImpact==='function')registerPlayerImpact(-rvn,{type:'vehicle'},nx,nz);const vn=P.vx*nx+P.vz*nz;if(vn<0){P.vx-=vn*nx*1.3;P.vz-=vn*nz*1.3}P.vx*=.8;P.vz*=.8;c.hold=1.5;c.v=0;fine('hit',30,'Collision with traffic',2)}}
  for(const b of bots.concat(riv?[riv]:[],heist.cops)){const dx=P.x-b.x,dz=P.z-b.z,d=Math.hypot(dx,dz);if(d<3.4){const nx=dx/(d||1),nz=dz/(d||1),rvx=P.vx-Math.sin(b.h||0)*(b.v||0),rvz=P.vz-Math.cos(b.h||0)*(b.v||0),rvn=rvx*nx+rvz*nz;if(rvn< -1.8&&typeof registerPlayerImpact==='function')registerPlayerImpact(-rvn,{type:'vehicle'},nx,nz);P.x+=nx*(3.4-d)*.5;P.z+=nz*(3.4-d)*.5;P.vx*=1-2*dt;P.vz*=1-2*dt}}

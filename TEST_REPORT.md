@@ -4,6 +4,26 @@ Machine: Windows 11, Node v24.20.0, Python 3.15 + Playwright 1.64 (Chromium, Swi
 repo root unless noted (Node harness tests were run from a scratch directory because they write output files).
 Build: `python build.py` → `dist/irbid-drive.html` 3,374,297 chars / 3,216 lines.
 
+## v41 (Phase 2: handling, traffic calming, audits), 2026-10-17, build 4,235,847 chars
+
+All on the final v41 build (`runall`: Node from a scratch directory, Playwright from the repo root).
+
+| Test | Result |
+|---|---|
+| **`handling_test`** (new) | **all pass**: powertrain solved for 217/217 cars; 0–100 within 10 % for 216 (within 5 % for 210, median 0.7 %); top speed within 5.3 % for all; default Arcade; Focus RS / Fiesta ST / Mustang GT / 911 / Model 3 / Hilux shift through gears (EV single speed), never above redline, in-game 0–100 within the start-road tolerance; launch spin AWD 0.00, FWD 1.00, RWD 0.82; RWD turns in harder under power, FWD less (understeer); coasting −0.76 m/s per s at 136 km/h; braking 0.98 g; 90 bumps, 2 from OSM; hop 0.00 m/s at 30 km/h, 0.32 at 70 (Arcade 0.49); body heave 2.5 / 5.3 cm; suspension damage once per crossing, none repeated |
+| **`bld_check`** (new) | **all pass**: 48,997 footprint pieces; 46,928 of 47,001 placed pieces exactly at their OSM centre with their data height (31 duplicate outlines); 0 on a carriageway; 95.9 % placed |
+| `off_trace` | physics (collider-free) hash = v38; world hash unchanged from v40 |
+| `damage_test` / `realism_test` | 50/50 / 29/29 |
+| `h21` / `h24` / `vg` / `h14` | 1,659 places / bad 6 / bad 9 / bad 2 (all = v40) |
+| `val_net`, `boot`, `h2`, `h13`, `h16`, `h20`, `tour`, `dyn_check`, `terr_check` | as v40 (400/400 routes, 0 mismatches, fines 0, prices unchanged, 0 off-road, traffic bad 0, 0 groups off terrain) |
+| `phys_brake` (Arcade) | Focus RS 0–100 4.99 s, vmax 245.4 (= v38) |
+| `wheel_test` (G29 mock) | 30/30 in Arcade **and** 30/30 with Realistic handling on |
+| `disp`, `ios`, `shopt`, `drive_pw`, `damage_pw`, `dc2` | pass, no page errors |
+
+Browser check of Realistic mode (Chromium screenshot, inspected): H switches the mode; the HUD shows "G4 · 3900 rpm"; the diagnostics panel shows
+"6 gears, redline 6500 · peak torque 426 Nm · tyre μ 0.95 · limited at 266 km/h · springs 1.5 Hz (all estimates …)" for the Focus RS.
+Not tested: phones, a physical G29, feel of Realistic handling over long drives (only scripted runs).
+
 ## v40 (Phase 1: real map and places), 2026-10-17, build 4,225,808 chars
 
 All run on the final v40 build. Node suites from a scratch directory, Playwright from the repo root.

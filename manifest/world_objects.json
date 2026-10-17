@@ -2,7 +2,7 @@
  "generated_by": "tools/gen_car_manifest.js from the built game",
  "untyped_colliders": {
   "structure (untyped circle)": 154,
-  "solid (untyped box)": 21613
+  "solid (untyped box)": 48376
  },
  "objects": [
   {
@@ -30,7 +30,7 @@
    "bend_from_fraction_of_break_energy": 0.35,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "leans (bend) / falls + debris (break); lamp arm, head, light pool and sign plate follow",
-   "count_in_world": 7497,
+   "count_in_world": 7492,
    "data_status": "estimate"
   },
   {
@@ -44,7 +44,7 @@
    "bend_from_fraction_of_break_energy": 0.35,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "leans (bend) / falls + debris (break); lamp arm, head, light pool and sign plate follow",
-   "count_in_world": 1782,
+   "count_in_world": 1783,
    "data_status": "estimate"
   },
   {
@@ -58,7 +58,7 @@
    "bend_from_fraction_of_break_energy": null,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "slides, may tip over; collider re-added where it stops",
-   "count_in_world": 696,
+   "count_in_world": 745,
    "data_status": "estimate"
   },
   {
@@ -100,7 +100,7 @@
    "bend_from_fraction_of_break_energy": null,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "none (rigid)",
-   "count_in_world": 18491,
+   "count_in_world": 18338,
    "data_status": "estimate"
   },
   {
@@ -142,7 +142,7 @@
    "bend_from_fraction_of_break_energy": null,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "none (rigid)",
-   "count_in_world": 2296,
+   "count_in_world": 1990,
    "data_status": "estimate"
   },
   {

@@ -29,6 +29,7 @@ Three.js loads from cdnjs. The world takes a few seconds to build.
 | G | wheel spin (unlock cars with JD) |
 | N / B | cycle owned cars |
 | M | search places, neighbourhoods and streets / turn-by-turn directions |
+| H | handling: Arcade (default) / Realistic (engine, gears, traction, suspension) |
 | I | vehicle damage mode: Off / Cosmetic / Full |
 | O | vehicle diagnostics: damage report, per-wheel tyres, repair |
 | J / K | stunt ramps / landmark tour teleport |

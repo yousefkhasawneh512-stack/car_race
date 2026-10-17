@@ -19,6 +19,7 @@ Q={
  'buildings':'[out:json][timeout:600];(way["building"]({b});relation["building"]({b}););out center tags qt;',
  'highways':'[out:json][timeout:300];way["highway"]({b});out tags qt;',
  # footprint outlines (lat/lon rings) for osm/bld/conv_overpass.py -> 03e (buildings outside the old BBBike extract). Big: run on its own.
+ 'traffic_calming':'[out:json][timeout:120];(nwr["traffic_calming"]({b});node["highway"="speed_camera"]({b}););out center tags qt;',
  'buildings_geom':'[out:json][timeout:900][maxsize:1073741824];way["building"]({b});out geom tags qt;'}
 os.makedirs(os.path.join(H,'raw'),exist_ok=True)
 MAX_AGE=30;args=[a for a in sys.argv[1:] if not a.startswith('--')];refresh='--refresh' in sys.argv

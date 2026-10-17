@@ -128,6 +128,10 @@ Approved by the owner (explicit requests) and now part of the reference behaviou
   pitches, playgrounds and name-only OSM points added (1,473 -> 1,659 places); 26,432 real OSM buildings outside the old extract
   replace generated filler (JUST, Jadara, INU, villages); chunked InstancedMeshes are frustum-culled (three r128 default was off).
   Physics with damage Off is unchanged (`off_trace` collider-free hash = v38); the with-world trace changed because buildings moved.
+- v41 (owner request 2026-10-17, "Phase 2: realistic cars, buildings, roads, physics and damage"): a **Realistic handling** mode (key H:
+  engine torque, gears, traction by drivetrain, drag, engine braking, spring-damper body, suspension-absorbed bumps). It is opt-in: Arcade stays
+  the default and identical to v38, so drift scoring and the existing feel are unchanged unless the player switches. OSM traffic calming
+  placed as real bumps. HUD gains gear/rpm in Realistic only.
 
 Still needs approval before implementing: a fixed-timestep physics loop, lateral grip by surface (affects drift scoring), removing or
 gating the estimated speed bumps, any pause/start/audio features, and the refactor phases below.

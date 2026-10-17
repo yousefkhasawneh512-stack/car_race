@@ -9,10 +9,11 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 
 Companion files (read before non-trivial work):
 - `PLAN.md`: approved behaviour changes, the realism roadmap, the on-hold refactor plan, expected pre-existing test results.
-- `CHANGELOG.md`: per-version notes v22–v40 (history, honest limits, tests added per feature).
+- `CHANGELOG.md`: per-version notes v22–v41 (history, honest limits, tests added per feature).
 - `AUDIT_REPORT.md`: v39 audit (damage/tyre/object systems, map data, photos, car assets; what is real vs estimated). The v37 audit is `docs/AUDIT_v37.md`.
 - `DATA_SOURCES_AND_LICENCES.md`, `manifest/` (cars, places, photos, world objects, `DATASET_REPORT.md`, `name_review.json`,
-  `unresolved_places.json`), `TEST_REPORT.md`, `PLACE_IMPORT_REPORT.md` + `NAME_CORRECTIONS.md` (v40 place audit).
+  `unresolved_places.json`), `TEST_REPORT.md`, `PLACE_IMPORT_REPORT.md` + `NAME_CORRECTIONS.md` (v40 place audit), `CAR_ASSETS_AND_SPECS.md`,
+  `DAMAGE_AND_TIRE_WEAR_REPORT.md`, `ROAD_AND_TERRAIN_REPORT.md` (v41).
 - `REALISM_FEATURES.md`: player-facing description of damage modes, tyres, diagnostics.
 
 ## Commands
@@ -39,6 +40,7 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   Also run `realism_test` (29 checks), `damage_test` (50 checks: zones, modes, per-car durability, tyres, burnouts, objects,
   switching, diagnostics) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
   reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py`. Landmarks vs OSM: `lmchk`.
+  Realistic handling: `handling_test` (writes the per-car powertrain table if given a 2nd arg: `manifest/car_powertrain.json`). Buildings vs OSM: `bld_check`.
   Expected results (v40, 2026-10-17): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
   1659 (laz 1489), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060. `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
@@ -76,7 +78,7 @@ Current order and roles:
 | Data (generated) | `03a_net_data`, `03b_bld_data`, `03e_bld_out`, `03c_poi_data`, `03d_terrain_data` | `NETD/NETE` roads, `BLDD` footprints + `RL()`, `BLDO` footprints outside the extract, `POID` places + `RLP()` + `POID_LM`, `TERR` heights |
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
-| Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
+| Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
 | Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
 | Frame | `12a_fx`, `12b_post`, `12c_terrain`, `12_hud_loop` | effects, HDR bloom/grade chain, the terrain pass, minimap/HUD/camera and the **main loop** |
 
@@ -118,7 +120,13 @@ Landmark markers sit on the OSM point (`06l` moves them when > 15 m off, unless 
 invented shop/venue builder. The early-return guards keep the `PR()` call order intact, so don't delete them.
 
 **Storage:** `irbid-save` (`{fines,spent,owned,cur,dt,tune}`, `07b_tune.js`) is the only one that matters for compatibility.
-`irbid-wheel` (G29 setup) and `irbid-drive-realism-v1` (damage mode + per-car condition) are separate keys on purpose.
+`irbid-wheel` (G29 setup), `irbid-drive-realism-v1` (damage mode + per-car condition) and `irbid-drive-handling-v1` (0 Arcade / 1 Realistic)
+are separate keys on purpose.
+
+**Handling (v41, `07g_drive.js`):** key H, `handlingMode` 0 Arcade (default) / 1 Realistic. Every Realistic term in `updP` is behind
+`handlingMode` (`ptAccel` replaces the arcade accel/friction lines, `ptLat`/`ptSteer` scale lateral decay/steering, `ptBody` overrides body
+pitch/roll/heave, `ptBump` replaces the bump hop). Arcade must stay identical to v38 (`off_trace`). `ptSpec(i)` solves peak torque and drag
+area from the PORS 0-100 and top speed (cached); all its numbers are estimates. 07f calls `ptSpec` at runtime only (07g loads after it).
 
 **Damage (v39, `07c`–`07f`):** mode Off/Cosmetic/Full (key `I`, `#damageBtn`; diagnostics key `O`), **default Off = physics identical to
 v37/v38, proved by `tests/off_trace.js`; keep it that way** (every new `updP` term is neutral when `damageMode===0`: `dfx.lat=1`,
@@ -129,8 +137,8 @@ skips the bounce. `n` points from the obstacle to the car. Mesh frame: +x = car'
 `damageEffects()` fills the shared `DFX`. Mesh parts are tagged in `mkPorsche` (`userData.part` body/glass/hl/tl/tyre/rim). Object
 classes live in `OBJ_CLASS` (`07e`); breakables use `breakAt` = speed for a 1,500 kg car (energy-based); attached instances use keys
 `<key>/arm|/head|/pool|/xf`, sign plates are in `SIGN_PLATES` (merged-mesh vertex range); instances are registered by `instO`
-item slot `p[8]`. Speed bumps (always on, even with damage Off) are **estimated** positions near OSM
-schools/clinics/parks, not survey data. Whether to keep them is an open owner decision (`PLAN.md`).
+item slot `p[8]`. Speed bumps (always on, even with damage Off): 2 from OSM `traffic_calming` (`OSM_CALM`, `estimated:false`), the rest
+**estimated** positions near OSM schools/clinics/parks, not survey data. Whether to keep them is an open owner decision (`PLAN.md`).
 
 ## Constraints (the product; get owner approval in `PLAN.md` → "Approved behaviour changes" before altering)
 

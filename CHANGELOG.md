@@ -158,3 +158,24 @@ Backup tag `v39c-backup-before-phase1`. Details: `PLACE_IMPORT_REPORT.md`, `NAME
 - Tests: `off_trace` now checks a collider-free hash (pure physics, = v38) and reports the with-world hash separately (it changes when buildings
   near the start move). Test scripts use the new landmark names. Baselines after v40: `h21` places 1659 (laz 1489), `h24` bad 6, `vg` bad 9,
   `h14` bad 2, `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` all landmarks <= 5 m from their OSM point.
+
+## v41 (2026-10-17): Phase 2, realistic handling, real traffic calming, car-model search, audits
+
+Owner request "Phase 2: realistic cars, buildings, roads, physics and damage" (approval in PLAN.md). Backup tag `v40-backup-before-phase2`.
+- **Handling mode (key H, `07g_drive.js`):** Arcade (default) = v38 physics, unchanged (`off_trace`). Realistic = generic engine torque curve
+  (EV: constant torque then constant power), automatic gearbox (4–7 gears by top speed/body type; EV single speed; shift times), traction limit
+  μ·g·(driven-axle load incl. longitudinal transfer), drag + rolling resistance, engine braking, speed limiter where the listed top speed is below
+  what the power gives (126 cars), wheelspin → RWD power oversteer (`ptLat`) / FWD understeer (`ptSteer`), sprung body (pitch/roll/heave
+  spring-dampers, 1.2–2.8 Hz by body type), bumps absorbed by the suspension (`ptBump`). Per-car peak torque and drag area are SOLVED (`ptCalib`)
+  so each car reaches the game's own listed 0–100 and top speed; tyre μ is raised only where the listed 0–100 needs it (cap 1.7).
+  All values are estimates (`manifest/car_powertrain.json`). HUD shows gear/rpm in Realistic; diagnostics show the powertrain numbers.
+- **Speed bumps:** OSM traffic calming (`fetch.py traffic_calming` → `OSM_CALM` in 03c): 2 real bumps placed first (`estimated:false`), 88
+  estimates as before. OSM's 3 speed cameras are recorded, not placed.
+- **Car models:** `tools/sketchfab_search.py` searched Sketchfab's public API for every car → `manifest/car_model_candidates.json`
+  (search only, nothing downloaded or bundled).
+- Tests: `tests/handling_test.js` (calibration for all 217 cars, gears/redline, launch by drivetrain, under/oversteer, braking, coasting, bump hop
+  and suspension, damage once per crossing), `tests/bld_check.js` (building footprints at their OSM centres and heights). `wheel_test` also run
+  with Realistic handling on (30/30).
+- Docs: `CAR_ASSETS_AND_SPECS.md`, `DAMAGE_AND_TIRE_WEAR_REPORT.md`, `ROAD_AND_TERRAIN_REPORT.md`, `REALISM_FEATURES.md` (handling section).
+- Not done: licensed 3D car models (account + licence/trademark decision + single-file conflict), bridge decks at real heights, denser terrain,
+  OSM surface grip, new landmark models or lighting changes, real-device tests.

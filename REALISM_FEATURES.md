@@ -1,6 +1,21 @@
-# Vehicle realism (v39)
+# Vehicle realism (v39, handling v41)
 
-Player-facing description. Technical detail: `AUDIT_REPORT.md`; numbers per car: `manifest/cars.json`.
+Player-facing description. Technical detail: `AUDIT_REPORT.md`, `DAMAGE_AND_TIRE_WEAR_REPORT.md`, `CAR_ASSETS_AND_SPECS.md`; numbers per car:
+`manifest/cars.json` (damage profile) and `manifest/car_powertrain.json` (handling).
+
+## Handling (key **H**)
+
+| | Arcade (default) | Realistic |
+|---|---|---|
+| Driving | exactly as before | engine torque curve, automatic gearbox (1–7 gears; EVs single-speed), traction limit with weight transfer, drag, rolling resistance, engine braking |
+| Drive layout | same feel for all | rear-drive cars can spin up and oversteer under power; front-drive cars understeer when the fronts spin; AWD launches cleanly |
+| Speed bumps | small hop | the suspension soaks them up; only a limited hop when you take them too fast |
+| Body motion | simple lean | spring-damper pitch, roll and heave, softer for SUVs and pickups, stiff for race cars |
+| HUD | speed | speed + gear + rpm (+ "wheelspin") |
+
+Each car is calibrated so it still reaches the top speed and 0–100 time the game already listed for it. Torque, gearing, tyre grip and spring
+rates are **estimates** built from that, not manufacturer data. The diagnostics panel (O) shows the numbers for the current car. Keyboard, touch
+pads and the G29 wheel work in both modes (analog throttle and brake are used as-is).
 
 ## Damage modes (key **I** or the Damage button)
 
@@ -52,6 +67,8 @@ the Damage button in Full mode.
 - Masses, drive layouts, strengths and thresholds are **gameplay estimates**. Drive layouts follow what is commonly published for each
   model name; some names cover several versions. There is no manufacturer crash-test data.
 - The cars are simple procedural shapes, not exact 3D models, so dents deform that shape. Panels do not fall off.
-- The tyre model estimates slip from the car's motion. It is not a full tyre simulation, and with damage Off the original
-  handling is used unchanged.
-- The speed bumps are **estimated** positions near mapped schools, clinics and parks (OSM has no traffic-calming data here).
+- The tyre model estimates slip from the car's motion. It is not a full tyre simulation (no Pacejka curves, no wheel rotation state), and
+  with damage Off and Arcade handling the original physics is used unchanged.
+- Realistic handling has no clutch, no manual gearbox, no differential model, no EV regenerative braking and no per-wheel suspension
+  geometry; the body springs are visual plus the bump hop.
+- Speed bumps: 2 are mapped in OpenStreetMap and placed as real; the other 88 are **estimated** positions near mapped schools, clinics and parks.

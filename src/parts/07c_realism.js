@@ -22,10 +22,10 @@ function durabilityForCar(i){
 // drivetrain / engine layout: names listed here follow the layout commonly published for that model name ('doc'); everything else
 // falls back to a body-type default ('est'). Where a name covers several generations or variants the choice is noted as ambiguous.
 const DRV_DOC={
- AWD:['Porsche 959','Porsche 918 Spyder','Porsche Cayenne','Porsche Cayenne Turbo','Porsche Macan','Lamborghini Murciélago','Lamborghini Aventador','Lamborghini Revuelto','Lamborghini Gallardo','Lamborghini Huracán','Lamborghini Temerario','Lamborghini Reventón','Lamborghini Centenario','Lamborghini Sián FKP 37','Lamborghini Countach LPI 800-4','Lamborghini Urus','Lamborghini Sesto Elemento','Lamborghini Veneno','Lamborghini LM002','Ferrari SF90 Stradale','Ferrari SF90 Spider','Ferrari Purosangue','Ford Focus RS','Ford Bronco','Ford F-150 Raptor','Ford Taurus SHO','Nissan GT-R R35','Audi R8 V10','BMW i8','Bentley Continental GT','Subaru Impreza','BMW X5','Range Rover Sport','Land Rover Defender','Mercedes-AMG G63','Rolls-Royce Cullinan','Toyota Land Cruiser LC200','Toyota Prado','Nissan Patrol','Toyota Highlander Hybrid'],
+ AWD:['Zeekr 001','Porsche 959','Porsche 918 Spyder','Porsche Cayenne','Porsche Cayenne Turbo','Porsche Macan','Lamborghini Murciélago','Lamborghini Aventador','Lamborghini Revuelto','Lamborghini Gallardo','Lamborghini Huracán','Lamborghini Temerario','Lamborghini Reventón','Lamborghini Centenario','Lamborghini Sián FKP 37','Lamborghini Countach LPI 800-4','Lamborghini Urus','Lamborghini Sesto Elemento','Lamborghini Veneno','Lamborghini LM002','Ferrari SF90 Stradale','Ferrari SF90 Spider','Ferrari Purosangue','Ford Focus RS','Ford Bronco','Ford F-150 Raptor','Ford Taurus SHO','Nissan GT-R R35','Audi R8 V10','BMW i8','Bentley Continental GT','Subaru Impreza','BMW X5','Range Rover Sport','Land Rover Defender','Mercedes-AMG G63','Rolls-Royce Cullinan','Toyota Land Cruiser LC200','Toyota Prado','Nissan Patrol','Toyota Highlander Hybrid'],
  FWD:['Ford Fiesta','Ford Fiesta ST','Ford Focus','Ford Puma','Ford Mondeo','Ford Taurus','Ford Escort','Ford Maverick','Ford Fusion Hybrid','Toyota Camry Hybrid','Toyota Corolla','Toyota Prius','Toyota Yaris','Hyundai Avante','Hyundai Elantra','Hyundai Accent','Hyundai Sonata Hybrid','Hyundai Ioniq Hybrid','Kia Sephia','Kia Cerato','Kia Forte','Kia Optima','Kia K5 Hybrid','Kia K3 EV','Kia Picanto','Kia Niro','Nissan Sunny','Nissan Altima','Nissan Leaf EV','Mitsubishi Lancer','BYD Qin Plus','BYD Song Plus EV','Changan Eado EV','Changan Alsvin','MG 5','Honda Civic','Honda Accord','Chevrolet Spark','Peugeot 206','Opel Astra','Mazda 3','Suzuki Swift','Skoda Octavia','Volkswagen Golf Mk7','Seat Leon','Fiat 500','Geely Geometry C'],
  RWD:['Ford Model T','Ford Model A','Ford Mustang','Ford Mustang GT','Ford Mustang Foxbody','Ford Crown Victoria','Ford Sierra','Ford Capri','Ford Cortina','Ford Falcon','Ford Fairlane','Ford Galaxie','Ford Thunderbird','Ford GT40','Ford GT','Porsche 550 Spyder','Porsche 912','Porsche 914','Porsche 924','Porsche 928','Porsche 944','Porsche 968','Porsche Boxster','Porsche Cayman','Porsche Carrera GT','Porsche 904 GTS','Porsche 906','Porsche 917','Porsche 935','Porsche 956','Porsche 962','Lamborghini Miura','Lamborghini Countach','Lamborghini Urraco','Lamborghini Jalpa','Lamborghini Silhouette','Lamborghini 350 GT','Lamborghini 400 GT','Lamborghini Islero','Lamborghini Espada','Lamborghini Jarama','Ferrari 125 S','Ferrari 250 GTO','Ferrari 250 GT California Spyder','Ferrari Testarossa','Ferrari F40','Ferrari F50','Ferrari Enzo','Ferrari LaFerrari','Ferrari Dino 246 GT','Ferrari 365 GTB/4 Daytona','Ferrari 288 GTO','Ferrari 458 Italia','Ferrari 488 GTB','Ferrari 488 Spider','Ferrari F8 Tributo','Ferrari F8 Spider','Ferrari 296 GTB','Ferrari Roma','Ferrari Portofino','Ferrari 812 Superfast','Ferrari 12Cilindri','Ferrari Monza SP1','Ferrari Daytona SP3','Ferrari FXX-K','Ferrari 599 GTB Fiorano','Ferrari 360 Modena','Mercedes-Benz E-Class W211','Mercedes-Benz C-Class W203','Mercedes-Benz S-Class W221','Classic Mercedes 280SEL W108','BMW 3 Series E46','BMW 5 Series E60','BMW E36 M3 (Drift Spec)','BMW M3 G80','BMW M4 G82','Mercedes-AMG GT','Maserati Ghibli','Aston Martin Vantage','Chevrolet Corvette C8','Lotus Emira','Toyota Supra Mk5','Toyota Supra JZA80','Alfa Romeo Giulia Quadrifoglio','Toyota AE86 Trueno','Nissan 350Z (Z33)','Subaru BRZ / Toyota GT86','Nissan Silvia S15 Spec-R','Nissan Skyline GT-R R34 (RWD)','Mazda RX-7 FD3S','Mazda MX-5 Miata NA','MG 4 EV','Dodge Charger','Dodge Challenger']};
-const DRV_AMBIG=new Set(['Ford Escort','Ford Taurus SHO','Porsche Taycan','Lamborghini Diablo','Porsche 911','Lamborghini Huracán','Lamborghini Gallardo','BMW M3 G80','BMW M4 G82','Dodge Charger','Dodge Challenger','Audi R8 V10','Nissan Skyline GT-R R34 (RWD)']);
+const DRV_AMBIG=new Set(['Zeekr 001','Ford Escort','Ford Taurus SHO','Porsche Taycan','Lamborghini Diablo','Porsche 911','Lamborghini Huracán','Lamborghini Gallardo','BMW M3 G80','BMW M4 G82','Dodge Charger','Dodge Challenger','Audi R8 V10','Nissan Skyline GT-R R34 (RWD)']);
 const ENG_REAR=new Set(['Porsche 911','Porsche 912','Porsche 959','Porsche 935']);
 const ENG_MID=new Set(['Porsche 550 Spyder','Porsche 914','Porsche Boxster','Porsche Cayman','Porsche Carrera GT','Porsche 918 Spyder','Porsche 904 GTS','Porsche 906','Porsche 917','Porsche 956','Porsche 962','Ford GT40','Ford GT','Ferrari Daytona SP3','Chevrolet Corvette C8','Lotus Emira','Audi R8 V10','BMW i8']);
 const EVS=new Set(['Porsche Taycan','Porsche Mission X','Kia K3 EV','Changan Eado EV','Tesla Model 3','Tesla Model Y','BYD Han EV','BYD Seal','BYD Song Plus EV','Volkswagen ID.4','Volkswagen ID.6','Geely Geometry C','Nissan Leaf EV','MG 4 EV','Zeekr 001']);
@@ -258,13 +258,16 @@ function repairCurrentCar(what){const s=currentDamageRecord(),i=P.idx||0;
 window.irbidVehicleRealism={cycleDamageMode,repairCurrentCar,getMode:()=>damageMode,getCurrentState:()=>JSON.parse(JSON.stringify(currentDamageRecord())),getEffects:damageEffects,getSpec:()=>carSpec(P.idx||0)};
 
 // ---- place up to 90 estimated low-speed humps near mapped sensitive destinations ----
-// Road data and POIs are bundled from OpenStreetMap. The bundled network carries no traffic_calming-tagged features, so bumps are
-// explicitly inferred near mapped schools, hospitals/clinics, and parks, on nearby local/service roads. They are not surveyed locations.
+// v40+: OSM-mapped traffic calming (OSM_CALM, 03c: traffic_calming=hump/yes/...) is placed first, as REAL bumps (estimated:false). OSM maps only 2
+// in the whole play area, so the rest are still explicitly inferred near mapped schools, hospitals/clinics and parks on nearby local/service roads
+// (estimated:true), never within 115 m of a real one. Speed cameras in OSM_CALM are not bumps and are skipped.
 const IRBID_SPEED_BUMPS=[];
 function buildEstimatedSpeedBumps(){
  if(!Array.isArray(POID)||typeof roadNear!=='function'||typeof edgePt!=='function')return;
  const targets=POID.filter(q=>['school','hospital','medical','park'].includes(q[2]));
- const candidates=[];
+ const candidates=[];let real=0;
+ for(const c of(typeof OSM_CALM!=='undefined'?OSM_CALM:[])){if(c[2]==='speed_camera')continue;const near=roadNear(c[0]/10,c[1]/10,25,e=>!e.tn&&!e.br&&e.kind!=='ring');if(!near)continue;const e=near.e;
+  candidates.push({x:near.px,z:near.pz,tx:near.tx,tz:near.tz,width:cl(e.w*.95,3.2,9),kind:'osm',place:'OSM '+c[3],name:'traffic_calming='+c[2],estimated:false,source:c[3],road:e.name||'',armed:true,cooldown:-99});real++}
  for(const q of targets){const x=q[0]/10,z=q[1]/10,kind=q[2],maxDist=kind==='school'?68:kind==='hospital'?72:kind==='medical'?50:38;
   const near=roadNear(x,z,maxDist,e=>(e.kind==='local'||e.kind==='svc')&&e.hw!=='track'&&e.kind!=='alley'&&e.len>34&&e.w>=3.2);
   if(!near||near.d>maxDist)continue;
@@ -278,12 +281,12 @@ function buildEstimatedSpeedBumps(){
  const selected=candidates.slice(0,90);
  for(const b of selected){
   // Flat-frame authoring: applyTerrain() (12c) adds TH(x,z) to this group later; adding it here too lifted bumps twice.
-  const group=new T.Group();group.position.set(b.x,.05,b.z);group.rotation.y=Math.atan2(b.tx,b.tz);group.userData.speedBump=true;group.userData.estimated=true;
+  const group=new T.Group();group.position.set(b.x,.05,b.z);group.rotation.y=Math.atan2(b.tx,b.tz);group.userData.speedBump=true;group.userData.estimated=b.estimated;
   const stripeCount=Math.max(6,Math.ceil(b.width/0.75)),stripeWidth=b.width/stripeCount;
   for(let j=0;j<stripeCount;j++){const col=j%2===0?0xe6c84f:0x202326,mesh=new T.Mesh(new T.BoxGeometry(stripeWidth+.015,.10,.72),new T.MeshLambertMaterial({color:col}));mesh.position.set(-b.width/2+stripeWidth*(j+.5),.05,0);mesh.receiveShadow=true;group.add(mesh)}
   scene.add(group);b.mesh=group;IRBID_SPEED_BUMPS.push(b);
  }
- console.log('Speed bumps:',IRBID_SPEED_BUMPS.length,'estimated near OSM-mapped schools/medical facilities/parks; locations are not surveyed traffic-calming data.');
+ console.log('Speed bumps:',IRBID_SPEED_BUMPS.length,'=',real,'mapped in OSM (traffic_calming) +',IRBID_SPEED_BUMPS.length-real,'estimated near OSM-mapped schools/medical facilities/parks (not surveyed).');
 }
 buildEstimatedSpeedBumps();
 function checkSpeedBumpCrossing(prevX,prevZ){
@@ -296,7 +299,7 @@ function checkSpeedBumpCrossing(prevX,prevZ){
   if(!b.armed||!crossed||Math.abs(lateral)>b.width/2+1.8||clock-b.cooldown<1.2)continue;
   b.armed=false;b.cooldown=clock;
   // Low, speed-dependent hop only; never a dramatic launch. This is an arcade approximation.
-  P.vy=Math.max(P.vy,.16+cl((speed-8)*.043,0,.85));
+  P.vy=Math.max(P.vy,typeof handlingMode!=='undefined'&&handlingMode?ptBump(speed):.16+cl((speed-8)*.043,0,.85));
   if(speed>16){P.vx*=.992;P.vz*=.992;registerSpeedBumpImpact(speed)}
  }
 }
