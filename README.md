@@ -43,19 +43,24 @@ On touch devices, on-screen pads appear (steer left/right, brake, gas, drift).
 | Mode | What happens |
 |---|---|
 | **Off** (default) | Nothing is recorded. The car drives exactly as in earlier versions. Roadside objects are solid. |
-| **Cosmetic** | Dents where you hit, broken lights, cracked glass, scuffs, tyre wear tracked. Performance is never reduced. Signs and poles can bend or break; dumpsters get shoved. |
+| **Cosmetic** | Dents where you hit, bumpers that crack, hang and tear off (they stay on the road), folding/snapping mirrors, buckled bonnet and boot lid, bowed doors, windscreen cracks that grow from the impact point, shattered side windows, broken lamps, paint scratches, flat tyres and bent rims. Performance is never reduced. Signs, poles, slim trees, garden walls and bus-shelter glass can break; guardrails deflect; walls get scrape marks; dumpsters get shoved. |
 | **Full** | Everything above, plus mechanical damage: engine/radiator (overheating), transmission, driveline, steering, brakes, suspension per corner, wheel alignment (the car pulls), worn/overheated/punctured tyres lose grip. Hard landings damage the suspension. |
 
 - **Diagnostics (O):** every component with its condition and effect, a top-down body map, and a card per wheel (tread,
   carcass, temperature, grip, load, slip, wear by cause, distance on the tyre).
 - **Repairs** are done at **Apex Drift Customs** (Baghdad Street; U/P there; the Repair button routes you there). Each body panel,
   light, window, mechanical part, suspension corner and tyre is listed with its condition, effect and price in JD; repair one part
-  or everything. "Full inspection" shows all 30 parts, including the ones in good condition. Prices come out of your JD balance
+  or everything. "Full inspection" shows all 42 parts, including the ones in good condition. Prices come out of your JD balance
   and are gameplay estimates, not real workshop quotes.
 - **Burnout** (Cosmetic/Full): throttle + brake at a standstill (front-wheel drive: throttle + handbrake). It only works if the car
   has the power to overcome its driven wheels' grip, so strong rear-drive cars can, all-wheel drive and weak cars can't. Burnouts and
   drifts heat and wear the tyres that are actually spinning or sliding.
 - Car masses, layouts and strengths are **gameplay estimates** (see `manifest/cars.json`); there is no crash-test data.
+- **Speed bumps** are real raised geometry: each axle rides over the profile, the body heaves and pitches, and fast crossings jolt the car
+  (and in Cosmetic/Full can bottom out the suspension). 2 come from OpenStreetMap; the other 88 are estimated positions near schools,
+  clinics and parks (`manifest/speed_bumps.json`).
+- **Traffic signals** show red/amber/green lamps facing each approach (60 s cycle, 3 s amber, all-red clearance). 3 junctions are mapped in
+  OpenStreetMap; 14 are estimated major crossroads (`manifest/signals.json`). Traffic stops at red; running one costs a fine.
 
 **Gameplay:**
 - **Drift points** come from sliding the car and buy per-car upgrades (speed, acceleration, handling, extra drift).

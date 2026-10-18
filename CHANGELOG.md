@@ -239,3 +239,40 @@ has a v43 status (AUDIT_REPORT.md). New this time: a **Wikidata** cross-check (C
 - Not placed: Abu al-Darda shrine (Wikidata Q20424481, 32.590131 35.79359; nothing in OSM within 378 m), Irbid City Centre (Wikidata Q138025302 = the same rounded point as Wikipedia).
   Wikidata found nothing for the Mamluk mosque, Tell Irbid, the heritage houses or Irbid Mall.
 - Tests: `place_audit.py` 30/30 (new alias check), in-game search finds all 5 new names, `damage_test`, `realism_test`, `off_trace` (identical to v38), `val_net` 400/0, `h24` bad 6, `lmchk` unchanged.
+
+## v44 (2026-10-19): visible component damage, material-based destruction, physical speed bumps, rebuilt traffic signals, +74 places
+
+Owner request: "IRBID DRIVE — MASTER IMPLEMENTATION TASK" (FH4-inspired visible damage, destruction by material, real Irbid data, signals,
+speed bumps, sources). Original procedural implementation; no third-party code or assets. Backup: git tag `backup/v43b`. Report: `V44_REPORT.md`,
+sources: `docs/REALISM_RESEARCH.md` (46 sources actually used, not 200), screenshots: `docs/screenshots/v44/`.
+- **Vehicle parts (new `07h_dmgparts.js`, player car only):** tagged front/rear bumpers, mirrors, bonnet and boot lids, door skins on every car the
+  player drives (all 217 models share `mkPorsche`, so 100 % of models get them). Bumpers scuff (paint), crack/bend, hang, and tear off as world
+  debris that stays on the road; mirrors fold and snap off; bonnet/boot buckle (vertex crease from an immutable base); doors bow inward.
+  Glass: per-pane crack ORIGINS stored in the record (laminated windscreen grows spider-web cracks at the hit point; tempered side/rear glass
+  crazes over the pane). Lamps get a cracked lens. Flat tyres squash with a bulging sidewall; rims bend (visible wobble + vibration). Textured paint
+  scratches replace the old grey boxes. Contact area matters: a pole/tree makes a narrower, deeper dent than a wall. Damage → driving (Full):
+  flat tyre rolling resistance (`DFX.roll`, the only new `updP` term, 0 unless Full + flat), bent rims add pull/vibration/grip loss. Record v2
+  gains `parts`, `cracks`, `rims` (old saves migrate by filling fields). Repair bay lists 8 parts + 4 rims (inspection 30 → 42 rows).
+- **Environment by material (07e):** trees (wood; snap speed ∝ trunk diameter^1.5, i.e. energy ∝ d³: 97 km/h for the slimmest 0.28 m trunk, rigid
+  in practice for the rest; canopy shake, leaves/bark, felled trunk+canopy), masonry garden walls (crack mark, collapse into rubble), bus-shelter
+  tempered glass (shatters, frame stays), W-beam guardrails (deflect up to 0.45 m, car crush ×0.8), building walls (local scrape/crack decal, never
+  demolished). Objects accumulate damage (`o.dmg`). Trees, garden walls, rails and shelter glass got instance keys (no PR() calls added).
+- **Speed bumps:** one merged, terrain-draped profile mesh (cos² cross-section; OSM hump 3.7 m × 75 mm, OSM bump/estimated 0.9 m × 75 mm) replaces
+  ~880 box meshes; `bumpAt()` gives the same surface to the wheels. Per-axle quarter-car (per-car fn/ζ from 07g, wheelbase from carSpec, travel
+  by body type, tyre drop limit) drives body heave/pitch, wheel travel and a short chassis vibration; bottoming / harsh compression damages that
+  axle (Cosmetic/Full). Locations unchanged (2 OSM + 88 estimated); `manifest/speed_bumps.json`.
+- **Traffic signals:** 3-aspect heads (red top) facing their approach just past the stop line, lamps lit per state (one InstancedMesh, recoloured on
+  phase change only); cycle 60 s (green 24, amber 3, all-red 3) with 4 offset groups; one controller per split junction; approaches < 16 m have no
+  stop line; junctions with < 2 usable approaches are not signalised. 177 nodes → 17 junctions (3 OSM-mapped, 14 estimated major crossroads;
+  4 not modelled incl. 1 OSM). `manifest/signals.json`. Note: v43 heads did change colour, but as one cube per axis, all junctions in step.
+- **AI fix:** traffic measured junction distance from its next path point (up to 9 m ahead), so cars at a red stop line could believe they
+  were in the junction and drive through. Now `pathProg()` (projection, or straight-line remainder on corner cuts). 0 red-light entries in
+  repeated 6-minute simulations.
+- **Places:** new Overpass `named` layer (peaks, springs, works, cemeteries, named areas, named non-residential buildings) and tags for camp/caravan
+  sites, arcades, dance/sports halls, nature reserves; "كراج" stands as transport. Residences (all OSM dwelling building values, names starting
+  منزل/فيلا), person-only names, security sites and plain descriptions are excluded. 1,648 → 1,722 POID rows; in-game places 1,655 → 1,729
+  (+74). Verified schools added: 0 (none with coordinates in any reachable source). Al-Ghasoor school and Pikaboo: not found; Smile = 3 OSM shops
+  (already present). OSM has 1,933 named non-road objects in the whole window, so +10,000 is not reachable from OSM.
+- Tests added: `damage_v44.js` (29 checks incl. bump speed sweep + materials), `signals_test.js` (12), `damage_v44_pw.py`, `world_v44_pw.py`,
+  `perf_pw.py`; `place_audit.py` 30 → 33; `damage_test` inspection 42 rows; `handling_test`/`realism_test` bump checks rewritten for the profile model.
+  `off_trace` unchanged (identical to v38).

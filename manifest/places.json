@@ -56068,7 +56068,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-18T22:24:36Z",
 "flags": [],
-"in_game": true,
+"in_game": false,
 "photo": [],
 "confidence": "osm-mapped"
 },
@@ -56115,7 +56115,7 @@
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-18T22:24:36Z",
 "flags": [],
-"in_game": true,
+"in_game": false,
 "photo": [],
 "confidence": "osm-mapped"
 },

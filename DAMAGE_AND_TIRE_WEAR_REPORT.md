@@ -134,3 +134,9 @@ The repair bay gained a **full inspection**: all 30 parts (8 body zones, 4 light
 brakes, 4 suspension corners, 4 tyres) with their condition. Damaged parts keep their own paid Repair button; undamaged ones show
 "OK · no charge". `damage_test` 59/59 (new: inspection list; repairing one tyre leaves the other tyres, panels and suspension untouched),
 `damage_pw` 11/11. The simulation itself is unchanged: it is a gameplay approximation (no wheel-force tyre model, no suspension geometry).
+
+## v44 addendum (2026-10-19)
+
+Visible component damage (bumpers, mirrors, bonnet/boot, doors, per-pane glass cracks, rims, torn-off parts), material-based environment damage, the
+quarter-car speed-bump response and flat-tyre rolling resistance are described in `V44_REPORT.md` §2–4; sources in `docs/REALISM_RESEARCH.md`.
+All thresholds remain gameplay estimates.

@@ -2,7 +2,7 @@
  "generated_by": "tools/gen_car_manifest.js from the built game",
  "untyped_colliders": {
   "structure (untyped circle)": 154,
-  "solid (untyped box)": 48376
+  "solid (untyped box)": 48414
  },
  "objects": [
   {
@@ -30,7 +30,7 @@
    "bend_from_fraction_of_break_energy": 0.35,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "leans (bend) / falls + debris (break); lamp arm, head, light pool and sign plate follow",
-   "count_in_world": 7492,
+   "count_in_world": 7494,
    "data_status": "estimate"
   },
   {
@@ -58,14 +58,14 @@
    "bend_from_fraction_of_break_energy": null,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "slides, may tip over; collider re-added where it stops",
-   "count_in_world": 745,
+   "count_in_world": 716,
    "data_status": "estimate"
   },
   {
    "type": "guardrail",
-   "class": "rigid",
+   "class": "deflect",
    "label": "Guardrail",
-   "material": "steel W-beam; redirects, deformation not modelled",
+   "material": "steel W-beam (deflects; estimate)",
    "mass_kg": null,
    "break_speed_ms_for_1500kg": null,
    "break_energy_kJ": null,
@@ -79,7 +79,7 @@
    "type": "busShelter",
    "class": "rigid",
    "label": "Bus shelter",
-   "material": "steel frame + glass; breakage not modelled",
+   "material": "steel frame + tempered glass panel",
    "mass_kg": null,
    "break_speed_ms_for_1500kg": null,
    "break_energy_kJ": null,
@@ -91,16 +91,16 @@
   },
   {
    "type": "tree",
-   "class": "rigid",
+   "class": "tree",
    "label": "Tree",
-   "material": "trunk",
+   "material": "wood (trunk diameter from the tree model)",
    "mass_kg": null,
    "break_speed_ms_for_1500kg": null,
    "break_energy_kJ": null,
    "bend_from_fraction_of_break_energy": null,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "none (rigid)",
-   "count_in_world": 18338,
+   "count_in_world": 18630,
    "data_status": "estimate"
   },
   {
@@ -142,7 +142,7 @@
    "bend_from_fraction_of_break_energy": null,
    "collision_model": "COL hash: circle or oriented box",
    "visual_damage": "none (rigid)",
-   "count_in_world": 1990,
+   "count_in_world": 100,
    "data_status": "estimate"
   },
   {
@@ -171,6 +171,20 @@
    "collision_model": "crossing test (07c)",
    "visual_damage": "none (rigid)",
    "count_in_world": null,
+   "data_status": "estimate"
+  },
+  {
+   "type": "gardenWall",
+   "class": "masonry",
+   "label": "Garden wall",
+   "material": "unreinforced masonry (estimate)",
+   "mass_kg": null,
+   "break_speed_ms_for_1500kg": null,
+   "break_energy_kJ": null,
+   "bend_from_fraction_of_break_energy": null,
+   "collision_model": "COL hash: circle or oriented box",
+   "visual_damage": "none (rigid)",
+   "count_in_world": 1922,
    "data_status": "estimate"
   }
  ]

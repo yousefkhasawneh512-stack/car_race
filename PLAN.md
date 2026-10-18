@@ -143,6 +143,11 @@ Still needs approval before implementing: a fixed-timestep physics loop, lateral
 gating the estimated speed bumps, any pause/start/audio features, and the refactor phases below.
 
 ---
+- v44 (owner request 2026-10-19, "MASTER IMPLEMENTATION TASK": FH4-inspired visible damage, destruction by material, signals, speed bumps,
+  real places): visible bumpers/mirrors/lids/doors/glass cracks/rims with detachment (player car), material-based object damage (trees, garden
+  walls, shelter glass, guardrails, building surface marks), physical speed bumps with a per-axle quarter-car response (all modes, as before:
+  bumps were always on), rebuilt signals (3-aspect heads, 60 s cycle, 17 junctions instead of 177 nodes: 3 OSM + 14 estimated), the AI
+  stop-line distance fix, flat-tyre rolling resistance in Full, +74 OSM places. Damage Off physics stays identical to v38 (`off_trace`).
 
 # Phase 1 – Baseline and Documentation
 

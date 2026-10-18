@@ -1,0 +1,661 @@
+{
+ "generated_by": "tools/gen_signal_manifest.js",
+ "timing": {
+  "cycle_s": 60,
+  "green_s": 24,
+  "amber_s": 3,
+  "all_red_s": 3,
+  "note": "per approach; 4 offset groups; estimated timing, not Irbid controller data"
+ },
+ "junctions": [
+  {
+   "junction": "n1646",
+   "nodes": [
+    {
+     "id": "n1646",
+     "x": 19609.2,
+     "z": -4981.4,
+     "latlon": [
+      32.5947456,
+      36.0588792
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 30,
+   "heads": 2
+  },
+  {
+   "junction": "n6183",
+   "nodes": [
+    {
+     "id": "n6183",
+     "x": 645.8,
+     "z": -2011.8,
+     "latlon": [
+      32.568141,
+      35.8568771
+     ]
+    },
+    {
+     "id": "n6200",
+     "x": 627.8,
+     "z": -2005.3,
+     "latlon": [
+      32.5680824,
+      35.8566854
+     ]
+    },
+    {
+     "id": "n6201",
+     "x": 637.3,
+     "z": -2003.4,
+     "latlon": [
+      32.5680653,
+      35.8567866
+     ]
+    },
+    {
+     "id": "n6207",
+     "x": 636,
+     "z": -2013.7,
+     "latlon": [
+      32.5681582,
+      35.8567727
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 15,
+   "heads": 2
+  },
+  {
+   "junction": "n8621",
+   "nodes": [
+    {
+     "id": "n8621",
+     "x": -4189.1,
+     "z": -844.5,
+     "latlon": [
+      32.5576073,
+      35.8053956
+     ]
+    },
+    {
+     "id": "n8629",
+     "x": -4190.5,
+     "z": -831.7,
+     "latlon": [
+      32.5574919,
+      35.8053808
+     ]
+    },
+    {
+     "id": "n8641",
+     "x": -4180,
+     "z": -832,
+     "latlon": [
+      32.5574946,
+      35.8054926
+     ]
+    },
+    {
+     "id": "n8642",
+     "x": -4178.7,
+     "z": -845.7,
+     "latlon": [
+      32.5576182,
+      35.8055064
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 30,
+   "heads": 3
+  },
+  {
+   "junction": "n9017",
+   "nodes": [
+    {
+     "id": "n9017",
+     "x": -481.5,
+     "z": -579.1,
+     "latlon": [
+      32.5552219,
+      35.8448733
+     ]
+    },
+    {
+     "id": "n10742",
+     "x": -480.7,
+     "z": -570.4,
+     "latlon": [
+      32.5551434,
+      35.8448818
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 45,
+   "heads": 2
+  },
+  {
+   "junction": "n9198",
+   "nodes": [
+    {
+     "id": "n9198",
+     "x": 1241,
+     "z": -824.6,
+     "latlon": [
+      32.5574351,
+      35.8632138
+     ]
+    },
+    {
+     "id": "n9199",
+     "x": 1240,
+     "z": -815.2,
+     "latlon": [
+      32.5573503,
+      35.8632031
+     ]
+    },
+    {
+     "id": "n9205",
+     "x": 1248.1,
+     "z": -787.5,
+     "latlon": [
+      32.5571005,
+      35.8632893
+     ]
+    },
+    {
+     "id": "n9206",
+     "x": 1252,
+     "z": -816.2,
+     "latlon": [
+      32.5573593,
+      35.8633309
+     ]
+    },
+    {
+     "id": "n9207",
+     "x": 1253.1,
+     "z": -825.6,
+     "latlon": [
+      32.5574441,
+      35.8633426
+     ]
+    },
+    {
+     "id": "n9243",
+     "x": 1208,
+     "z": -812.5,
+     "latlon": [
+      32.557326,
+      35.8628624
+     ]
+    }
+   ],
+   "estimated": false,
+   "source": "OSM highway=traffic_signals within 40 m",
+   "offset_s": 15,
+   "heads": 3
+  },
+  {
+   "junction": "n10552",
+   "nodes": [
+    {
+     "id": "n10552",
+     "x": 946.7,
+     "z": -120.6,
+     "latlon": [
+      32.5510871,
+      35.8600795
+     ]
+    },
+    {
+     "id": "n10555",
+     "x": 941.1,
+     "z": -124.6,
+     "latlon": [
+      32.5511232,
+      35.8600199
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 45,
+   "heads": 2
+  },
+  {
+   "junction": "n10644",
+   "nodes": [
+    {
+     "id": "n10644",
+     "x": 5.7,
+     "z": -524.2,
+     "latlon": [
+      32.5547269,
+      35.8500607
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 45,
+   "heads": 2
+  },
+  {
+   "junction": "n10763",
+   "nodes": [
+    {
+     "id": "n10763",
+     "x": -1161.4,
+     "z": -146.7,
+     "latlon": [
+      32.5513222,
+      35.8376346
+     ]
+    },
+    {
+     "id": "n10764",
+     "x": -1152.9,
+     "z": -150.7,
+     "latlon": [
+      32.5513583,
+      35.8377251
+     ]
+    },
+    {
+     "id": "n10790",
+     "x": -1157.5,
+     "z": -156.8,
+     "latlon": [
+      32.5514133,
+      35.8376761
+     ]
+    },
+    {
+     "id": "n10791",
+     "x": -1165.7,
+     "z": -154.4,
+     "latlon": [
+      32.5513917,
+      35.8375888
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 15,
+   "heads": 3
+  },
+  {
+   "junction": "n11860",
+   "nodes": [
+    {
+     "id": "n11860",
+     "x": 862,
+     "z": 553.5,
+     "latlon": [
+      32.5450085,
+      35.8591771
+     ]
+    },
+    {
+     "id": "n11861",
+     "x": 864.4,
+     "z": 540.6,
+     "latlon": [
+      32.5451248,
+      35.8592026
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 30,
+   "heads": 2
+  },
+  {
+   "junction": "n12727",
+   "nodes": [
+    {
+     "id": "n12727",
+     "x": 2869.6,
+     "z": 720.3,
+     "latlon": [
+      32.543501,
+      35.8805499
+     ]
+    },
+    {
+     "id": "n12728",
+     "x": 2882.3,
+     "z": 722.8,
+     "latlon": [
+      32.5434785,
+      35.8806851
+     ]
+    },
+    {
+     "id": "n12776",
+     "x": 2885.7,
+     "z": 710.9,
+     "latlon": [
+      32.5435858,
+      35.8807214
+     ]
+    },
+    {
+     "id": "n12777",
+     "x": 2873,
+     "z": 708.4,
+     "latlon": [
+      32.5436083,
+      35.8805862
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 45,
+   "heads": 4
+  },
+  {
+   "junction": "n12936",
+   "nodes": [
+    {
+     "id": "n12936",
+     "x": 827,
+     "z": 828.1,
+     "latlon": [
+      32.5425324,
+      35.8588042
+     ]
+    },
+    {
+     "id": "n12937",
+     "x": 832.4,
+     "z": 836.9,
+     "latlon": [
+      32.542453,
+      35.8588617
+     ]
+    },
+    {
+     "id": "n12990",
+     "x": 840,
+     "z": 825.9,
+     "latlon": [
+      32.5425522,
+      35.8589426
+     ]
+    },
+    {
+     "id": "n12991",
+     "x": 833.8,
+     "z": 816.5,
+     "latlon": [
+      32.542637,
+      35.8588766
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 30,
+   "heads": 4
+  },
+  {
+   "junction": "n13036",
+   "nodes": [
+    {
+     "id": "n13036",
+     "x": 33.3,
+     "z": 669.5,
+     "latlon": [
+      32.5439628,
+      35.8503545
+     ]
+    },
+    {
+     "id": "n13037",
+     "x": 35.7,
+     "z": 678.7,
+     "latlon": [
+      32.5438799,
+      35.8503801
+     ]
+    },
+    {
+     "id": "n13092",
+     "x": 42.1,
+     "z": 677.3,
+     "latlon": [
+      32.5438925,
+      35.8504482
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 15,
+   "heads": 3
+  },
+  {
+   "junction": "n13069",
+   "nodes": [
+    {
+     "id": "n13069",
+     "x": 63.6,
+     "z": 817,
+     "latlon": [
+      32.5426328,
+      35.8506771
+     ]
+    }
+   ],
+   "estimated": false,
+   "source": "OSM highway=traffic_signals within 40 m",
+   "offset_s": 30,
+   "heads": 2
+  },
+  {
+   "junction": "n14434",
+   "nodes": [
+    {
+     "id": "n14434",
+     "x": 14406.5,
+     "z": 1591.4,
+     "latlon": [
+      32.5355562,
+      36.0033588
+     ]
+    },
+    {
+     "id": "n14461",
+     "x": 14403,
+     "z": 1602.9,
+     "latlon": [
+      32.5354525,
+      36.0033214
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 30,
+   "heads": 2
+  },
+  {
+   "junction": "n15183",
+   "nodes": [
+    {
+     "id": "n15183",
+     "x": 239.9,
+     "z": 2044.4,
+     "latlon": [
+      32.5315647,
+      35.8525537
+     ]
+    },
+    {
+     "id": "n15207",
+     "x": 236.9,
+     "z": 2028.4,
+     "latlon": [
+      32.531709,
+      35.8525217
+     ]
+    },
+    {
+     "id": "n15211",
+     "x": 224.9,
+     "z": 2033.7,
+     "latlon": [
+      32.5316612,
+      35.852394
+     ]
+    },
+    {
+     "id": "n15212",
+     "x": 228,
+     "z": 2049.4,
+     "latlon": [
+      32.5315197,
+      35.852427
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 15,
+   "heads": 4
+  },
+  {
+   "junction": "n16156",
+   "nodes": [
+    {
+     "id": "n16156",
+     "x": 4792.3,
+     "z": 2896.7,
+     "latlon": [
+      32.5238688,
+      35.901008
+     ]
+    },
+    {
+     "id": "n16157",
+     "x": 4799.9,
+     "z": 2900.9,
+     "latlon": [
+      32.5238309,
+      35.9010889
+     ]
+    },
+    {
+     "id": "n16180",
+     "x": 4805.7,
+     "z": 2889.3,
+     "latlon": [
+      32.5239355,
+      35.9011507
+     ]
+    },
+    {
+     "id": "n16181",
+     "x": 4798.3,
+     "z": 2885.6,
+     "latlon": [
+      32.5239689,
+      35.9010719
+     ]
+    }
+   ],
+   "estimated": false,
+   "source": "OSM highway=traffic_signals within 40 m",
+   "offset_s": 45,
+   "heads": 4
+  },
+  {
+   "junction": "n16685",
+   "nodes": [
+    {
+     "id": "n16685",
+     "x": 1946.9,
+     "z": 3236.2,
+     "latlon": [
+      32.5208161,
+      35.8707216
+     ]
+    },
+    {
+     "id": "n16686",
+     "x": 1944.8,
+     "z": 3224.5,
+     "latlon": [
+      32.5209216,
+      35.8706993
+     ]
+    }
+   ],
+   "estimated": true,
+   "source": "inferred: major crossroads (4+ arterial arms)",
+   "offset_s": 45,
+   "heads": 2
+  }
+ ],
+ "not_modelled": [
+  {
+   "latlon": [
+    32.6130363,
+    35.8618816
+   ],
+   "id": "n502",
+   "x": 1115.2,
+   "z": -6990.6,
+   "osm": true,
+   "why": "approach links shorter than 16 m: no room for stop lines"
+  },
+  {
+   "latlon": [
+    32.5584026,
+    35.8361472
+   ],
+   "id": "n8835",
+   "x": -1301,
+   "z": -931.9,
+   "osm": false,
+   "why": "approach links shorter than 16 m: no room for stop lines"
+  },
+  {
+   "latlon": [
+    32.5448252,
+    35.874844
+   ],
+   "id": "n11946",
+   "x": 2333.6,
+   "z": 573.6,
+   "osm": false,
+   "why": "approach links shorter than 16 m: no room for stop lines"
+  },
+  {
+   "latlon": [
+    32.5430637,
+    35.8442277
+   ],
+   "id": "n13165",
+   "x": -542.2,
+   "z": 769.2,
+   "osm": false,
+   "why": "approach links shorter than 16 m: no room for stop lines"
+  }
+ ]
+}

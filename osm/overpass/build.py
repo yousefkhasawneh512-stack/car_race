@@ -84,7 +84,7 @@ def classify(t):
     if lu=='religious':return('poi','Religious grounds')
     if lu in('residential','orchard','retail','commercial','industrial'):return('place',{'residential':'Residential area','orchard':'Orchard (named)','retail':'Retail area','commercial':'Commercial area','industrial':'Industrial area'}[lu])
     # a named building is listed only when its name says what it is (club, college, factory...): names of people (often private homes) are not
-    if bd and bd not in('house','detached','residential','apartments','terrace','bungalow','semidetached_house','hut','shed','garage','garages','roof') and BLD_OK.search(t.get('name','')+' '+t.get('name:en','')) and not BLD_NO.search(t.get('name','')):
+    if bd and bd not in('house','detached','residential','apartments','terrace','bungalow','semidetached_house','hut','shed','garage','garages','roof','farm','annexe','cabin','static_caravan','houseboat','stilt_house','dormitory') and BLD_OK.search(t.get('name','')+' '+t.get('name:en','')) and not BLD_NO.search(t.get('name','')):
         return('poi','Named building'+('' if bd=='yes' else ': '+bd.replace('_',' ')))
     # a node with a name and nothing that says what it is (common for shops here, and for 'Wasfi AlTal square'): kept, never given a made-up category
     if t.get('name') and all(k.split(':')[0] in NAMEISH for k in t):return('poi','Named point (no category tag)')

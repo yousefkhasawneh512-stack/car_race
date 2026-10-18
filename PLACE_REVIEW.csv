@@ -2219,9 +2219,9 @@ osm:w1043770053,way,1043770053,نادي الكرمل,,,,poi,Named building,32.47
 osm:w1044040475,way,1044040475,,,,,place,Commercial area,32.518642,35.8645777,1369.7,3477.4,way centre,False,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped (no name tag),unnamed;placeholder name removed,corrected,"name: ""محلات تجاريه"" -> """" [high] placeholder text (""no name"") is not a name"
 osm:w293224284,way,293224284,Kufr Yuba,Kufr Yuba,كفر يوبا,,place,Residential area,32.5445822,35.8013931,-4565.7,599.8,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
 osm:w1042184921,way,1042184921,الحي الغربي بيت يافا,,,,place,Residential area,32.5278948,35.7808499,-6496.5,2449.3,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
-osm:w1042204432,way,1042204432,الحي الغربي بيت يافا,,,,place,Residential area,32.5272119,35.7800861,-6568.3,2525.0,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
+osm:w1042204432,way,1042204432,الحي الغربي بيت يافا,,,,place,Residential area,32.5272119,35.7800861,-6568.3,2525.0,way centre,False,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
 osm:w1545215600,way,1545215600,مقبرة,,,,poi,Cemetery,32.5434776,35.7996758,-4727.0,722.2,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
-osm:w696311368,way,696311368,Kufr Yuba,Kufr Yuba,كفر يوبا,,place,Residential area,32.5591392,35.8046504,-4259.0,-1014.4,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
+osm:w696311368,way,696311368,Kufr Yuba,Kufr Yuba,كفر يوبا,,place,Residential area,32.5591392,35.8046504,-4259.0,-1014.4,way centre,False,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
 osm:w1065870737,way,1065870737,تل اثري,,,,place,Natural: bare rock,32.5585766,35.801035,-4598.6,-952.2,way centre,False,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
 osm:w1183712173,way,1183712173,كلية التمريض,,,,poi,Named building,32.5308158,35.8614673,1077.3,2127.4,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,
 osm:w1219278538,way,1219278538,كلية الحجاوي,,,,poi,Named building,32.5353908,35.8547968,450.6,1620.1,way centre,True,OpenStreetMap (Overpass API),2026-10-18T22:24:36Z,osm-mapped,,ok,

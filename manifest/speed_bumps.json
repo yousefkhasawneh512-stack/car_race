@@ -1,0 +1,1266 @@
+{
+ "generated_by": "tools/gen_signal_manifest.js",
+ "profiles": "cos^2 cross-section; OSM hump 3.7 m x 75 mm, OSM bump / estimated 0.9 m x 75 mm (estimates)",
+ "bumps": [
+  {
+   "x": -228.4,
+   "z": 639.2,
+   "latlon": [
+    32.544236,
+    35.8475684
+   ],
+   "len_m": 3.7,
+   "height_m": 0.075,
+   "width_m": 7.6,
+   "estimated": false,
+   "source": "OSM osm:n6587046542 (traffic_calming=hump)",
+   "road": ""
+  },
+  {
+   "x": -1057.7,
+   "z": 1074.9,
+   "latlon": [
+    32.5403071,
+    35.8387406
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.13,
+   "estimated": false,
+   "source": "OSM osm:n7241900188 (traffic_calming=yes)",
+   "road": ""
+  },
+  {
+   "x": 1978,
+   "z": 3532.8,
+   "latlon": [
+    32.5181413,
+    35.8710523
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: كلية غرناطة",
+   "road": ""
+  },
+  {
+   "x": 939.3,
+   "z": -2274.7,
+   "latlon": [
+    32.5705118,
+    35.8600025
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي حنينا",
+   "road": ""
+  },
+  {
+   "x": -157.7,
+   "z": -3329.6,
+   "latlon": [
+    32.5800244,
+    35.8483207
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 4.84,
+   "estimated": true,
+   "source": "inferred near OSM park: Aljaleel Park",
+   "road": ""
+  },
+  {
+   "x": 3155.2,
+   "z": -4627.8,
+   "latlon": [
+    32.5917264,
+    35.8836083
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM hospital: مركز حكما",
+   "road": ""
+  },
+  {
+   "x": -3795.2,
+   "z": 953.5,
+   "latlon": [
+    32.5413949,
+    35.8095969
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.48,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الثانويه",
+   "road": ""
+  },
+  {
+   "x": -1016.6,
+   "z": 380.4,
+   "latlon": [
+    32.5465693,
+    35.8391773
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مروج السنابل",
+   "road": ""
+  },
+  {
+   "x": 591.8,
+   "z": 1890.2,
+   "latlon": [
+    32.5329551,
+    35.8562991
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية السواعي",
+   "road": ""
+  },
+  {
+   "x": 1097.3,
+   "z": 1643.9,
+   "latlon": [
+    32.5351754,
+    35.8616804
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 5.72,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية اربيلا",
+   "road": ""
+  },
+  {
+   "x": 201.5,
+   "z": 1499.3,
+   "latlon": [
+    32.5364798,
+    35.8521445
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية الرازي",
+   "road": ""
+  },
+  {
+   "x": 364.9,
+   "z": 63.7,
+   "latlon": [
+    32.5494258,
+    35.8538846
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 5.72,
+   "estimated": true,
+   "source": "inferred near OSM medical: البيروتي للبصريات",
+   "road": "Alensherah"
+  },
+  {
+   "x": 416.7,
+   "z": 1976.5,
+   "latlon": [
+    32.532177,
+    35.854436
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدليه الرازي",
+   "road": ""
+  },
+  {
+   "x": -668.4,
+   "z": 727.6,
+   "latlon": [
+    32.5434386,
+    35.842884
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: azhar alfarooq",
+   "road": ""
+  },
+  {
+   "x": 1205.9,
+   "z": 1805.6,
+   "latlon": [
+    32.5337175,
+    35.8628367
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 4.84,
+   "estimated": true,
+   "source": "inferred near OSM hospital: Irbid Specialty Hospital",
+   "road": ""
+  },
+  {
+   "x": 503.9,
+   "z": 1530,
+   "latlon": [
+    32.5362029,
+    35.8553643
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 6.16,
+   "estimated": true,
+   "source": "inferred near OSM medical: Yarmouk University health center",
+   "road": ""
+  },
+  {
+   "x": -1056.5,
+   "z": 493.8,
+   "latlon": [
+    32.5455464,
+    35.8387522
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة القصيلة الثانوية للبنات",
+   "road": ""
+  },
+  {
+   "x": -731.9,
+   "z": 210.7,
+   "latlon": [
+    32.5480999,
+    35.8422082
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة حمزة بن عبدالمطلب",
+   "road": ""
+  },
+  {
+   "x": -781.5,
+   "z": 532.5,
+   "latlon": [
+    32.5451978,
+    35.8416798
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة سناء المعارف",
+   "road": ""
+  },
+  {
+   "x": 1423.6,
+   "z": -3025.1,
+   "latlon": [
+    32.5772775,
+    35.8651614
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: المدرسه الوطنيه الاسلاميه",
+   "road": ""
+  },
+  {
+   "x": 3675.5,
+   "z": 1081.7,
+   "latlon": [
+    32.5402394,
+    35.8891283
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة ابواب العلم للتميز",
+   "road": ""
+  },
+  {
+   "x": 1219.6,
+   "z": -2198,
+   "latlon": [
+    32.5698193,
+    35.8629873
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM park: الطيطي",
+   "road": ""
+  },
+  {
+   "x": 188.4,
+   "z": 1997.1,
+   "latlon": [
+    32.5319909,
+    35.852005
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 3.96,
+   "estimated": true,
+   "source": "inferred near OSM medical: Pharmacy One",
+   "road": ""
+  },
+  {
+   "x": -1637.2,
+   "z": -405.5,
+   "latlon": [
+    32.5536554,
+    35.8325685
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة انوار الشموع",
+   "road": ""
+  },
+  {
+   "x": 921,
+   "z": 936.4,
+   "latlon": [
+    32.5415559,
+    35.859805
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 4.84,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية الرازي",
+   "road": ""
+  },
+  {
+   "x": 316.4,
+   "z": 2068.9,
+   "latlon": [
+    32.5313438,
+    35.853368
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدليه الرازي",
+   "road": ""
+  },
+  {
+   "x": 1633.3,
+   "z": 1452.7,
+   "latlon": [
+    32.5368994,
+    35.8673875
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية الرازي",
+   "road": ""
+  },
+  {
+   "x": 2673.6,
+   "z": 2332.4,
+   "latlon": [
+    32.5289647,
+    35.878459
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية مي",
+   "road": ""
+  },
+  {
+   "x": 1326.3,
+   "z": 1539.5,
+   "latlon": [
+    32.5361173,
+    35.8641191
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: المركز التخصصي للبصريات",
+   "road": ""
+  },
+  {
+   "x": 1494.4,
+   "z": 1541,
+   "latlon": [
+    32.5361033,
+    35.8659085
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مختبرات جدارا التخصصية",
+   "road": ""
+  },
+  {
+   "x": 587.9,
+   "z": 596.3,
+   "latlon": [
+    32.544623,
+    35.8562592
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز الرشدان",
+   "road": ""
+  },
+  {
+   "x": 2726.1,
+   "z": 2744.1,
+   "latlon": [
+    32.5252518,
+    35.8790167
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: white pearl dental center",
+   "road": ""
+  },
+  {
+   "x": -229.4,
+   "z": 1942.1,
+   "latlon": [
+    32.5324875,
+    35.8475578
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية سيلينيوم",
+   "road": ""
+  },
+  {
+   "x": -669.7,
+   "z": 1351.7,
+   "latlon": [
+    32.5378107,
+    35.8428706
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: صيدلية قطرات",
+   "road": ""
+  },
+  {
+   "x": 1900.5,
+   "z": 1556.3,
+   "latlon": [
+    32.5359643,
+    35.8702309
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: Biolab",
+   "road": ""
+  },
+  {
+   "x": 1413.3,
+   "z": -860.1,
+   "latlon": [
+    32.5577546,
+    35.8650481
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: Biolab",
+   "road": ""
+  },
+  {
+   "x": 475.2,
+   "z": -237.9,
+   "latlon": [
+    32.5521449,
+    35.85506
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 5.72,
+   "estimated": true,
+   "source": "inferred near OSM park: منتزه اربد",
+   "road": "Aloma Alarabya"
+  },
+  {
+   "x": 382,
+   "z": -1439,
+   "latlon": [
+    32.5629764,
+    35.8540676
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: Qassem Alshalbi sons",
+   "road": "Heteen"
+  },
+  {
+   "x": 3246.2,
+   "z": -5232.6,
+   "latlon": [
+    32.5971796,
+    35.8845793
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسه الثوره العربيه الكبرى",
+   "road": ""
+  },
+  {
+   "x": -97.6,
+   "z": -1991.7,
+   "latlon": [
+    32.5679602,
+    35.8489602
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: Noor Al - Hussein Secondary School For Girls",
+   "road": ""
+  },
+  {
+   "x": 160,
+   "z": -1882.8,
+   "latlon": [
+    32.566978,
+    35.8517038
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: School Irbid camp for boys",
+   "road": "Mohammad Jamjoum"
+  },
+  {
+   "x": -503.2,
+   "z": -1916.3,
+   "latlon": [
+    32.56728,
+    35.8446415
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: Fuara UNRWA Preparatory School",
+   "road": "Alahrar"
+  },
+  {
+   "x": 962.9,
+   "z": -5345.3,
+   "latlon": [
+    32.5981999,
+    35.8602577
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة بيت راس الاساسية للبنين",
+   "road": ""
+  },
+  {
+   "x": 848.2,
+   "z": 1564.1,
+   "latlon": [
+    32.5358955,
+    35.8590289
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 4.84,
+   "estimated": true,
+   "source": "inferred near OSM school: عثمان بن عفان",
+   "road": ""
+  },
+  {
+   "x": 748.2,
+   "z": 5431.7,
+   "latlon": [
+    32.5010195,
+    35.8579616
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: ايدون الاساسيه",
+   "road": ""
+  },
+  {
+   "x": 461,
+   "z": -1899.4,
+   "latlon": [
+    32.5671275,
+    35.8549089
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: that alntaqin",
+   "road": "Ibraheem Toqan"
+  },
+  {
+   "x": 785.2,
+   "z": -5111.3,
+   "latlon": [
+    32.5960901,
+    35.8583636
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة بيت راس الاساسية للاناث",
+   "road": ""
+  },
+  {
+   "x": -2121.1,
+   "z": -2530.3,
+   "latlon": [
+    32.5728148,
+    35.8274116
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM park: Alashrafeyyeh Park",
+   "road": "Samar Qand"
+  },
+  {
+   "x": -1594.7,
+   "z": 2313.6,
+   "latlon": [
+    32.5291361,
+    35.8330254
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 4.84,
+   "estimated": true,
+   "source": "inferred near OSM hospital: مستشفى بديعه",
+   "road": ""
+  },
+  {
+   "x": -1153,
+   "z": 105.6,
+   "latlon": [
+    32.5490474,
+    35.8377243
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الامير حسن الثانوية للبنين",
+   "road": ""
+  },
+  {
+   "x": 3959,
+   "z": -1714.4,
+   "latlon": [
+    32.5654528,
+    35.8921578
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: SAGO schools",
+   "road": ""
+  },
+  {
+   "x": 4260.4,
+   "z": 4035.1,
+   "latlon": [
+    32.5136053,
+    35.8953414
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة عمار بن ياسر الأساسية للبنين",
+   "road": ""
+  },
+  {
+   "x": 2910.8,
+   "z": 4458.1,
+   "latlon": [
+    32.5097959,
+    35.8809769
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة أكاديمية القمة الدولية",
+   "road": ""
+  },
+  {
+   "x": -1101.4,
+   "z": 2809.6,
+   "latlon": [
+    32.5246638,
+    35.8382771
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مركز التدريب المهني",
+   "road": ""
+  },
+  {
+   "x": 5201.7,
+   "z": -3655.6,
+   "latlon": [
+    32.582952,
+    35.905402
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: N.A.S school",
+   "road": ""
+  },
+  {
+   "x": -6076.9,
+   "z": 2806.1,
+   "latlon": [
+    32.5246793,
+    35.7853189
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: Bayt Yafa elementary school for boys",
+   "road": ""
+  },
+  {
+   "x": 5224.6,
+   "z": -2381.8,
+   "latlon": [
+    32.5714649,
+    35.9056389
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسه الحسين بن طلال الثانويه الشامله للبنين",
+   "road": ""
+  },
+  {
+   "x": 6233.9,
+   "z": -2772.4,
+   "latlon": [
+    32.5749822,
+    35.9163893
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسه",
+   "road": ""
+  },
+  {
+   "x": 6108.8,
+   "z": -2345.9,
+   "latlon": [
+    32.5711367,
+    35.9150542
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسه سال الاساسيه المختلطه",
+   "road": ""
+  },
+  {
+   "x": 5612.8,
+   "z": -2241.8,
+   "latlon": [
+    32.5702014,
+    35.9097719
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسه سال الاساسيه المختلطه",
+   "road": ""
+  },
+  {
+   "x": 15641.5,
+   "z": -1782.3,
+   "latlon": [
+    32.5659616,
+    36.016562
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM hospital: مستشفى الرمثا الحكومي",
+   "road": ""
+  },
+  {
+   "x": 15522.2,
+   "z": 40.9,
+   "latlon": [
+    32.5495223,
+    36.0152607
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الرميضاء الشاملة للبنات",
+   "road": ""
+  },
+  {
+   "x": 14872.7,
+   "z": -133.3,
+   "latlon": [
+    32.5511019,
+    36.0083485
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة",
+   "road": ""
+  },
+  {
+   "x": 15766.8,
+   "z": -1670.6,
+   "latlon": [
+    32.5649528,
+    36.0178941
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الثانوية للبنات",
+   "road": ""
+  },
+  {
+   "x": 15990.8,
+   "z": -1172.9,
+   "latlon": [
+    32.5604613,
+    36.0202706
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الخنساء الاساسية المختلطة",
+   "road": ""
+  },
+  {
+   "x": 4234.7,
+   "z": 4337.5,
+   "latlon": [
+    32.5108789,
+    35.8950665
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 4.84,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي الصريح",
+   "road": ""
+  },
+  {
+   "x": -7401.6,
+   "z": 13002.6,
+   "latlon": [
+    32.4327242,
+    35.7712984
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي زوبيا",
+   "road": ""
+  },
+  {
+   "x": -7988.1,
+   "z": 12786,
+   "latlon": [
+    32.4346738,
+    35.7650609
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة زوبيا الاساسية للبنين",
+   "road": ""
+  },
+  {
+   "x": -7297.2,
+   "z": 13224.9,
+   "latlon": [
+    32.4307205,
+    35.7724106
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM hospital: منزل محمد مصطفى غوانمه",
+   "road": ""
+  },
+  {
+   "x": 16056,
+   "z": -286.1,
+   "latlon": [
+    32.5524633,
+    36.0209503
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الاسلامية",
+   "road": ""
+  },
+  {
+   "x": -4591.1,
+   "z": 1043.5,
+   "latlon": [
+    32.5405804,
+    35.801124
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي كفريوبا الشامل",
+   "road": ""
+  },
+  {
+   "x": -4309.3,
+   "z": 7261.3,
+   "latlon": [
+    32.4845129,
+    35.8041531
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي دير يوسف",
+   "road": ""
+  },
+  {
+   "x": -4447.9,
+   "z": 1151.7,
+   "latlon": [
+    32.5396061,
+    35.8026494
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.48,
+   "estimated": true,
+   "source": "inferred near OSM park: حديقة بلدية غرب إربد",
+   "road": ""
+  },
+  {
+   "x": -5234.3,
+   "z": 7104.4,
+   "latlon": [
+    32.4859242,
+    35.7943113
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة دير يوسف الاساسية للبنين",
+   "road": ""
+  },
+  {
+   "x": -5032.7,
+   "z": 7281.7,
+   "latlon": [
+    32.4843264,
+    35.7964566
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مد",
+   "road": ""
+  },
+  {
+   "x": -5063.2,
+   "z": 6479.4,
+   "latlon": [
+    32.4915608,
+    35.7961275
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة دير يوسف الثانوية للبنات",
+   "road": ""
+  },
+  {
+   "x": -4517.9,
+   "z": 785.3,
+   "latlon": [
+    32.5429092,
+    35.8019026
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة كفريوبا الأساسية للبنات",
+   "road": ""
+  },
+  {
+   "x": -4387.3,
+   "z": 820.2,
+   "latlon": [
+    32.5425952,
+    35.8032927
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة أبو عبيدة الأساسية للبنين",
+   "road": ""
+  },
+  {
+   "x": -8678.9,
+   "z": 16513.3,
+   "latlon": [
+    32.4010568,
+    35.7577494
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي راسون",
+   "road": ""
+  },
+  {
+   "x": -6219.3,
+   "z": 3412.6,
+   "latlon": [
+    32.51921,
+    35.783807
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.48,
+   "estimated": true,
+   "source": "inferred near OSM hospital: Primary medical center",
+   "road": ""
+  },
+  {
+   "x": 14791.1,
+   "z": 866.3,
+   "latlon": [
+    32.5420897,
+    36.0074641
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM hospital: المركز الصحي الشرقي",
+   "road": ""
+  },
+  {
+   "x": -6862.7,
+   "z": 2324.4,
+   "latlon": [
+    32.5290189,
+    35.776951
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة بيت يافا الثانوية الشاملة للبنات",
+   "road": ""
+  },
+  {
+   "x": -5940,
+   "z": 2665,
+   "latlon": [
+    32.5259527,
+    35.7867751
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة ريناد",
+   "road": ""
+  },
+  {
+   "x": -6503.3,
+   "z": -1435.6,
+   "latlon": [
+    32.5629263,
+    35.7807506
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.48,
+   "estimated": true,
+   "source": "inferred near OSM medical: مركز صحي زحر",
+   "road": ""
+  },
+  {
+   "x": -4744.2,
+   "z": 7091.6,
+   "latlon": [
+    32.486042,
+    35.799525
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة السلام الاساسية المختلطه",
+   "road": ""
+  },
+  {
+   "x": -8697.2,
+   "z": -256.9,
+   "latlon": [
+    32.5522825,
+    35.7574003
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: كفرعان الثانوية المختلطة للبنات",
+   "road": ""
+  },
+  {
+   "x": -6534.3,
+   "z": -1877.7,
+   "latlon": [
+    32.566913,
+    35.7804178
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسه زحر للبنين",
+   "road": ""
+  },
+  {
+   "x": 13509.5,
+   "z": 3746.1,
+   "latlon": [
+    32.5161378,
+    35.9937791
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة الاعتماد الدولية",
+   "road": ""
+  },
+  {
+   "x": 14582.5,
+   "z": 2221.3,
+   "latlon": [
+    32.5298734,
+    36.0052222
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.48,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة قنوان التربوية",
+   "road": ""
+  },
+  {
+   "x": 12555.6,
+   "z": 3993.5,
+   "latlon": [
+    32.513918,
+    35.9836239
+   ],
+   "len_m": 0.9,
+   "height_m": 0.075,
+   "width_m": 7.04,
+   "estimated": true,
+   "source": "inferred near OSM school: مدرسة واكاديمية الرمثا الدولية",
+   "road": ""
+  }
+ ]
+}

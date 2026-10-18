@@ -8,6 +8,7 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 **The current game is the reference implementation:** don't redesign gameplay.
 
 Companion files (read before non-trivial work):
+- `V44_REPORT.md` (v44: visible component damage, materials, speed bumps, signals, places; tests, perf, limits) + `docs/REALISM_RESEARCH.md` (46 sources actually used) + `docs/screenshots/v44/`.
 - `BUILDING_LANDMARK_REPORT.md` + `FINAL_TEST_REPORT.md` (v43 accuracy audit; per-issue status in AUDIT_REPORT.md).
 - `PLAN.md`: approved behaviour changes, the realism roadmap, the on-hold refactor plan, expected pre-existing test results.
 - `CHANGELOG.md`: per-version notes v22–v41 (history, honest limits, tests added per feature).
@@ -38,12 +39,15 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
-  Also run `realism_test` (29 checks), `place_audit.py` (30 checks, Python: every place correction of the v43 audit), `damage_test` (59 checks: zones, modes, per-car durability, tyres, burnouts, objects,
+  Also run `realism_test` (29 checks), `place_audit.py` (33 checks, Python: every place correction of the v43 audit), `damage_test` (59 checks: zones, modes, per-car durability, tyres, burnouts, objects,
   switching, diagnostics, paid per-part repairs, full inspection) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
-  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py` (11 checks incl. the repair bay). `damage_test`, `realism_test`, `off_trace`, `handling_test` and `bld_check` load three from `node_modules`, so run them from the repo root. Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
+  reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py` (11 checks incl. the repair bay), `damage_v44_pw.py` / `world_v44_pw.py` (v44 screenshots into `docs/screenshots/v44/`).
+  v44: `damage_v44` (29 checks: component parts, glass cracks, detachment, contact area, flat tyre + rims, persistence, repair, bump speed sweep,
+  environment materials) and `signals_test` (12: sequence, conflicts, lamps, head placement, AI waits at red / never enters on red; random traffic,
+  so it can vary run to run) from a scratch dir (signals) or the repo root (damage_v44). `perf_pw.py` (load time, heap, draw calls, frame time). `damage_test`, `realism_test`, `off_trace`, `handling_test` and `bld_check` load three from `node_modules`, so run them from the repo root. Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
   Realistic handling: `handling_test` (writes the per-car powertrain table if given a 2nd arg: `manifest/car_powertrain.json`). Buildings vs OSM: `bld_check`.
-  Expected results (v43, 2026-10-17): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
-  1655 (laz 1485), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060. `boot`/`h2`/`h13`/race/traffic output varies
+  Expected results (v44, 2026-10-19): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
+  1729 (laz 1531), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060; the start view varies with random traffic (990–1,210 seen on both v43b and v44; with traffic hidden v43b 459–470, v44 451–459). `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
   Broken or obsolete scripts (they fail the same way on v37): `val` (pre-OSM graph; use `val_net`), `csv_test`/`cs_check`
   (CSV nodes removed in v35b), `gen_fit`/`h18` (removed shops/places), `llchk` (expects `new.html`), `dups` (needs npm `acorn`).
@@ -60,6 +64,8 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   `geo_summary.json`, `name_review.json`, `unresolved_places.json`; it keeps previous POID rows in their old order because `RLP()` seeds
   landmarks by first match. Its `LANDMARK_OSM` (-> `POID_LM` in 03c) says which OSM ids ARE a hand-built landmark (merged, not labelled twice).
   `fetch.py` caches raw layers for 30 days (`--refresh` forces a download).
+  `fetch.py named` (v44) adds named non-POI features (peaks, springs, works, cemeteries, named areas, named non-residential buildings; dwellings,
+  person-only names and security sites are never imported).
   **Place corrections (v43) live in `osm/overpass/corrections.py`** (name-vs-tag rules, per-OSM-id overrides with evidence + confidence, the heritage/mall
   cross-check); every change is logged in `manifest/name_review.json`. Never fix a place by hand-editing 03c. A place OSM lacks enters only through
   `osm/manual/verified_places.json` (tracked; needs lat/lon, `source_url`, `verified_by`). Google Maps coordinates are not a source.
@@ -82,7 +88,7 @@ Current order and roles:
 | Data (generated) | `03a_net_data`, `03b_bld_data`, `03e_bld_out`, `03c_poi_data`, `03d_terrain_data` | `NETD/NETE` roads, `BLDD` footprints + `RL()`, `BLDO` footprints outside the extract, `POID` places + `RLP()` + `POID_LM`, `TERR` heights |
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
-| Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
+| Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive`, `07h_dmgparts` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
 | Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
 | Frame | `12a_fx`, `12b_post`, `12c_terrain`, `12_hud_loop` | effects, HDR bloom/grade chain, the terrain pass, minimap/HUD/camera and the **main loop** |
 
@@ -138,12 +144,20 @@ v37/v38, proved by `tests/off_trace.js`; keep it that way** (every new `updP` te
 and from the traffic/bot code in `updP`; it returns the speed the car loses when the object GAVE WAY (broke/shoved), and `colB` then
 skips the bounce. `n` points from the obstacle to the car. Mesh frame: +x = car's LEFT, +z = forward; wheels FL,FR,RL,RR = 0..3.
 `carSpec(i)` is the per-car profile (cached); records are per car NAME, schema `v:2`, v38 records migrate in `migrateRecord` (new fields such as wheel `km`/`tmax` are filled by `Object.assign(newWheel(),…)`).
-Repairs: `repairItems`/`repairPart`/`payRepair` (`08d`); `repairCurrentCar` is a free full reset kept for tests only.
+v44 `07h_dmgparts` builds tagged parts on the PLAYER mesh only (`dpEnsure`: bumpers bf/br, mirrors ml/mr, hood/trunk lids, door skins dl/dr) and draws
+glass cracks from stored origins (`s.cracks[pane]=[[u,v,sev]]`), bent rims (`s.rims`), torn-off debris (`DP_DEBRIS`); its hooks in 07c are gated by
+`dpReady` (07h consts are in their TDZ while 07c loads). `DFX.roll` (flat-tyre rolling resistance) is the only v44 `updP` term, 0 unless Full.
+Repairs: `repairItems`/`repairPart`/`payRepair` (`08d`; ids `p:<part>`, `rim:<j>` added in v44); `repairCurrentCar` is a free full reset kept for tests only.
 `damageEffects()` fills the shared `DFX`. Mesh parts are tagged in `mkPorsche` (`userData.part` body/glass/hl/tl/tyre/rim). Object
 classes live in `OBJ_CLASS` (`07e`); breakables use `breakAt` = speed for a 1,500 kg car (energy-based); attached instances use keys
 `<key>/arm|/head|/pool|/xf`, sign plates are in `SIGN_PLATES` (merged-mesh vertex range); instances are registered by `instO`
 item slot `p[8]`. Speed bumps (always on, even with damage Off): 2 from OSM `traffic_calming` (`OSM_CALM`, `estimated:false`), the rest
 **estimated** positions near OSM schools/clinics/parks, not survey data. Whether to keep them is an open owner decision (`PLAN.md`).
+v44: one merged profile mesh (`SB_MESH`, flat-frame, draped by the terrain pass) and `bumpAt(x,z)` (50 m hash) give the same surface; `checkSpeedBumpCrossing`
+runs a per-axle quarter-car (`SUSP`) and `bumpVisual` (from `damageTick`) applies heave/pitch/wheel travel/vibration to the mesh only.
+**Signals (v44, `05b_decor`):** `light(axis, junction)` with a 60 s cycle and 4 offset groups (`nd.sgo`); axis `'i'` = link inside a split junction
+(always green). `SIGNALS`/`SIG_SKIPPED` list every junction with its source; lamps are one InstancedMesh recoloured by `sigTick()` on phase change.
+Traffic AI measures junction distance with `pathProg()` (09_ai). `tools/gen_signal_manifest.js` writes `manifest/signals.json` + `speed_bumps.json`.
 
 ## Constraints (the product; get owner approval in `PLAN.md` → "Approved behaviour changes" before altering)
 
