@@ -262,6 +262,13 @@
    "suggested_check": "brand tag looks like an editor preset; remove it in OSM if the shop is not that chain"
   },
   {
+   "id": "osm:n7284865696",
+   "name": "مؤسسة شيماء",
+   "osm_tags_say": "Watermill",
+   "name_says": "Business (by name; OSM tag does not fit)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
    "id": "osm:n7284080063",
    "name": "Samsung",
    "osm_tags_say": "brand=T-Mobile",
@@ -395,6 +402,55 @@
    "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
   },
   {
+   "id": "osm:n5606773952",
+   "name": "كراج الذيابات",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606773947",
+   "name": "كراج شرق الترخيص",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606773944",
+   "name": "كراج ابن البلد",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606773945",
+   "name": "كراج نايل الذيابات",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606773946",
+   "name": "كراج برج الحياه",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606636786",
+   "name": "كراج جنوب الوكاله",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:n5606636787",
+   "name": "كراج فلاح الذيابات",
+   "osm_tags_say": "Caravan site",
+   "name_says": "Bus / taxi stand (كراج, by name; OSM says caravan site)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
    "id": "osm:w1391017489",
    "name": "Supercharger Al Noaymah, Jordan",
    "osm_tags_say": "brand=Tesla Supercharger",
@@ -406,6 +462,27 @@
    "name": "مركز صحي كفرعان",
    "osm_tags_say": "Hospital",
    "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:w1042136800",
+   "name": "مدرسة ديريوسف الثانويه للبنات",
+   "osm_tags_say": "Named building",
+   "name_says": "School (by name)",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:w750886675",
+   "name": "مركز صحي فوعرا",
+   "osm_tags_say": "Named building",
+   "name_says": "Health centre",
+   "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
+  },
+  {
+   "id": "osm:w1041943862",
+   "name": "مسجد التقوى",
+   "osm_tags_say": "Named building",
+   "name_says": "Mosque (by name)",
    "suggested_check": "verify on site, then fix the OSM tags through the normal OSM editing process"
   }
  ]

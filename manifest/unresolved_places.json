@@ -1,6 +1,6 @@
 {
  "generated_by": "osm/overpass/build.py",
- "retrieved": "2026-10-17T08:23:49Z",
+ "retrieved": "2026-10-18T22:24:36Z",
  "landmarks": [
   {
    "place": "Wasfi Al-Tal Park",
@@ -730,6 +730,16 @@
    "issue": "name is only a category word; the real business name is unknown"
   },
   {
+   "id": "osm:w1219278544",
+   "name": "olive trees",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:w987021350",
+   "name": "salam center",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
    "id": "osm:n4346249699",
    "name": "محطة توليد كهرباء أربد",
    "issue": "CAT-001 (changed, confidence medium): name \"محطة توليد كهرباء أربد\" = Irbid electricity generating station; the only tag is shop=outdoor (camping/outdoor goods), which contradicts it. Shown as a utility; exact facility unverified."
@@ -1048,9 +1058,14 @@
    "id": "osm:w1090247380",
    "name": "عرابي ستورز",
    "issue": "same name as osm:n9986133423 (عرابي ستورز, mall) 1 m away but a different kind (dukkan): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:w1041943861",
+   "name": "جوهرة عمر مول",
+   "issue": "same name as osm:n9592016817 (جوهرة عمر مول, mall) 2 m away but a different kind (poi): a business inside another, or one feature mapped twice. Not merged."
   }
  ],
- "unnamed_pois_kept_unnamed": 495,
+ "unnamed_pois_kept_unnamed": 508,
  "official_lists_without_coordinates": {
   "mosques": {
    "official_rows": 778,

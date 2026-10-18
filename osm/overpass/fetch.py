@@ -19,6 +19,8 @@ Q={
  'buildings':'[out:json][timeout:600];(way["building"]({b});relation["building"]({b}););out center tags qt;',
  'highways':'[out:json][timeout:300];way["highway"]({b});out tags qt;',
  # footprint outlines (lat/lon rings) for osm/bld/conv_overpass.py -> 03e (buildings outside the old BBBike extract). Big: run on its own.
+ # v44: named features that are not POI tag families (peaks, springs, works, cemeteries, named areas, named non-residential buildings)
+ 'named':'[out:json][timeout:300];(nwr["name"]["natural"~"^(peak|spring|wood|bare_rock|cliff|valley|hill)$"]({b});nwr["name"]["man_made"~"^(works|water_works|watermill|water_tower|reservoir_covered|tower)$"]({b});nwr["name"]["landuse"~"^(cemetery|orchard|residential|retail|commercial|industrial|religious)$"]({b});nwr["name"]["building"]["building"!~"^(house|detached|residential|apartments|terrace|bungalow|semidetached_house|hut|shed|garage|garages|roof)$"]({b}););out center tags qt;',
  'traffic_calming':'[out:json][timeout:120];(nwr["traffic_calming"]({b});node["highway"="speed_camera"]({b}););out center tags qt;',
  'buildings_geom':'[out:json][timeout:900][maxsize:1073741824];way["building"]({b});out geom tags qt;'}
 os.makedirs(os.path.join(H,'raw'),exist_ok=True)

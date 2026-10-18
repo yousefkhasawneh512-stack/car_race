@@ -42,6 +42,12 @@ ck('heritage: Greek Orthodox church has the municipal name, Greek Catholic churc
 ck('wikidata names: Museum of Jordanian Heritage, Capitolias (ar), King Abdullah II Gardens are search aliases; display names unchanged',
    'Museum of Jordanian Heritage' in by['osm:w779487084'][7] and 'كابيتولياس' in by['osm:w696139408'][7] and 'حدائق الملك عبدالله الثاني' in by['osm:w706369062'][7]
    and by['osm:w779487084'][3]=='Historical Museum')
+# v44 named-feature layer: named buildings only when the name says what the building is; no residences / security sites; كراج = transport
+import re as _re
+nb=[q for q in POID if q[5].startswith('Named building')]
+ck('v44: named buildings are institutions/businesses by name (no residences, no person-only names, no security sites)',len(nb)>5 and all(_re.search(r'مركز|نادي|كلية|مجمع|دائرة|ديوان|مضافة|مظافة|مبنى|مصنع|مؤسسة|شركة|مدرس|جامع|مستشفى|سوق|مول|قاع|صال|معرض|مكتب|بوابة|بنك|فندق|مسجد|كنيسة|محطة|مستودع|بيت الطالبة|الامن|center|centre|club|college|building|factory|office|mall|hall|gate|works|fuel',q[3]+' '+q[4],_re.I) for q in nb) and not any(_re.match(r'\s*(منزل|فيلا)',q[3]) for q in nb) and not any('المخابرات' in q[3] for q in POID),str(len(nb))+' named buildings')
+ck('v44: every "كراج" stand is a transport place (OSM caravan_site tag overridden by name)',all(q[2]=='transport' for q in POID if q[3].startswith('كراج ')) and sum(1 for q in POID if q[3].startswith('كراج '))>=7)
+ck('v44: hills, springs and named areas are searchable areas (no map label), no area repeats a village name',all(q[2]=='area' for q in POID if q[5] in('Hill / peak','Spring','Residential area')) and sum(1 for q in POID if q[3]=='Kufr Yuba')<=1)
 # duplicates: same kind + same name rows closer than 20 m would be a missed merge
 g=collections.defaultdict(list);dd=[]
 for q in POID:g[(q[2],q[3])].append(q)

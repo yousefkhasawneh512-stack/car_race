@@ -44,14 +44,17 @@ OVERRIDES={
 # listed set, i.e. the tags say something the name clearly contradicts (a school tagged as a hospital, etc.) ----
 NAME_KIND=[
  (r'^(مدرسة|مدرسه)\s', {'hospital','poi','medical','dukkan','civic'}, 'school','School (by name)'),
- (r'^مركز صحي', {'hospital'}, 'medical','Health centre'),
+ (r'^مركز صحي', {'hospital','poi'}, 'medical','Health centre'),
+ (r'^مؤسسة\s', {'landmark'}, 'poi','Business (by name; OSM tag does not fit)'),
  (r'^بلدية\s', {'hospital','poi'}, 'civic','Municipality'),
  (r'^(مسجد|جامع)\s', {'hospital','poi','dukkan','food','school'}, 'mosque','Mosque (by name)'),
  (r'^كنيسة\s', {'hospital','poi','dukkan','mosque'}, 'church','Church (by name)'),
  (r'للسياحة والسفر|سياحة وسفر', {'gym'}, 'dukkan','Travel agency (by name)'),
+ # v44: in Jordanian usage كراج is a bus / taxi stand (also a car garage); OSM has several tagged tourism=caravan_site
+ (r'^كراج\s', {'poi'}, 'transport','Bus / taxi stand (كراج, by name; OSM says caravan site)'),
 ]
 NAME_KIND=[(re.compile(a),b,c,d) for a,b,c,d in NAME_KIND]
-PLACEHOLDER=re.compile(r'^\s*(no ?name|بدون اسم|لا يوجد)\b',re.I)
+PLACEHOLDER=re.compile(r'^\s*(no ?name|بدون اسم|لا يوجد)\b|^\s*(trees|play area|محلات تجاري[ةه]|صالات تجارية|مخازن تجارية للإيجار|معارض ومكاتب للإيجار)\s*$',re.I)   # placeholders and plain descriptions ("shops", "warehouses for rent") are not names
 # ---- official heritage list (municipality) -> what the game/OSM has. status: osm (feature id) | landmark (hand-built, merged) | absent ----
 HERITAGE=[
  ('تل إربد القديم','Old Tell Irbid','absent','No OSM outline for the tell. The Saraya, Great Mosque, Orthodox church, old municipality and Arar/Nabulsi houses all stand on it; not drawn as a separate area (no source geometry).'),

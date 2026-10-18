@@ -17,6 +17,9 @@ from proj import ll2xz
 import corrections as CX
 raw=lambda k:json.load(open(os.path.join(H,'raw',k+'.json'),encoding='utf-8'))
 P,B,HW=raw('pois'),raw('buildings'),raw('highways')
+# v44: the 'named' layer (fetch.py) adds named features outside the POI tag families; merged by OSM id
+if os.path.exists(os.path.join(H,'raw','named.json')):
+    _seen={(e['type'],e['id']) for e in P['elements']};_add=[e for e in raw('named')['elements'] if (e['type'],e['id']) not in _seen];P['elements']+=_add;print('named layer: +%d features'%len(_add))
 WIN=P['window_game_m'];STAMP=P['osm3s']['timestamp_osm_base']
 # ---------- classification: (game kind, category label). Game kinds are the ones 06l_real_pois.js / 06f know. ----------
 SHOP_FOOD={'bakery':'Bakery','pastry':'Pastry shop','confectionery':'Sweets','ice_cream':'Ice cream'}
@@ -30,8 +33,8 @@ AMEN={'restaurant':('food','Restaurant'),'fast_food':('food','Fast food'),'food_
  'marketplace':('dukkan','Market'),'townhall':('civic','Town hall'),'police':('civic','Police'),'post_office':('civic','Post office'),'community_centre':('civic','Community centre'),'courthouse':('civic','Court'),'fire_station':('civic','Fire station'),
  'social_facility':('civic','Social facility'),'public_building':('civic','Public building'),'bus_station':('poi','Bus station'),'taxi':('poi','Taxi stand'),'parking':('poi','Parking'),'events_venue':('poi','Events venue'),'theatre':('poi','Theatre'),'cinema':('poi','Cinema'),'arts_centre':('museum','Arts centre'),
  'place_of_worship':None}
-LEIS={'fitness_centre':('gym','Gym'),'sports_centre':('gym','Sports centre'),'stadium':('gym','Stadium'),'pitch':('gym','Sports pitch'),'swimming_pool':('gym','Swimming pool'),'park':('park','Park'),'playground':('park','Playground'),'garden':('park','Garden')}
-TOUR={'hotel':('poi','Hotel'),'hostel':('poi','Hostel'),'guest_house':('poi','Guest house'),'motel':('poi','Motel'),'apartment':('poi','Holiday apartment'),'museum':('museum','Museum'),'attraction':('landmark','Attraction'),'viewpoint':('landmark','Viewpoint'),'artwork':('landmark','Artwork')}
+LEIS={'amusement_arcade':('park','Amusement arcade'),'dance':('poi','Dance / events hall'),'sports_hall':('gym','Sports hall'),'nature_reserve':('park','Nature reserve'),'fitness_centre':('gym','Gym'),'sports_centre':('gym','Sports centre'),'stadium':('gym','Stadium'),'pitch':('gym','Sports pitch'),'swimming_pool':('gym','Swimming pool'),'park':('park','Park'),'playground':('park','Playground'),'garden':('park','Garden')}
+TOUR={'camp_site':('poi','Camp site'),'caravan_site':('poi','Caravan site'),'hotel':('poi','Hotel'),'hostel':('poi','Hostel'),'guest_house':('poi','Guest house'),'motel':('poi','Motel'),'apartment':('poi','Holiday apartment'),'museum':('museum','Museum'),'attraction':('landmark','Attraction'),'viewpoint':('landmark','Viewpoint'),'artwork':('landmark','Artwork')}
 def classify(t):
     a=t.get('amenity');rel=t.get('religion','');nm=t.get('name','')+' '+t.get('name:en','')
     if a=='place_of_worship' or t.get('building') in('mosque','church'):
@@ -67,9 +70,27 @@ def classify(t):
     if t.get('place'):return('place','Place: '+t['place'])
     if 'addr:housenumber' in t:return('address','Address point')
     if a:return('poi',a.replace('_',' ').capitalize())
+    # v44 named non-POI features. Private homes are never listed (building=house/apartments/... are not fetched; names that say house/villa skipped)
+    nt=t.get('natural');mm=t.get('man_made');lu=t.get('landuse');bd=t.get('building')
+    if nt in('peak','hill'):return('place','Hill / peak')
+    if nt=='spring':return('place','Spring')
+    if nt in('wood',):return('park','Wood')
+    if nt in('bare_rock','cliff','valley'):return('place','Natural: '+nt.replace('_',' '))
+    if mm in('works',):return('poi','Factory / works')
+    if mm in('water_works','water_tower','reservoir_covered'):return('civic','Water works')
+    if mm=='watermill':return('landmark','Watermill')
+    if mm=='tower':return('landmark','Tower')
+    if lu=='cemetery' or t.get('amenity')=='grave_yard':return('poi','Cemetery')
+    if lu=='religious':return('poi','Religious grounds')
+    if lu in('residential','orchard','retail','commercial','industrial'):return('place',{'residential':'Residential area','orchard':'Orchard (named)','retail':'Retail area','commercial':'Commercial area','industrial':'Industrial area'}[lu])
+    # a named building is listed only when its name says what it is (club, college, factory...): names of people (often private homes) are not
+    if bd and bd not in('house','detached','residential','apartments','terrace','bungalow','semidetached_house','hut','shed','garage','garages','roof') and BLD_OK.search(t.get('name','')+' '+t.get('name:en','')) and not BLD_NO.search(t.get('name','')):
+        return('poi','Named building'+('' if bd=='yes' else ': '+bd.replace('_',' ')))
     # a node with a name and nothing that says what it is (common for shops here, and for 'Wasfi AlTal square'): kept, never given a made-up category
     if t.get('name') and all(k.split(':')[0] in NAMEISH for k in t):return('poi','Named point (no category tag)')
     return None
+BLD_OK=re.compile(r'مركز|نادي|كلية|مجمع|دائرة|ديوان|مضافة|مظافة|مبنى|مصنع|مؤسسة|شركة|مدرسة|جامعة|مستشفى|سوق|مول|قاعة|قاعات|صالة|صالات|معرض|مكتب|بوابة|بنك|فندق|مسجد|جامع|كنيسة|محطة|مستودع|مطبعة|مختبر|عيادة|صيدلية|بلدية|محكمة|وزارة|مديرية|جمعية|اتحاد|نقابة|متحف|مكتبة|ملعب|(center|centre|club|college|faculty|building|factory|office|mall|hall|gate|works|company|hotel|school|hospital|market|station|bank|library|museum|stadium|fuel)',re.I)
+BLD_NO=re.compile(r'المخابرات|عسكري|الجيش|military|army|intelligence|سجن|prison|^\s*(منزل|فيلا|فلة|villa|house)\b|^\s*(مسجد|جامع|مبنى|building)\s*$',re.I)   # security sites, residences, bare generic words
 NAMEISH={'name','name_1','official_name','alt_name','old_name','short_name','int_name','loc_name','addr','phone','contact','website','opening_hours','note','description','source','fixme','email','check_date'}
 # ---------- names ----------
 AR_DIAC=re.compile('[ً-ٰٟـ]')
@@ -351,12 +372,15 @@ print('official',json.dumps(OFF,ensure_ascii=False)[:800])
 # ---------- optional: regenerate the in-game POI part ----------
 if '--game' in sys.argv:
     G={'food','cafe','medical','hospital','auto','dealer','bank','school','dukkan','civic','gym','park','poi','museum','landmark','mosque','church','grocery','mall','barber','pet','transport','place'}
-    AREA={'Place: neighbourhood','Place: suburb','Place: quarter','Place: village','Place: town','Place: city','Place: hamlet','Place: locality'}
+    AREA={'Place: neighbourhood','Place: suburb','Place: quarter','Place: village','Place: town','Place: city','Place: hamlet','Place: locality','Hill / peak','Spring','Residential area','Industrial area','Commercial area'}
     rows_g=[]
     for r in places:
         if not r['name'] or r.get('exclude') or r['kind'] not in G or r['category'] in('ATM','Taxi stand'):continue
         if r['kind']=='place' and r['category'] not in AREA:continue          # plots, region/state outlines; squares are landmarks
+        # v44: a named landuse area that repeats a village / neighbourhood name within 3 km is the same place: not listed twice
+        if r['category'] in('Residential area','Industrial area','Commercial area') and any(q is not r and q['kind']=='place' and q['category'].startswith('Place:') and norm(q['name'])==norm(r['name']) and math.hypot(q['x']-r['x'],q['z']-r['z'])<3000 for q in places):continue
         if r['kind']=='park' and re.search(r'استراحة|Trees|Circle|دوار',r['name']):continue
+        if r['category'] in('Residential area','Industrial area','Commercial area') and any(q[2]=='area' and norm(q[3])==norm(r['name']) and math.hypot(q[0]/10-r['x'],q[1]/10-r['z'])<3000 for q in rows_g):continue
         al=' '.join(dict.fromkeys(v for k,v in r['names'].items() if k!='name:en' and v and v!=r['name'] and v!=r['name_en']))
         rows_g.append([round(r['x']*10),round(r['z']*10),'area' if r['kind']=='place' else r['kind'],r['name'],r['name_en'],r['category'].replace('Place: ',''),r['id'],al])
     # rows the previous build had keep their OLD order (RLP() below is a first-match lookup that seeds landmarks); new rows follow by OSM id

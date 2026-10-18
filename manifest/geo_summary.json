@@ -1,5 +1,5 @@
 {
- "retrieved": "2026-10-17T08:23:49Z",
+ "retrieved": "2026-10-18T22:24:36Z",
  "window_game_m": [
   -9408.063139694348,
   19756.947273847385,
@@ -13,36 +13,36 @@
   36.06051206772567
  ],
  "pois": {
-  "raw_elements": 2307,
-  "classified": 2222,
-  "duplicates_merged": 64,
-  "unique": 2158,
-  "named": 1663,
-  "unnamed": 495,
+  "raw_elements": 2397,
+  "classified": 2325,
+  "duplicates_merged": 67,
+  "unique": 2258,
+  "named": 1750,
+  "unnamed": 508,
   "by_kind": {
    "dukkan": 485,
+   "poi": 224,
    "mosque": 211,
+   "place": 209,
    "food": 198,
-   "poi": 182,
    "school": 176,
-   "place": 168,
    "cafe": 125,
    "medical": 110,
    "grocery": 77,
-   "gym": 74,
-   "park": 66,
+   "gym": 75,
+   "park": 72,
    "landmark": 51,
    "bank": 47,
    "barber": 45,
-   "civic": 41,
+   "civic": 43,
    "auto": 39,
    "hospital": 28,
+   "transport": 16,
    "mall": 13,
-   "transport": 9,
    "dealer": 4,
+   "address": 3,
    "church": 3,
    "museum": 3,
-   "address": 2,
    "pet": 1
   },
   "mosques": {
@@ -50,12 +50,12 @@
    "named": 161
   },
   "schools": {
-   "unique": 146,
-   "named": 100
+   "unique": 145,
+   "named": 99
   },
   "education_by_category": {
-   "School (by name)": 6,
-   "School": 146,
+   "School (by name)": 7,
+   "School": 145,
    "College": 3,
    "University": 18,
    "Driving school": 2,
@@ -63,7 +63,7 @@
   },
   "with_wikidata": 10,
   "with_commons_or_image": 7,
-  "in_current_game": 1649
+  "in_current_game": 1725
  },
  "buildings": {
   "osm_in_window": 46142,
@@ -116,14 +116,14 @@
  },
  "missing_geometry": 0,
  "skipped": {
-  "unclassified": 78,
-  "outside window": 7
+  "outside window": 10,
+  "unclassified": 62
  },
  "records_total": {
-  "pois_unique": 2158,
+  "pois_unique": 2258,
   "buildings": 46142,
   "highway_ways": 14546,
-  "sum": 62846
+  "sum": 62946
  },
  "poi_sparse_cells_2km": [
   {
@@ -176,18 +176,6 @@
   },
   {
    "cell_x_m": [
-    -3408.063139694348,
-    -1408.0631396943481
-   ],
-   "cell_z_m": [
-    217.73291494038403,
-    2217.732914940384
-   ],
-   "buildings": 650,
-   "pois": 4
-  },
-  {
-   "cell_x_m": [
     4591.936860305652,
     6591.936860305652
    ],
@@ -220,7 +208,7 @@
     -1782.267085059616
    ],
    "buildings": 438,
-   "pois": 1
+   "pois": 2
   },
   {
    "cell_x_m": [
@@ -248,18 +236,6 @@
   },
   {
    "cell_x_m": [
-    6591.936860305652,
-    8591.936860305652
-   ],
-   "cell_z_m": [
-    -7782.267085059616,
-    -5782.267085059616
-   ],
-   "buildings": 370,
-   "pois": 2
-  },
-  {
-   "cell_x_m": [
     -3408.063139694348,
     -1408.0631396943481
    ],
@@ -280,7 +256,7 @@
     -3782.267085059616
    ],
    "buildings": 321,
-   "pois": 0
+   "pois": 1
   }
  ],
  "official_cross_check": {

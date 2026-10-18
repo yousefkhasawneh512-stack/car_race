@@ -1,6 +1,6 @@
 {
  "generated_by": "osm/overpass/build.py",
- "retrieved": "2026-10-17T08:23:49Z",
+ "retrieved": "2026-10-18T22:24:36Z",
  "applied": [
   {
    "id": "osm:n7468720175",
@@ -8,6 +8,14 @@
    "from": "مدرسه زحر  الاساسيه للبنين",
    "to": "مدرسه زحر الاساسيه للبنين",
    "rule": "whitespace"
+  },
+  {
+   "id": "osm:n7282312580",
+   "field": "name",
+   "from": "play area",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
   },
   {
    "id": "osm:n7282024382",
@@ -58,6 +66,14 @@
    "to": "بلعاوي",
    "rule": "placeholder text (\"no name\") is not a name; several values in one name tag (\";\"): the first is the name, the others become search aliases",
    "conf": "medium"
+  },
+  {
+   "id": "osm:n7246954898",
+   "field": "name",
+   "from": "trees",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
   },
   {
    "id": "osm:n9648242752",
@@ -117,6 +133,14 @@
    "conf": "high"
   },
   {
+   "id": "osm:n9648276286",
+   "field": "name",
+   "from": "مخازن تجارية للإيجار",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
+  },
+  {
    "id": "osm:n9644930916",
    "field": "name",
    "from": "شيري كيك;Classic",
@@ -149,6 +173,22 @@
     "Al falamanki"
    ],
    "rule": "one name tag held the Arabic and the Latin spelling of the same name (every word matches by transliteration); split, the game shows the Latin one as it does for name:en"
+  },
+  {
+   "id": "osm:n9648189404",
+   "field": "name",
+   "from": "معارض ومكاتب للإيجار",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n9648241276",
+   "field": "name",
+   "from": "صالات تجارية",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
   },
   {
    "id": "osm:n9986133423",
@@ -203,6 +243,14 @@
     "Orabi Stores"
    ],
    "rule": "one name tag held the Arabic and the Latin spelling of the same name (every word matches by transliteration); split, the game shows the Latin one as it does for name:en"
+  },
+  {
+   "id": "osm:w1044040475",
+   "field": "name",
+   "from": "محلات تجاريه",
+   "to": "",
+   "rule": "placeholder text (\"no name\") is not a name",
+   "conf": "high"
   },
   {
    "id": "osm:n5606753002",
@@ -597,6 +645,20 @@
    "conf": "high"
   },
   {
+   "id": "osm:n7284865696",
+   "field": "kind/category",
+   "from": [
+    "landmark",
+    "Watermill"
+   ],
+   "to": [
+    "poi",
+    "Business (by name; OSM tag does not fit)"
+   ],
+   "rule": "the name says business, the OSM tags say watermill; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
    "id": "osm:n7284080063",
    "field": "alias brand",
    "from": "T-Mobile",
@@ -878,6 +940,104 @@
    "conf": "medium"
   },
   {
+   "id": "osm:n5606773952",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606773947",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606773944",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606773945",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606773946",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606636786",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:n5606636787",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Caravan site"
+   ],
+   "to": [
+    "transport",
+    "Bus / taxi stand (كراج, by name; OSM says caravan site)"
+   ],
+   "rule": "the name says bus / taxi stand, the OSM tags say caravan site; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
    "id": "osm:w1391017489",
    "field": "alias brand",
    "from": "Tesla Supercharger",
@@ -998,6 +1158,48 @@
    ],
    "rule": "wikidata: Wikidata Q22687456 \"حدائق الملك عبدالله الثاني\" (park) is 185 m from this OSM park centre; same name, no other park of that name nearby. Park extent not checked.",
    "conf": "medium"
+  },
+  {
+   "id": "osm:w1042136800",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Named building"
+   ],
+   "to": [
+    "school",
+    "School (by name)"
+   ],
+   "rule": "the name says school, the OSM tags say named building; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w750886675",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Named building"
+   ],
+   "to": [
+    "medical",
+    "Health centre"
+   ],
+   "rule": "the name says health centre, the OSM tags say named building; the name wins (local game copy only)",
+   "conf": "high"
+  },
+  {
+   "id": "osm:w1041943862",
+   "field": "kind/category",
+   "from": [
+    "poi",
+    "Named building"
+   ],
+   "to": [
+    "mosque",
+    "Mosque (by name)"
+   ],
+   "rule": "the name says mosque, the OSM tags say named building; the name wins (local game copy only)",
+   "conf": "high"
   }
  ],
  "needs_review": [
@@ -1672,6 +1874,16 @@
    "issue": "name is only a category word; the real business name is unknown"
   },
   {
+   "id": "osm:w1219278544",
+   "name": "olive trees",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
+   "id": "osm:w987021350",
+   "name": "salam center",
+   "issue": "all lower-case Latin name (style only; not changed without a source)"
+  },
+  {
    "id": "osm:n4346249699",
    "name": "محطة توليد كهرباء أربد",
    "issue": "CAT-001 (changed, confidence medium): name \"محطة توليد كهرباء أربد\" = Irbid electricity generating station; the only tag is shop=outdoor (camping/outdoor goods), which contradicts it. Shown as a utility; exact facility unverified."
@@ -1990,6 +2202,11 @@
    "id": "osm:w1090247380",
    "name": "عرابي ستورز",
    "issue": "same name as osm:n9986133423 (عرابي ستورز, mall) 1 m away but a different kind (dukkan): a business inside another, or one feature mapped twice. Not merged."
+  },
+  {
+   "id": "osm:w1041943861",
+   "name": "جوهرة عمر مول",
+   "issue": "same name as osm:n9592016817 (جوهرة عمر مول, mall) 2 m away but a different kind (poi): a business inside another, or one feature mapped twice. Not merged."
   }
  ]
 }
