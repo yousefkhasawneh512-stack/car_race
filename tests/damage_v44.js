@@ -15,7 +15,7 @@ const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8');
 (0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+`
 ;global.__s={updP,keys,PORS,setPlayerCar,P,groundH,TH,COL,traffic,bots,heist,DESTRUCTIBLE_INSTANCES,SIGN_PLATES,FALLING_POLES,MOVERS,DEBRIS,
  damageEffects,registerPlayerImpact,registerLanding,breakObstacle,objectImpact,objectsTick,damageTick,repairCurrentCar,currentDamageRecord,getDamageRecord,carSpec,
- carMeshParts,tyreMu,TYS,dpGeo,DP_DEBRIS,DP_KEYS,IRBID_SPEED_BUMPS,SUSP,bumpAt,persistDamage,refreshDamageVisual,damageEffects,DFX,OBJ_CLASS,objClass,diagToggle,diagRender,IMPACT,damageRecords,repairItems,repairPart,payRepair,renderRepairs,dentZone,inspectRows,
+ carMeshParts,tyreMu,TYS,dpGeo,DP_DEBRIS,DP_KEYS,IRBID_SPEED_BUMPS,SUSP,bumpAt,treeBreakV,WALL_DEC:()=>WALL_DEC,persistDamage,refreshDamageVisual,damageEffects,DFX,OBJ_CLASS,objClass,diagToggle,diagRender,IMPACT,damageRecords,repairItems,repairPart,payRepair,renderRepairs,dentZone,inspectRows,
  get fines(){return fines},set fines(v){fines=v},get spent(){return spent},set spent(v){spent=v},
  get mode(){return damageMode},set mode(v){damageMode=v},get clock(){return clock},set clock(v){clock=v}};`);
 (0,eval)("redLight=function(){};wrongWay=function(){return false};fine=function(){};toast=function(){}");
@@ -94,4 +94,22 @@ ck('per-car stiffness: same 25 km/h hit damages a Porsche 917 race car bumper mo
  ck('no launch: hop below 1.2 m/s even at 80 km/h',rows.every(r=>r[3].vy<=1.2));
  ck('the stiff, low race car bottoms out sooner than the SUV (less travel)',g('0.9 m bump','Porsche 917',50).susp<=g('0.9 m bump','Porsche Cayenne',50).susp&&g('0.9 m bump','Porsche 917',80).susp<g('0.9 m bump','Porsche Cayenne',80).susp);
  if(osm)ck('3.7 m hump is gentler than the 0.9 m bump at 50 km/h (less compression)',g('3.7 m hump','Ford Focus RS',50).cmp<g('0.9 m bump','Ford Focus RS',50).cmp)}
+// 15. environment materials (energy based; the object keeps accumulated damage)
+{const all=[];for(const L of S.COL.values())for(const c of L)if(!c.broken&&!all.includes(c))all.push(c);
+ const inst=k=>S.DESTRUCTIBLE_INSTANCES.get(k),hidden=k=>{const e=inst(k);if(!e)return false;const m=new THREE.Matrix4();e.mesh.getMatrixAt(e.index,m);const sc=new THREE.Vector3();m.decompose(new THREE.Vector3(),new THREE.Quaternion(),sc);return sc.y<.1||sc.x<.01};
+ const at=(o,v)=>{fresh('Ford Focus RS',2);P.x=o.x;P.z=o.z+3;P.h=Math.PI;P.vx=0;P.vz=-v;R().lastHit=-99;o.mhT=-9;return S.registerPlayerImpact(v,o,0,1)};
+ const trees=all.filter(c=>c.type==='tree'&&c.visualKey&&inst(c.visualKey)).sort((a,b)=>a.trunkD-b.trunkD),thin=trees[0],thick=trees[trees.length-1];
+ console.log('     trees with keys '+trees.length+'; trunk diameter '+thin.trunkD.toFixed(2)+'-'+thick.trunkD.toFixed(2)+' m; snap speed '+(S.treeBreakV(thin)*3.6).toFixed(0)+'-'+(S.treeBreakV(thick)*3.6).toFixed(0)+' km/h (1,500 kg)');
+ at(thick,25);ck('thick tree (90 km/h): stays standing, canopy leans/sheds, car takes the full hit',!thick.broken&&thick.bent>0&&R().zones.fl<60,'bent '+(thick.bent||0).toFixed(2)+' fl '+R().zones.fl.toFixed(0));
+ const vb=S.treeBreakV(thin);at(thin,vb*.75);const mid=!thin.broken;at(thin,vb*.75);
+ ck('slim tree: one hit at 75% of its snap speed leaves it standing; the second (accumulated damage) fells it',mid&&thin.broken&&hidden(thin.visualKey+'/c0'),'d '+thin.trunkD.toFixed(2)+' m');
+ const gw=all.find(c=>c.type==='gardenWall'&&c.visualKey&&inst(c.visualKey));
+ at(gw,8);const crack=!gw.broken&&S.WALL_DEC().some(m=>m.visible);at(gw,15);
+ ck('garden wall (masonry): 29 km/h cracks it (mark on the wall), 54 km/h collapses it into rubble',crack&&gw.broken&&hidden(gw.visualKey),'dmg '+(gw.dmg||0).toFixed(2));
+ const bs=all.find(c=>c.type==='busShelter'&&c.visualKey&&inst(c.visualKey));at(bs,7);
+ ck('bus shelter: glass panel shatters, the steel frame stays a collider',bs.glassBroken&&hidden(bs.visualKey)&&!bs.broken);
+ const gr=all.find(c=>c.type==='guardrail'&&c.visualKey&&inst(c.visualKey));at(gr,20);const flG=R().zones.fl;
+ const wall=all.find(c=>c.type===undefined&&c.hw>3);at(wall,20);const flW=R().zones.fl;
+ ck('guardrail deflects (visible) and absorbs energy: less crush than a rigid wall at 72 km/h',gr.defl>0&&!gr.broken&&flG>flW,'rail '+gr.defl.toFixed(2)+' m, fl '+flG.toFixed(0)+' vs wall '+flW.toFixed(0));
+ ck('building wall: rigid (never demolished), localized surface mark at the contact point',!wall.broken&&S.WALL_DEC().some(m=>m.visible&&Math.hypot(m.position.x-wall.x,m.position.z-(wall.z+3-1.21))<1.5))}
 console.log('damage v44: '+(bad?bad+' FAILED':'all passed'));process.exit(bad?1:0);

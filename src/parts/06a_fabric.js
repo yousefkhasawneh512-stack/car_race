@@ -28,7 +28,11 @@ function speciesAt(x,z){let dn;try{dn=distName(x,z)}catch(e){dn='Irbid'}const r=
  if(dn==='Outskirts')return r<.55?'olive':r<.85?'pine':'round';
  if(dn==='Wasfi Al-Tal Park')return r<.35?'pine':r<.55?'cyp':'round';
  return r<.4?'round':r<.6?'pine':r<.78?'olive':r<.9?'cyp':'palm'}
-function treeSp(x,z,s,sp){const y=hillH(x,z),ry=Math.random()*6.28;s=s*(.85+Math.random()*.35);
+let TREE_N=0,TREE_LAST=null;
+// v44: every tree's trunk and canopy instances get a key (tr:N, tr:N/c0..) so a collision can lean, shake or fell exactly that tree
+function treeSp(x,z,s,sp){const n0={};for(const q in CANP)n0[q]=CANP[q].length;treeSp0(x,z,s,sp);const k='tr:'+(TREE_N++),t=TRK[TRK.length-1];t[8]=k;let c=0;for(const q in CANP)for(let i=n0[q];i<CANP[q].length;i++){CANP[q][i][8]=k+'/c'+c;c++}
+ TREE_LAST={key:k,d:1.1*t[4],h:t[5],sp,canopies:c}}
+function treeSp0(x,z,s,sp){const y=hillH(x,z),ry=Math.random()*6.28;s=s*(.85+Math.random()*.35);
  if(sp==='cyp'){const h=rr(5.5,8.5)*s;TRK.push([x,y+.6,z,0,.35*s,1.2,.35*s,0x4a3a2a]);CANP.cyp.push([x,y+h/2+.5,z,ry,1.5*s,h,1.5*s,pick(CYPC)])}
  else if(sp==='pine'){const h=rr(4.5,6.5)*s;TRK.push([x,y+h/2,z,0,.45*s,h,.45*s,0x6b5440]);CANP.pine.push([x+rr(-.4,.4),y+h+.2,z+rr(-.4,.4),ry,rr(3.6,4.8)*s,rr(1.4,2)*s,rr(3.6,4.8)*s,pick(PINC)]);CANP.pine.push([x+rr(-1.4,1.4),y+h-.6,z+rr(-1.4,1.4),ry+1,2.4*s,1.1*s,2.4*s,pick(PINC)])}
  else if(sp==='olive'){const h=rr(1.1,1.7)*s;TRK.push([x,y+h/2,z,0,.7*s,h,.7*s,0x5a4a3a]);CANP.olive.push([x,y+h+.9*s,z,ry,rr(2.8,3.6)*s,rr(1.7,2.3)*s,rr(2.8,3.6)*s,pick(OLC)]);if(Math.random()<.55)CANP.olive.push([x+rr(-.9,.9),y+h+.4*s,z+rr(-.9,.9),ry,1.8*s,1.2*s,1.8*s,pick(OLC)])}
@@ -83,7 +87,7 @@ function roofJunk(ob,h,col,style,hero){const w=ob.hw*2,d=ob.hd*2,ry=Math.atan2(o
 function fenceFront(e,u,sd,w,gap,set,hh,villa){const half=e.w/2,ww=w+Math.min(gap,8)*.6,off=half+set-2,pr=edgePt(e,Math.min(e.len,u+ww/2)),pa=edgePt(e,Math.min(e.len,u+ww/2+2)),pb=edgePt(e,Math.max(0,u+ww/2-2)),ry=Math.atan2(-(pa[1]-pb[1]),pa[0]-pb[0]);
  const cx=pr[0]+sd*pr[2]*off,cz=pr[1]+sd*pr[3]*off,ob=obb(cx,cz,ww,.5,ry);if(!occFree(ob,0)||onRoadFoot(ob,1.2))return;
  const c=Math.cos(ry),s=Math.sin(ry),at=t=>[cx+t*c,cz-t*s],g=rr(-ww/4,ww/4),col=pick(SANDC.concat(LIMEP)),yb=hillH(cx,cz);
- const seg=(a,b)=>{const L=b-a;if(L<.6)return;const q=at((a+b)/2);WALLI.push([q[0],yb+hh/2,q[1],ry,L,hh,.3,col]);boxCol(q[0],q[1],L,.3,ry)};
+ const seg=(a,b)=>{const L=b-a;if(L<.6)return;const q=at((a+b)/2),k='gw:'+WALLI.length;WALLI.push([q[0],yb+hh/2,q[1],ry,L,hh,.3,col,k]);const o=boxCol(q[0],q[1],L,.3,ry,'gardenWall');o.visualKey=k;o.wallH=hh};
  seg(-ww/2,g-1.7);seg(g+1.7,ww/2);for(const t of[g-1.8,g+1.8]){const q=at(t);WALLI.push([q[0],yb+(hh+.45)/2,q[1],ry,.55,hh+.45,.55,col])}
  if(villa||Math.random()<.35)for(let t=-ww/2+1;t<ww/2-.5;t+=rr(1.8,2.8)){if(Math.abs(t-g)<2.2||Math.random()<.4)continue;const q=at(t);CANP.bush.push([q[0],yb+hh+.2,q[1],Math.random()*3,rr(1.2,1.8),.8,.9,pick([0x5d7a3a,0x4f7a38,0x6d8a42,0x587a35,0x8a3a5c,0x5d7a3a,0x7a8a4a])])}}
 

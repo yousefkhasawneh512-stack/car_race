@@ -125,7 +125,7 @@ function addSign(x,z,dx,dz,ph,w,h,key,big){const sk='sign:'+SGS.length;SGS.push(
  EDGES.forEach(e=>{if(e.kind!=='hw'||e.len<80||e.fz<2)return;const t0=jTrim(e.a)+24,t1=jTrim(e.b)+24;
   for(const sg of[-1,1]){for(let u=t0;u<e.len-t1;u+=4){const p=edgePt(e,u),q=edgePt(e,Math.min(e.len,u+4)),off=sg*(e.w/2+.9),x=p[0]+p[2]*off,z=p[1]+p[3]*off,x2=q[0]+q[2]*off,z2=q[1]+q[3]*off;
    if(onOther(x,z,e,1.5)||onOther(x2,z2,e,1.5))continue;const mx=(x+x2)/2,mz=(z+z2)/2,y=hillH(mx,mz),dx=x2-x,dz=z2-z,l=Math.hypot(dx,dz)||1,ry=Math.atan2(-dz,dx);
-   rails.push([mx,y+.62,mz,ry,l+.05,.3,.08]);posts.push([x,y+.38,z,0,.1,.76,.1]);boxCol(mx,mz,l,.3,ry,'guardrail')}}});
+   const gk='gr:'+rails.length;rails.push([mx,y+.62,mz,ry,l+.05,.3,.08,undefined,gk]);posts.push([x,y+.38,z,0,.1,.76,.1]);boxCol(mx,mz,l,.3,ry,'guardrail').visualKey=gk}}});
  const gr=gfxStd({color:0xcfd4d9,roughness:.38,metalness:.7,envMapIntensity:1},'none')||UBm(0xb9bec4);instO(UB,gr,rails,true,330,300);instO(UB,gr,posts,false,250,300)}
 
 // ===== manhole covers, bus shelters, alley wires, roundabout planting =====
@@ -137,7 +137,7 @@ function addSign(x,z,dx,dz,ph,w,h,key,big){const sk='sign:'+SGS.length;SGS.push(
   for(let u=60+Math.random()*120;u<e.len-60;u+=rr(260,520)){const dn=distName(...edgePt(e,u).slice(0,2));if(dn==='Outskirts'||dn==='Wasfi Al-Tal Park')continue;const sg=Math.random()<.5?-1:1,p=edgePt(e,u),off=sg*(e.w/2+1.55),x=p[0]+p[2]*off,z=p[1]+p[3]*off;
    if(onOther(x,z,e,2)||!occFree(obb(x,z,3.4,1.6,0),0)||furnNear(x,z,3))continue;   const tx=p[3],tz=-p[2],r=Math.atan2(-tz,tx),y=hillH(x,z),nx=-sg*p[2],nz=-sg*p[3];
    roof.push([x,y+2.55,z,r,3.2,.12,1.5,0x2f6f9f]);for(const k of[-1.3,1.3])post.push([x+tx*k+nx*.55,y+1.27,z+tz*k+nz*.55,0,.08,2.5,.08]);
-   glass.push([x-nx*.62,y+1.3,z-nz*.62,r,3,2.2,.05]);bench.push([x-nx*.35,y+.45,z-nz*.35,r,2.4,.1,.45]);boxCol(x,z,3.2,1.2,r,'busShelter');furnAdd(x,z);n++}});
+   const bk='bs:'+glass.length;glass.push([x-nx*.62,y+1.3,z-nz*.62,r,3,2.2,.05,undefined,bk]);bench.push([x-nx*.35,y+.45,z-nz*.35,r,2.4,.1,.45]);boxCol(x,z,3.2,1.2,r,'busShelter').visualKey=bk;furnAdd(x,z);n++}});
  const pm=UBm(0x4a4f55);instO(UB,UBm(0x2f6f9f),roof,true,280,300);instO(UB,pm,post,false,280,300);instO(UB,gfxStd({color:0x9fc4d8,roughness:.08,metalness:.2,envMapIntensity:2,transparent:true,opacity:.35},'none')||new T.MeshLambertMaterial({color:0x9fc4d8,transparent:true,opacity:.35}),glass,false,280,300);instO(UB,UBm(0x7a5a3a),bench,false,280,300)}
 {const wv=[];EDGES.forEach(e=>{if(!(e.kind==='local'||e.kind==='svc')||e.fz<3)return;
   for(let u=12+Math.random()*10;u<e.len-10;u+=rr(16,32)){const p=edgePt(e,u);if(distName(p[0],p[1])!=='Al-Balad')continue;const hh=e.w/2+1.55,y=hillH(p[0],p[1])+rr(5.4,7.6),ax=p[0]-p[2]*hh,az=p[1]-p[3]*hh,bx=p[0]+p[2]*hh,bz=p[1]+p[3]*hh;
