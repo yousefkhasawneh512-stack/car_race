@@ -36,12 +36,12 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
   if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
   if(!(bo||Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
-  if(hb)fs*=1-.8*dt;if(!handlingMode){if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt}ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*(handlingMode?ptLat():1)*dt)}
+  if(dfx.roll&&Math.abs(fs)>.3)fs-=Math.sign(fs)*Math.min(Math.abs(fs)-.3,dfx.roll*dt);if(hb)fs*=1-.8*dt;if(!handlingMode){if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt}ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*(handlingMode?ptLat():1)*dt)}
  P.vx=fx*fs+rx*ls;P.vz=fz*fs+rz*ls;if(frozen)P.vx=P.vz=0;P.al=(fs-pfs)/dt;if(typeof tyreStep==='function')tyreStep(dt,th?thA:0,br?brA:0,hb,st,fs,ls,frozen);
  const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),spm=Math.hypot(P.vx,P.vz);
  if(P.gnd&&spm>8&&sa>.22-.012*P.dr&&!frozen){drift.t+=dt;drift.off=0;drift.pts+=sa*spm*8*dt*(1+Math.min(4,drift.t/3))*(1+.2*P.dr)*(P.rm||1)}
  else if(drift.pts>0){drift.off+=dt;if(drift.off>.7){if(drift.pts>40){const n=Math.round(drift.pts);drift.total+=n;save();toast('Drift +'+n+(P.rm>1?'  ('+RARN[P.rt]+' ×'+P.rm.toFixed(1)+')':''))}drift.pts=0;drift.t=0}}
- const prevX=P.x,prevZ=P.z;P.x+=P.vx*dt;P.z+=P.vz*dt;if(typeof checkSpeedBumpCrossing==='function')checkSpeedBumpCrossing(prevX,prevZ);if(colB(P)&&drift.pts>0){drift.pts=0;drift.t=0;toast('Drift lost')}
+ const prevX=P.x,prevZ=P.z;P.x+=P.vx*dt;P.z+=P.vz*dt;if(typeof checkSpeedBumpCrossing==='function')checkSpeedBumpCrossing(prevX,prevZ,dt);if(colB(P)&&drift.pts>0){drift.pts=0;drift.t=0;toast('Drift lost')}
  if(P.x<WX0+40||P.x>WX1-40){P.x=cl(P.x,WX0+40,WX1-40);P.vx=0}if(P.z<WZ0+40||P.z>WZ1-40){P.z=cl(P.z,WZ0+40,WZ1-40);P.vz=0}
  const gh=groundH(P.x,P.z);P.vy-=9.81*dt;P.y+=P.vy*dt;
  if(P.y<=gh){P.y=gh;P.vy=(gh-P.pgh)/dt;P.gnd=true}else P.gnd=false;P.pgh=gh;

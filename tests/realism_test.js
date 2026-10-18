@@ -10,7 +10,7 @@ let t=1000;global.performance={now:()=>t};global.requestAnimationFrame=()=>{};gl
 const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{LS[k]=String(v)}};
 const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8');
 const js=html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+`
-;global.__s={updP,keys,PORS,setPlayerCar,P,groundH,TH,COL,traffic,bots,heist,DESTRUCTIBLE_INSTANCES,IRBID_SPEED_BUMPS,FALLING_POLES,
+;global.__s={updP,keys,PORS,setPlayerCar,P,groundH,TH,COL,traffic,bots,heist,DESTRUCTIBLE_INSTANCES,IRBID_SPEED_BUMPS,bumpAt,SUSP,FALLING_POLES,
  damageEffects,registerPlayerImpact,breakObstacle,checkSpeedBumpCrossing,repairCurrentCar,cycleDamageMode,currentDamageRecord,
  get mode(){return damageMode},set mode(v){damageMode=v}};`;
 (0,eval)(js);
@@ -71,9 +71,9 @@ if(col){const e=S.DESTRUCTIBLE_INSTANCES.get(col.visualKey),M=new THREE.Matrix4(
 
 // 5. speed bumps
 const B=S.IRBID_SPEED_BUMPS;ck('speed bumps built',B.length>0&&B.length<=90,B.length);
-let worst=0;for(const b of B){const d=Math.abs(b.mesh.position.y-.05-S.TH(b.x,b.z));if(d>worst)worst=d}
-ck('bumps sit on terrain (no double lift)',worst<.3,'max offset '+worst.toFixed(2)+' m');
-if(B.length){const b=B[0];S.mode=0;P.vy=0;P.vx=b.tx*15;P.vz=b.tz*15;const px=b.x-b.tx*.6,pz=b.z-b.tz*.6;P.x=b.x+b.tx*.4;P.z=b.z+b.tz*.4;
- S.checkSpeedBumpCrossing(px,pz);ck('crossing at 54 km/h gives a small hop (damage Off too)',P.vy>.1&&P.vy<1.1,P.vy.toFixed(2)+' m/s')}
-
+// v44: one merged, terrain-draped mesh; its top surface must match the profile the wheels ride on (bumpAt) at every bump centre
+{const M=B[0].mesh,pa=M.geometry.attributes.position.array,my=M.position.y;let worst=0;for(const b of B){let best=1e9,y=0;for(let i=0;i<pa.length;i+=3){const d=Math.hypot(pa[i]-b.x,pa[i+2]-b.z);if(d<best){best=d;y=pa[i+1]+my}}
+  const want=S.TH(b.x,b.z)+.056+S.bumpAt(b.x,b.z);worst=Math.max(worst,Math.abs(y-want))}
+ ck('every bump is visible geometry on the road and matches its collision profile',B.every(b=>b.mesh===M)&&worst<.06,'max offset '+worst.toFixed(3)+' m')}
+ck('OSM hump uses the long 3.7 m profile, estimated bumps the short 0.9 m one',B.filter(b=>!b.estimated).length>=1&&B.filter(b=>b.estimated).every(b=>b.len===.9));
 console.log(bad?'realism: '+bad+' FAILED':'realism: all passed');process.exit(bad?1:0);

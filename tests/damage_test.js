@@ -160,7 +160,7 @@ S.mode=2;car('Ford Focus RS');place(OX,OZ);hit(20,0,-1);hit(20,0,1);R().wheels[2
 let L=S.repairItems();const ids=L.map(q=>q.id),pr=id=>(L.find(q=>q.id===id)||{}).price;
 ck('repair list itemises panels, mechanical parts and single tyres with JD prices',ids.some(i=>i.startsWith('z:f'))&&ids.some(i=>i.startsWith('z:r'))&&ids.includes('t:2')&&ids.includes('t:3')&&ids.some(i=>i.startsWith('c:'))&&L.every(q=>q.price>0&&q.label&&Number.isFinite(q.cond)),ids.join(' '));
 {const I=S.inspectRows(),g=k=>I.filter(q=>q.grp===k).length,ok=I.filter(q=>!q.price);
-ck('full inspection (v43) lists every part: 16 body items (8 zones, 4 lights, 4 windows), 6 mechanical, 4 suspension corners, 4 tyres; undamaged ones free',I.length===30&&g('Body')===16&&g('Mechanical')===6&&g('Suspension')===4&&g('Tyres')===4&&ok.length>0&&ok.every(q=>q.cond>99.4||q.id.startsWith('t:'))&&I.filter(q=>q.price).every(q=>q.price===pr(q.id)),I.length+' rows, '+ok.length+' OK')}
+ck('full inspection (v43) lists every part: 24 body items (8 zones, 8 parts v44, 4 lights, 4 windows), 6 mechanical, 4 suspension corners, 4 tyres + 4 rims; undamaged ones free',I.length===42&&g('Body')===24&&g('Mechanical')===6&&g('Suspension')===4&&g('Tyres')===8&&ok.length>0&&ok.every(q=>q.cond>99.4||q.id.startsWith('t:')||q.id.startsWith('rim:'))&&I.filter(q=>q.price).every(q=>q.price===pr(q.id)),I.length+' rows, '+ok.length+' OK')}
 S.fines=0;S.spent=0;const fl0=R().zones.fl;
 ck('no balance: repair refused, nothing changes',S.payRepair(['t:2'])===false&&R().wheels[2].tread===40&&S.spent===0);
 const su0=JSON.stringify(R().susp);S.fines=100000;let p0=S.spent,tp=pr('t:2');S.payRepair(['t:2']);

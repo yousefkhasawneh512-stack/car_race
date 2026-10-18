@@ -5,7 +5,7 @@
 // not re-verified against a primary source). No manufacturer crash-test data is used. Crush depth uses the generic linear crush relation
 // v = b0 + b1*C (Campbell 1974, SAE 740565) with coefficients in the usual published range, scaled per car.
 const IRBID_DAMAGE_STORE='irbid-drive-realism-v1';
-let damageMode=0,damageRecords={},damageSaveClock=0,lastDamageToast=-99,diagReady=false;
+let damageMode=0,damageRecords={},damageSaveClock=0,lastDamageToast=-99,diagReady=false,dpReady=false;
 try{const savedRealism=JSON.parse(localStorage.getItem(IRBID_DAMAGE_STORE)||'{}');damageMode=cl(+savedRealism.mode||0,0,2)|0;damageRecords=savedRealism.cars&&typeof savedRealism.cars==='object'?savedRealism.cars:{}}catch(e){}
 const DAMAGE_MODE_NAMES=['Off','Cosmetic','Full'];
 const damageButton=document.getElementById('damageBtn'),repairButton=document.getElementById('repairBtn');
@@ -57,7 +57,7 @@ const WHEEL_NAMES=['FL','FR','RL','RR'],LIGHT_NAMES=['left headlight','right hea
 function newWheel(){return{tread:100,temp:25,health:100,punct:false,km:0,tmax:25,wear:{burn:0,slide:0,spin:0,lock:0,roll:0}}}
 function newDamageRecord(i){return{v:2,durability:durabilityForCar(i),body:100,engine:100,tyres:100,suspension:100,brakes:100,cooling:100,trans:100,driveline:100,steer:100,
  zones:{fl:100,fr:100,l:100,r:100,rl:100,rr:100,roof:100,u:100},susp:[100,100,100,100],align:[0,0,0,0],lights:[0,0,0,0],glass:[0,0,0,0],
- wheels:[newWheel(),newWheel(),newWheel(),newWheel()],dents:[],engTemp:90,impacts:0,lastHit:-99,lastX:0,lastZ:0,log:[]}}
+ wheels:[newWheel(),newWheel(),newWheel(),newWheel()],dents:[],parts:{bf:0,br:0,ml:0,mr:0,hood:0,trunk:0,dl:0,dr:0},cracks:[[],[],[],[]],rims:[0,0,0,0],engTemp:90,impacts:0,lastHit:-99,lastX:0,lastZ:0,log:[]}}
 const finite=(v,d)=>Number.isFinite(v)?v:d;
 function migrateRecord(s,i){ // v38 records had only body/engine/tyres/suspension/brakes: spread them over the new components
  const b=finite(s.body,100),t=finite(s.tyres,100),su=finite(s.suspension,100),n=newDamageRecord(i),old=s.v!==2;
@@ -66,7 +66,8 @@ function migrateRecord(s,i){ // v38 records had only body/engine/tyres/suspensio
  for(const k of['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer','engTemp'])s[k]=finite(s[k],k==='engTemp'?90:100);
  if(!Number.isFinite(s.durability))s.durability=durabilityForCar(i);
  if(!Array.isArray(s.wheels)||s.wheels.length!==4)s.wheels=n.wheels;for(let j=0;j<4;j++){const w=s.wheels[j]=Object.assign(newWheel(),s.wheels[j]);w.wear=Object.assign(newWheel().wear,w.wear)}
- for(const a of['susp','align','lights','glass'])if(!Array.isArray(s[a])||s[a].length!==4)s[a]=n[a];if(!Array.isArray(s.dents))s.dents=[];if(!Array.isArray(s.log))s.log=[];
+ if(!s.parts||typeof s.parts!=='object')s.parts=n.parts;else for(const k in n.parts)s.parts[k]=finite(s.parts[k],0);if(!Array.isArray(s.cracks)||s.cracks.length!==4)s.cracks=n.cracks;
+ for(const a of['susp','align','lights','glass','rims'])if(!Array.isArray(s[a])||s[a].length!==4)s[a]=n[a];if(!Array.isArray(s.dents))s.dents=[];if(!Array.isArray(s.log))s.log=[];
  return s}
 function getDamageRecord(i){const name=PORS[i]?.[0]||'Unknown car';if(!damageRecords[name]||typeof damageRecords[name]!=='object')damageRecords[name]=newDamageRecord(i);const s=damageRecords[name];if(!s._ok){migrateRecord(s,i);Object.defineProperty(s,'_ok',{value:true,enumerable:false})}return s;}
 function currentDamageRecord(){return getDamageRecord(P.idx||0)}
@@ -74,9 +75,9 @@ function currentDamageRecord(){return getDamageRecord(P.idx||0)}
 function syncAggregates(s){let z=0;for(let j=0;j<6;j++)z+=s.zones[ZONES[j]];s.body=z/6;let t=0,u=0;for(let j=0;j<4;j++){const w=s.wheels[j];t+=w.punct?0:Math.min(w.tread,w.health);u+=s.susp[j]}s.tyres=t/4;s.suspension=u/4}
 
 // ---- effects on driving (Full only). Filled in place every frame: no allocation ----
-const DFX={maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0,vib:0,limp:1};
+const DFX={maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0,vib:0,limp:1,roll:0};
 function damageEffects(){
- if(damageMode!==2){DFX.maxSpeed=DFX.accel=DFX.steering=DFX.grip=DFX.brakes=DFX.lat=DFX.limp=1;DFX.pull=DFX.vib=0;return DFX}
+ if(damageMode!==2){DFX.maxSpeed=DFX.accel=DFX.steering=DFX.grip=DFX.brakes=DFX.lat=DFX.limp=1;DFX.pull=DFX.vib=DFX.roll=0;return DFX}
  const s=currentDamageRecord(),sp=carSpec(P.idx||0),W=s.wheels,mu=typeof tyreMu==='function'?tyreMu:(()=>1);
  const m0=mu(W[0]),m1=mu(W[1]),m2=mu(W[2]),m3=mu(W[3]),muF=(m0+m1)/2,muR=(m2+m3)/2,muA=(muF+muR)/2,
   muD=sp.drive==='FWD'?muF:sp.drive==='RWD'?muR:muA,sF=(s.susp[0]+s.susp[1])/200,sR=(s.susp[2]+s.susp[3])/200,sA=(sF+sR)/2,
@@ -89,7 +90,8 @@ function damageEffects(){
  DFX.grip=cl(muA*(.85+.15*sA),.35,1);DFX.brakes=cl(.5+.5*hB,.5,1);DFX.lat=cl(muR*(.75+.25*sR),.45,1);
  // pull (rad/s at speed, + = left): toe changes from wheel hits plus a punctured tyre dragging its side
  DFX.pull=(s.align[0]+s.align[1]+.5*(s.align[2]+s.align[3]))*.012+((W[0].punct||W[2].punct)?.07:0)-((W[1].punct||W[3].punct)?.07:0);
- DFX.vib=cl((punct?.8:0)+(1-hD)*.6+(1-sA)*.5+(1-Math.min(m0,m1,m2,m3))*.4,0,1);
+ DFX.vib=cl((punct?.8:0)+(1-hD)*.6+(1-sA)*.5+(1-Math.min(m0,m1,m2,m3))*.4,0,1);DFX.roll=0;
+ if(dpReady)dpEffects(s,DFX);
  return DFX;
 }
 
@@ -123,10 +125,9 @@ function refreshDamageVisual(){
  if(!P.m||!Number.isFinite(P.idx))return;removeDamageOverlay();const parts=carMeshParts(P.m),s=currentDamageRecord(),show=damageMode!==0;
  // restore everything first (mode Off hides damage; the record is kept)
  for(const m of parts.hl.concat(parts.tl))if(m.userData.mat0){m.material=m.userData.mat0}
- for(const m of parts.tyre.concat(parts.rim)){const u=m.userData;if(!u.p0)u.p0=[m.position.y,m.scale.y,m.scale.z];m.position.y=u.p0[0];m.scale.y=u.p0[1];m.scale.z=u.p0[2];m.rotation.set(0,0,0)}
+ for(const m of parts.tyre.concat(parts.rim)){const u=m.userData;if(!u.p0)u.p0=[m.position.y,m.scale.y,m.scale.z];m.position.y=u.p0[0];u.bd=0;m.scale.y=u.p0[1];m.scale.z=u.p0[2];m.rotation.set(0,0,0)}
  for(const m of[parts.body,parts.glass])if(m&&m.userData.base){if(show&&s.dents.length)applyDents(m,s.dents);else applyDents(m,[])}
- if(!show)return;
- const[,, ,L,W,H]=PORS[P.idx];
+ if(!show){if(dpReady)dpVisual(P.m,s,false);return}
  if(s.dents.length)for(const m of[parts.body,parts.glass])if(m){ensureTess(m);applyDents(m,s.dents)}
  // broken lights (index: 0 left head, 1 right head, 2 left tail, 3 right tail; mesh +x is the car's left)
  for(const m of parts.hl.concat(parts.tl)){const u=m.userData,j=(u.part==='hl'?0:2)+(u.side>0?0:1);if(s.lights[j]){if(!u.mat0)u.mat0=m.material;m.material=DMG_LIGHT}}
@@ -134,22 +135,9 @@ function refreshDamageVisual(){
  for(const m of parts.tyre.concat(parts.rim)){const u=m.userData,j=u.corner,w=s.wheels[j];if(j===undefined)continue;
   if(w.punct){m.scale.y=u.p0[1]*.8;m.position.y=u.p0[0]*.82}
   const camber=s.susp[j]<60?(60-s.susp[j])/60*.16:0;m.rotation.z=(u.side>0?1:-1)*camber;m.rotation.y=(j<2?1:.5)*s.align[j]*Math.PI/180}
- const g=new T.Group();g.userData.damageOverlay=true;
- const add=(geo,mat,x,y,z,sx,sy,sz,rx,ry)=>{const m=new T.Mesh(geo,mat);m.position.set(x,y,z);m.scale.set(sx,sy,sz);m.rotation.set(rx||0,ry||0,0);m.rotation.order='YXZ';m.userData.damageOverlay=true;g.add(m)};
- // scratches/scuffs on each zone that lost condition (localized, a few strips per zone)
- const ZC={fl:[W*.5,L*.38,1],fr:[-W*.5,L*.38,1],l:[W*.5,0,1],r:[-W*.5,0,1],rl:[W*.5,-L*.38,1],rr:[-W*.5,-L*.38,1]};
- for(const z in ZC){const loss=100-s.zones[z];if(loss<1.5)continue;const c=ZC[z],n=Math.min(4,1+Math.floor(loss/12));
-  for(let j=0;j<n;j++){const zz=c[1]+((j*37)%60-30)/100*L*.18,yy=.42+((j*13)%22)/100;add(DMG_BOX,DMG_SCRATCH,c[0]+Math.sign(c[0])*.035,yy,zz,.01,.02+.018*(j%2),Math.min(.7,.22+loss*.01),0,Math.sign(c[0])*.08*(j%2?1:-1))}}
- // cracked glass: decal planes on the windscreen / rear screen / side windows (positions from the body profile)
- const k=PORS[P.idx][6],a=(PROF[k]||PROF.c).g,P0=PROF[k]||PROF.c,y0=.3+(H-.3)*P0.bf,u=f=>f*L,cm=s.glass.some(v=>v>0)?crackMat():null;
- const pane=(za,zb,ya,yb,wd,lvl)=>{if(lvl<=0)return;const dz=zb-za,dy=yb-ya,len=Math.hypot(dz,dy),sc=.45+.55*Math.min(1,lvl);
-  add(DMG_PLANE,cm,0,(ya+yb)/2+.05,(za+zb)/2+(dz<0?.06:-.06),wd*sc,len*sc,1,Math.atan2(-Math.abs(dz),dy),dz<0?0:Math.PI)};
- if(cm){pane(u(a[0]),u(a[1]),y0,H,W*.7,s.glass[0]);if(a.length===4)pane(u(a[3]),u(a[2]),y0,H,W*.66,s.glass[1]);
-  const cz=a.length===4?u((a[1]+a[2])/2):u(a[0])-.4,cl2=a.length===4?Math.abs(u(a[1]-a[2]))+.4:.6;
-  for(const sd of[1,-1]){const lvl=s.glass[sd>0?2:3];if(lvl>0)add(DMG_PLANE,cm,sd*(W*.42+.1),(y0+H)/2,cz,cl2*(.5+.5*Math.min(1,lvl)),(H-y0)*.7,1,0,sd*Math.PI/2)}}
- P.m.add(g);
+ if(dpReady)dpVisual(P.m,s,true);
 }
-function updateDamageButton(){if(damageButton){damageButton.textContent='Damage: '+DAMAGE_MODE_NAMES[damageMode];damageButton.dataset.mode=String(damageMode);damageButton.setAttribute('aria-label','Vehicle damage setting: '+DAMAGE_MODE_NAMES[damageMode]+'. Click to change.')}if(repairButton){const s=currentDamageRecord(),hurt=['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer'].some(k=>s[k]<99.9)||s.dents.length>0||s.lights.some(Boolean)||s.glass.some(Boolean)||s.wheels.some(w=>w.tread<99.9);repairButton.style.display=damageMode!==0&&hurt?'block':'none'}if(diagReady)diagSync()}
+function updateDamageButton(){if(damageButton){damageButton.textContent='Damage: '+DAMAGE_MODE_NAMES[damageMode];damageButton.dataset.mode=String(damageMode);damageButton.setAttribute('aria-label','Vehicle damage setting: '+DAMAGE_MODE_NAMES[damageMode]+'. Click to change.')}if(repairButton){const s=currentDamageRecord(),hurt=['body','engine','tyres','suspension','brakes','cooling','trans','driveline','steer'].some(k=>s[k]<99.9)||s.dents.length>0||s.lights.some(Boolean)||s.glass.some(Boolean)||Object.values(s.parts).some(v=>v>.001)||s.rims.some(v=>v>.001)||s.wheels.some(w=>w.tread<99.9);repairButton.style.display=damageMode!==0&&hurt?'block':'none'}if(diagReady)diagSync()}
 function cycleDamageMode(){damageMode=(damageMode+1)%3;persistDamage();updateDamageButton();refreshDamageVisual();const n=DAMAGE_MODE_NAMES[damageMode];toast('Vehicle damage: '+n+(damageMode===2?' — tyres, engine, suspension and brakes active':damageMode===1?' — visual damage only':' — disabled'));}
 if(damageButton)damageButton.addEventListener('click',cycleDamageMode);if(repairButton)repairButton.addEventListener('click',()=>garageGo());
 addEventListener('keydown',e=>{if(e.code==='KeyI'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')){e.preventDefault();cycleDamageMode()}});
@@ -171,6 +159,9 @@ function registerPlayerImpact(normalSpeed,obstacle,nx,nz){
  const sh=Math.sin(P.h),ch=Math.cos(P.h),dx=-(nx||0),dz=-(nz||0),lf=dx*sh+dz*ch,lr=dx*-ch+dz*sh,X=-lr,Z=lf,L=sp.L,W=sp.W;
  const tX=Math.abs(X)>1e-6?W/2/Math.abs(X):1e9,tZ=Math.abs(Z)>1e-6?L/2/Math.abs(Z):1e9,tt=Math.min(tX,tZ),cx=X*tt,cz=Z*tt,face=tZ<=tX?(Z>0?'front':'rear'):(X>0?'left':'right');
  const fi=face==='front'?0:face==='rear'?1:2,crush=Math.max(0,kmh-sp.b0[fi])/sp.b1[fi];   // cm
+ // contact area: a pole or trunk concentrates the load (narrow, deeper dent), a wall or car spreads it (wider, shallower)
+ const narrow=obstacle&&obstacle.r!==undefined&&obstacle.r<.7,wide=obstacle&&(obstacle.type==='vehicle'||(obstacle.hw||0)>2.5||(obstacle.hd||0)>2.5),dk=narrow?1.3:wide?.85:1,rk=narrow?.6:wide?1.2:1;
+ const vn0=P.vx*(nx||0)+P.vz*(nz||0),tang=Math.hypot(P.vx-vn0*(nx||0),P.vz-vn0*(nz||0));
  IMPACT.face=face;IMPACT.kmh=Math.round(normalSpeed*3.6);IMPACT.ebs=kmh;IMPACT.crush=crush;IMPACT.x=cx;IMPACT.z=cz;IMPACT.wx=P.x+dx*tt;IMPACT.wz=P.z+dz*tt;
  // spread over the zones by distance from the contact point (localized: far zones get nothing)
  const ZC={fl:[W*.3,L*.45],fr:[-W*.3,L*.45],l:[W*.5,0],r:[-W*.5,0],rl:[W*.3,-L*.45],rr:[-W*.3,-L*.45]};let best='',bw=0;
@@ -179,13 +170,11 @@ function registerPlayerImpact(normalSpeed,obstacle,nx,nz){
   if(w>.05)s.zones[z]=cl(s.zones[z]-(crush/maxC*100+scuff)*w,0,100)}
  IMPACT.zone=best;
  // dent at the contact point (stored per car in mesh-local metres; merged with a nearby earlier dent)
- if(crush>1.5){const depth=Math.min(fi===2?.3:.5,crush/100*.8),rad=.42+Math.min(.9,crush/100*.9),il=Math.hypot(cx,cz)||1,d=[+cx.toFixed(3),.55,+cz.toFixed(3),+(-cx/il).toFixed(3),+(-cz/il).toFixed(3),+depth.toFixed(3),+rad.toFixed(3)];
+ if(crush>1.5){const depth=Math.min(fi===2?.3:.5,crush/100*.8*dk),rad=(.42+Math.min(.9,crush/100*.9))*rk,il=Math.hypot(cx,cz)||1,d=[+cx.toFixed(3),.55,+cz.toFixed(3),+(-cx/il).toFixed(3),+(-cz/il).toFixed(3),+depth.toFixed(3),+rad.toFixed(3)];
   const near=s.dents.find(q=>Math.hypot(q[0]-d[0],q[2]-d[2])<.35);if(near){near[5]=+Math.min(fi===2?.32:.52,Math.hypot(near[5],d[5])).toFixed(3);near[6]=Math.max(near[6],d[6])}else{s.dents.push(d);if(s.dents.length>16){s.dents.sort((a,b)=>b[5]-a[5]);s.dents.length=16}}}
  // lights and glass (visible, so recorded in Cosmetic and Full)
  if(kmh>sp.thr[1]){const lx=W*.33;if(face==='front'||face==='rear'||Math.abs(cz)>L*.36){const base=cz>0?0:2;for(const sd of[0,1]){const sx=sd===0?lx:-lx;if(Math.abs(cx-sx)<.55+crush/100)s.lights[base+sd]=1}}}
- if(face==='front'&&kmh>sp.thr[2])s.glass[0]=Math.min(1,s.glass[0]+(kmh-sp.thr[2])/35);
- if(face==='rear'&&kmh>sp.thr[2])s.glass[1]=Math.min(1,s.glass[1]+(kmh-sp.thr[2])/35);
- if(fi===2&&crush>6&&Math.abs(cz)<L*.3)s.glass[face==='left'?2:3]=Math.min(1,s.glass[face==='left'?2:3]+crush/25);
+ if(dpReady)dpImpact(s,sp,face,cx,cz,crush,kmh,tang);
  if(damageMode===2){
   const c=sp.comp,center=1-Math.min(1,Math.abs(cx)/(W/2))*.5;
   // radiator sits behind the front bumper (air-cooled cars: at the engine)
@@ -218,12 +207,12 @@ function registerLanding(vy){
  syncAggregates(s);s.log.unshift({t:Math.round(dmgNow()),kmh:Math.round(-vy*3.6),ebs:0,zone:'underbody',face:'landing',obj:'hard landing'});if(s.log.length>8)s.log.length=8;
  persistDamage();updateDamageButton();const now=dmgNow();if(now-lastDamageToast>.8){lastDamageToast=now;toast('Hard landing · '+Math.round(-vy*3.6)+' km/h vertical · check suspension')}
 }
-function registerSpeedBumpImpact(speed){
- if(damageMode===0||speed<12)return;
- const s=currentDamageRecord(),sp=carSpec(P.idx||0),now=dmgNow();
- if(damageMode===1){s.zones.u=cl(s.zones.u-Math.max(0,speed-12)*.10,0,100)}
- else{const sev=cl((speed-11)*.34,0,8);for(let j=0;j<4;j++){s.susp[j]=cl(s.susp[j]-sev*.55/sp.comp.susp,0,100);s.wheels[j].health=cl(s.wheels[j].health-sev*.28/sp.tyre.dur,0,100)}s.zones.u=cl(s.zones.u-sev*.3,0,100)}
- syncAggregates(s);refreshDamageVisual();persistDamage();updateDamageButton();if(now-lastDamageToast>.8){lastDamageToast=now;toast(speed*3.6>80?'Hard speed-bump impact — check suspension/tyres':'Speed-bump impact')}
+function registerSpeedBumpImpact(speed,sev,axle){
+ if(damageMode===0)return;sev=cl(sev===undefined?(speed-11)*.12:sev,0,3);if(sev<=0)return;
+ const s=currentDamageRecord(),sp=carSpec(P.idx||0),now=dmgNow(),J=axle===1?[2,3]:axle===0?[0,1]:[0,1,2,3];
+ s.zones.u=cl(s.zones.u-sev*2.2,0,100);
+ if(damageMode===2){for(const j of J){s.susp[j]=cl(s.susp[j]-sev*3/sp.comp.susp,0,100);s.wheels[j].health=cl(s.wheels[j].health-sev*1.4/sp.tyre.dur,0,100);if(sev>2.2&&s.wheels[j].health<30)s.wheels[j].punct=true}}
+ syncAggregates(s);refreshDamageVisual();persistDamage();updateDamageButton();if(now-lastDamageToast>.8){lastDamageToast=now;toast(sev>1.2?'Hard speed-bump impact: suspension bottomed out':'Speed bump taken too fast')}
 }
 // pooled sparks (no allocation per impact)
 const IMPACT_SPARKS=[],IMPACT_SPARK_GEOM=new T.SphereGeometry(.055,5,4);
@@ -244,8 +233,10 @@ function damageTick(dt){
    const fx=damageEffects(),v=Math.hypot(P.vx,P.vz);if(fx.vib>0&&P.gnd&&v>2&&P.m){const a=fx.vib*.011*Math.min(1,v/18);P.m.rotation.z+=(Math.random()-.5)*a;P.m.rotation.x+=(Math.random()-.5)*a*.6}}
   damageSaveClock+=dt;if(damageSaveClock>8){damageSaveClock=0;syncAggregates(s);persistDamage();updateDamageButton()}
  }
+ if(dpReady)dpTick(dt);
  for(const m of IMPACT_SPARKS){if(!m.visible)continue;const q=m.userData;q.age+=dt;q.vy-=5.5*dt;m.position.x+=q.vx*dt;m.position.y+=q.vy*dt;m.position.z+=q.vz*dt;m.material.opacity=cl(1-q.age/q.life,0,1);if(q.age>=q.life)m.visible=false}
  if(typeof objectsTick==='function')objectsTick(dt);
+ bumpVisual();
  if(smokePuff){const s=currentDamageRecord(),show=damageMode===2&&(s.engine<28||s.engTemp>118);smokePuff.visible=show;if(show){const f=Math.sin(clock*8)*.05,hot=Math.max(28-s.engine,(s.engTemp-118)*1.5);const back=PORS[P.idx][3]*(carSpec(P.idx).eng==='F'?-.37:.37);smokePuff.position.set(P.x-Math.sin(P.h)*back,P.y+.52+f,P.z-Math.cos(P.h)*back);const size=.23+hot*.009;smokePuff.scale.setScalar(size);smokePuff.material.opacity=.13+hot*.004}}
 }
 let smokePuff=null;
@@ -258,17 +249,22 @@ function repairCurrentCar(what){const s=currentDamageRecord(),i=P.idx||0;
 function garageGo(){if(typeof openShop!=='function')return;if(Math.hypot(P.x-SHOP.x,P.z-SHOP.z)<=14){if(typeof diagToggle==='function')diagToggle(false);openShop()}else{toast('🔧 Repairs are done at Apex Drift Customs (Baghdad Street) — route set');if(typeof navGo==='function')navGo('Apex Drift Customs')}}
 window.irbidVehicleRealism={cycleDamageMode,repairCurrentCar,getMode:()=>damageMode,getCurrentState:()=>JSON.parse(JSON.stringify(currentDamageRecord())),getEffects:damageEffects,getSpec:()=>carSpec(P.idx||0)};
 
-// ---- place up to 90 estimated low-speed humps near mapped sensitive destinations ----
-// v40+: OSM-mapped traffic calming (OSM_CALM, 03c: traffic_calming=hump/yes/...) is placed first, as REAL bumps (estimated:false). OSM maps only 2
-// in the whole play area, so the rest are still explicitly inferred near mapped schools, hospitals/clinics and parks on nearby local/service roads
-// (estimated:true), never within 115 m of a real one. Speed cameras in OSM_CALM are not bumps and are skipped.
-const IRBID_SPEED_BUMPS=[];
+// ---- speed bumps (v44): real 3D profile, the SAME profile drives the wheels, per-axle suspension response ----
+// v40+: OSM-mapped traffic calming (OSM_CALM, 03c) is placed first as REAL bumps (estimated:false); OSM maps only 2 in the play area. The rest are
+// INFERRED near mapped schools, clinics and parks on local/service roads (estimated:true, deterministic, never within 115 m of another), not survey data.
+// Profiles (docs/REALISM_RESEARCH.md): OSM 'hump' = 3.7 m long, 75 mm (the traditional hump length; 75-100 mm heights are usual); 'bump' / unknown /
+// estimated = short asphalt bump 0.9 m long, 75 mm (an estimate; OSM: a bump is short, a hump longer). Cross-section h(u) = H cos^2(pi u / len).
+const IRBID_SPEED_BUMPS=[],SBH=new Map(),SB_TYPES={hump:{len:3.7,h:.075},bump:{len:.9,h:.075}};
+let SB_MESH=null;
+function bumpProf(b,al){const hl=b.len/2;if(al<=-hl||al>=hl)return 0;const c=Math.cos(Math.PI*al/b.len);return b.h*c*c}
+// height of the bump surface above the road at (x,z): O(1) through a 50 m hash
+function bumpAt(x,z){const L=SBH.get(Math.floor(x/50)*100000+Math.floor(z/50));if(!L)return 0;let h=0;for(const b of L){const dx=x-b.x,dz=z-b.z,al=dx*b.tx+dz*b.tz;if(al<=-b.len/2||al>=b.len/2)continue;const lat=dx*b.tz-dz*b.tx;if(Math.abs(lat)>b.width/2)continue;h=Math.max(h,bumpProf(b,al))}return h}
 function buildEstimatedSpeedBumps(){
  if(!Array.isArray(POID)||typeof roadNear!=='function'||typeof edgePt!=='function')return;
  const targets=POID.filter(q=>['school','hospital','medical','park'].includes(q[2]));
  const candidates=[];let real=0;
- for(const c of(typeof OSM_CALM!=='undefined'?OSM_CALM:[])){if(c[2]==='speed_camera')continue;const near=roadNear(c[0]/10,c[1]/10,25,e=>!e.tn&&!e.br&&e.kind!=='ring');if(!near)continue;const e=near.e;
-  candidates.push({x:near.px,z:near.pz,tx:near.tx,tz:near.tz,width:cl(e.w*.95,3.2,9),kind:'osm',place:'OSM '+c[3],name:'traffic_calming='+c[2],estimated:false,source:c[3],road:e.name||'',armed:true,cooldown:-99});real++}
+ for(const c of(typeof OSM_CALM!=='undefined'?OSM_CALM:[])){if(c[2]==='speed_camera')continue;const near=roadNear(c[0]/10,c[1]/10,25,e=>!e.tn&&!e.br&&e.kind!=='ring');if(!near)continue;const e=near.e,ty=c[2]==='hump'?SB_TYPES.hump:SB_TYPES.bump;
+  candidates.push({x:near.px,z:near.pz,tx:near.tx,tz:near.tz,width:cl(e.w*.95,3.2,9),len:ty.len,h:ty.h,kind:'osm',place:'OSM '+c[3],name:'traffic_calming='+c[2],estimated:false,source:c[3],road:e.name||'',armed:true,cooldown:-99});real++}
  for(const q of targets){const x=q[0]/10,z=q[1]/10,kind=q[2],maxDist=kind==='school'?68:kind==='hospital'?72:kind==='medical'?50:38;
   const near=roadNear(x,z,maxDist,e=>(e.kind==='local'||e.kind==='svc')&&e.hw!=='track'&&e.kind!=='alley'&&e.len>34&&e.w>=3.2);
   if(!near||near.d>maxDist)continue;
@@ -276,35 +272,53 @@ function buildEstimatedSpeedBumps(){
   if(u<13||e.len-u<13)continue;
   // Do not place a hump almost on an intersection or within 115 m of another inferred hump.
   if(candidates.some(b=>Math.hypot(b.x-near.px,b.z-near.pz)<115))continue;
-  candidates.push({x:near.px,z:near.pz,tx:near.tx,tz:near.tz,width:cl(e.w*.88,3.2,7.5),kind,place:q[4]||q[3]||kind,name:q[4]||q[3]||kind,estimated:true,road:e.name||'',armed:true,cooldown:-99});
+  candidates.push({x:near.px,z:near.pz,tx:near.tx,tz:near.tz,width:cl(e.w*.88,3.2,7.5),len:SB_TYPES.bump.len,h:SB_TYPES.bump.h,kind,place:q[4]||q[3]||kind,name:q[4]||q[3]||kind,estimated:true,road:e.name||'',armed:true,cooldown:-99});
  }
- // Spread them around the loaded network and cap the count for mobile performance.
  const selected=candidates.slice(0,90);
- for(const b of selected){
-  // Flat-frame authoring: applyTerrain() (12c) adds TH(x,z) to this group later; adding it here too lifted bumps twice.
-  const group=new T.Group();group.position.set(b.x,.05,b.z);group.rotation.y=Math.atan2(b.tx,b.tz);group.userData.speedBump=true;group.userData.estimated=b.estimated;
-  const stripeCount=Math.max(6,Math.ceil(b.width/0.75)),stripeWidth=b.width/stripeCount;
-  for(let j=0;j<stripeCount;j++){const col=j%2===0?0xe6c84f:0x202326,mesh=new T.Mesh(new T.BoxGeometry(stripeWidth+.015,.10,.72),new T.MeshLambertMaterial({color:col}));mesh.position.set(-b.width/2+stripeWidth*(j+.5),.05,0);mesh.receiveShadow=true;group.add(mesh)}
-  scene.add(group);b.mesh=group;IRBID_SPEED_BUMPS.push(b);
- }
+ // one merged mesh for every bump, authored in the flat frame at the road surface; applyTerrain (12c) drapes each vertex onto the terrain.
+ // Each paint band (yellow / black across the road) has its own vertices, so the visible shape is exactly the profile the wheels ride on.
+ const pos=[],col=[],idx=[],Y=.056,NS=12,yel=[.93,.78,.18],blk=[.09,.09,.1];
+ for(const b of selected){const nb=Math.max(6,Math.round(b.width/.6)),rx=b.tz,rz=-b.tx;
+  for(let j=0;j<nb;j++){const c=j%2?blk:yel,v0=pos.length/3;
+   for(const lat of[-b.width/2+b.width*j/nb,-b.width/2+b.width*(j+1)/nb])for(let i=0;i<=NS;i++){const al=-b.len/2+b.len*i/NS;pos.push(b.x+b.tx*al+rx*lat,Y+bumpProf(b,al),b.z+b.tz*al+rz*lat);col.push(c[0],c[1],c[2])}
+   for(let i=0;i<NS;i++){const p=v0+i,q=v0+NS+1+i;idx.push(p,q,p+1,p+1,q,q+1)}}
+  IRBID_SPEED_BUMPS.push(b);
+  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++){const kk=(Math.floor(b.x/50)+i)*100000+Math.floor(b.z/50)+j;let L=SBH.get(kk);if(!L)SBH.set(kk,L=[]);if(!L.includes(b))L.push(b)}}
+ if(pos.length){const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('color',new T.Float32BufferAttribute(col,3));g.setIndex(idx);g.computeVertexNormals();
+  const m=new T.Mesh(g,new T.MeshLambertMaterial({vertexColors:true,side:T.DoubleSide}));m.receiveShadow=true;m.userData.speedBumps=true;scene.add(m);SB_MESH=m;for(const b of IRBID_SPEED_BUMPS)b.mesh=m}
  console.log('Speed bumps:',IRBID_SPEED_BUMPS.length,'=',real,'mapped in OSM (traffic_calming) +',IRBID_SPEED_BUMPS.length-real,'estimated near OSM-mapped schools/medical facilities/parks (not surveyed).');
 }
 buildEstimatedSpeedBumps();
-function checkSpeedBumpCrossing(prevX,prevZ){
- if(!IRBID_SPEED_BUMPS.length)return;const speed=Math.hypot(P.vx,P.vz);if(speed<1.2)return;
- for(const b of IRBID_SPEED_BUMPS){
-  const pAlong=(prevX-b.x)*b.tx+(prevZ-b.z)*b.tz,along=(P.x-b.x)*b.tx+(P.z-b.z)*b.tz;
-  const dx=P.x-b.x,dz=P.z-b.z,lateral=dx*b.tz-dz*b.tx;
-  if(Math.abs(along)>2.7)b.armed=true;
-  const crossed=(pAlong<=0&&along>=0)||(pAlong>=0&&along<=0)||Math.abs(along)<.18;
-  if(!b.armed||!crossed||Math.abs(lateral)>b.width/2+1.8||clock-b.cooldown<1.2)continue;
-  b.armed=false;b.cooldown=clock;
-  // Low, speed-dependent hop only; never a dramatic launch. This is an arcade approximation.
-  P.vy=Math.max(P.vy,typeof handlingMode!=='undefined'&&handlingMode?ptBump(speed):.16+cl((speed-8)*.043,0,.85));
-  if(speed>16){P.vx*=.992;P.vz*=.992;registerSpeedBumpImpact(speed)}
- }
-}
-
+// Quarter-car per axle (estimates): body natural frequency fn (Hz) and damping ratio from the car's handling profile (07g ptSpec), wheelbase from carSpec.
+// The tyre follows the bump profile; the body is a spring-damper on it. Bottoming (relative travel past ~9 cm) damages the suspension in Cosmetic/Full.
+// The rigid-body physics only gets a hop when the body is thrown upward faster than gravity can hold it (fast crossings), never a launch.
+// The tyre rides up the profile, but on the far side it can only drop as fast as the spring preload + gravity push the wheel down (WDROP ~ sprung share / unsprung mass + g, estimate for
+// an unsprung corner; tyre bounce capped at 2 cm), so at speed the wheel briefly leaves the bump and the body keeps the upward kick. Travel to the bump stop depends on the body type.
+const SUSP={zb:[0,0],vb:[0,0],zw:[0,0],zh:[0,0],vh:[0,0],heave:0,pitch:0,comp:[0,0],vrel:[0,0],peak:0,jolt:0,active:false,last:-99},WDROP=110;
+const suspTravel=k=>k==='r'||k==='m'||k==='q'?.05:k==='s'||k==='p'||k==='v'?.11:.075;
+function checkSpeedBumpCrossing(prevX,prevZ,dt){
+ dt=dt||1/60;if(!IRBID_SPEED_BUMPS.length)return;const sp=carSpec(P.idx||0),pt=typeof ptSpec==='function'?ptSpec(P.idx||0):null,fn=pt?pt.fn:1.5,ze=pt?pt.zeta:.4,w=2*Math.PI*fn,fx=Math.sin(P.h),fz=Math.cos(P.h),hw=sp.wb/2,tr=suspTravel(sp.kind);
+ let any=false;SUSP.jolt*=Math.exp(-7*dt);
+ for(let a=0;a<2;a++){const s=a?-1:1,zp=P.gnd?bumpAt(P.x+fx*hw*s,P.z+fz*hw*s):0;
+  if(!(zp>0||bumpAt((prevX+P.x)/2+fx*hw*s,(prevZ+P.z)/2+fz*hw*s)>0||SUSP.zh[a]>1e-4||Math.abs(SUSP.zb[a])>1e-4||Math.abs(SUSP.vb[a])>1e-3)){SUSP.zw[a]=0;continue}any=true;
+  // sub-steps sample the profile along the axle's actual path this frame (5 cm apart), so a 0.9 m bump is resolved even at 100+ km/h
+  const n=cl(Math.ceil(Math.hypot(P.x-prevX,P.z-prevZ)/.05),4,24),h=dt/n,ax=fx*hw*s,az=fz*hw*s;
+  for(let k=0;k<n;k++){const f=(k+1)/n,zpk=P.gnd?bumpAt(prevX+(P.x-prevX)*f+ax,prevZ+(P.z-prevZ)*f+az):0;
+   // wheel: on the profile, or falling back to it no faster than WDROP
+   SUSP.vh[a]-=WDROP*h;let zh=SUSP.zh[a]+SUSP.vh[a]*h;if(zh<=zpk){SUSP.vh[a]=(zpk-SUSP.zh[a])/h;zh=zpk}if(zh>zpk+.02){zh=zpk+.02;SUSP.vh[a]=Math.min(SUSP.vh[a],0)}SUSP.zh[a]=zh;
+   const vrel=SUSP.vh[a]-SUSP.vb[a],acc=-w*w*(SUSP.zb[a]-zh)+2*ze*w*vrel;SUSP.vb[a]+=acc*h;SUSP.zb[a]+=SUSP.vb[a]*h;SUSP.vrel[a]=vrel;SUSP.jolt=Math.max(SUSP.jolt,Math.abs(vrel))}
+  SUSP.zw[a]=zp;SUSP.zb[a]=cl(SUSP.zb[a],-.15,.3);SUSP.comp[a]=SUSP.zh[a]-SUSP.zb[a];
+  // harshness: hitting the bump stop (main term), or compressing faster than the damper can soak up (~4 m/s, estimate)
+  const sev=Math.max((SUSP.comp[a]-tr)/.02,(SUSP.vrel[a]-4)/2);
+  if(sev>0&&clock-SUSP.last>.6){SUSP.last=clock;registerSpeedBumpImpact(Math.hypot(P.vx,P.vz),sev,a)}
+  // the axle leaves the ground only when the body rises past full suspension droop (~6 cm, estimate): then a short hop, never a launch
+  if(P.gnd&&SUSP.vb[a]>0&&SUSP.zb[a]-SUSP.zh[a]>.06)P.vy=Math.max(P.vy,Math.min(1.2,SUSP.vb[a]*.5))}
+ SUSP.active=any;SUSP.heave=(SUSP.zb[0]+SUSP.zb[1])/2;SUSP.pitch=Math.atan2(SUSP.zb[1]-SUSP.zb[0],sp.wb);SUSP.peak=Math.max(SUSP.peak*.98,Math.abs(SUSP.heave))}
+// applied after updP has placed the mesh (from damageTick): body heave / pitch and each axle's wheels moving relative to the body
+// a short chassis vibration whose size follows the wheel's compression speed (the jolt), decaying in ~0.3 s
+function bumpVisual(){if(!P.m)return;if(SUSP.active){P.m.position.y+=SUSP.heave;P.m.rotation.x+=SUSP.pitch}
+ if(SUSP.jolt>.15){const j=Math.min(1,SUSP.jolt/6);P.m.position.y+=Math.sin(clock*83)*.012*j;P.m.rotation.z+=Math.sin(clock*61)*.012*j;P.m.rotation.x+=Math.sin(clock*71)*.008*j}
+ for(const c of P.m.children){const u=c.userData;if(!u||(u.part!=='tyre'&&u.part!=='rim')||u.corner===undefined)continue;const a=u.corner<2?0:1,d=SUSP.active?SUSP.zh[a]-SUSP.zb[a]:0;if(d!==(u.bd||0)){c.position.y+=d-(u.bd||0);u.bd=d}}}
 // Follow vehicle changes after the game's own model/tuning setter has run: the new mesh gets ITS OWN car's saved damage.
 const irbidOriginalSetPlayerCar=setPlayerCar;
 setPlayerCar=function(i){irbidOriginalSetPlayerCar(i);if(typeof tyreReset==='function')tyreReset();refreshDamageVisual();updateDamageButton();persistDamage()};

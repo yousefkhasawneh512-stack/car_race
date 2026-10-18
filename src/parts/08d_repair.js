@@ -10,6 +10,7 @@ function repairItems(){
  for(const z of ZONES){const loss=100-s.zones[z],nd=z in REP_ZC?s.dents.filter(d=>dentZone(d,sp)===z).length:0;if(loss<.5&&!nd)continue;
   it.push({id:'z:'+z,grp:'Body',label:REP_ZN[z],cond:s.zones[z],eff:(nd?nd+' dent'+(nd>1?'s':'')+' · ':'')+(z==='u'?'scrapes from landings / bumps':'scuffs'),price:pr(30,4,loss)})}
  for(let j=0;j<4;j++)if(s.lights[j])it.push({id:'li:'+j,grp:'Body',label:LIGHT_NAMES[j][0].toUpperCase()+LIGHT_NAMES[j].slice(1),cond:0,eff:'broken',price:pr(35,0,0)});
+ for(const k of DP_KEYS){const v=s.parts[k];if(v<.005)continue;it.push({id:'p:'+k,grp:'Body',label:DP_NAMES[k],cond:100-v*100,eff:v>=1&&k[0]!=='h'&&k[0]!=='t'&&k[0]!=='d'?'torn off · replace':v>.6?'badly damaged · replace':v>.3?'cracked / bent':'scuffed',price:pr(k[0]==='m'?40:k[0]==='b'?70:k==='hood'||k==='trunk'?80:90,k[0]==='m'?.6:1.2,v*100)})}
  for(let j=0;j<4;j++)if(s.glass[j]>0)it.push({id:'gl:'+j,grp:'Body',label:GLASS_NAMES[j][0].toUpperCase()+GLASS_NAMES[j].slice(1),cond:100-s.glass[j]*100,eff:'cracked',price:pr(j<2?90:50,0,0)});
  const M=[['engine',0,60,6],['cooling',1,25,2.5],['trans',2,50,5],['driveline',3,30,3],['steer',4,30,3],['brakes',5,20,2.5]];
  for(const[k,r,b,c]of M){const loss=100-s[k];if(loss<.5)continue;it.push({id:'c:'+k,grp:'Mechanical',label:dr[r][0],cond:s[k],eff:dr[r][2],price:pr(b,c,loss)})}
@@ -17,11 +18,13 @@ function repairItems(){
   it.push({id:'s:'+j,grp:'Suspension',label:'Suspension '+WHEEL_NAMES[j]+(al?' + alignment':''),cond:s.susp[j],eff:dr[6+j][2]+(al?' · toe '+s.align[j].toFixed(1)+'°':''),price:pr(25,2.5,loss)+(al?Math.round(20*cf):0)})}
  for(let j=0;j<4;j++){const w=s.wheels[j],c=w.punct?0:Math.min(w.tread,w.health);if(c>99.5&&w.temp<200)continue;
   it.push({id:'t:'+j,grp:'Tyres',label:'Tyre '+WHEEL_NAMES[j],cond:c,eff:w.punct?'punctured':'tread '+Math.round(w.tread)+'% · carcass '+Math.round(w.health)+'%',price:pr(45,0,0)})}
+ for(let j=0;j<4;j++)if(s.rims[j]>.005)it.push({id:'rim:'+j,grp:'Tyres',label:'Rim '+WHEEL_NAMES[j],cond:100-s.rims[j]*100,eff:s.rims[j]>.5?'bent · replace':'buckled · straighten',price:pr(40,1.1,s.rims[j]*100)});
  return it}
 // apply one repair to the record (no charge here; payRepair charges)
 function repairPart(id){const s=currentDamageRecord(),sp=carSpec(P.idx||0),[k,a]=id.split(':'),j=+a;
  if(k==='z'){s.zones[a]=100;if(a in REP_ZC)s.dents=s.dents.filter(d=>dentZone(d,sp)!==a)}
- else if(k==='li')s.lights[j]=0;else if(k==='gl')s.glass[j]=0;
+ else if(k==='li')s.lights[j]=0;else if(k==='gl'){s.glass[j]=0;s.cracks[j]=[]}
+ else if((k==='p'||k==='rim')&&dpReady)dpRepair(s,k,a);
  else if(k==='c'){s[a]=100;if(a==='cooling'||a==='engine')s.engTemp=90}
  else if(k==='s'){s.susp[j]=100;s.align[j]=0}else if(k==='t')s.wheels[j]=newWheel();else return false;
  syncAggregates(s);return true}
@@ -30,10 +33,12 @@ function inspectRows(){const s=currentDamageRecord(),it={},R=[];for(const q of r
  const add=(id,grp,label,cond)=>R.push({id,grp,label,cond:it[id]?it[id].cond:cond,price:it[id]?it[id].price:0});
  for(const z of ZONES)add('z:'+z,'Body',REP_ZN[z],s.zones[z]);
  for(let j=0;j<4;j++)add('li:'+j,'Body',LIGHT_NAMES[j][0].toUpperCase()+LIGHT_NAMES[j].slice(1),s.lights[j]?0:100);
+ for(const k of DP_KEYS)add('p:'+k,'Body',DP_NAMES[k],100-s.parts[k]*100);
  for(let j=0;j<4;j++)add('gl:'+j,'Body',GLASS_NAMES[j][0].toUpperCase()+GLASS_NAMES[j].slice(1),100-s.glass[j]*100);
  for(const[k,l]of[['engine','Engine'],['cooling','Cooling / radiator'],['trans','Gearbox'],['driveline','Driveline'],['steer','Steering'],['brakes','Brakes']])add('c:'+k,'Mechanical',l,s[k]);
  for(let j=0;j<4;j++)add('s:'+j,'Suspension','Suspension '+WHEEL_NAMES[j],s.susp[j]);
  for(let j=0;j<4;j++){const w=s.wheels[j];add('t:'+j,'Tyres','Tyre '+WHEEL_NAMES[j],w.punct?0:Math.min(w.tread,w.health))}
+ for(let j=0;j<4;j++)add('rim:'+j,'Tyres','Rim '+WHEEL_NAMES[j],100-s.rims[j]*100);
  return R}
 const repBal=()=>fines-spent;
 function payRepair(ids){const L=repairItems().filter(q=>ids.includes(q.id)),tot=L.reduce((a,q)=>a+q.price,0);if(!L.length||repBal()<tot)return false;

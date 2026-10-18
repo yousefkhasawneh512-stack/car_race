@@ -13,7 +13,7 @@ const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{L
 let seed=7;Math.random=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
 const cl0=console.log;console.log=()=>{};
 const html=fs.readFileSync(process.argv[2],'utf8');
-(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={updP,keys,P,PORS,setPlayerCar,groundH,traffic,bots,heist,COL,ptSpec,ptRun,PTS,setHandling,hm:()=>handlingMode,carSpec,IRBID_SPEED_BUMPS,checkSpeedBumpCrossing,currentDamageRecord,cycleDamageMode,dm:()=>damageMode,repairCurrentCar,TH};');
+(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={updP,keys,P,PORS,setPlayerCar,groundH,traffic,bots,heist,COL,ptSpec,ptRun,PTS,SUSP,bumpAt,setHandling,hm:()=>handlingMode,carSpec,IRBID_SPEED_BUMPS,checkSpeedBumpCrossing,currentDamageRecord,cycleDamageMode,dm:()=>damageMode,repairCurrentCar,TH};');
 const S=global.__s,P=S.P,k=S.keys;S.traffic.length=0;S.bots.length=0;S.heist.cops.length=0;S.COL.clear();
 (0,eval)('fine=function(){};toast=function(){}');
 let fail=0;const ok=(c,m,v)=>{cl0((c?'PASS ':'FAIL ')+m+(v!==undefined?'  ['+v+']':''));if(!c)fail++};
@@ -55,16 +55,16 @@ ok(fwdT.spin<=0.05||fwdT.yaw<=fwdA.yaw*1.02,'FWD with wheelspin does not turn in
 {place(idx('Ford Focus RS'));step(60*8,{KeyW:1});const v0=spd();step(60,{});const coast=v0-spd();place(idx('Ford Focus RS'));step(60*8,{KeyW:1});const v1=spd();let n=0;while(spd()>.6&&n<600){step(1,{KeyS:1});n++}
  const dec=v1/(n/60)/9.81;ok(coast>.2&&coast<4,'coasting 1 s slows the car by drag + engine braking',coast.toFixed(2)+' m/s from '+(v0*3.6).toFixed(0)+' km/h');ok(dec>.6&&dec<1.3,'full braking ~0.8-1.1 g (tyre/brake limited)',dec.toFixed(2)+' g')}
 // ---- 6. speed bump: limited hop, suspension moves, damage once per crossing ----
-const B=S.IRBID_SPEED_BUMPS[0];ok(!!B,'speed bumps present',S.IRBID_SPEED_BUMPS.length+' ('+S.IRBID_SPEED_BUMPS.filter(b=>!b.estimated).length+' mapped in OSM)');
+const B=S.IRBID_SPEED_BUMPS.find(b=>b.estimated)||S.IRBID_SPEED_BUMPS[0];ok(!!B,'speed bumps present',S.IRBID_SPEED_BUMPS.length+' ('+S.IRBID_SPEED_BUMPS.filter(b=>!b.estimated).length+' mapped in OSM)');
 ok(S.IRBID_SPEED_BUMPS.filter(b=>!b.estimated).length>=1,'OSM-mapped traffic calming is placed as real (not estimated) bumps');
-function cross(kmh,mode){S.setHandling(mode);place(idx('Ford Focus RS'));const v=kmh/3.6;P.x=B.x-B.tx*6;P.z=B.z-B.tz*6;P.h=Math.atan2(B.tx,B.tz);P.vx=B.tx*v;P.vz=B.tz*v;P.y=P.pgh=S.groundH(P.x,P.z);B.armed=true;B.cooldown=-99;S.PTS.hz=S.PTS.hv=0;
- let vy=0,hz=0,hits0=S.currentDamageRecord().impacts;const imp0=JSON.stringify(S.currentDamageRecord().susp);let maxVy=0;for(let j=0;j<120;j++){P.vx=B.tx*v;P.vz=B.tz*v;step(1,{});maxVy=Math.max(maxVy,P.vy);hz=Math.max(hz,Math.abs(S.PTS.hz))}
- return{vy:maxVy,hz,susp:S.currentDamageRecord().susp.slice()}}
+function cross(kmh,mode){S.setHandling(mode);place(idx('Ford Focus RS'));const v=kmh/3.6;P.x=B.x-B.tx*6;P.z=B.z-B.tz*6;P.h=Math.atan2(B.tx,B.tz);P.vx=B.tx*v;P.vz=B.tz*v;P.y=P.pgh=S.groundH(P.x,P.z);B.armed=true;B.cooldown=-99;S.PTS.hz=S.PTS.hv=0;S.SUSP.zb=[0,0];S.SUSP.vb=[0,0];S.SUSP.zw=[0,0];S.SUSP.zh=[0,0];S.SUSP.vh=[0,0];S.SUSP.last=-99;
+ let vy=0,hz=0,hits0=S.currentDamageRecord().impacts;const imp0=JSON.stringify(S.currentDamageRecord().susp);let maxVy=0,jo=0;S.SUSP.jolt=0;for(let j=0;j<120;j++){P.vx=B.tx*v;P.vz=B.tz*v;step(1,{});maxVy=Math.max(maxVy,P.vy);hz=Math.max(hz,Math.abs(S.SUSP.heave));jo=Math.max(jo,S.SUSP.jolt)}
+ return{vy:maxVy,hz,jo,susp:S.currentDamageRecord().susp.slice()}}
 while(S.dm()!==2)S.cycleDamageMode();S.repairCurrentCar('all');
 const r30=cross(30,1),r70=cross(70,1),a70=cross(70,0);
 cl0('     bump hop vy: realistic 30 km/h '+r30.vy.toFixed(2)+', 70 km/h '+r70.vy.toFixed(2)+' (arcade 70 km/h '+a70.vy.toFixed(2)+'); body heave '+r30.hz.toFixed(3)+' / '+r70.hz.toFixed(3)+' m');
 ok(r30.vy<.35,'Realistic: 30 km/h over a bump is absorbed (small hop)',r30.vy.toFixed(2)+' m/s');
-ok(r70.vy<=.75&&r70.vy>r30.vy,'Realistic: 70 km/h gives a larger but limited hop',r70.vy.toFixed(2)+' m/s');
+ok(r70.vy<=.75&&r70.jo>r30.jo*1.5,'70 km/h: a much harder jolt than 30 km/h, no launch (v44 quarter-car)','jolt '+r70.jo.toFixed(2)+' vs '+r30.jo.toFixed(2)+' m/s, hop '+r70.vy.toFixed(2)+' m/s');
 ok(r30.hz>.005,'suspension visibly compresses over the bump',(r30.hz*100).toFixed(1)+' cm');
 {S.repairCurrentCar('all');const before=S.currentDamageRecord().susp[0];cross(70,1);const after1=S.currentDamageRecord().susp[0];ok(after1<before,'a fast crossing damages suspension (Full mode)',before+' -> '+after1.toFixed(1));
  // stay on the bump line for 40 frames at speed 0 drift: no repeated registration
