@@ -277,7 +277,7 @@ function buildEstimatedSpeedBumps(){
  const selected=candidates.slice(0,90);
  // one merged mesh for every bump, authored in the flat frame at the road surface; applyTerrain (12c) drapes each vertex onto the terrain.
  // Each paint band (yellow / black across the road) has its own vertices, so the visible shape is exactly the profile the wheels ride on.
- const pos=[],col=[],idx=[],Y=.056,NS=12,yel=[.93,.78,.18],blk=[.09,.09,.1];
+ const pos=[],col=[],idx=[],Y=.056,NS=12,yel=[.72,.6,.14],blk=[.09,.09,.1];
  for(const b of selected){const nb=Math.max(6,Math.round(b.width/.6)),rx=b.tz,rz=-b.tx;
   for(let j=0;j<nb;j++){const c=j%2?blk:yel,v0=pos.length/3;
    for(const lat of[-b.width/2+b.width*j/nb,-b.width/2+b.width*(j+1)/nb])for(let i=0;i<=NS;i++){const al=-b.len/2+b.len*i/NS;pos.push(b.x+b.tx*al+rx*lat,Y+bumpProf(b,al),b.z+b.tz*al+rz*lat);col.push(c[0],c[1],c[2])}

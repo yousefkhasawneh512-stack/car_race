@@ -9,7 +9,7 @@ function wrongWay(){const s=RI;if(!s||s.d>s.e.w/2||s.n!==1)return false;const e=
  const u=e.cum[s.i]+s.t*(e.cum[s.i+1]-e.cum[s.i]);if(u<18||e.len-u<18)return false;const al=P.vx*s.tx+P.vz*s.tz;if(e.ow)return al<-4;return(al>4&&s.side<-1)||(al<-4&&s.side>1)}
 function redLight(sp){let near=null;for(const nd of LIT)if(Math.hypot(P.x-nd.x,P.z-nd.z)<12){near=nd;break}
  if(near&&curL===null&&P.y<1.5&&sp>14){const v=Math.hypot(P.vx,P.vz)||1,vx=P.vx/v,vz=P.vz/v;let best=null,bd=-2;for(const e of near.inn){const h=approachOf(near,e),dd=h[0]*vx+h[1]*vz;if(dd>bd){bd=dd;best=e}}
-  if(best&&bd>.5&&light(near.ph[best.id])==='r')fine('red',50,'Ran a red light',3)}curL=near?near.id:null}
+  if(best&&bd>.5&&light(near.ph[best.id],near)==='r')fine('red',50,'Ran a red light',3)}curL=near?near.id:null}
 // ---- teleports: landmark tour (K), stunt ramps (J), reset (F) ----
 const ringSpot=c=>c?[c.x+c.r,c.z,Math.PI]:null;
 const rsp=(name,x,z)=>{const s=roadSpot(name,x,z);return[s.x+s.nx*s.w/4,s.z+s.nz*s.w/4,Math.atan2(s.tx,s.tz)]};

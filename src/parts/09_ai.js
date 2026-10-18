@@ -18,14 +18,20 @@ function trim(b){if(b.pi>40){const cut=b.pi-12;b.P.splice(0,cut);b.C.splice(0,cu
 function advance(b){const P=b.P;let pi=b.pi;while(pi<P.length-1){const d0=(P[pi][0]-b.x)**2+(P[pi][1]-b.z)**2,d1=(P[pi+1][0]-b.x)**2+(P[pi+1][1]-b.z)**2;if(d1<=d0||d0<9)pi++;else break}b.pi=pi}
 function aim(b,L){const P=b.P,C=b.C;let j=b.pi;const c0=C[j];while(j<P.length-1&&C[j]-c0<L)j++;return P[j]}
 function curveCap(b){const P=b.P,C=b.C;let best=1e9,j=b.pi;const c0=C[j];while(j+3<P.length&&C[j]-c0<150){const a1=Math.atan2(P[j+1][0]-P[j][0],P[j+1][1]-P[j][1]),a2=Math.atan2(P[j+3][0]-P[j+2][0],P[j+3][1]-P[j+2][1]),sa=Math.max(.02,Math.abs(wrap(a2-a1))),cp=cl(Math.sqrt(224/sa),9,120),d=Math.max(0,C[j]-c0-4);best=Math.min(best,Math.sqrt(cp*cp+2*10*d));j++}return best}
+// progress of a path follower along its path: projection on the current segment, or (cutting a corner, where that projection stalls) the
+// straight-line distance still to go to the next path point, whichever is further along
+function pathProg(b){const P=b.P,C=b.C,i=b.pi;if(!P[i])return C[i]||0;const q=P[i],rem=C[i]-Math.hypot(q[0]-b.x,q[1]-b.z);if(i<1)return Math.max(C[0],rem);const a=P[i-1],sx=q[0]-a[0],sz=q[1]-a[1],l2=sx*sx+sz*sz||1,t=cl(((b.x-a[0])*sx+(b.z-a[1])*sz)/l2,0,1);return Math.max(C[i-1]+t*(C[i]-C[i-1]),rem)}
 function setHeadFromPath(b){const p=b.P,i=b.pi||0;if(p.length>i+1)b.h=Math.atan2(p[i+1][0]-p[i][0],p[i+1][1]-p[i][1])}
 // --- traffic ---
 function respawn(c,rmin){const s=pickSeg(rmin||260,640);if(!s){c.x=c.z=1e5;c.m.position.set(1e5,0,1e5);c.hold=1;return}
  const e=s.e,d=e.ow?1:(Math.random()<.5?1:-1);setTrafficModel(c,trafficZone(s.x0,s.z0,e));c.P=[];c.C=[];c.Lm=[];c.Mk=[];c.pi=0;c.dead=false;appendTrav(c,{e,d},d>0?s.i+1:e.pts.length-1-s.i);extend(c);const p=c.P[0];c.x=p[0];c.z=p[1];setHeadFromPath(c);c.v=0;c.hold=0;c.stuck=0;c.m.position.set(c.x,TH(c.x,c.z)+.12,c.z);c.m.rotation.set(0,c.h,0)}
 function updTraffic(c,dt){if(c.x>9e4){respawn(c,60);return}advance(c);extend(c);trim(c);const P_=c.P;
  let tgt=13*c.cru*(c.Lm[c.pi]||50)/50;tgt=Math.min(tgt,curveCap(c)*.8);
- for(const m of c.Mk){if(m.i<c.pi)continue;const d=c.C[m.i]-c.C[c.pi],nd=NODES[m.id];if(d>110)break;
-  if(nd.lit){const dd=d-11,st=light(nd.ph[m.e.id]);if(dd>-4&&(st==='r'||(st==='y'&&dd>c.v*.9)))tgt=Math.min(tgt,Math.sqrt(Math.max(0,7*Math.max(dd,0))))}
+ // distance along the path from the car itself (v44): project the car onto its current path segment. Measuring from the next path point (points
+ // are up to 9 m apart) made a car waiting at a red stop line believe it was already in the junction, so it drove on through the red.
+ const pr=pathProg(c);
+ for(const m of c.Mk){if(m.i<c.pi)continue;const d=c.C[m.i]-pr,nd=NODES[m.id];if(d>110)break;
+  if(nd.lit){const dd=d-11,st=light(nd.ph[m.e.id],nd);if(dd>-4&&(st==='r'||(st==='y'&&dd>c.v*.9)))tgt=Math.min(tgt,Math.sqrt(Math.max(0,7*Math.max(dd,0))))}
   else if(circNode(m.id)&&d<38)tgt=Math.min(tgt,8)}
  const sh=Math.sin(c.h),ch=Math.cos(c.h);
  for(const o of all){if(o===c)continue;const dx=o.x-c.x,dz=o.z-c.z,f=dx*sh+dz*ch;if(f>0&&f<26&&Math.abs(dx*ch-dz*sh)<2.6)tgt=Math.min(tgt,Math.max(0,(f-6.5)*.9))}

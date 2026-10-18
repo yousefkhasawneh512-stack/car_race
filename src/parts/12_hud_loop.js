@@ -24,7 +24,7 @@ function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour
  if(el>.3)sky.copy(dayC);else if(el>0)sky.copy(duskC).lerp(dayC,el/.3);else sky.copy(nightC).lerp(duskC,Math.max(0,(el+.15)/.15));
  gfxSky(el,dx*900,el*900,300,clock);const night=cl((.05-el)*8,0,1);sun.position.set(P.x+dx*400,P.y+Math.max(el,.03)*400,P.z+140);sun.target.position.set(P.x,P.y,P.z);groundTo(Math.round(P.x/100)*100,Math.round(P.z/100)*100);sun.intensity=Math.max(0,el)*1.3;
  hemi.intensity=.14+.5*Math.max(0,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
- mX.color.set({g:0x22ff55,y:0xffc400,r:0xff2a2a}[light('x')]);mZ.color.set({g:0x22ff55,y:0xffc400,r:0xff2a2a}[light('z')]);
+ sigTick();
  traffic.forEach(c=>updTraffic(c,dt));
  const frozen=race.s==='count';const sp=updP(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
