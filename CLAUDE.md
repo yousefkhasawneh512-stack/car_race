@@ -38,7 +38,7 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
 - **After any change:** build, then run at least `val_net`, `boot`, `h2`, `h13`, `h20`, `h24`, plus the feature's own
   checks (listed per version in `CHANGELOG.md`, e.g. `phys_brake`, `terr_check`, `dyn_check` for physics/terrain). For place
   changes, dump coordinates with `node tests/h21.js dist/irbid-drive.html out.json` before and after and diff.
-  Also run `realism_test` (29 checks), `place_audit.py` (29 checks, Python: every place correction of the v43 audit), `damage_test` (59 checks: zones, modes, per-car durability, tyres, burnouts, objects,
+  Also run `realism_test` (29 checks), `place_audit.py` (30 checks, Python: every place correction of the v43 audit), `damage_test` (59 checks: zones, modes, per-car durability, tyres, burnouts, objects,
   switching, diagnostics, paid per-part repairs, full inspection) and `off_trace` (damage Off: the collider-free physics hash must equal v38's; the with-world hash is only
   reported, it changes whenever buildings near the start move); all exit 1 on failure. Visual: `damage_pw.py` (11 checks incl. the repair bay). `damage_test`, `realism_test`, `off_trace`, `handling_test` and `bld_check` load three from `node_modules`, so run them from the repo root. Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
   Realistic handling: `handling_test` (writes the per-car powertrain table if given a 2nd arg: `manifest/car_powertrain.json`). Buildings vs OSM: `bld_check`.

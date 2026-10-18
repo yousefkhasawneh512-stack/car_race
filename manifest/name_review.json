@@ -908,6 +908,17 @@
    "conf": "high"
   },
   {
+   "id": "osm:w779487084",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "Museum of Jordanian Heritage",
+    "متحف التراث الأردني"
+   ],
+   "rule": "wikidata: Wikidata Q12238591 \"Museum of Jordanian Heritage / متحف التراث الأردني\" (Yarmouk University) is 27 m from this OSM museum, which is only named \"Historical Museum\". No other museum within 80 m.",
+   "conf": "medium"
+  },
+  {
    "id": "osm:w696141881",
    "field": "aliases",
    "from": "",
@@ -960,11 +971,32 @@
    "conf": "high"
   },
   {
+   "id": "osm:w696139408",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "كابيتولياس"
+   ],
+   "rule": "wikidata: Wikidata Q1226916 Capitolias (ar label كابيتولياس) is 4 m from this OSM archaeological site in Beit Ras.",
+   "conf": "high"
+  },
+  {
    "id": "osm:w1150288656",
    "field": "category",
    "from": "Beauty salon",
    "to": "Beauty / cosmetic clinic (unverified)",
    "rule": "CAT-003: name \"عيادة شلبي\" = Shalabi Clinic; OSM shop=beauty. Both fit a cosmetic clinic; kept in the beauty group, labelled as a clinic, flagged for a local check.",
+   "conf": "medium"
+  },
+  {
+   "id": "osm:w706369062",
+   "field": "aliases",
+   "from": "",
+   "to": [
+    "حدائق الملك عبدالله الثاني",
+    "King Abdullah II Gardens"
+   ],
+   "rule": "wikidata: Wikidata Q22687456 \"حدائق الملك عبدالله الثاني\" (park) is 185 m from this OSM park centre; same name, no other park of that name nearby. Park extent not checked.",
    "conf": "medium"
   }
  ],
@@ -1660,9 +1692,19 @@
    "issue": "CAT-006 (changed, confidence medium): \"حكما / Hakama\" is the village name (name:de/fr, int_name and is_in come from a gazetteer import of the village) on a node tagged place_of_worship 0.8 km from the OSM village node. Not shown as a mosque named \"Hakama\"; the village stays searchable. A mosque may exist there: unverified."
   },
   {
+   "id": "osm:w779487084",
+   "name": "Historical Museum",
+   "issue": "wikidata (changed, confidence medium): Wikidata Q12238591 \"Museum of Jordanian Heritage / متحف التراث الأردني\" (Yarmouk University) is 27 m from this OSM museum, which is only named \"Historical Museum\". No other museum within 80 m."
+  },
+  {
    "id": "osm:w1150288656",
    "name": "عيادة شلبي",
    "issue": "CAT-003 (changed, confidence medium): name \"عيادة شلبي\" = Shalabi Clinic; OSM shop=beauty. Both fit a cosmetic clinic; kept in the beauty group, labelled as a clinic, flagged for a local check."
+  },
+  {
+   "id": "osm:w706369062",
+   "name": "King Abdullah II Park",
+   "issue": "wikidata (changed, confidence medium): Wikidata Q22687456 \"حدائق الملك عبدالله الثاني\" (park) is 185 m from this OSM park centre; same name, no other park of that name nearby. Park extent not checked."
   },
   {
    "id": "osm:n9171476311",

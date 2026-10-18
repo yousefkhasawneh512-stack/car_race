@@ -44,6 +44,25 @@ CC licences recorded with creator and URL) are reference only: showing them woul
 The reported offsets (Dar As-Saraya 76 m, Nabulsi 37 m, Clock Tower 36 m, Nissan 47 m) were fixed in v40 by moving each landmark onto its
 OSM footprint or point. No position was set by a hand-tuned offset. v43 re-measured them (table above).
 
+## 2b. Independent check against Wikidata (v43b, 2026-10-18)
+
+A Wikidata SPARQL query (CC0; every item with coordinates within 15 km of Irbid, 241 rows) gives a second, independent position for some features.
+Distance from the Wikidata point to the OSM feature the game uses:
+
+| Feature | Wikidata | Distance |
+|---|---|---|
+| Irbid Archaeological Museum (Dar As-Saraya) | Q12238575 | 1 m |
+| Nabulsi House | Q140552193 | 6 m |
+| Beit Arar (The Cultural House of Arrar) | Q136447975 | 24 m |
+| Al-Hassan Stadium | Q4117207 | 26 m |
+| Yarmouk University | Q240784 | 21 m |
+| Capitolias (Beit Ras) | Q1226916 | 4 m |
+| "Historical Museum" = Museum of Jordanian Heritage | Q12238591 | 27 m (names added as search aliases) |
+| King Abdullah II Park = حدائق الملك عبدالله الثاني | Q22687456 | 185 m to the park centre (alias added, medium) |
+
+Candidate not placed: **Abu al-Darda shrine (مقام أبي الدرداء)**, Wikidata Q20424481 at 32.590131, 35.79359, inside the play area, nothing in OSM
+within 378 m. A Wikidata coordinate has no stated survey source, so it needs an owner check before going into `osm/manual/verified_places.json`.
+
 ## 3. Municipal heritage list vs the game (27 sites)
 
 | Site | Status in the game | Evidence / note |

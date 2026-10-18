@@ -33,6 +33,12 @@ OVERRIDES={
  'osm:w1173930235':{'audit':'GAP-006','alias':['منزل عرار','بيت عرار'],'conf':'high','why':'OSM "Arar House / بيت عرار الثقافي" = municipal list "منزل عرار" and Visit Jordan "Beit Arar".'},
  'osm:w1173930712':{'audit':'heritage','alias':['بيت النابلسي'],'conf':'high','why':'OSM Nabulsi House = municipal list "بيت النابلسي".'},
  'osm:n5606766135':{'audit':'OSM-001','alias':['حكما الاساسية للبنات'],'conf':'high','why':'MoE 2018 lists "حكما الاساسية للبنات" (girls = اناث); the OSM node has only a name, no tags.'},
+ # names from Wikidata (CC0; query 2026-10-18, 15 km around Irbid) for the OSM feature at the same spot. Aliases only: display names unchanged
+ 'osm:w779487084':{'audit':'wikidata','alias':['Museum of Jordanian Heritage','متحف التراث الأردني'],'conf':'medium',
+   'why':'Wikidata Q12238591 "Museum of Jordanian Heritage / متحف التراث الأردني" (Yarmouk University) is 27 m from this OSM museum, which is only named "Historical Museum". No other museum within 80 m.'},
+ 'osm:w696139408':{'audit':'wikidata','alias':['كابيتولياس'],'conf':'high','why':'Wikidata Q1226916 Capitolias (ar label كابيتولياس) is 4 m from this OSM archaeological site in Beit Ras.'},
+ 'osm:w706369062':{'audit':'wikidata','alias':['حدائق الملك عبدالله الثاني','King Abdullah II Gardens'],'conf':'medium',
+   'why':'Wikidata Q22687456 "حدائق الملك عبدالله الثاني" (park) is 185 m from this OSM park centre; same name, no other park of that name nearby. Park extent not checked.'},
 }
 # ---- name-vs-tag conflict rules: (name regex, kinds it overrides, new kind, new category). Applied only when the record's kind is in the
 # listed set, i.e. the tags say something the name clearly contradicts (a school tagged as a hospital, etc.) ----

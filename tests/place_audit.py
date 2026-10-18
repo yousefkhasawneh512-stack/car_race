@@ -39,6 +39,9 @@ ck('editor-preset chain brands are not search aliases of local shops',not [q[3] 
 ck('fuel stations keep their operator brand (JO Petrol)','JO Petrol' in by['osm:n4280768316'][7])
 # heritage list aliases
 ck('heritage: Greek Orthodox church has the municipal name, Greek Catholic church separate','كنيسة الروم الأرثوذكس' in by['osm:w696141882'][7] and by['osm:n7285033997'][2]=='church')
+ck('wikidata names: Museum of Jordanian Heritage, Capitolias (ar), King Abdullah II Gardens are search aliases; display names unchanged',
+   'Museum of Jordanian Heritage' in by['osm:w779487084'][7] and 'كابيتولياس' in by['osm:w696139408'][7] and 'حدائق الملك عبدالله الثاني' in by['osm:w706369062'][7]
+   and by['osm:w779487084'][3]=='Historical Museum')
 # duplicates: same kind + same name rows closer than 20 m would be a missed merge
 g=collections.defaultdict(list);dd=[]
 for q in POID:g[(q[2],q[3])].append(q)

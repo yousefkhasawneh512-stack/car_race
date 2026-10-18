@@ -227,3 +227,15 @@ the official sources; per-issue status in AUDIT_REPORT.md (v43 table).
 - Tests: new `tests/place_audit.py` (29 checks); `damage_test` 59 (inspection list; a tyre repair leaves suspension untouched);
   `damage_pw` +1 (inspection list in Chromium). Everything else as v42.
 - Not done: irregular building footprints, landmark photo facades, licensed car/landmark models, bridge decks, physical G29 and phone tests.
+
+## v43b (2026-10-18)
+
+The owner re-supplied the v43 audit files (`irbid-place-database-audit.md`, `irbid-place-database-issues.csv`, byte-identical to the v43 CSV,
+and `irbid-drive-changes-after-artifact.md`, which describes damage/garage/G29/speed-bump work already in v39–v42). Every CSV issue already
+has a v43 status (AUDIT_REPORT.md). New this time: a **Wikidata** cross-check (CC0, items within 15 km of Irbid).
+- Independent position check: Dar As-Saraya 1 m, Nabulsi House 6 m, Beit Arar 24 m, Al-Hassan Stadium 26 m, Yarmouk 21 m, Capitolias 4 m from their Wikidata points.
+- Search aliases (`corrections.py`, audit id `wikidata`): "Museum of Jordanian Heritage / متحف التراث الأردني" on OSM "Historical Museum" (27 m, medium),
+  "كابيتولياس" on Capitolias (4 m, high), "حدائق الملك عبدالله الثاني / King Abdullah II Gardens" on King Abdullah II Park (185 m, medium). Display names and coordinates unchanged (`h21` identical).
+- Not placed: Abu al-Darda shrine (Wikidata Q20424481, 32.590131 35.79359; nothing in OSM within 378 m), Irbid City Centre (Wikidata Q138025302 = the same rounded point as Wikipedia).
+  Wikidata found nothing for the Mamluk mosque, Tell Irbid, the heritage houses or Irbid Mall.
+- Tests: `place_audit.py` 30/30 (new alias check), in-game search finds all 5 new names, `damage_test`, `realism_test`, `off_trace` (identical to v38), `val_net` 400/0, `h24` bad 6, `lmchk` unchanged.

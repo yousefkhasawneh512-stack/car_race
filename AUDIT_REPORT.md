@@ -38,6 +38,7 @@ against the current data (1,652 OSM places, OSM base 2026-10-17) and the officia
 | DATA-001 schools vs MoE | High | **Compared by name** | the 2018 list has no coordinates: names only (30 matches); nothing placed from it |
 | DATA-002 mosques vs Awqaf | High | **Compared by name** | 778 rows, no coordinates; 255 name matches (upper bound) |
 | DATA-003 unverified POIs | High | **Unchanged** | every POI now carries its OSM id; 196 review flags in `name_review.json` |
+| (v43b) Wikidata cross-check | — | **Done** | landmark positions confirmed 1–27 m; 3 search aliases added; Abu al-Darda shrine listed as a candidate (not placed). See BUILDING_LANDMARK_REPORT §2b |
 | (new) preset brands | Med | **Fixed** (high) | 35 local shops carried an international chain's `brand` from an editor preset (Arab Bank as "Capital Bank", "T-Mobile", "iFLY" travel agencies shown as **sports centres**). Removed from aliases; agencies reclassified |
 | (new) importer bug | — | **Fixed** | `build.py` could not re-read 03c (greedy POID regex) |
 

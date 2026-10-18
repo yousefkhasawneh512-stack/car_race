@@ -46434,10 +46434,14 @@
 "building": "yes",
 "addr:city": "irbid"
 },
-"names": {},
+"names": {
+"alias:audit0": "Museum of Jordanian Heritage",
+"alias:audit1": "متحف التراث الأردني"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "wikidata",
 "in_game": true,
 "photo": [],
 "confidence": "osm-mapped"
@@ -51967,10 +51971,13 @@
 "tags": {
 "historic": "archaeological_site"
 },
-"names": {},
+"names": {
+"alias:audit0": "كابيتولياس"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "wikidata",
 "in_game": true,
 "photo": [
 "File:Capitolias (Beit Ras).jpg"
@@ -52377,10 +52384,14 @@
 "opening_hours": "09:00-21:00",
 "operator": "government"
 },
-"names": {},
+"names": {
+"alias:audit0": "حدائق الملك عبدالله الثاني",
+"alias:audit1": "King Abdullah II Gardens"
+},
 "source": "OpenStreetMap (Overpass API)",
 "retrieved": "2026-10-17T08:23:49Z",
 "flags": [],
+"audit": "wikidata",
 "in_game": true,
 "photo": [
 "File:King Abdullah II Gardens (Irbid) 08.jpg",
