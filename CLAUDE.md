@@ -8,6 +8,8 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 **The current game is the reference implementation:** don't redesign gameplay.
 
 Companion files (read before non-trivial work):
+- `docs/` (v47): `PROJECT_AUDIT.md` (dependency map, findings), `DEVELOPMENT_PLAN.md` (workflow, status per brief phase, next steps), `TEST_REPORT.md`,
+  `PERFORMANCE_REPORT.md`, `ASSET_SOURCES_AND_LICENSES.md` (licence research; rules for adding assets), `KNOWN_ISSUES.md`, `PLATFORM_SUPPORT.md` (browsers, Capacitor apps).
 - `V46_REPORT.md` (v46: manual gearbox + paddles, horn, auto-drive, road reputation / rival memory, simulated weather + Irbid local clock,
   two fine-rule bug fixes; tests, limits) + `docs/screenshots/v46/`.
 - `V45_REPORT.md` (v45: Realistic tyre model + drift, synthesised engine audio, pause/settings/quality, save validation, HUD layering fix, G29 additions;
@@ -61,6 +63,13 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   auto-drive on a real 1.4 km route in both modes + at a red light) and `v46_pw.py` (Playwright: weather visuals, pause rows, local clock,
   auto-drive via the real search box, takeover, horn, E shift; screenshots into `docs/screenshots/v46/`, honours `SP`). `wheel_test` 43 checks.
   Offline copy: `python tools/make_offline.py` -> `dist/irbid-drive-offline.html` (three r128 inlined, git-ignored).
+  v47: **`python tools/check.py`** (quick: parts exist + parse, build, head-script guard, hosts, attribution, JSON, asset manifests, core Node checks;
+  `--full` adds every Node and Playwright check incl. `xbrowser_pw`; report `.check/report.md`; on success copies the build to `dist/last-good/`).
+  `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),
+  `xbrowser_pw.py` (Chromium/Firefox/WebKit + iPhone/iPad/Pixel emulation; needs `python -m playwright install firefox webkit`; one browser per case,
+  WebKit lost its software-GL context on the 4th page of one process), `perf_v47_pw.py` (preset render cost, traffic cost). Assets:
+  `node tools/gen_asset_manifests.js dist/irbid-drive.html` then `node scripts/validate-assets.js` (fails when a file changed without regenerating).
+  App: `python tools/make_app_www.py` then `cd app && npx cap sync` (Capacitor 8; `app/www` and the copied `public/` folders are git-ignored).
   Expected results (v44, 2026-10-19): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
   1729 (laz 1531), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060; the start view varies with random traffic (990–1,210 seen on both v43b and v44; with traffic hidden v43b 459–470, v44 451–459). `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
@@ -105,7 +114,7 @@ Current order and roles:
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
 | Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive`, `07h_dmgparts` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
 | Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav`, `11c_assist` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav, manual gearbox / horn / auto-drive / road reputation + rival memory |
-| Frame | `12a_fx`, `12d_audio`, `12b_post`, `12c_terrain`, `12e_pause`, `12f_weather`, `12_hud_loop` | effects, Web Audio (engine/tyres/world, synthesised), HDR bloom/grade chain, the terrain pass, pause/settings/quality/frame meter, simulated weather + Irbid local clock, minimap/HUD/camera and the **main loop** |
+| Frame | `12a_fx`, `12d_audio`, `12b_post`, `12c_terrain`, `12e_pause`, `12f_weather`, `12g_platform`, `12_hud_loop` | effects, Web Audio (engine/tyres/world, synthesised), HDR bloom/grade chain, the terrain pass, pause/settings/quality presets/traffic density/frame meter, simulated weather + Irbid local clock, WebGL context loss + device report + loading-screen removal, minimap/HUD/camera and the **main loop** |
 
 Order facts that have broken things before: `06h2_final_patch` runs before `06h_gen`, and `06d_fabric_driver` runs after it.
 `12a_fx` must precede `12_hud_loop`. `08a_wheel` declares `let ui`, which earlier-defined handlers read at runtime. `07c_realism`
@@ -219,6 +228,10 @@ Traffic AI measures junction distance with `pathProg()` (09_ai). `tools/gen_sign
   a menu was open; wheel buttons dispatch synthetic keys on `window`, where listeners run in registration order. While paused, the loop still polls
   the wheel (`WH.poll`) so its Back button can resume.
 
+- **Head scripts (v47):** ~45 Node tests/tools extract the game with `/<script>\n([\s\S]*?)<\/script>/` (first match). Any other inline script must
+  NOT start with `<script>` + newline (the v47 error-banner script starts `<script>(function`). `tools/check.py` fails if this breaks.
+- **v47 settings:** `irbid-drive-gfx-v1` gains `t` (traffic density high/medium/low). Low quality = 1280x720 buffer, Ultra = 2560x1440 (the composer is
+  resized too); defaults (Auto, High traffic) = v46. Parked traffic cars have `c.park`, sit at 2e5 and are skipped by the `updTraffic` wrapper.
 - **Inline comments in dense one-liners:** a `//` comment added mid-line comments out the REST of that line (v46 lost `const toastEl` this way;
   Node tests that stub `toast` did not notice). Put new comments on their own line, then run `new Function(src)` on each changed part.
 - **v46 storage keys:** `irbid-drive-gearbox-v1` ('1' manual), `irbid-drive-weather-v1` ({mode,clock}), `irbid-drive-rep-v1` ({v,road,riv,log}).

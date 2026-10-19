@@ -38,7 +38,7 @@ writes `dist/irbid-drive-offline.html` with Three.js r128 inlined (zero network 
 | O | vehicle diagnostics: damage report, per-wheel tyres, racing-wheel status |
 | J / K | stunt ramps / landmark tour teleport |
 | T / F | +1 hour / reset to start |
-| Esc | pause menu: sound volumes, graphics quality (Auto/High/Medium/Low), frame-time meter, handling, damage, gearbox (Auto/Manual), weather (Auto/Clear/Cloudy/Rain), clock (game time / Irbid local time), road reputation (the wheel's Back button too) |
+| Esc | pause menu: sound volumes, graphics quality (Auto/Ultra/High/Medium/Low), traffic density (High/Medium/Low), frame-time meter, handling, damage, gearbox (Auto/Manual), weather (Auto/Clear/Cloudy/Rain), clock (game time / Irbid local time), road reputation (the wheel's Back button too) |
 | L | mute / unmute sound |
 | V | racing-wheel setup (Logitech G29: live readings, pedal/clutch calibration incl. combined pedals, force feedback via WebHID in Chromium) |
 
@@ -111,7 +111,13 @@ node tests/off_trace.js dist/irbid-drive.html     # damage Off = identical physi
 pip install playwright && python -m playwright install chromium
 python tests/drive_pw.py dist/irbid-drive.html    # real-browser check
 python tests/damage_pw.py dist/irbid-drive.html   # real-browser damage screenshots
+python tools/check.py                             # quick project check (build, syntax, JSON, assets, core tests); --full = everything
+python tests/xbrowser_pw.py dist/irbid-drive.html # Chromium + Firefox + WebKit, phone/tablet emulation
 ```
+
+**Phones and tablets:** play in landscape; Quality Low and Traffic Low run best. **Android / iOS app:** `app/` is a Capacitor 8 wrapper
+around the offline build (`python tools/make_app_www.py`, then `cd app && npx cap sync`); building needs Android Studio or a Mac with Xcode.
+See `docs/PLATFORM_SUPPORT.md`. Asset licences: `docs/ASSET_SOURCES_AND_LICENSES.md` and `assets/manifests/`.
 
 The game's map data is already baked into `src/parts/03a`–`03d`, so building and playing need nothing else. The raw
 OpenStreetMap/SRTM input files are **not included in this repository**. Only the converter scripts are

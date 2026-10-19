@@ -161,6 +161,12 @@ gating the estimated speed bumps, any pause/start/audio features, and the refact
   player 6.5 -> 12 m at low reputation; rival skill +/-). Bug fixes that change fines: speeding is fined only after 1.5 s on a road (junction
   crossings of slower side streets were fined); the red-light rule uses height above the ground (absolute height disabled it above
   Al-Balad's level since v37). Live weather (Open-Meteo) NOT added: it would add a network host (constraint 8) and its terms need the owner.
+- v47 (owner brief "IRBID DRIVE" phases 1-10, 2026-10-19: cross-platform, asset system, graphics presets that "actually change rendering
+  workload", traffic density for weaker devices): new OPTIONS only, defaults unchanged (Auto quality, High traffic = v46). Low now renders
+  1280x720; Ultra 2560x1440. Loading screen, error banner, no-WebGL message, context-loss pause, portrait "turn sideways" hint. Capacitor 8
+  wrapper in `app/` (offline build; no native plugins). Asset manifests describe the generated assets; the single-file rule is kept (no
+  binary assets exist yet). NOT done, owner decisions: licensed car models / recorded engines (accounts, licences, trademarks), app builds
+  (Android SDK licence, Mac), store accounts.
 
 # Phase 1 – Baseline and Documentation
 
