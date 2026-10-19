@@ -9,10 +9,10 @@ float gN3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 float gN2(vec2 p){return gN3(vec3(p,3.7));}
 float gFbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*gN2(p);p=p*2.03+vec2(17.1,9.2);a*=.5;}return s;}
 `;
-const SKYU={uZen:{value:new T.Color(0x3a78c8)},uHor:{value:sky},uGnd:{value:new T.Color(0xb3a371)},uSun:{value:new T.Vector3(0,1,0)},uSunC:{value:new T.Color(1,.95,.8)},uDay:{value:1},uTime:{value:0}};
+const SKYU={uZen:{value:new T.Color(0x3a78c8)},uHor:{value:sky},uGnd:{value:new T.Color(0xb3a371)},uSun:{value:new T.Vector3(0,1,0)},uSunC:{value:new T.Color(1,.95,.8)},uDay:{value:1},uTime:{value:0},uCov:{value:0}};
 const SKYM=new T.ShaderMaterial({uniforms:SKYU,side:T.BackSide,depthWrite:false,depthTest:false,fog:false,
  vertexShader:'varying vec3 vD;void main(){vD=position;vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_Position=p.xyww;}',
- fragmentShader:'uniform vec3 uZen,uHor,uGnd,uSun,uSunC;uniform float uDay,uTime;varying vec3 vD;'+GFXNOISE+`
+ fragmentShader:'uniform vec3 uZen,uHor,uGnd,uSun,uSunC;uniform float uDay,uTime,uCov;varying vec3 vD;'+GFXNOISE+`
 void main(){vec3 d=normalize(vD);float y=d.y;
  vec3 col=mix(uHor,uZen,pow(clamp(y,0.,1.),.5));
  float hz=exp(-abs(y)*9.);float sd=max(dot(d,normalize(uSun)),0.);
@@ -20,8 +20,8 @@ void main(){vec3 d=normalize(vD);float y=d.y;
  if(y<0.)col=mix(uHor,uGnd,smoothstep(0.,.18,-y));
  col+=uSunC*(pow(sd,900.)*6.+pow(sd,60.)*.55+pow(sd,7.)*.10)*(.25+.75*uDay);   // sun disc + glow
  if(y>0.){vec2 p=d.xz/(y+.16)*1.7+vec2(uTime*.010,uTime*.004);float n=gFbm(p),n2=gFbm(p+normalize(uSun.xz+.001)*.09);
-  float cov=smoothstep(.50,.74,n),fade=smoothstep(.0,.22,y);float lit=clamp(1.-(n2-n)*3.2,.55,1.15);
-  vec3 cc=mix(uHor*.9+.18,vec3(1.),.65)*lit;cc=mix(cc,cc*uSunC*1.15,.5);cc*=.12+.88*uDay;
+  float cov=smoothstep(.50-.46*uCov,.74-.3*uCov,n),fade=smoothstep(.0,.22,y);float lit=clamp(1.-(n2-n)*3.2,.55,1.15);
+  vec3 cc=mix(uHor*.9+.18,vec3(1.),.65)*lit;cc=mix(cc,cc*uSunC*1.15,.5);cc*=(.12+.88*uDay)*(1.-.42*uCov);
   col=mix(col,cc,cov*fade*.9);
   float st=step(.9972,gH(floor(d*230.)))*smoothstep(.45,.0,uDay)*smoothstep(.05,.3,y)*(1.-cov);col+=vec3(st);}
  gl_FragColor=vec4(col,1.);}`});

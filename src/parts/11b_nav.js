@@ -59,7 +59,7 @@ function planRoute(sx,sz,dest,hx,hz){const A=snapAny(sx,sz),B=snapAny(dest.ax,de
   else if(aa>=45)push(cum[L.a],'Turn '+(rt?'right':'left')+' to stay on '+ENAME(L.e),rt?'➡':'⬅');k++}
  const lt=h1(L2[L2.length-1]),ep=ptAt(total),wx=dest.x-ep[0],wz=dest.z-ep[1];let side='';if(Math.hypot(wx,wz)>9)side=(lt[0]*wz-lt[1]*wx>0)?', on your right':', on your left';
  push(total,(dest.street?'Arrive on ':'Arrive at ')+dest.name+side,'🏁');
- return{dest,pts,cum,total,steps,end:ep}}
+ return{dest,pts,cum,total,steps,end:ep,legs:L2}}
 // ---- 3D guidance: blue breadcrumb ribbon on the road + destination beacon ----
 const NDOT=70,ndots=new T.InstancedMesh(new T.BoxGeometry(1.1,.06,2.8),new T.MeshBasicMaterial({color:0x2f8bff,transparent:true,opacity:.92,fog:false}),NDOT);ndots.frustumCulled=false;ndots.visible=false;scene.add(ndots);
 const nbeacon=new T.Group();nbeacon.visible=false;scene.add(nbeacon);
@@ -70,7 +70,7 @@ function navDots(){if(!NAV.on){ndots.visible=false;return}ndots.visible=true;con
 // ---- start / stop / live guidance ----
 function navClear(){NAV.on=false;NAV.dest=null;nbeacon.visible=false;ndots.visible=false;navDir.style.display='none';navX.style.display='none';navBan.innerHTML=''}
 function navStart(dest,silent){const rt=planRoute(P.x,P.z,dest,Math.sin(P.h),Math.cos(P.h));if(!rt){navClear();toast('No route found to '+dest.name);return false}
- NAV.on=true;NAV.dest=dest;NAV.pts=rt.pts;NAV.cum=rt.cum;NAV.total=rt.total;NAV.steps=rt.steps;NAV.end=rt.end;NAV.j=0;NAV.off=0;NAV.si=0;
+ NAV.on=true;NAV.dest=dest;NAV.pts=rt.pts;NAV.cum=rt.cum;NAV.total=rt.total;NAV.steps=rt.steps;NAV.end=rt.end;NAV.legs=rt.legs;NAV.j=0;NAV.off=0;NAV.si=0;
  nbeacon.position.set(dest.x,TH(dest.x,dest.z),dest.z);nbeacon.visible=true;if(nbLabel)nbeacon.remove(nbLabel);nbLabel=label(dest.name);nbLabel.scale.set(40,5,1);nbLabel.position.y=175;nbeacon.add(nbLabel);
  navX.style.display='block';navDir.style.display='block';
  ndT.innerHTML='<b>'+esc(dest.name)+'</b><br><span id="ndR"></span>';ndS.innerHTML=rt.steps.map((st,i)=>'<div class="st" id="st'+i+'"><b>'+st.gl+'</b> '+esc(st.txt)+'<small>'+(i<rt.steps.length-1?fmtD(rt.steps[i+1].s-st.s):'')+'</small></div>').join('');

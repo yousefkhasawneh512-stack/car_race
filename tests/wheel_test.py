@@ -78,9 +78,17 @@ with sync_playwright() as p:
         d=ev("return P.h-window.__h0");ev("window.__pre=null;window.__pad.axes[0]=0");return d
     dr=steer(0.4);dl=steer(-0.4);dh=steer(0.8)
     ok('steer right turns right (h decreases)',dr<-0.05,round(dr,3));ok('steer left turns left (h increases)',dl>0.05,round(dl,3));ok('more lock = more yaw',dh<dr,(round(dr,3),round(dh,3)))
-    # --- handbrake button
-    ev("warp(START.x,START.z,START.h);P.vx=Math.sin(P.h)*20;P.vz=Math.cos(P.h)*20;window.__pad.buttons[5].pressed=true");run(.3)
-    ok('handbrake button held',ev("return WH.state.hb"));ev("window.__pad.buttons[5].pressed=false");run(.1)
+    # --- handbrake button (v46: default moved from 5 to 6, because the paddles 4/5 now shift gears)
+    ev("warp(START.x,START.z,START.h);P.vx=Math.sin(P.h)*20;P.vz=Math.cos(P.h)*20;window.__pad.buttons[6].pressed=true");run(.3)
+    ok('handbrake button held',ev("return WH.state.hb"));ev("window.__pad.buttons[6].pressed=false");run(.1)
+    # --- v46: paddles shift (Realistic, manual), horn button held / released
+    ev("setHandling(1);setGearbox(0,1);warp(START.x,START.z,START.h);P.vx=Math.sin(P.h)*12;P.vz=Math.cos(P.h)*12;PTS.idx=-1");run(.3);g0=ev("return PTS.gear")
+    ev("window.__pad.buttons[4].pressed=true");run(.2);ev("window.__pad.buttons[4].pressed=false");run(1);g1=ev("return PTS.gear");man=ev("return PTS.man")
+    ev("window.__pad.buttons[5].pressed=true");run(.2);ev("window.__pad.buttons[5].pressed=false");run(1);g2=ev("return PTS.gear")
+    ok('right paddle shifts up (and selects the manual gearbox), left paddle shifts down',man==1 and g1==g0+1 and g2==g1-1,(g0,g1,g2,man))
+    ev("window.__pad.buttons[10].pressed=true");run(.2);h1=ev("return HORN.on");ev("window.__pad.buttons[10].pressed=false");run(.2);h2=ev("return HORN.on")
+    ok('horn button: on while held, off when released',h1 and not h2,(h1,h2))
+    ev("setGearbox(0,1);setHandling(0);P.vx=P.vz=0")
     # --- FFB signals
     def lastb(sec=.5):
         run(sec);s=ev("return window.__hid.sent.filter(x=>x[1][0]===0x11).slice(-1)[0]");return s[1][2] if s else None

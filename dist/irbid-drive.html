@@ -85,10 +85,10 @@ float gN3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
 float gN2(vec2 p){return gN3(vec3(p,3.7));}
 float gFbm(vec2 p){float a=.5,s=0.;for(int i=0;i<5;i++){s+=a*gN2(p);p=p*2.03+vec2(17.1,9.2);a*=.5;}return s;}
 `;
-const SKYU={uZen:{value:new T.Color(0x3a78c8)},uHor:{value:sky},uGnd:{value:new T.Color(0xb3a371)},uSun:{value:new T.Vector3(0,1,0)},uSunC:{value:new T.Color(1,.95,.8)},uDay:{value:1},uTime:{value:0}};
+const SKYU={uZen:{value:new T.Color(0x3a78c8)},uHor:{value:sky},uGnd:{value:new T.Color(0xb3a371)},uSun:{value:new T.Vector3(0,1,0)},uSunC:{value:new T.Color(1,.95,.8)},uDay:{value:1},uTime:{value:0},uCov:{value:0}};
 const SKYM=new T.ShaderMaterial({uniforms:SKYU,side:T.BackSide,depthWrite:false,depthTest:false,fog:false,
  vertexShader:'varying vec3 vD;void main(){vD=position;vec4 p=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_Position=p.xyww;}',
- fragmentShader:'uniform vec3 uZen,uHor,uGnd,uSun,uSunC;uniform float uDay,uTime;varying vec3 vD;'+GFXNOISE+`
+ fragmentShader:'uniform vec3 uZen,uHor,uGnd,uSun,uSunC;uniform float uDay,uTime,uCov;varying vec3 vD;'+GFXNOISE+`
 void main(){vec3 d=normalize(vD);float y=d.y;
  vec3 col=mix(uHor,uZen,pow(clamp(y,0.,1.),.5));
  float hz=exp(-abs(y)*9.);float sd=max(dot(d,normalize(uSun)),0.);
@@ -96,8 +96,8 @@ void main(){vec3 d=normalize(vD);float y=d.y;
  if(y<0.)col=mix(uHor,uGnd,smoothstep(0.,.18,-y));
  col+=uSunC*(pow(sd,900.)*6.+pow(sd,60.)*.55+pow(sd,7.)*.10)*(.25+.75*uDay);   // sun disc + glow
  if(y>0.){vec2 p=d.xz/(y+.16)*1.7+vec2(uTime*.010,uTime*.004);float n=gFbm(p),n2=gFbm(p+normalize(uSun.xz+.001)*.09);
-  float cov=smoothstep(.50,.74,n),fade=smoothstep(.0,.22,y);float lit=clamp(1.-(n2-n)*3.2,.55,1.15);
-  vec3 cc=mix(uHor*.9+.18,vec3(1.),.65)*lit;cc=mix(cc,cc*uSunC*1.15,.5);cc*=.12+.88*uDay;
+  float cov=smoothstep(.50-.46*uCov,.74-.3*uCov,n),fade=smoothstep(.0,.22,y);float lit=clamp(1.-(n2-n)*3.2,.55,1.15);
+  vec3 cc=mix(uHor*.9+.18,vec3(1.),.65)*lit;cc=mix(cc,cc*uSunC*1.15,.5);cc*=(.12+.88*uDay)*(1.-.42*uCov);
   col=mix(col,cc,cov*fade*.9);
   float st=step(.9972,gH(floor(d*230.)))*smoothstep(.45,.0,uDay)*smoothstep(.05,.3,y)*(1.-cov);col+=vec3(st);}
  gl_FragColor=vec4(col,1.);}`});
@@ -2719,7 +2719,7 @@ diagReady=true;diagSync();
 // listed top speed and 0-100 time (ptCalib); redline, gear count, ratios, tyre mu and spring frequency come from the body type. No manufacturer
 // torque curve, gear ratio or spring rate is claimed. The calibration error per car is in CAR_ASSETS_AND_SPECS.md (tests/handling_test.js).
 const HSTORE='irbid-drive-handling-v1';let handlingMode=0;try{handlingMode=localStorage.getItem(HSTORE)==='1'?1:0}catch(e){}
-const INP={th:0,br:0},PT_CACHE=new Map(),PTS={yr:0,dl:0,h0:0,gear:1,rpm:850,shift:0,spin:0,lim:0,hz:0,hv:0,pz:0,pv:0,rz:0,rv:0,idx:-1};
+const INP={th:0,br:0},PT_CACHE=new Map(),PTS={yr:0,dl:0,h0:0,gear:1,rpm:850,shift:0,spin:0,lim:0,hz:0,hv:0,pz:0,pv:0,rz:0,rv:0,idx:-1,man:0,req:0,deny:0};
 const PT_CD={r:.4,m:.33,q:.33,c:.31,o:.36,s:.38,p:.45,h:.32,v:.42},PT_RED={r:9000,m:8500,q:8500,c:7200,o:7000,s:6200,p:6000,h:6500,v:5500},PT_MU={r:1.3,m:1.15,q:1.15,c:1.05,o:1,s:.95,p:.9,h:.95,v:.85},PT_FN={r:2.8,m:2.1,q:2.1,c:1.8,o:1.6,s:1.3,p:1.25,h:1.5,v:1.2};
 // generic engine torque shape vs x = rpm/redline (petrol NA/turbo blend), EV: constant torque, then constant power
 const ptCurve=(x,ev)=>ev?(x<.35?1:.35/x):x<.12?.5:x<.6?.55+.45*Math.sin((x-.12)/.48*Math.PI/2):x<.85?1:Math.max(.6,1-(x-.85)*1.3);
@@ -2749,10 +2749,11 @@ function ptAccel(dt,thA,fs,sfc,dfx){const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv
  if(PTS.idx!==s.i){PTS.idx=s.i;PTS.gear=1;PTS.shift=0;PTS.spin=0}
  const red=s.red,idl=s.idle;let g=PTS.gear,rpm=ptGear(s,v,g)/kv;
  if(PTS.shift>0)PTS.shift-=dt;
+ else if(PTS.man){const q=PTS.req;PTS.req=0;if(q>0&&g<s.ng){PTS.gear=++g;PTS.shift=s.shiftT;rpm=ptGear(s,v,g)/kv}else if(q<0&&g>1){if(ptGear(s,v,g-1)/kv<=red*1.03){PTS.gear=--g;PTS.shift=s.shiftT*.6;rpm=ptGear(s,v,g)/kv}else PTS.deny=1}}   // v46 manual (Q/E, paddles): a downshift that would over-rev is refused
  else if(g<s.ng&&rpm>=red*(thA>.6?.97:.6)){PTS.gear=++g;PTS.shift=s.shiftT;rpm=ptGear(s,v,g)/kv}
  else if(g>1&&ptGear(s,v,g-1)/kv<red*(thA>.6?.86:.5)&&rpm<red*(thA>.6?.55:.3)){PTS.gear=--g;PTS.shift=s.shiftT*.6;rpm=ptGear(s,v,g)/kv}
  let F=0;const eng=Math.max(rpm,idl),gov=s.gov&&v>=s.gov*kv;
- if(PTS.shift<=0&&thA>0&&!gov){const r=Math.min(Math.max(eng,v<6&&g===1&&!s.ev?red*.45*thA:0),red);F=s.T*ka*thA*ptCurve(r/red,s.ev)*s.ratio[g-1]/s.rw*s.eff}
+ if(PTS.shift<=0&&thA>0&&!gov&&!(PTS.man&&rpm>=red)){const r=Math.min(Math.max(eng,v<6&&g===1&&!s.ev?red*.45*thA:0),red);F=s.T*ka*thA*ptCurve(r/red,s.ev)*s.ratio[g-1]/s.rw*s.eff}
  else if(thA<=0&&PTS.shift<=0&&!s.ev&&v>1)F=-s.T*.12*(eng/red)*s.ratio[g-1]/s.rw;           // engine braking (EV regen not modelled)
  const al=cl(P.al||0,-12,12),lim=s.mu*sfc*9.81*ptShare(s,Math.max(0,al))*s.m;PTS.lim=lim;
  if(F>lim){PTS.spin=Math.min(1,PTS.spin+dt*4*(F/lim-1)+dt);F=lim*.9}else PTS.spin=Math.max(0,PTS.spin-dt*3);
@@ -2798,7 +2799,7 @@ function updPStep(dt,frozen){if(!handlingMode||dt<=1/60+1e-6)return updP(dt,froz
 // slip state for smoke / squeal in BOTH modes (Arcade has no tyre model: the body slip angle stands in). Rendering + audio only, never physics.
 function slipTick(fs,ls,frozen,bo){const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),sp=Math.hypot(fs,ls);TSLIP.sa=sa;TSLIP.spin=bo?1:handlingMode?PTS.spin:0;
  if(!handlingMode){TSLIP.r=P.gnd&&!frozen&&sp>5?cl((sa-.12)/.15,0,3):0;TSLIP.f=TSLIP.r*.3;TSLIP.lock=0}}
-function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':'G'+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+'</small>'}
+function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+'</small>'}
 function setHandling(mo){handlingMode=mo?1:0;try{localStorage.setItem(HSTORE,String(handlingMode))}catch(e){}PTS.idx=-1;PTS.yr=PTS.dl=0;PTS.hz=PTS.hv=PTS.pz=PTS.pv=PTS.rz=PTS.rv=0;toast(handlingMode?'Handling: Realistic (engine, gears, traction, suspension; estimates)':'Handling: Arcade')}
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')&&!ui){e.preventDefault();setHandling(!handlingMode)}});
 // ---- visible vehicle components (v44): bumpers, mirrors, bonnet / boot lids, door skins, per-pane glass cracks, bent rims, flat tyres, detached parts ----
@@ -3067,7 +3068,7 @@ function renderRepairs(el){const L=repairItems(),tot=L.reduce((a,q)=>a+q.price,0
 // ---- agents that follow the road graph: traffic, race bots, police ----
 const traffic=[],bots=['Samer','Layth','Omar'].map((n,i)=>({n,x:1e4,z:1e4,h:Math.PI/2,v:0,prog:0,fin:false,skill:.96+i*.02,rad:1.3,m:mkPorsche(i),P:[],C:[],Lm:[],Mk:[],pi:0}));
 bots.forEach((b,i)=>{setModel(b,i);b.m.position.set(1e4,TH(1e4,1e4),1e4)});
-const all=traffic.concat([P],bots);
+const all=traffic.concat([P],bots),REPG={gap:6.5};   // v46: following gap behind the PLAYER (11c road reputation; 6.5 m = every other car)
 const TRW={hw:1,arch:1,petra:1,main:.85,local:.4,svc:.07,ramp:.5,ring:.7,drift:0,campus:.5,alley:.3};
 function pickSeg(rmin,rmax,tries){for(let t=0;t<(tries||120);t++){const a=Math.random()*6.2832,r=rmin+Math.random()*(rmax-rmin),L=HASH.get(hk(Math.floor((P.x+Math.cos(a)*r)/HC2),Math.floor((P.z+Math.sin(a)*r)/HC2)));if(L&&L.length){const s=L[hi(L.length)];if(s.e.hw==='track'||s.e.tn)continue;if(Math.random()<(TRW[s.e.kind]??.4))return s}}return null}
 // append one road traversal (with lane offset) to an agent's path; skip = number of leading points to drop
@@ -3100,7 +3101,7 @@ function updTraffic(c,dt){if(c.x>9e4){respawn(c,60);return}advance(c);extend(c);
   if(nd.lit){const dd=d-11,st=light(nd.ph[m.e.id],nd);if(dd>-4&&(st==='r'||(st==='y'&&dd>c.v*.9)))tgt=Math.min(tgt,Math.sqrt(Math.max(0,7*Math.max(dd,0))))}
   else if(circNode(m.id)&&d<38)tgt=Math.min(tgt,8)}
  const sh=Math.sin(c.h),ch=Math.cos(c.h);
- for(const o of all){if(o===c)continue;const dx=o.x-c.x,dz=o.z-c.z,f=dx*sh+dz*ch;if(f>0&&f<26&&Math.abs(dx*ch-dz*sh)<2.6)tgt=Math.min(tgt,Math.max(0,(f-6.5)*.9))}
+ for(const o of all){if(o===c)continue;const dx=o.x-c.x,dz=o.z-c.z,f=dx*sh+dz*ch;if(f>0&&f<26&&Math.abs(dx*ch-dz*sh)<2.6)tgt=Math.min(tgt,Math.max(0,(f-(o===P?REPG.gap:6.5))*.9))}
  if(c.hold>0){c.hold-=dt;tgt=0}
  c.v=tgt>c.v?Math.min(tgt,c.v+3*dt):Math.max(tgt,c.v-9*dt);
  const a=aim(c,6+c.v*.6),want=Math.atan2(a[0]-c.x,a[1]-c.z);c.h+=cl(wrap(want-c.h),-2.8*dt,2.8*dt);c.x+=Math.sin(c.h)*c.v*dt;c.z+=Math.cos(c.h)*c.v*dt;
@@ -3120,15 +3121,17 @@ function updBot(b,dt){let tp,dd=1e9;
 function pathFromTravs(b,trs,startSkip){b.P=[];b.C=[];b.Lm=[];b.Mk=[];b.pi=0;trs.forEach((t,i)=>appendTrav(b,t,i===0?startSkip:0));b.dead=false}
 const LIMIT=50;
 // ---- laws / fines (road-aware: lanes, one-way rings, signalled junctions, per-road limits) ----
-let last={},curL=null,RI=null,curLim=50;const toastEl=document.getElementById('toast');
+// v46 LIMT: a speed limit counts after 1.5 s on that road (crossing a 40 km/h side street at a junction is not speeding)
+let last={},curL=null,RI=null,curLim=50;const LIMT={l:-1,t:0};const toastEl=document.getElementById('toast');
 function toast(m){const d=document.createElement('div');d.textContent=m;toastEl.appendChild(d);setTimeout(()=>d.remove(),3200)}
 function fine(k,a,m,cd){if(clock-(last[k]??-99)<cd)return;last[k]=clock;fines+=a;save();toast(m+' — fine '+a+' JD')}
 const driftZoneAt=(x,z)=>{for(const q of DZONES){if(q.hw){const dx=x-q.x,dz=z-q.z,lx=dx*q.c-dz*q.s,lz=dx*q.s+dz*q.c;if(Math.abs(lx)<q.hw&&Math.abs(lz)<q.hd)return q}else if(Math.hypot(x-q.x,z-q.z)<q.r)return q}return null},inDrift=(x,z)=>!!driftZoneAt(x,z);const onRoad=()=>!!RI&&RI.d<=RI.e.w/2+.3;
 function streetName(){for(const c of CIRC)if(Math.hypot(P.x-c.x,P.z-c.z)<36)return c.name;return RI&&RI.d<=RI.e.w/2+5?RI.e.name:''}
 function wrongWay(){const s=RI;if(!s||s.d>s.e.w/2||s.n!==1)return false;const e=s.e;if(e.kind==='alley'||e.kind==='svc'||e.kind==='campus'||e.kind==='drift'||e.kind==='ring')return false;
  const u=e.cum[s.i]+s.t*(e.cum[s.i+1]-e.cum[s.i]);if(u<18||e.len-u<18)return false;const al=P.vx*s.tx+P.vz*s.tz;if(e.ow)return al<-4;return(al>4&&s.side<-1)||(al<-4&&s.side>1)}
+// v46: "not airborne" is the height above the GROUND (it was the absolute P.y < 1.5, so since the v37 terrain no red light was enforced above Al-Balad's level)
 function redLight(sp){let near=null;for(const nd of LIT)if(Math.hypot(P.x-nd.x,P.z-nd.z)<12){near=nd;break}
- if(near&&curL===null&&P.y<1.5&&sp>14){const v=Math.hypot(P.vx,P.vz)||1,vx=P.vx/v,vz=P.vz/v;let best=null,bd=-2;for(const e of near.inn){const h=approachOf(near,e),dd=h[0]*vx+h[1]*vz;if(dd>bd){bd=dd;best=e}}
+ if(near&&curL===null&&P.y-TH(P.x,P.z)<1.5&&sp>14){const v=Math.hypot(P.vx,P.vz)||1,vx=P.vx/v,vz=P.vz/v;let best=null,bd=-2;for(const e of near.inn){const h=approachOf(near,e),dd=h[0]*vx+h[1]*vz;if(dd>bd){bd=dd;best=e}}
   if(best&&bd>.5&&light(near.ph[best.id],near)==='r')fine('red',50,'Ran a red light',3)}curL=near?near.id:null}
 // ---- teleports: landmark tour (K), stunt ramps (J), reset (F) ----
 const ringSpot=c=>c?[c.x+c.r,c.z,Math.PI]:null;
@@ -3139,7 +3142,7 @@ const monoC=id=>CIRC.find(c=>c.mono===id),LM=[];
 function warp(x,z,h){P.x=x;P.z=z;P.h=h;P.vx=P.vz=P.vy=0;P.y=P.pgh=groundH(x,z);cam.position.set(x-Math.sin(h)*9,P.y+3.6,z-Math.cos(h)*9)}
 // ---- player ----
 const keys={};addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='KeyP'){e.preventDefault();TuningShopInterface.toggleShopMenu();return}if(ui){if(e.code==='Escape'){closeWheel();closeShop()}return}keys[e.code]=1;if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault();
- if(e.code==='KeyN'||e.code==='KeyB')cycleCar(e.code==='KeyN'?1:-1);if(e.code==='KeyG')openWheel();if(e.code==='KeyE')tryRob();if(e.code==='KeyU')openShop();if(e.code==='KeyM'){e.preventDefault();navFocus()}
+ if(e.code==='KeyN'||e.code==='KeyB')cycleCar(e.code==='KeyN'?1:-1);if(e.code==='KeyG')openWheel();if(e.code==='KeyE'&&!(typeof gearKey==='function'&&gearKey(1)))tryRob();if(e.code==='KeyQ'&&typeof gearKey==='function')gearKey(-1);if(e.code==='KeyU')openShop();if(e.code==='KeyM'){e.preventDefault();navFocus()}
  if(e.code==='KeyK'&&heist.s==='idle'){const L=LM[lmI++%LM.length];warp(L[1],L[2],L[3]);toast('📍 '+L[0])}if(e.code==='KeyJ'&&heist.s==='idle')warp(RAMP0[0]+50,RAMP0[1]-70,0);
  if(e.code==='KeyC')camMode^=1;if(e.code==='KeyT')hour=(hour+1)%24;if(e.code==='KeyR'){const c=(race.s==='idle'||race.s==='done')?nearCar():null;c?startDuel(c):startRace()}if(e.code==='KeyF')warp(START.x,START.z,START.h)});
 addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
@@ -3147,11 +3150,11 @@ addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
 const MobilePCInputController={steeringAngle:0,isAccelerating:false,isBraking:false,isHandbrake:false,sig:function(){return[this.steeringAngle,this.isAccelerating,this.isBraking,this.isHandbrake].join()}};
 // traction by surface under the car: 1 paved road / drift pad, .75 unpaved track, .9 urban ground off-network, .65 open ground (no surface tag is carried in the network data yet; see audit)
 function surfK(){if(inDrift.was)return 1;const r=RI;if(r&&r.e&&r.d<=r.e.w/2+.3)return r.e.hw==='track'?.75:1;return urbanK(P.x,P.z)>.5?.9:.65}
-function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;INP.th=th?thA:0;INP.br=br?brA:0;
+function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:AP.on?apInput(wp,k,mi,dt):wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;INP.th=th?thA:0;INP.br=br?brA:0;
  let fx=Math.sin(P.h),fz=Math.cos(P.h),fs=P.vx*fx+P.vz*fz;
  if(!handlingMode)P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);let rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
- const sfc=surfK()*dfx.grip,vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
+ const sfc=surfK()*dfx.grip*(handlingMode?WX.mu:1),vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
  const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);
  if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
   if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
@@ -3173,9 +3176,9 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  for(const c of traffic){const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(d<3.4&&P.y<TH(P.x,P.z)+2){const nx=dx/(d||1),nz=dz/(d||1);P.x+=nx*(3.4-d)*.6;P.z+=nz*(3.4-d)*.6;
   const relX=P.vx-(Math.sin(c.h||0)*(c.v||0)),relZ=P.vz-(Math.cos(c.h||0)*(c.v||0)),rvn=relX*nx+relZ*nz;if(rvn< -1.8&&typeof registerPlayerImpact==='function')registerPlayerImpact(-rvn,{type:'vehicle'},nx,nz);const vn=P.vx*nx+P.vz*nz;if(vn<0){P.vx-=vn*nx*1.3;P.vz-=vn*nz*1.3}P.vx*=.8;P.vz*=.8;c.hold=1.5;c.v=0;fine('hit',30,'Collision with traffic',2)}}
  for(const b of bots.concat(riv?[riv]:[],heist.cops)){const dx=P.x-b.x,dz=P.z-b.z,d=Math.hypot(dx,dz);if(d<3.4){const nx=dx/(d||1),nz=dz/(d||1),rvx=P.vx-Math.sin(b.h||0)*(b.v||0),rvz=P.vz-Math.cos(b.h||0)*(b.v||0),rvn=rvx*nx+rvz*nz;if(rvn< -1.8&&typeof registerPlayerImpact==='function')registerPlayerImpact(-rvn,{type:'vehicle'},nx,nz);P.x+=nx*(3.4-d)*.5;P.z+=nz*(3.4-d)*.5;P.vx*=1-2*dt;P.vz*=1-2*dt}}
- const sp=Math.hypot(P.vx,P.vz)*3.6;RI=roadAt(P.x,P.z,6);const lim=RI&&RI.d<=RI.e.w/2+.3?RI.e.lim:0;curLim=lim||LIMIT;
+ const sp=Math.hypot(P.vx,P.vz)*3.6;RI=roadAt(P.x,P.z,6);const lim=RI&&RI.d<=RI.e.w/2+.3?RI.e.lim:0;curLim=lim||LIMIT;if(lim!==LIMT.l){LIMT.l=lim;LIMT.t=clock}
  const dzo=driftZoneAt(P.x,P.z),dz=!!dzo;if(dzo!==inDrift.was){inDrift.was=dzo;toast(dzo?'🏁 '+dzo.name+' — no speed limit, no fines':'Leaving the drift zone')}
- if(!dz){if(P.gnd&&lim&&sp>lim+10)fine('spd',15,'Speeding ('+Math.round(sp)+' km/h)',5);
+ if(!dz){if(P.gnd&&lim&&sp>lim+10&&clock-LIMT.t>1.5)fine('spd',15,'Speeding ('+Math.round(sp)+' km/h)',5);
  if(P.gnd&&sp>14&&wrongWay())fine('way',20,'Driving against traffic',6);redLight(sp)}WH.ffb(dt,frozen);return sp}
 // ---- iOS / touch compatibility: the supplied iOSBypassEngine, wired into the real car input. Armed on touch devices only (PC: nothing is created or listened to).
 // Touch zones in 1920x1080 canvas coordinates (bottom band): steer left / steer right / brake / gas as supplied, plus a DRIFT (handbrake) pad above GAS because the game needs Space to drift. Drawn on the mobile overlay (#hud2d) so the player can see them. ----
@@ -3222,9 +3225,9 @@ iOSBypassEngine.initAppleFix(ren.domElement);
 const WHN={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0};
 const WH=(()=>{
  const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'')||(!!cfg.dev&&id===cfg.dev);
- const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Rob bank'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
- const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,cen:0,curve:1,smooth:0,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
- let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)cfg=Object.assign(DEF(),s,{btn:Object.assign(DEF().btn,s.btn||{})})}catch(e){}
+ const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Shift up / rob bank (E)'],['KeyQ','Shift down (Q)'],['KeyX','Horn (hold, X)'],['KeyZ','Auto-drive (Z)'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
+ const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,cen:0,curve:1,smooth:0,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{KeyE:4,KeyQ:5,hb:6,KeyC:7,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9,KeyX:10,KeyZ:11}});   // v46: paddles shift (G29 in Chrome: 4 right, 5 left; not verified on hardware)
+ let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s){const sb=s.btn||{},b=DEF().btn,used=new Set(Object.values(sb).filter(i=>i>=0));if(s.btn)for(const a in b)if(!(a in sb)&&used.has(b[a]))b[a]=-1;cfg=Object.assign(DEF(),s,{btn:Object.assign(b,sb)})}}catch(e){}   // v46: a saved layout keeps its buttons; new actions only take free ones
  const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},cl2=(v,a,b)=>v<a?a:v>b?b:v;
  const S={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0,id:'',blocked:'',seen:0,others:[]};
  let pi=-1,pad=null,scanT=9,cap=null,wzOn=false,rev=[],prev=new Uint8Array(64),said='';
@@ -3270,7 +3273,7 @@ const WH=(()=>{
   const B=g.buttons;let hb=false;
   for(let i=0;i<B.length&&i<64;i++){const p=B[i].pressed?1:0,a2=rev[i];
    if(cap&&cap.t==='btn'){if(p&&!prev[i]){const f=cap.fn;cap=null;f(i)}}
-   else if(a2&&!cap&&(!wzOn||a2==='Escape')){if(a2==='hb')hb=hb||!!p;else if(p&&!prev[i])press(a2)}
+   else if(a2&&!cap&&(!wzOn||a2==='Escape')){if(a2==='hb')hb=hb||!!p;else if(a2==='KeyX'){if(p!==prev[i])dispatchEvent(new KeyboardEvent(p?'keydown':'keyup',{code:a2,key:a2}))}else if(p&&!prev[i])press(a2)}
    prev[i]=p}
   S.hb=hb&&!ui;return S}
  // ================= force feedback synthesis (called once per frame at the end of updP) =================
@@ -3463,7 +3466,7 @@ function planRoute(sx,sz,dest,hx,hz){const A=snapAny(sx,sz),B=snapAny(dest.ax,de
   else if(aa>=45)push(cum[L.a],'Turn '+(rt?'right':'left')+' to stay on '+ENAME(L.e),rt?'➡':'⬅');k++}
  const lt=h1(L2[L2.length-1]),ep=ptAt(total),wx=dest.x-ep[0],wz=dest.z-ep[1];let side='';if(Math.hypot(wx,wz)>9)side=(lt[0]*wz-lt[1]*wx>0)?', on your right':', on your left';
  push(total,(dest.street?'Arrive on ':'Arrive at ')+dest.name+side,'🏁');
- return{dest,pts,cum,total,steps,end:ep}}
+ return{dest,pts,cum,total,steps,end:ep,legs:L2}}
 // ---- 3D guidance: blue breadcrumb ribbon on the road + destination beacon ----
 const NDOT=70,ndots=new T.InstancedMesh(new T.BoxGeometry(1.1,.06,2.8),new T.MeshBasicMaterial({color:0x2f8bff,transparent:true,opacity:.92,fog:false}),NDOT);ndots.frustumCulled=false;ndots.visible=false;scene.add(ndots);
 const nbeacon=new T.Group();nbeacon.visible=false;scene.add(nbeacon);
@@ -3474,7 +3477,7 @@ function navDots(){if(!NAV.on){ndots.visible=false;return}ndots.visible=true;con
 // ---- start / stop / live guidance ----
 function navClear(){NAV.on=false;NAV.dest=null;nbeacon.visible=false;ndots.visible=false;navDir.style.display='none';navX.style.display='none';navBan.innerHTML=''}
 function navStart(dest,silent){const rt=planRoute(P.x,P.z,dest,Math.sin(P.h),Math.cos(P.h));if(!rt){navClear();toast('No route found to '+dest.name);return false}
- NAV.on=true;NAV.dest=dest;NAV.pts=rt.pts;NAV.cum=rt.cum;NAV.total=rt.total;NAV.steps=rt.steps;NAV.end=rt.end;NAV.j=0;NAV.off=0;NAV.si=0;
+ NAV.on=true;NAV.dest=dest;NAV.pts=rt.pts;NAV.cum=rt.cum;NAV.total=rt.total;NAV.steps=rt.steps;NAV.end=rt.end;NAV.legs=rt.legs;NAV.j=0;NAV.off=0;NAV.si=0;
  nbeacon.position.set(dest.x,TH(dest.x,dest.z),dest.z);nbeacon.visible=true;if(nbLabel)nbeacon.remove(nbLabel);nbLabel=label(dest.name);nbLabel.scale.set(40,5,1);nbLabel.position.y=175;nbeacon.add(nbLabel);
  navX.style.display='block';navDir.style.display='block';
  ndT.innerHTML='<b>'+esc(dest.name)+'</b><br><span id="ndR"></span>';ndS.innerHTML=rt.steps.map((st,i)=>'<div class="st" id="st'+i+'"><b>'+st.gl+'</b> '+esc(st.txt)+'<small>'+(i<rt.steps.length-1?fmtD(rt.steps[i+1].s-st.s):'')+'</small></div>').join('');
@@ -3507,6 +3510,89 @@ let LZI=0;function navLabels(){const n=LAZYL.length,B=Math.min(n,260);for(let k=
 let PASS=null;const passSeen={};
 function poiNear(){let b=null,bd=1e9;for(const p of PLACES){if(p.r>=150)continue;const d=Math.hypot(P.x-p.x,P.z-p.z)-p.r;if(d<25&&d<bd){bd=d;b=p}}if(!b)b=csvNear(P.x,P.z,25);
  if(b!==PASS){PASS=b;if(b&&!b.gen&&(clock-(passSeen[b.name]||-99))>14){passSeen[b.name]=clock;toast('📍 '+b.name)}}return PASS}
+// ---- v46: manual gearbox (Q down / E up / wheel paddles, Realistic handling), horn (X), auto-drive along the navigation route (Z),
+// road reputation (traffic remembers how you drive) and rival memory (named racers remember results and hits). Everything here is optional:
+// with the gearbox on Automatic, auto-drive off and no incidents, updP runs exactly as before (off_trace).
+// ---- gearbox ----
+const GSTORE='irbid-drive-gearbox-v1';try{PTS.man=localStorage.getItem(GSTORE)==='1'?1:0}catch(e){}
+function setGearbox(m,quiet){PTS.man=m?1:0;PTS.req=0;try{localStorage.setItem(GSTORE,String(PTS.man))}catch(e){}if(!quiet)toast('Gearbox: '+(PTS.man?'Manual (Q down · E up · wheel paddles)':'Automatic'))}
+// returns false only when E should rob the bank instead (standing at the bank with no heist running)
+function gearKey(d){if(d>0&&heist.s==='idle'&&Math.hypot(P.x-BANK.x,P.z-BANK.z)<=14)return false;
+ if(!handlingMode){toast('Gears are simulated in Realistic handling (press H)');return true}
+ const s=ptSpec(P.idx||0);if(s.ev||s.ng<2){toast('Single-speed drive: no gears to shift');return true}
+ if(!PTS.man)setGearbox(1);PTS.req=d;PTS.deny=0;return true}
+// ---- horn: X (or a bound wheel button, which sends the same key) ----
+const HORN={on:false};
+function hornSet(on){if(HORN.on===on)return;HORN.on=on;if(typeof audHorn==='function')audHorn(on);
+ if(on)for(const c of traffic){const dx=c.x-P.x,dz=c.z-P.z,f=dx*Math.sin(P.h)+dz*Math.cos(P.h);if(f>0&&f<22&&Math.abs(dx*Math.cos(P.h)-dz*Math.sin(P.h))<3&&c.hold>.4)c.hold=.4}}   // a car still sitting after a knock moves off
+// ---- road reputation: 0-100, starts at 70. Measurable rules (no learning): -6 hit a traffic car, -4 red light, -2 wrong way, -1 speeding fine;
+// +1 for every 45 s of driving above 15 km/h with no incident. Effects: below 50 the cars behind you keep a longer gap (6.5 m -> 12 m at 0),
+// and blocked drivers lose patience and honk sooner (6 s / 3 s / 1.5 s at >=60 / >=30 / <30). A traffic car you hit always honks.
+const RSTORE='irbid-drive-rep-v1',REP={road:70,clean:0,riv:{},log:[]},REP_D={hit:-6,red:-4,way:-2,spd:-1};
+try{const o=JSON.parse(localStorage.getItem(RSTORE)||'null');if(o&&typeof o==='object'){if(Number.isFinite(o.road))REP.road=cl(o.road,0,100);
+ if(o.riv&&typeof o.riv==='object')for(const n of['Samer','Layth','Omar']){const r=o.riv[n];if(r&&typeof r==='object'){const q=REP.riv[n]={};for(const k of['r','w','l','h'])q[k]=Number.isFinite(r[k])?cl(Math.round(r[k]),0,999):0}}
+ if(Array.isArray(o.log))REP.log=o.log.filter(e=>e&&typeof e.k==='string'&&Number.isFinite(e.t)).slice(-20)}}catch(e){}
+function repSave(){try{localStorage.setItem(RSTORE,JSON.stringify({v:1,road:REP.road,riv:REP.riv,log:REP.log}))}catch(e){}}
+function repGap(){REPG.gap=6.5+(REP.road<50?(50-REP.road)*.11:0)}repGap();
+function repEvent(k){if(!(k in REP_D))return;REP.road=cl(REP.road+REP_D[k],0,100);REP.clean=0;REP.log.push({k,t:Date.now()});if(REP.log.length>20)REP.log.shift();repGap();repSave()}
+{const f0=fine;fine=function(k,a,m,cd){const b=last[k];const r=f0.apply(this,arguments);if(last[k]!==b){repEvent(k);if(k==='hit'){let c=null,bd=49;for(const t of traffic){const d=(t.x-P.x)**2+(t.z-P.z)**2;if(d<bd){bd=d;c=t}}if(c)honkAt(c,1.1)}}return r}}
+function repRiv(n){return REP.riv[n]||(REP.riv[n]={r:0,w:0,l:0,h:0})}
+function honkAt(c,dur){if(clock-(c.hk||-99)<4)return;c.hk=clock;if(typeof audHornAt==='function')audHornAt(c.x,c.z,dur||.5,c.hp||(c.hp=.85+Math.random()*.35))}
+const RPT={t:0,rs:'idle',bh:{}};
+function carAtRed(c){const pr=pathProg(c);for(const m of c.Mk){if(m.i<c.pi)continue;if(c.C[m.i]-pr>45)break;const nd=NODES[m.id];if(nd&&nd.lit&&light(nd.ph[m.e.id],nd)!=='g')return true}return false}   // waiting at a light is not the player's fault
+function repTick(dt){if(PTS.deny){PTS.deny=0;toast('Downshift refused: the engine would over-rev')}
+ const v=Math.hypot(P.vx,P.vz);if(v>4.2&&!ui){REP.clean+=dt;if(REP.clean>=45){REP.clean=0;if(REP.road<100){REP.road=Math.min(100,REP.road+1);repGap();repSave()}}}
+ // rivals: results when a race ends, hits while it runs, skill adjusted when the next race starts
+ if(race.s!==RPT.rs){if(race.s==='count'&&race.kind!=='duel'){const m=[];bots.forEach(b=>{if(b.sk0===undefined)b.sk0=b.skill;const q=repRiv(b.n);b.skill=cl(b.sk0+cl((q.w-q.l)*.004,-.02,.03)+(q.h>=3?.01:0),.94,1.05);if(q.h>=3)m.push(b.n+' remembers '+q.h+' hits');else if(q.w-q.l>=3)m.push(b.n+' wants revenge ('+q.l+'-'+q.w+')')});if(m.length)setTimeout(()=>toast('🧠 '+m.join(' · ')),2600)}
+  if(race.s==='done'&&RPT.rs==='run'&&race.kind!=='duel'){bots.forEach(b=>{const q=repRiv(b.n);q.r=Math.min(999,q.r+1);if(b.fin)q.l=Math.min(999,q.l+1);else q.w=Math.min(999,q.w+1)});repSave()}RPT.rs=race.s}
+ if(race.s==='run'&&race.kind!=='duel')for(const b of bots){const d=Math.hypot(b.x-P.x,b.z-P.z);if(d<3.6&&clock-(RPT.bh[b.n]||-99)>2&&v>3){RPT.bh[b.n]=clock;const q=repRiv(b.n);q.h=Math.min(999,q.h+1);repSave()}}
+ // impatient drivers: a traffic car stuck right behind the stopped player honks after its patience runs out
+ if((RPT.t-=dt)>0)return;RPT.t=.25;const pat=REP.road>=60?6:REP.road>=30?3:1.5;
+ for(const c of traffic){const dx=P.x-c.x,dz=P.z-c.z;if(dx*dx+dz*dz>900){c.blk=0;continue}const sh=Math.sin(c.h),ch=Math.cos(c.h),f=dx*sh+dz*ch;
+  if(f>0&&f<14&&Math.abs(dx*ch-dz*sh)<2.6&&c.v<1&&v<1.5&&!(c.hold>0)&&!carAtRed(c)){c.blk=(c.blk||0)+.25;if(c.blk>pat){c.blk=-4;honkAt(c,.45)}}else c.blk=0}}
+// ---- auto-drive: follows NAV.pts through the SAME updP physics as the player (it only supplies steering / throttle / brake, like a wheel),
+// keeps right of the centre line, obeys the speed limit and red lights, slows for curves and for cars ahead, stops at the destination.
+// Any steering, throttle, brake or handbrake input hands control back. Never teleports.
+const AP={on:false,stop:0,stuck:0,wi:{on:true,steer:0,thr:0,brk:0,hb:false,clu:0},vt:0,why:''};
+const apBadge=document.createElement('div');apBadge.id='apBadge';apBadge.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);z-index:3;background:rgba(20,90,200,.85);color:#fff;font:600 13px system-ui,sans-serif;padding:4px 10px;border-radius:12px;pointer-events:none;display:none';try{document.body.appendChild(apBadge)}catch(e){}
+function apToggle(){if(AP.on){apOff('Auto-drive off');return}
+ if(!NAV.on){toast('Auto-drive follows a route: press M and choose a destination first');return}
+ if(race.s==='count'||race.s==='run'){toast('Auto-drive is not available during races');return}
+ if(heist.s!=='idle'){toast('Auto-drive is not available during a heist');return}
+ AP.on=true;AP.stop=0;AP.stuck=0;apBadge.style.display='';toast('🤖 Auto-drive on (Z): following the route · steer, gas or brake to take over')}
+function apOff(m){AP.on=false;AP.stop=0;const w=AP.wi;w.steer=w.thr=w.brk=0;apBadge.style.display='none';if(m)toast(m)}
+function apPt(s,o){const c=NAV.cum,p=NAV.pts;s=cl(s,0,NAV.total);let i=Math.max(0,Math.min(NAV.j,c.length-2));while(i>0&&c[i]>s)i--;while(i<c.length-2&&c[i+1]<s)i++;const L=(c[i+1]-c[i])||1,t=cl((s-c[i])/L,0,1),tx=(p[i+1][0]-p[i][0])/L,tz=(p[i+1][1]-p[i][1])/L;o[0]=p[i][0]+(p[i+1][0]-p[i][0])*t;o[1]=p[i][1]+(p[i+1][1]-p[i][1])*t;o[2]=tx;o[3]=tz;return o}
+const APA=[0,0,0,0],APB=[0,0,0,0];
+// distance along the route of the car's projection (route points can be 40 m apart; the nearest POINT is not the car's progress)
+function apProg(){const p=NAV.pts,c=NAV.cum;let bs=c[Math.min(NAV.j,c.length-1)],bd=1e18;for(let j=Math.max(0,NAV.j-2);j<Math.min(p.length-1,NAV.j+3);j++){const ax=p[j][0],az=p[j][1],bx=p[j+1][0]-ax,bz=p[j+1][1]-az,L2=bx*bx+bz*bz||1,u=cl(((P.x-ax)*bx+(P.z-az)*bz)/L2,0,1),d=(P.x-ax-bx*u)**2+(P.z-az-bz*u)**2;if(d<bd){bd=d;bs=c[j]+u*(c[j+1]-c[j])}}return bs}
+function apInput(wp,k,mi,dt){const w=AP.wi;
+ if(k.KeyW||k.KeyS||k.KeyA||k.KeyD||k.ArrowUp||k.ArrowDown||k.ArrowLeft||k.ArrowRight||k.Space||mi.isAccelerating||mi.isBraking||mi.steeringAngle||mi.isHandbrake||(wp.on&&(Math.abs(wp.steer)>.15||wp.thr>.15||wp.brk>.15||wp.hb))){apOff('Auto-drive off: you took control');return wp}
+ const fx=Math.sin(P.h),fz=Math.cos(P.h),u=P.vx*fx+P.vz*fz;
+ if(!NAV.on||AP.stop){AP.stop=1;w.steer=0;w.thr=0;w.brk=1;if(Math.abs(u)<.4)apOff(NAV.on?'Auto-drive off':'🏁 Auto-drive: arrived');return w}
+ if(race.s==='count'||race.s==='run'||heist.s!=='idle'){apOff('Auto-drive off');return wp}
+ const s=apProg(),rd=RI&&RI.e&&RI.d<=RI.e.w/2+4?RI.e:null,lane=rd?(rd.ow?rd.w*.18:Math.min(2.6,rd.w*.25)):1.6;
+ // steering: pure pursuit on a point Ld ahead, shifted to the right-hand lane
+ const Ld=7+.45*Math.max(0,u),q=apPt(s+Ld,APA),tx=q[0]-q[3]*lane-P.x,tz=q[1]+q[2]*lane-P.z,rx=-fz,rz=fx,lat=tx*rx+tz*rz,fw=tx*fx+tz*fz,d2=Math.max(9,lat*lat+fw*fw),kap=2*lat/d2;   // kap > 0: target on the right
+ let st;if(handlingMode){const sp=ptGeom(ptSpec(P.idx||0)),beta=Math.abs(Math.atan2(P.vx*rx+P.vz*rz,Math.abs(u)+.5)),dm=.6/(1+Math.max(0,u)/(12+45*Math.min(1,beta*2.5)));st=-Math.atan(kap*sp.wb*1.15)/dm}
+ else st=u>.5?-kap*u*(1+u/18)/(1.8*P.hd*cl(u/4,-1,1)):-Math.sign(kap)*Math.min(1,Math.abs(kap)*20);
+ w.steer=-cl(st,-1,1);
+ // target speed: limit, curvature ahead (3 m/s^2 lateral, 3 m/s^2 braking), red / amber lights, cars ahead, the destination
+ const mu=handlingMode?WX.mu:1,he=Math.abs(Math.atan2(lat,fw));let vt=Math.min(curLim||50,90)/3.6*.95,why='limit';
+ // the posted limit of the route's own legs (the leg we are on, and lower limits ahead in time to brake for them at 2.5 m/s^2)
+ if(NAV.legs)for(const L of NAV.legs){const a0=NAV.cum[L.a],b0=NAV.cum[L.b];if(b0<s)continue;if(a0>s+90)break;const vl=Math.min(L.e.lim||50,90)/3.6*.95,dd=Math.max(0,a0-s-4);if(a0<=s)vt=vl;else vt=Math.min(vt,Math.sqrt(vl*vl+2*2.5*dd))}
+ if(he>.3){const vh=Math.max(3,14*(1-(he-.3)/1.2));if(vh<vt){vt=vh;why='turning'}}   // big heading error (start, missed turn): slow down first
+ apPt(s,APB);let px=APB[2],pz=APB[3];for(let d=10;d<=110;d+=10){apPt(s+d,APB);const cr=px*APB[3]-pz*APB[2],dp=px*APB[2]+pz*APB[3],k2=Math.abs(Math.atan2(cr,dp))/10;px=APB[2];pz=APB[3];if(k2>.004){const vc=Math.sqrt(3*mu/k2),va=Math.sqrt(vc*vc+2*3*mu*Math.max(0,d-10));if(va<vt){vt=va;why='curve'}}}
+ // red / amber: stop 13.5 m before the junction node (the red-light rule, redLight, watches a 12 m circle round it); once inside at speed, carry on
+ if(NAV.legs)for(const L of NAV.legs){const nd=L.n1!=null?NODES[L.n1]:null,de=NAV.cum[L.b]-s;if(de<-2)continue;if(de>95)break;if(!nd||!nd.lit)continue;const lt=light(nd.ph?nd.ph[L.e.id]:'x',nd),dd=de-13.5;if((dd>-2||dd>-8&&u<3)&&(lt==='r'||(lt==='y'&&dd>u*1.1))){const vr=Math.sqrt(2*3*Math.max(0,dd));if(vr<vt){vt=vr;why='red light'}}break}
+ for(const o of all){if(o===P)continue;const dx=o.x-P.x,dz=o.z-P.z,f=dx*fx+dz*fz;if(f>0&&f<40&&Math.abs(dx*rx+dz*rz)<2.4){const vo=Math.max(0,(f-8)*.8);if(vo<vt){vt=vo;why='car ahead'}}}
+ const rem=NAV.total-s,ve=Math.sqrt(2*2.5*Math.max(0,rem-6));if(ve<vt){vt=ve;why='arriving'}
+ AP.vt=vt;AP.why=why;const e=vt-u;w.thr=e>0?cl(e*.45,0,1):0;w.brk=vt<.3&&u<2?1:e<-.8?cl(-e*.3,0,1):0;   // hold the brake while waiting (no creeping over the stop line)
+ AP.stuck=vt>3&&u<.5?AP.stuck+dt:0;if(AP.stuck>6){apOff('Auto-drive stopped: the way is blocked');return wp}
+ return w}
+function apHud(){if(!AP.on)return;const t='🤖 AUTO · '+Math.round(AP.vt*3.6)+' km/h target · '+AP.why;if(apBadge.textContent!==t)apBadge.textContent=t}
+addEventListener('keydown',e=>{if(e.repeat||ui||(e.target&&e.target.tagName==='INPUT'))return;if(e.code==='KeyX')hornSet(true);if(e.code==='KeyZ')apToggle()});
+addEventListener('keyup',e=>{if(e.code==='KeyX')hornSet(false)});
+function assistTick(dt){repTick(dt);apHud();if(HORN.on&&ui)hornSet(false)}
 // ---- Forza-style look: Levant colour grade, drift tyre smoke, wet-asphalt glare streaks, peripheral speed blur (rendering only) ----
 {const f='contrast(1.15) saturate(1.1) sepia(.06)';ren.domElement.style.filter=f;try{mp.filter='contrast(1.15) saturate(1.1)'}catch(e){}}
 // radial speed blur: backdrop blur(1px) over everything except a clear ellipse around the player car (HUD sits above it)
@@ -3635,6 +3721,9 @@ function audInit(){if(AU.ctx||!AU.ok)return;try{const C=window.AudioContext||win
  n.gR=audBus(ctx,0,n.amb);n.fR=audFilt(ctx,'lowpass',250,.7,n.brown,n.gR);                           // tyre roll / road noise
  n.gTr=audBus(ctx,0,n.amb);n.oTr=audOsc(ctx,'sine',20,audFilt(ctx,'lowpass',700,1,{connect(){}},n.gTr));   // nearest traffic car
  {const e={lay:'I',cyl:4,asp:'n',seed:12345},c=engCycle(e,64);n.oTr.setPeriodicWave(ctx.createPeriodicWave(c.re,c.im))}
+ // v46: rain on the roof/road + wet-tyre hiss, and the player's horn (dual-tone ~400/500 Hz, a common electric horn pair; synthesised)
+ n.gRn=audBus(ctx,0,n.amb);audFilt(ctx,'lowpass',7000,.5,audFilt(ctx,'highpass',900,.5,n.white),n.gRn);n.gWt=audBus(ctx,0,n.amb);n.fWt=audFilt(ctx,'bandpass',2400,.7,n.white,n.gWt);
+ n.gHn=audBus(ctx,0,n.fx);{const hf=audFilt(ctx,'bandpass',900,.8,{connect(){}},n.gHn),hs=ctx.createWaveShaper();{const k=new Float32Array(256);for(let j=0;j<256;j++){const x=j/127.5-1;k[j]=Math.tanh(3*x)}hs.curve=k}hs.connect(hf);audOsc(ctx,'square',405,hs);audOsc(ctx,'square',508,hs)}
  n.buf=audBufs(ctx);AU.state=ctx.state;AU.cur=-1;audApply();
  ctx.onstatechange=()=>{AU.state=ctx.state;audHintUpd()}}catch(e){AU.ok=false;AU.err=String(e);AU.ctx=null}audHintUpd()}
 function audHintUpd(){if(typeof PAUSE!=='undefined'&&PAUSE.on){audHint.style.display='none';return}const run=AU.ctx&&AU.ctx.state==='running';audHint.style.display=run&&!AUD.mute?'none':'';if(!AU.ok)audHint.textContent='🔇 Sound unavailable in this browser'+(AU.err?' ('+AU.err.slice(0,60)+')':'');else if(AUD.mute)audHint.textContent='🔇 Muted (L)';else if(!run)audHint.textContent='🔇 Click or press any key to turn on sound (L = mute)';if(AUD.mute&&run){audHint.style.display='';clearTimeout(AU.hT);AU.hT=setTimeout(()=>{if(AUD.mute)audHint.style.display='none'},2500)}}
@@ -3682,10 +3771,17 @@ function audTick(dt){if(!AU.ctx||AU.ctx.state!=='running')return;const n=AU.n,ct
  T(n.gSq.gain,paved?.22*sq:0,.04);T(n.gSqT.gain,paved?.045*sq*sq:0,.04);T(n.fSq.frequency,900+260*sl,.05);T(n.oSq.frequency,(980+220*sl)*(1+.015*Math.sin(t*33)),.02);
  T(n.gGr.gain,!paved&&P.gnd?Math.min(.25,v/40)*(.4+sq):0,.06);
  T(n.gW.gain,.32*Math.pow(Math.min(1.4,v/45),2),.1);T(n.fW.frequency,350+v*14,.1);T(n.gR.gain,P.gnd?Math.min(.35,v/30*.22)*(paved?1:1.7):0,.08);T(n.fR.frequency,160+v*7,.1);
+ if(typeof WX!=='undefined'){T(n.gRn.gain,.16*WX.rain,.3);T(n.gWt.gain,P.gnd?.12*WX.wet*Math.min(1,v/25):0,.1);T(n.fWt.frequency,1800+v*25,.2)}
  T(n.lp.frequency,camMode===1?2600:18000,.1);   // cockpit view: muffled outside sound
  // nearest moving traffic car (refreshed 6x a second, O(traffic))
  if((AU.trT-=dt)<=0){AU.trT=.16;let b=null,bd=1600;for(const c of traffic){const d=(c.x-P.x)*(c.x-P.x)+(c.z-P.z)*(c.z-P.z);if(d<bd){bd=d;b=c}}AU.traf=b;AU.trD=Math.sqrt(bd)}
  const tc=AU.traf;T(n.gTr.gain,tc?.18*Math.min(1,6/Math.max(6,AU.trD))*(.3+Math.min(1,(tc.v||0)/12)):0,.15);if(tc)T(n.oTr.frequency,(850+(tc.v||0)*110)/120,.1)}
+function audHorn(on){if(!AU.ctx||AU.ctx.state!=='running')return;const g=AU.n.gHn.gain,t=AU.ctx.currentTime;g.cancelScheduledValues(t);g.setTargetAtTime(on?.16:0,t,on?.008:.03)}
+// traffic horns: one-shot, panned left/right from the camera and quieter with distance (1/(1+d/8)), duller far away
+function audHornAt(x,z,dur,pt){if(!AU.ctx||AU.ctx.state!=='running')return;const ctx=AU.ctx,t=ctx.currentTime,dx=x-cam.position.x,dz=z-cam.position.z,d=Math.hypot(dx,dz);if(d>120)return;
+ const fx=Math.sin(P.h),fz=Math.cos(P.h),side=(dx*-fz+dz*fx)/(d||1),g=ctx.createGain(),f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=Math.max(700,5000/(1+d/15));
+ const pn=ctx.createStereoPanner?ctx.createStereoPanner():null;g.gain.value=0;g.gain.setTargetAtTime(.22/(1+d/8),t,.01);g.gain.setTargetAtTime(0,t+dur,.03);g.connect(f);if(pn){pn.pan.value=cl(side,-1,1)*.8;f.connect(pn);pn.connect(AU.n.fx)}else f.connect(AU.n.fx);
+ const os=[370*pt,465*pt].map(fr=>{const o=ctx.createOscillator();o.type='square';o.frequency.value=fr;o.connect(g);o.start(t);o.stop(t+dur+.3);return o});os[0].onended=()=>{try{g.disconnect();f.disconnect();if(pn)pn.disconnect()}catch(e){}}}
 // impacts (one-shot sources are the Web Audio way: each is released after it ends); rate-limited
 function audHit(kind,lvl){if(!AU.ctx||AU.ctx.state!=='running'||lvl<=.02)return;const now=AU.ctx.currentTime;if(now-AU.hitT<.06)return;AU.hitT=now;AU.hits++;
  const s=AU.ctx.createBufferSource(),g=AU.ctx.createGain();s.buffer=AU.n.buf[kind]||AU.n.buf.crash;s.playbackRate.value=.85+Math.random()*.3;g.gain.value=Math.min(1.2,lvl);s.connect(g);g.connect(AU.n.fx);s.onended=()=>{try{g.disconnect()}catch(e){}};s.start()}
@@ -3796,18 +3892,24 @@ pauseEl.innerHTML='<div style="background:#15181d;border:1px solid #333;border-r
  '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="mute"> Mute (L)</label><div data-i="aud" style="font-size:12px;color:#aaa"></div>'+
  '<div style="font-weight:600;margin:10px 0 4px">Graphics</div><label style="display:flex;justify-content:space-between">Quality <select data-s="q"><option value="auto">Auto (High, drops if slow)</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>'+
  '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="fps"> Show frame-time meter</label>'+
- '<div style="font-weight:600;margin:10px 0 4px">Driving</div><button data-a="hand" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="dmg" style="width:100%;padding:6px;margin:2px 0"></button>'+
- '<div style="font-size:12px;color:#aaa;margin-top:10px">W/S drive · A/D steer · Space handbrake · H handling · I damage · O diagnostics · V wheel setup · L mute · C camera · M search · P shop · F reset</div></div>';
+ '<div style="font-weight:600;margin:10px 0 4px">Driving</div><button data-a="hand" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="dmg" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="gear" style="width:100%;padding:6px;margin:2px 0"></button>'+
+ '<div data-i="rep" style="font-size:12px;color:#aaa;margin:4px 0"></div>'+
+ '<div style="font-weight:600;margin:10px 0 4px">Weather and time</div><label style="display:flex;justify-content:space-between">Weather <select data-s="wx"><option value="auto">Auto (Irbid seasons)</option><option value="clear">Clear</option><option value="cloudy">Cloudy</option><option value="rain">Rain</option></select></label>'+
+ '<label style="display:flex;justify-content:space-between;margin-top:4px">Clock <select data-s="clk"><option value="game">Game time (1 day = 16 min)</option><option value="local">Irbid local time (Asia/Amman)</option></select></label><div data-i="wx" style="font-size:12px;color:#aaa;margin-top:4px"></div>'+
+ '<div style="font-size:12px;color:#aaa;margin-top:10px">W/S drive · A/D steer · Space handbrake · H handling · I damage · O diagnostics · V wheel setup · L mute · C camera · M search · P shop · F reset · Q/E gears (Realistic) · X horn · Z auto-drive (after M sets a route)</div></div>';
 try{document.body.appendChild(pauseEl)}catch(e){}
 const pq=s=>pauseEl.querySelector(s);
 function pauseSync(){try{for(const k of['master','engine','fx','amb']){const r=pq('[data-v="'+k+'"]');if(r)r.value=Math.round(AUD[k]*100)}const mu=pq('[data-c="mute"]');if(mu)mu.checked=AUD.mute;const fp=pq('[data-c="fps"]');if(fp)fp.checked=GQ.fps;const qs=pq('[data-s="q"]');if(qs)qs.value=GQ.q;
  const h=pq('[data-a="hand"]');if(h)h.textContent='Handling: '+(handlingMode?'Realistic':'Arcade')+' (H)';const d=pq('[data-a="dmg"]');if(d)d.textContent='Damage: '+(['Off','Cosmetic','Full'][damageMode]||damageMode)+' (I)';
+ const gb=pq('[data-a="gear"]');if(gb)gb.textContent='Gearbox: '+(PTS.man?'Manual (Q / E, paddles)':'Automatic')+(handlingMode?'':' · Realistic only');
+ const rp=pq('[data-i="rep"]');if(rp&&typeof REP!=='undefined'){const r=REP.riv,rv=['Samer','Layth','Omar'].filter(n=>r[n]&&r[n].r).map(n=>n+' '+r[n].w+'–'+r[n].l+(r[n].h?' ('+r[n].h+' hits)':'')).join(' · ');rp.textContent='Road reputation '+Math.round(REP.road)+'/100 (traffic remembers hits, red lights, wrong way, speeding; clean driving earns it back)'+(rv?' · Rivals you–them: '+rv:'')}
+ const ws=pq('[data-s="wx"]');if(ws&&typeof WX!=='undefined'){ws.value=WX.mode;pq('[data-s="clk"]').value=WX.clock;pq('[data-i="wx"]').textContent=wxLine()}
  const ai=pq('[data-i="aud"]');if(ai)ai.textContent=!AU.ok?'Sound unavailable in this browser':!AU.ctx?'Sound starts on your first click or key press':'Engine: '+engProfile(P.idx).code+' · '+engProfile(P.idx).src+' (synthesised, not a recording)'}catch(e){}}
 function pauseToggle(on){on=on===undefined?!PAUSE.on:!!on;if(on===PAUSE.on)return;PAUSE.on=on;
  if(on){ui=true;for(const k in keys)keys[k]=0;pauseSync();pauseEl.style.display='flex';if(AU.ctx&&AU.ctx.state==='running')AU.ctx.suspend()}
  else{pauseEl.style.display='none';ui=false;if(AU.ctx&&!document.hidden)AU.ctx.resume().catch(()=>{})}}
-pauseEl.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(a==='resume')pauseToggle(false);else if(a==='hand'){setHandling(!handlingMode);pauseSync()}else if(a==='dmg'){if(typeof cycleDamageMode==='function')cycleDamageMode();pauseSync()}});
-pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}});
+pauseEl.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(a==='resume')pauseToggle(false);else if(a==='hand'){setHandling(!handlingMode);pauseSync()}else if(a==='dmg'){if(typeof cycleDamageMode==='function')cycleDamageMode();pauseSync()}else if(a==='gear'){setGearbox(!PTS.man);pauseSync()}});
+pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}else if(d.s==='wx'){wxSet('mode',t.value);pauseSync()}else if(d.s==='clk'){wxSet('clock',t.value);pauseSync()}});
 pauseEl.addEventListener('keydown',e=>e.stopPropagation());
 // capture phase: decide BEFORE other Esc handlers close their own menus (Esc that closes a menu never also opens the pause menu)
 addEventListener('keydown',e=>{if(e.code!=='Escape'||e.repeat)return;if(PAUSE.on){e.preventDefault();e.stopImmediatePropagation();pauseToggle(false);return}
@@ -3818,6 +3920,45 @@ if(GQ.q!=='auto')gqApply();
 // HUD lines are rebuilt every frame; only write the DOM when the text actually changed (same strings, fewer style/layout passes)
 function hudCache(){if(typeof Element!=='undefined'){const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(d&&d.set)for(const e of[spdEl,topEl,raceEl,heistEl]){let last=null;Object.defineProperty(e,'innerHTML',{configurable:true,get(){return d.get.call(e)},set(v){v=String(v);if(v!==last){last=v;d.set.call(e,v)}}})}}}
 if(typeof saveNote!=='undefined'&&saveNote)setTimeout(()=>toast(saveNote),1500);
+// ---- v46: weather + Irbid local time. SIMULATED weather (no network, no live data): in Auto, the chance of a rainy day each month comes from
+// the Jordan Meteorological Department climate table for Irbid (1985-2018: precipitation days per month), read from the Asia/Amman calendar.
+// How much of a rainy day it actually rains (45%), how often dry days are cloudy, and drying time are estimates. Visuals: cloud cover, grey
+// sky and light, shorter fog in rain, rain streaks, darker glossier roads. Physics: only Realistic handling feels the wet road (peak tyre grip
+// x0.72 when fully wet; published wet/dry peak friction ratios are ~0.6-0.8, see V46_REPORT.md). Arcade physics never changes (off_trace).
+const WSTORE='irbid-drive-weather-v1',WX_CLIM=[11.3,10.6,9.4,4.6,2,.2,0,0,.2,3.2,6,9.6],WX_MD=[31,28.25,31,30,31,30,31,31,30,31,30,31],
+ WX_MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WX={mode:'auto',clock:'game',st:'clear',cov:0,rain:0,wet:0,mu:1,tc:0,tr:0,next:0,blk:0,day:false,lw:-1,lh:null,lt:0,mon:0};
+try{const o=JSON.parse(localStorage.getItem(WSTORE)||'{}');if(['auto','clear','cloudy','rain'].includes(o.mode))WX.mode=o.mode;if(o.clock==='local')WX.clock='local'}catch(e){}
+function wxSave(){try{localStorage.setItem(WSTORE,JSON.stringify({mode:WX.mode,clock:WX.clock}))}catch(e){}}
+let WX_FMT=null;try{WX_FMT=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Amman',hourCycle:'h23',hour:'numeric',minute:'numeric',second:'numeric',month:'numeric'})}catch(e){}
+// Jordan has kept UTC+3 all year since late 2022; that is the fallback when the browser has no time-zone data
+function ammanNow(){const d=new Date();try{if(WX_FMT){const p=WX_FMT.formatToParts(d),g=t=>+(p.find(x=>x.type===t)||{value:0}).value;return{h:(g('hour')%24)+g('minute')/60+g('second')/3600,m:cl(g('month')-1,0,11)}}}catch(e){}const u=new Date(d.getTime()+108e5);return{h:u.getUTCHours()+u.getUTCMinutes()/60,m:u.getUTCMonth()}}
+WX.mon=ammanNow().m;
+function wxHour(h,dt){if(WX.clock!=='local')return(h+dt/40)%24;WX.lt-=dt;if(WX.lt<=0||WX.lh===null){WX.lt=1;const a=ammanNow();WX.lh=a.h;WX.mon=a.m}else WX.lh=(WX.lh+dt/3600)%24;return WX.lh}
+function wxPick(st){WX.st=st;WX.tc=st==='rain'?.95:st==='cloudy'?.55:.06*Math.random();WX.tr=st==='rain'?.55+.45*Math.random():0}
+// Auto: a new "day" every 8 blocks of 3 game hours (one block = 2 real minutes); a rainy day rains in ~45% of its blocks (estimate)
+function wxRoll(){if(WX.blk%8===0){const p=WX_CLIM[WX.mon]/WX_MD[WX.mon];WX.day=Math.random()<p}WX.blk++;const p=WX_CLIM[WX.mon]/WX_MD[WX.mon];
+ wxPick(WX.day?(Math.random()<.45?'rain':'cloudy'):Math.random()<Math.min(.45,p*2+.06)?'cloudy':'clear')}
+function wxSet(k,v){if(k==='mode'){WX.mode=v;WX.next=0;if(v!=='auto')wxPick(v)}else if(k==='clock'){WX.clock=v;WX.lh=null}wxSave()}
+// rain streaks: one LineSegments draw, positions wrapped around the camera in the vertex shader (no per-frame JS work per drop)
+const WX_N=1800,wxU={uC:{value:new T.Vector3()},uT:{value:0},uA:{value:0}};
+const wxRainM=(()=>{const g=new T.BufferGeometry(),a=new Float32Array(WX_N*8),p=new Float32Array(WX_N*6);for(let i=0;i<WX_N;i++){const x=Math.random(),y=Math.random(),z=Math.random(),s=.7+.6*Math.random();a.set([x,y,z,0,x,y,z,s],i*8)}
+ g.setAttribute('position',new T.BufferAttribute(p,3));g.setAttribute('aD',new T.BufferAttribute(a,4));
+ const m=new T.ShaderMaterial({uniforms:wxU,transparent:true,depthWrite:false,fog:false,
+  vertexShader:'uniform vec3 uC;uniform float uT;attribute vec4 aD;varying float vA;void main(){vec3 b=vec3(64.,24.,64.);vec3 w;w.x=uC.x+mod(aD.x*b.x-uC.x+.5*b.x,b.x)-.5*b.x;w.z=uC.z+mod(aD.z*b.z-uC.z+.5*b.z,b.z)-.5*b.z;w.y=uC.y-8.+mod(aD.y*b.y-uT*15.,b.y);float e=step(.01,aD.w);w.y-=e*.75*aD.w;w.x+=e*.12;vA=1.-e*.6;gl_Position=projectionMatrix*viewMatrix*vec4(w,1.);}',
+  fragmentShader:'uniform float uA;varying float vA;void main(){gl_FragColor=vec4(.72,.76,.82,.42*uA*vA);}'});
+ const o=new T.LineSegments(g,m);o.frustumCulled=false;o.visible=false;o.renderOrder=5;scene.add(o);return o})();
+const WXG=new T.Color(),WXZ=new T.Color(0x6f7880),WXF={n:scene.fog.near,f:scene.fog.far};
+function wxTick(dt,el){if(PAUSE.on)return;if(WX.mode==='auto'){if((WX.next-=dt)<=0){WX.next=120;wxRoll()}}else if(WX.st!==WX.mode)wxPick(WX.mode);
+ const k=Math.min(1,dt/20);WX.cov+=(WX.tc-WX.cov)*k;WX.rain+=(WX.tr-WX.rain)*Math.min(1,dt/12);if(WX.rain<.003)WX.rain=0;
+ WX.wet=WX.rain>.08?Math.min(1,WX.wet+dt*WX.rain/40):Math.max(0,WX.wet-dt/240);WX.mu=1-.28*WX.wet;
+ const c=WX.cov;if(c>.002){const dayF=cl(el*4+.2,0,1);WXG.setRGB(.6,.64,.68).multiplyScalar(.08+.92*dayF);sky.lerp(WXG,c*.65);if(GFX.on){SKYU.uZen.value.lerp(WXZ.setRGB(.42,.47,.52).multiplyScalar(.06+.94*dayF),c*.7)}sun.intensity*=1-.75*c;hemi.intensity*=1-.15*c}
+ if(GFX.on)SKYU.uCov.value=c;scene.fog.near=WXF.n*(1-.6*WX.rain);scene.fog.far=WXF.f*(1-.5*WX.rain-.12*c);
+ if(Math.abs(WX.wet-WX.lw)>.02){WX.lw=WX.wet;for(const m of roadMats){const u=m.userData;if(u.r0===undefined){u.r0=m.roughness;u.e0=m.envMapIntensity||0}m.roughness=u.r0*(1-.6*WX.wet);m.envMapIntensity=u.e0*(1+1.6*WX.wet);m.color.setScalar(1-.22*WX.wet)}}
+ wxRainM.visible=WX.rain>.02;if(wxRainM.visible){wxU.uC.value.copy(cam.position);wxU.uT.value=clock;wxU.uA.value=Math.min(1,WX.rain*1.3)}}
+function wxLine(){const n=WX_CLIM[WX.mon];return(WX.mode==='auto'?'Auto (Irbid seasons)':'Chosen: '+WX.mode)+' · now '+(WX.rain>.08?'raining':WX.cov>.3?'cloudy':'clear')+(WX.mode!=='auto'&&WX.st!==(WX.rain>.08?'rain':WX.cov>.3?'cloudy':'clear')?' (changing)':'')+' · road '+(WX.wet>.05?'wet '+Math.round(WX.wet*100)+'%'+(handlingMode?' (grip −'+Math.round((1-WX.mu)*100)+'%)':' (grip unchanged in Arcade)'):'dry')+
+ ' · simulated, not live: '+WX_MON[WX.mon]+' averages '+n+' rain days in Irbid (JMD 1985–2018)'}
+addEventListener('keydown',e=>{if(e.code==='KeyT'&&!ui&&WX.clock==='local'){WX.clock='game';wxSave();toast('Clock: game time (T moves it on)')}});
 // ---- HUD ----
 const mp=document.getElementById('map').getContext('2d'),topEl=document.getElementById('top'),driftEl=document.getElementById('drift'),spdEl=document.getElementById('spd'),raceEl=document.getElementById('race');
 const MC={ring:'#c08ae8',main:'#a8a8a8',arch:'#ee6a6a',petra:'#5aa0f0',hw:'#f0b040',local:'#6c6c6c',svc:'#4d4d4d',alley:'#b08a4a',campus:'#5aa66a',ramp:'#f0b040'},MORD=['svc','local','main','petra','arch','ramp','ring','hw'],MWD={svc:4,local:7,main:9.5,petra:11,arch:12,ramp:6,ring:8,hw:14},MSB={},MSN={};let mapF=0;MORD.forEach(k=>{MSB[k]=new Float32Array(4*9000);MSN[k]=0});
@@ -3839,14 +3980,14 @@ const hh=()=>{const h=Math.floor(hour),m=Math.floor((hour-h)*60);return String(h
 // (window resizes only re-fit the 16:9 canvas via CSS inside initialize1080pGameDisplay; the 1920x1080 buffer and camera aspect never change)
 // ---- main loop ----
 const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();const CAMV=new T.Vector3();
-function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=='undefined'&&PAUSE.on){prev=now;try{WH.poll(1/60)}catch(e){}requestAnimationFrame(loop);return}const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
+function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=='undefined'&&PAUSE.on){prev=now;try{WH.poll(1/60)}catch(e){}requestAnimationFrame(loop);return}const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=typeof wxHour==='function'?wxHour(hour,dt):(hour+dt/40)%24;
  const a=(hour-6)/12*Math.PI,el=Math.sin(a),dx=Math.cos(a);
  if(el>.3)sky.copy(dayC);else if(el>0)sky.copy(duskC).lerp(dayC,el/.3);else sky.copy(nightC).lerp(duskC,Math.max(0,(el+.15)/.15));
  gfxSky(el,dx*900,el*900,300,clock);const night=cl((.05-el)*8,0,1);sun.position.set(P.x+dx*400,P.y+Math.max(el,.03)*400,P.z+140);sun.target.position.set(P.x,P.y,P.z);groundTo(Math.round(P.x/100)*100,Math.round(P.z/100)*100);sun.intensity=Math.max(0,el)*1.3;
- hemi.intensity=.14+.5*Math.max(0,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
+ hemi.intensity=.14+.5*Math.max(0,el);if(typeof wxTick==='function')wxTick(dt,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
  sigTick();
  traffic.forEach(c=>updTraffic(c,dt));
- const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);
+ const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
  if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
  else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}

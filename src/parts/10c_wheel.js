@@ -8,9 +8,9 @@
 const WHN={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0};
 const WH=(()=>{
  const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'')||(!!cfg.dev&&id===cfg.dev);
- const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Rob bank'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
- const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,cen:0,curve:1,smooth:0,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
- let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)cfg=Object.assign(DEF(),s,{btn:Object.assign(DEF().btn,s.btn||{})})}catch(e){}
+ const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Shift up / rob bank (E)'],['KeyQ','Shift down (Q)'],['KeyX','Horn (hold, X)'],['KeyZ','Auto-drive (Z)'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
+ const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,cen:0,curve:1,smooth:0,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{KeyE:4,KeyQ:5,hb:6,KeyC:7,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9,KeyX:10,KeyZ:11}});   // v46: paddles shift (G29 in Chrome: 4 right, 5 left; not verified on hardware)
+ let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s){const sb=s.btn||{},b=DEF().btn,used=new Set(Object.values(sb).filter(i=>i>=0));if(s.btn)for(const a in b)if(!(a in sb)&&used.has(b[a]))b[a]=-1;cfg=Object.assign(DEF(),s,{btn:Object.assign(b,sb)})}}catch(e){}   // v46: a saved layout keeps its buttons; new actions only take free ones
  const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},cl2=(v,a,b)=>v<a?a:v>b?b:v;
  const S={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0,id:'',blocked:'',seen:0,others:[]};
  let pi=-1,pad=null,scanT=9,cap=null,wzOn=false,rev=[],prev=new Uint8Array(64),said='';
@@ -56,7 +56,7 @@ const WH=(()=>{
   const B=g.buttons;let hb=false;
   for(let i=0;i<B.length&&i<64;i++){const p=B[i].pressed?1:0,a2=rev[i];
    if(cap&&cap.t==='btn'){if(p&&!prev[i]){const f=cap.fn;cap=null;f(i)}}
-   else if(a2&&!cap&&(!wzOn||a2==='Escape')){if(a2==='hb')hb=hb||!!p;else if(p&&!prev[i])press(a2)}
+   else if(a2&&!cap&&(!wzOn||a2==='Escape')){if(a2==='hb')hb=hb||!!p;else if(a2==='KeyX'){if(p!==prev[i])dispatchEvent(new KeyboardEvent(p?'keydown':'keyup',{code:a2,key:a2}))}else if(p&&!prev[i])press(a2)}
    prev[i]=p}
   S.hb=hb&&!ui;return S}
  // ================= force feedback synthesis (called once per frame at the end of updP) =================

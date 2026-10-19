@@ -73,6 +73,9 @@ function audInit(){if(AU.ctx||!AU.ok)return;try{const C=window.AudioContext||win
  n.gR=audBus(ctx,0,n.amb);n.fR=audFilt(ctx,'lowpass',250,.7,n.brown,n.gR);                           // tyre roll / road noise
  n.gTr=audBus(ctx,0,n.amb);n.oTr=audOsc(ctx,'sine',20,audFilt(ctx,'lowpass',700,1,{connect(){}},n.gTr));   // nearest traffic car
  {const e={lay:'I',cyl:4,asp:'n',seed:12345},c=engCycle(e,64);n.oTr.setPeriodicWave(ctx.createPeriodicWave(c.re,c.im))}
+ // v46: rain on the roof/road + wet-tyre hiss, and the player's horn (dual-tone ~400/500 Hz, a common electric horn pair; synthesised)
+ n.gRn=audBus(ctx,0,n.amb);audFilt(ctx,'lowpass',7000,.5,audFilt(ctx,'highpass',900,.5,n.white),n.gRn);n.gWt=audBus(ctx,0,n.amb);n.fWt=audFilt(ctx,'bandpass',2400,.7,n.white,n.gWt);
+ n.gHn=audBus(ctx,0,n.fx);{const hf=audFilt(ctx,'bandpass',900,.8,{connect(){}},n.gHn),hs=ctx.createWaveShaper();{const k=new Float32Array(256);for(let j=0;j<256;j++){const x=j/127.5-1;k[j]=Math.tanh(3*x)}hs.curve=k}hs.connect(hf);audOsc(ctx,'square',405,hs);audOsc(ctx,'square',508,hs)}
  n.buf=audBufs(ctx);AU.state=ctx.state;AU.cur=-1;audApply();
  ctx.onstatechange=()=>{AU.state=ctx.state;audHintUpd()}}catch(e){AU.ok=false;AU.err=String(e);AU.ctx=null}audHintUpd()}
 function audHintUpd(){if(typeof PAUSE!=='undefined'&&PAUSE.on){audHint.style.display='none';return}const run=AU.ctx&&AU.ctx.state==='running';audHint.style.display=run&&!AUD.mute?'none':'';if(!AU.ok)audHint.textContent='🔇 Sound unavailable in this browser'+(AU.err?' ('+AU.err.slice(0,60)+')':'');else if(AUD.mute)audHint.textContent='🔇 Muted (L)';else if(!run)audHint.textContent='🔇 Click or press any key to turn on sound (L = mute)';if(AUD.mute&&run){audHint.style.display='';clearTimeout(AU.hT);AU.hT=setTimeout(()=>{if(AUD.mute)audHint.style.display='none'},2500)}}
@@ -120,10 +123,17 @@ function audTick(dt){if(!AU.ctx||AU.ctx.state!=='running')return;const n=AU.n,ct
  T(n.gSq.gain,paved?.22*sq:0,.04);T(n.gSqT.gain,paved?.045*sq*sq:0,.04);T(n.fSq.frequency,900+260*sl,.05);T(n.oSq.frequency,(980+220*sl)*(1+.015*Math.sin(t*33)),.02);
  T(n.gGr.gain,!paved&&P.gnd?Math.min(.25,v/40)*(.4+sq):0,.06);
  T(n.gW.gain,.32*Math.pow(Math.min(1.4,v/45),2),.1);T(n.fW.frequency,350+v*14,.1);T(n.gR.gain,P.gnd?Math.min(.35,v/30*.22)*(paved?1:1.7):0,.08);T(n.fR.frequency,160+v*7,.1);
+ if(typeof WX!=='undefined'){T(n.gRn.gain,.16*WX.rain,.3);T(n.gWt.gain,P.gnd?.12*WX.wet*Math.min(1,v/25):0,.1);T(n.fWt.frequency,1800+v*25,.2)}
  T(n.lp.frequency,camMode===1?2600:18000,.1);   // cockpit view: muffled outside sound
  // nearest moving traffic car (refreshed 6x a second, O(traffic))
  if((AU.trT-=dt)<=0){AU.trT=.16;let b=null,bd=1600;for(const c of traffic){const d=(c.x-P.x)*(c.x-P.x)+(c.z-P.z)*(c.z-P.z);if(d<bd){bd=d;b=c}}AU.traf=b;AU.trD=Math.sqrt(bd)}
  const tc=AU.traf;T(n.gTr.gain,tc?.18*Math.min(1,6/Math.max(6,AU.trD))*(.3+Math.min(1,(tc.v||0)/12)):0,.15);if(tc)T(n.oTr.frequency,(850+(tc.v||0)*110)/120,.1)}
+function audHorn(on){if(!AU.ctx||AU.ctx.state!=='running')return;const g=AU.n.gHn.gain,t=AU.ctx.currentTime;g.cancelScheduledValues(t);g.setTargetAtTime(on?.16:0,t,on?.008:.03)}
+// traffic horns: one-shot, panned left/right from the camera and quieter with distance (1/(1+d/8)), duller far away
+function audHornAt(x,z,dur,pt){if(!AU.ctx||AU.ctx.state!=='running')return;const ctx=AU.ctx,t=ctx.currentTime,dx=x-cam.position.x,dz=z-cam.position.z,d=Math.hypot(dx,dz);if(d>120)return;
+ const fx=Math.sin(P.h),fz=Math.cos(P.h),side=(dx*-fz+dz*fx)/(d||1),g=ctx.createGain(),f=ctx.createBiquadFilter();f.type='lowpass';f.frequency.value=Math.max(700,5000/(1+d/15));
+ const pn=ctx.createStereoPanner?ctx.createStereoPanner():null;g.gain.value=0;g.gain.setTargetAtTime(.22/(1+d/8),t,.01);g.gain.setTargetAtTime(0,t+dur,.03);g.connect(f);if(pn){pn.pan.value=cl(side,-1,1)*.8;f.connect(pn);pn.connect(AU.n.fx)}else f.connect(AU.n.fx);
+ const os=[370*pt,465*pt].map(fr=>{const o=ctx.createOscillator();o.type='square';o.frequency.value=fr;o.connect(g);o.start(t);o.stop(t+dur+.3);return o});os[0].onended=()=>{try{g.disconnect();f.disconnect();if(pn)pn.disconnect()}catch(e){}}}
 // impacts (one-shot sources are the Web Audio way: each is released after it ends); rate-limited
 function audHit(kind,lvl){if(!AU.ctx||AU.ctx.state!=='running'||lvl<=.02)return;const now=AU.ctx.currentTime;if(now-AU.hitT<.06)return;AU.hitT=now;AU.hits++;
  const s=AU.ctx.createBufferSource(),g=AU.ctx.createGain();s.buffer=AU.n.buf[kind]||AU.n.buf.crash;s.playbackRate.value=.85+Math.random()*.3;g.gain.value=Math.min(1.2,lvl);s.connect(g);g.connect(AU.n.fx);s.onended=()=>{try{g.disconnect()}catch(e){}};s.start()}

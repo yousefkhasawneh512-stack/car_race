@@ -1,7 +1,7 @@
 // ---- agents that follow the road graph: traffic, race bots, police ----
 const traffic=[],bots=['Samer','Layth','Omar'].map((n,i)=>({n,x:1e4,z:1e4,h:Math.PI/2,v:0,prog:0,fin:false,skill:.96+i*.02,rad:1.3,m:mkPorsche(i),P:[],C:[],Lm:[],Mk:[],pi:0}));
 bots.forEach((b,i)=>{setModel(b,i);b.m.position.set(1e4,TH(1e4,1e4),1e4)});
-const all=traffic.concat([P],bots);
+const all=traffic.concat([P],bots),REPG={gap:6.5};   // v46: following gap behind the PLAYER (11c road reputation; 6.5 m = every other car)
 const TRW={hw:1,arch:1,petra:1,main:.85,local:.4,svc:.07,ramp:.5,ring:.7,drift:0,campus:.5,alley:.3};
 function pickSeg(rmin,rmax,tries){for(let t=0;t<(tries||120);t++){const a=Math.random()*6.2832,r=rmin+Math.random()*(rmax-rmin),L=HASH.get(hk(Math.floor((P.x+Math.cos(a)*r)/HC2),Math.floor((P.z+Math.sin(a)*r)/HC2)));if(L&&L.length){const s=L[hi(L.length)];if(s.e.hw==='track'||s.e.tn)continue;if(Math.random()<(TRW[s.e.kind]??.4))return s}}return null}
 // append one road traversal (with lane offset) to an agent's path; skip = number of leading points to drop
@@ -34,7 +34,7 @@ function updTraffic(c,dt){if(c.x>9e4){respawn(c,60);return}advance(c);extend(c);
   if(nd.lit){const dd=d-11,st=light(nd.ph[m.e.id],nd);if(dd>-4&&(st==='r'||(st==='y'&&dd>c.v*.9)))tgt=Math.min(tgt,Math.sqrt(Math.max(0,7*Math.max(dd,0))))}
   else if(circNode(m.id)&&d<38)tgt=Math.min(tgt,8)}
  const sh=Math.sin(c.h),ch=Math.cos(c.h);
- for(const o of all){if(o===c)continue;const dx=o.x-c.x,dz=o.z-c.z,f=dx*sh+dz*ch;if(f>0&&f<26&&Math.abs(dx*ch-dz*sh)<2.6)tgt=Math.min(tgt,Math.max(0,(f-6.5)*.9))}
+ for(const o of all){if(o===c)continue;const dx=o.x-c.x,dz=o.z-c.z,f=dx*sh+dz*ch;if(f>0&&f<26&&Math.abs(dx*ch-dz*sh)<2.6)tgt=Math.min(tgt,Math.max(0,(f-(o===P?REPG.gap:6.5))*.9))}
  if(c.hold>0){c.hold-=dt;tgt=0}
  c.v=tgt>c.v?Math.min(tgt,c.v+3*dt):Math.max(tgt,c.v-9*dt);
  const a=aim(c,6+c.v*.6),want=Math.atan2(a[0]-c.x,a[1]-c.z);c.h+=cl(wrap(want-c.h),-2.8*dt,2.8*dt);c.x+=Math.sin(c.h)*c.v*dt;c.z+=Math.cos(c.h)*c.v*dt;

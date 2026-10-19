@@ -1,14 +1,16 @@
 const LIMIT=50;
 // ---- laws / fines (road-aware: lanes, one-way rings, signalled junctions, per-road limits) ----
-let last={},curL=null,RI=null,curLim=50;const toastEl=document.getElementById('toast');
+// v46 LIMT: a speed limit counts after 1.5 s on that road (crossing a 40 km/h side street at a junction is not speeding)
+let last={},curL=null,RI=null,curLim=50;const LIMT={l:-1,t:0};const toastEl=document.getElementById('toast');
 function toast(m){const d=document.createElement('div');d.textContent=m;toastEl.appendChild(d);setTimeout(()=>d.remove(),3200)}
 function fine(k,a,m,cd){if(clock-(last[k]??-99)<cd)return;last[k]=clock;fines+=a;save();toast(m+' — fine '+a+' JD')}
 const driftZoneAt=(x,z)=>{for(const q of DZONES){if(q.hw){const dx=x-q.x,dz=z-q.z,lx=dx*q.c-dz*q.s,lz=dx*q.s+dz*q.c;if(Math.abs(lx)<q.hw&&Math.abs(lz)<q.hd)return q}else if(Math.hypot(x-q.x,z-q.z)<q.r)return q}return null},inDrift=(x,z)=>!!driftZoneAt(x,z);const onRoad=()=>!!RI&&RI.d<=RI.e.w/2+.3;
 function streetName(){for(const c of CIRC)if(Math.hypot(P.x-c.x,P.z-c.z)<36)return c.name;return RI&&RI.d<=RI.e.w/2+5?RI.e.name:''}
 function wrongWay(){const s=RI;if(!s||s.d>s.e.w/2||s.n!==1)return false;const e=s.e;if(e.kind==='alley'||e.kind==='svc'||e.kind==='campus'||e.kind==='drift'||e.kind==='ring')return false;
  const u=e.cum[s.i]+s.t*(e.cum[s.i+1]-e.cum[s.i]);if(u<18||e.len-u<18)return false;const al=P.vx*s.tx+P.vz*s.tz;if(e.ow)return al<-4;return(al>4&&s.side<-1)||(al<-4&&s.side>1)}
+// v46: "not airborne" is the height above the GROUND (it was the absolute P.y < 1.5, so since the v37 terrain no red light was enforced above Al-Balad's level)
 function redLight(sp){let near=null;for(const nd of LIT)if(Math.hypot(P.x-nd.x,P.z-nd.z)<12){near=nd;break}
- if(near&&curL===null&&P.y<1.5&&sp>14){const v=Math.hypot(P.vx,P.vz)||1,vx=P.vx/v,vz=P.vz/v;let best=null,bd=-2;for(const e of near.inn){const h=approachOf(near,e),dd=h[0]*vx+h[1]*vz;if(dd>bd){bd=dd;best=e}}
+ if(near&&curL===null&&P.y-TH(P.x,P.z)<1.5&&sp>14){const v=Math.hypot(P.vx,P.vz)||1,vx=P.vx/v,vz=P.vz/v;let best=null,bd=-2;for(const e of near.inn){const h=approachOf(near,e),dd=h[0]*vx+h[1]*vz;if(dd>bd){bd=dd;best=e}}
   if(best&&bd>.5&&light(near.ph[best.id],near)==='r')fine('red',50,'Ran a red light',3)}curL=near?near.id:null}
 // ---- teleports: landmark tour (K), stunt ramps (J), reset (F) ----
 const ringSpot=c=>c?[c.x+c.r,c.z,Math.PI]:null;
@@ -19,7 +21,7 @@ const monoC=id=>CIRC.find(c=>c.mono===id),LM=[];
 function warp(x,z,h){P.x=x;P.z=z;P.h=h;P.vx=P.vz=P.vy=0;P.y=P.pgh=groundH(x,z);cam.position.set(x-Math.sin(h)*9,P.y+3.6,z-Math.cos(h)*9)}
 // ---- player ----
 const keys={};addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='KeyP'){e.preventDefault();TuningShopInterface.toggleShopMenu();return}if(ui){if(e.code==='Escape'){closeWheel();closeShop()}return}keys[e.code]=1;if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault();
- if(e.code==='KeyN'||e.code==='KeyB')cycleCar(e.code==='KeyN'?1:-1);if(e.code==='KeyG')openWheel();if(e.code==='KeyE')tryRob();if(e.code==='KeyU')openShop();if(e.code==='KeyM'){e.preventDefault();navFocus()}
+ if(e.code==='KeyN'||e.code==='KeyB')cycleCar(e.code==='KeyN'?1:-1);if(e.code==='KeyG')openWheel();if(e.code==='KeyE'&&!(typeof gearKey==='function'&&gearKey(1)))tryRob();if(e.code==='KeyQ'&&typeof gearKey==='function')gearKey(-1);if(e.code==='KeyU')openShop();if(e.code==='KeyM'){e.preventDefault();navFocus()}
  if(e.code==='KeyK'&&heist.s==='idle'){const L=LM[lmI++%LM.length];warp(L[1],L[2],L[3]);toast('📍 '+L[0])}if(e.code==='KeyJ'&&heist.s==='idle')warp(RAMP0[0]+50,RAMP0[1]-70,0);
  if(e.code==='KeyC')camMode^=1;if(e.code==='KeyT')hour=(hour+1)%24;if(e.code==='KeyR'){const c=(race.s==='idle'||race.s==='done')?nearCar():null;c?startDuel(c):startRace()}if(e.code==='KeyF')warp(START.x,START.z,START.h)});
 addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
@@ -27,11 +29,11 @@ addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
 const MobilePCInputController={steeringAngle:0,isAccelerating:false,isBraking:false,isHandbrake:false,sig:function(){return[this.steeringAngle,this.isAccelerating,this.isBraking,this.isHandbrake].join()}};
 // traction by surface under the car: 1 paved road / drift pad, .75 unpaved track, .9 urban ground off-network, .65 open ground (no surface tag is carried in the network data yet; see audit)
 function surfK(){if(inDrift.was)return 1;const r=RI;if(r&&r.e&&r.d<=r.e.w/2+.3)return r.e.hw==='track'?.75:1;return urbanK(P.x,P.z)>.5?.9:.65}
-function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;INP.th=th?thA:0;INP.br=br?brA:0;
+function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){warp(START.x,START.z,START.h);P.y=P.pgh=groundH(START.x,START.z)}const k=ui?{}:keys,mi=ui?{}:MobilePCInputController,wp=WH.poll(dt),wi=ui?WHN:AP.on?apInput(wp,k,mi,dt):wp,dg=k.KeyW||k.ArrowUp||mi.isAccelerating,db=ui||k.KeyS||k.ArrowDown||mi.isBraking,th=dg||wi.thr>0,thA=dg?1:wi.thr,br=db||wi.brk>0,brA=db?1:wi.brk,hb=k.Space||mi.isHandbrake||wi.hb,dfx=typeof damageEffects==='function'?damageEffects():{maxSpeed:1,accel:1,steering:1,grip:1,brakes:1,lat:1,pull:0};let st=((k.KeyA||k.ArrowLeft||mi.steeringAngle<0)?1:0)-((k.KeyD||k.ArrowRight||mi.steeringAngle>0)?1:0);if(!st&&wi.on)st=-wi.steer;INP.th=th?thA:0;INP.br=br?brA:0;
  let fx=Math.sin(P.h),fz=Math.cos(P.h),fs=P.vx*fx+P.vz*fz;
  if(!handlingMode)P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);let rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
- const sfc=surfK()*dfx.grip,vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
+ const sfc=surfK()*dfx.grip*(handlingMode?WX.mu:1),vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
  const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);
  if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
   if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
@@ -53,7 +55,7 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  for(const c of traffic){const dx=P.x-c.x,dz=P.z-c.z,d=Math.hypot(dx,dz);if(d<3.4&&P.y<TH(P.x,P.z)+2){const nx=dx/(d||1),nz=dz/(d||1);P.x+=nx*(3.4-d)*.6;P.z+=nz*(3.4-d)*.6;
   const relX=P.vx-(Math.sin(c.h||0)*(c.v||0)),relZ=P.vz-(Math.cos(c.h||0)*(c.v||0)),rvn=relX*nx+relZ*nz;if(rvn< -1.8&&typeof registerPlayerImpact==='function')registerPlayerImpact(-rvn,{type:'vehicle'},nx,nz);const vn=P.vx*nx+P.vz*nz;if(vn<0){P.vx-=vn*nx*1.3;P.vz-=vn*nz*1.3}P.vx*=.8;P.vz*=.8;c.hold=1.5;c.v=0;fine('hit',30,'Collision with traffic',2)}}
  for(const b of bots.concat(riv?[riv]:[],heist.cops)){const dx=P.x-b.x,dz=P.z-b.z,d=Math.hypot(dx,dz);if(d<3.4){const nx=dx/(d||1),nz=dz/(d||1),rvx=P.vx-Math.sin(b.h||0)*(b.v||0),rvz=P.vz-Math.cos(b.h||0)*(b.v||0),rvn=rvx*nx+rvz*nz;if(rvn< -1.8&&typeof registerPlayerImpact==='function')registerPlayerImpact(-rvn,{type:'vehicle'},nx,nz);P.x+=nx*(3.4-d)*.5;P.z+=nz*(3.4-d)*.5;P.vx*=1-2*dt;P.vz*=1-2*dt}}
- const sp=Math.hypot(P.vx,P.vz)*3.6;RI=roadAt(P.x,P.z,6);const lim=RI&&RI.d<=RI.e.w/2+.3?RI.e.lim:0;curLim=lim||LIMIT;
+ const sp=Math.hypot(P.vx,P.vz)*3.6;RI=roadAt(P.x,P.z,6);const lim=RI&&RI.d<=RI.e.w/2+.3?RI.e.lim:0;curLim=lim||LIMIT;if(lim!==LIMT.l){LIMT.l=lim;LIMT.t=clock}
  const dzo=driftZoneAt(P.x,P.z),dz=!!dzo;if(dzo!==inDrift.was){inDrift.was=dzo;toast(dzo?'🏁 '+dzo.name+' — no speed limit, no fines':'Leaving the drift zone')}
- if(!dz){if(P.gnd&&lim&&sp>lim+10)fine('spd',15,'Speeding ('+Math.round(sp)+' km/h)',5);
+ if(!dz){if(P.gnd&&lim&&sp>lim+10&&clock-LIMT.t>1.5)fine('spd',15,'Speeding ('+Math.round(sp)+' km/h)',5);
  if(P.gnd&&sp>14&&wrongWay())fine('way',20,'Driving against traffic',6);redLight(sp)}WH.ffb(dt,frozen);return sp}
