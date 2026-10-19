@@ -1,0 +1,22 @@
+PASS 1. game starts without page errors  [8.4 s to first frame]
+PASS 1b. HUD (top bar, speed, minimap) is layered above the 3D canvas (hidden behind it since v24)  [['3', '3', '3', '0']]
+PASS 2. a click turns sound on
+PASS 3. the saved car is selected (Ford Focus RS)
+PASS 4. W accelerates  [63 km/h after 3 s]
+PASS 5. S brakes  [63 -> 26 km/h]
+PASS 6. A steers left  [0.70 rad]
+PASS 6. D steers right  [-0.70 rad]
+PASS 7. holding S from a stop reverses  [-22 km/h]
+PASS 8a. H switches to Realistic handling
+PASS 8b. handbrake + steer starts a drift (slip angle, drift points)  [slip 0.38 rad, 27 pts]
+PASS 8c. countersteer (steer into the slide, straighten when caught): the car recovers  [slip 0.00 rad]
+PASS 9. driving into a building damages the car (Full mode) and plays a crash  [{'imp': 1, 'body': 87.16566781182318, 'fl': 59.87340768298842, 'fr': 63.120599187950724, 'hits': 1}]
+PASS 10. U in the garage + "Repair all" restores the car  [{'body': 100, 'items': 0, 'bal': 18363}]
+PASS 11. Esc pauses (W does nothing) and Esc resumes
+PASS 12. changing graphics quality in the menu
+PASS 13. search "Yarmouk University" + Enter starts a road route  [{'on': True, 'total': 2242, 'pts': 56, 'dest': 'Yarmouk University'}]
+PASS 14. N switches to the other owned car (engine sound follows)  [['Ford Mustang GT', 'Ford Mustang GT', True]]
+PASS 15. reload restores the car, owned list and settings  [{'car': 'Ford Mustang GT', 'owned': 2, 'q': 'medium', 'aud': False, 'dm': 2}]
+PASS no page errors during the whole session  [[]]
+PASS no console errors  [[]]
+PASS network: only three.js r128 from cdnjs is requested  [[]]

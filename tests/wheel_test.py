@@ -56,6 +56,10 @@ with sync_playwright() as p:
     ok('wizard closed by wheel button',ev("return ui===false"))
     cm=ev("return camMode");ev("window.__pad.buttons[7].pressed=true");run(.2);ev("window.__pad.buttons[7].pressed=false");run(.2)
     ok('bound button triggers camera toggle',ev("return camMode")!=cm)
+    # v45: Back button with no menu open = pause menu; again = resume (and closing a menu with Back never also pauses: checked above)
+    ev("window.__pad.buttons[9].pressed=true");run(.2);ev("window.__pad.buttons[9].pressed=false");run(.2);p1=ev("return PAUSE.on")
+    ev("window.__pad.buttons[9].pressed=true");run(.2);ev("window.__pad.buttons[9].pressed=false");run(.2);p2=ev("return PAUSE.on")
+    ok('wheel Back button pauses, and resumes on the next press',p1 and not p2,(p1,p2))
     # --- pedals analog
     def accel(axisval):
         ev("window.__pre=null;warp(START.x,START.z,START.h);P.vx=P.vz=0;window.__pad.axes[2]=%s"%axisval);run(1.0)

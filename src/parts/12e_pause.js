@@ -18,7 +18,7 @@ const LODT={x:1e9,z:1e9,force:1};
 // frame-time meter: mean / 99th percentile frame time over the last 120 frames, fps, draw calls (counted on the next frame)
 const FPS={buf:new Float32Array(120),i:0,n:0,last:0,el:null,t:0,srt:new Float32Array(120)};
 FPS.el=document.createElement('div');FPS.el.id='fpsMeter';FPS.el.style.cssText='position:fixed;right:8px;top:8px;z-index:40;background:rgba(0,0,0,.65);color:#9f9;font:12px ui-monospace,monospace;padding:4px 7px;border-radius:5px;pointer-events:none;white-space:pre;display:none';try{document.body.appendChild(FPS.el)}catch(e){}
-function fpsTick(now){const ri=ren.info;if(GQ.fps){FPS.calls=ri.render.calls;FPS.tris=ri.render.triangles;ri.autoReset=false;ri.reset()}else if(!ri.autoReset)ri.autoReset=true;if(FPS.last){FPS.buf[FPS.i]=now-FPS.last;FPS.i=(FPS.i+1)%120;FPS.n=Math.min(120,FPS.n+1)}FPS.last=now;
+function fpsTick(now){const ri=ren.info;if(ri&&ri.render&&GQ.fps){FPS.calls=ri.render.calls;FPS.tris=ri.render.triangles;ri.autoReset=false;ri.reset()}else if(ri&&!ri.autoReset)ri.autoReset=true;if(FPS.last){FPS.buf[FPS.i]=now-FPS.last;FPS.i=(FPS.i+1)%120;FPS.n=Math.min(120,FPS.n+1)}FPS.last=now;
  if(!GQ.fps||FPS.n<10||now-FPS.t<500){FPS.el.style.display=GQ.fps?'':'none';return}FPS.t=now;FPS.el.style.display='';let s=0;for(let j=0;j<FPS.n;j++){s+=FPS.buf[j];FPS.srt[j]=FPS.buf[j]}
  const a=FPS.srt.subarray(0,FPS.n).sort(),m=s/FPS.n,p99=a[Math.min(FPS.n-1,Math.floor(FPS.n*.99))];
  FPS.el.textContent=(1000/m).toFixed(0)+' fps  '+m.toFixed(1)+' ms (99% '+p99.toFixed(1)+')\n'+FPS.calls+' draws · '+(FPS.tris/1e3).toFixed(0)+'k tris · '+DISP.w+'x'+DISP.h+' · '+GQ.q+(POST.on?'':' (no post)')}
@@ -48,9 +48,10 @@ pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)aud
 pauseEl.addEventListener('keydown',e=>e.stopPropagation());
 // capture phase: decide BEFORE other Esc handlers close their own menus (Esc that closes a menu never also opens the pause menu)
 addEventListener('keydown',e=>{if(e.code!=='Escape'||e.repeat)return;if(PAUSE.on){e.preventDefault();e.stopImmediatePropagation();pauseToggle(false);return}
- if(e.target&&e.target.tagName==='INPUT')return;if(ui||(typeof diagOpen!=='undefined'&&diagOpen)||(typeof wzOn!=='undefined'&&wzOn))return;e.preventDefault();pauseToggle(true)},true);
+ if(e.target&&e.target.tagName==='INPUT')return;if(ESC_PRE||ui||(typeof diagOpen!=='undefined'&&diagOpen))return;e.preventDefault();pauseToggle(true)},true);
 // a hidden tab stops rAF; stop the audio too (otherwise the last engine note keeps playing)
 document.addEventListener&&document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else if(!PAUSE.on)AU.ctx.resume().catch(()=>{})});
 if(GQ.q!=='auto')gqApply();
 // HUD lines are rebuilt every frame; only write the DOM when the text actually changed (same strings, fewer style/layout passes)
 function hudCache(){if(typeof Element!=='undefined'){const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(d&&d.set)for(const e of[spdEl,topEl,raceEl,heistEl]){let last=null;Object.defineProperty(e,'innerHTML',{configurable:true,get(){return d.get.call(e)},set(v){v=String(v);if(v!==last){last=v;d.set.call(e,v)}}})}}}
+if(typeof saveNote!=='undefined'&&saveNote)setTimeout(()=>toast(saveNote),1500);

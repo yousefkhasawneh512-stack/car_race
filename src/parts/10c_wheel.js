@@ -9,7 +9,7 @@ const WHN={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0};
 const WH=(()=>{
  const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'')||(!!cfg.dev&&id===cfg.dev);
  const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Rob bank'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
- const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
+ const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,cen:0,curve:1,smooth:0,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
  let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)cfg=Object.assign(DEF(),s,{btn:Object.assign(DEF().btn,s.btn||{})})}catch(e){}
  const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},cl2=(v,a,b)=>v<a?a:v>b?b:v;
  const S={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0,id:'',blocked:'',seen:0,others:[]};
@@ -45,7 +45,9 @@ const WH=(()=>{
    if(pi<0){S.on=false;S.steer=S.thr=S.brk=S.clu=S.raw=0;S.hb=false;if(scanT===0){S.others.length=0;for(const g of L)if(g&&g.connected)S.others.push(g.id)}return S}}
   const g=L[pi];pad=g;S.on=true;S.seen++;const ax=g.axes;
   let a=ax[cfg.wheel]||0;if(cfg.wInv)a=-a;S.raw=a;
-  let n=cl2(a*cfg.range/cfg.lock,-1,1);const d=cfg.dead;n=Math.abs(n)<d?0:Math.sign(n)*(Math.abs(n)-d)/(1-d);S.steer=n;
+  // v45: centre offset (set in the setup screen), dead zone, response curve (1 = linear, >1 = finer near centre), optional smoothing (0 = none)
+  let n=cl2((a-(cfg.cen||0))*cfg.range/cfg.lock,-1,1);const d=cfg.dead;n=Math.abs(n)<d?0:Math.sign(n)*(Math.abs(n)-d)/(1-d);if(cfg.curve>1)n=Math.sign(n)*Math.pow(Math.abs(n),cfg.curve);
+  S.steer=cfg.smooth>0?S.steer+(n-S.steer)*(1-Math.exp(-dt/cfg.smooth)):n;
   // pedal read: dead zone at both ends; a reading beyond the released end moves that end (some browsers report 0 until a pedal is first touched)
   const pz=cfg.pdz,ped=(i,rk,fk)=>{if(i<0||i>=ax.length)return 0;const r=cfg[rk],f=cfg[fk],q=f-r;if(Math.abs(q)<.2)return 0;const u=(ax[i]-r)/q;
    if(u<-.06&&cfg.thr!==cfg.brk&&!cap){cfg[rk]=ax[i];store()}const p=cl2(u,0,1);return p<pz?0:Math.min(1,(p-pz)/(1-2*pz))};
@@ -97,6 +99,9 @@ const WH=(()=>{
   +'<div class="r"><span>Wheel range (degrees)</span><select id="wzr"><option>270</option><option>360</option><option>540</option><option>720</option><option>900</option></select></div>'
   +'<div class="r"><span>Full steering lock = <b id="wzlv"></b>° lock-to-lock</span><input type="range" id="wzl" min="180" max="900" step="30"></div>'
   +'<div class="r"><span>Invert steering</span><input type="checkbox" id="wzi"></div>'
+  +'<div class="r"><span>Centre offset <b id="wzcev"></b></span><button data-a="cen">Set centre (hold the wheel straight)</button><button data-a="ncen">×</button></div>'
+  +'<div class="r"><span>Response curve <b id="wzcuv"></b> <small>(1 = linear; higher = finer near centre)</small></span><input type="range" id="wzcu" min="1" max="2.5" step="0.1"></div>'
+  +'<div class="r"><span>Smoothing <b id="wzsmv"></b> ms <small>(0 = none, adds delay)</small></span><input type="range" id="wzsm" min="0" max="150" step="10"></div>'
   +'<h4>Pedals</h4><div class="r"><small>Calibrate measures each pedal released (keep your feet off for a moment), then fully pressed. Reversed axes and pedals sharing one axis (combined mode) are handled.</small></div>'
   +'<div class="r"><span>Throttle <b id="wztv"></b></span><div class="bar"><i id="wzt"></i></div><button data-a="axt">Calibrate</button></div><div class="r"><span>Brake / reverse <b id="wzkv"></b></span><div class="bar"><i id="wzk"></i></div><button data-a="axb">Calibrate</button></div>'
   +'<div class="r"><span>Clutch <b id="wzcv"></b> <small>(shown only: the game has an automatic gearbox)</small></span><div class="bar"><i id="wzc"></i></div><button data-a="axc">Calibrate</button><button data-a="nclu">×</button></div>'
@@ -114,11 +119,12 @@ const WH=(()=>{
    else if(a==='axb')cap={t:'axis',rest:true,skip:[cfg.wheel],msg:'Keep ALL pedals released…',msg2:'Now press the BRAKE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.brk=i;cfg.br=b;cfg.bf=x;store();wzRender()}};
    else if(a==='axc')cap={t:'axis',rest:true,skip:[cfg.wheel,cfg.thr,cfg.brk],msg:'Keep ALL pedals released…',msg2:'Now press the CLUTCH pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.clu=i;cfg.cr=b;cfg.cf=x;store();wzRender()}};
    else if(a==='nclu'){cfg.clu=-1;store();wzRender()}
+   else if(a==='cen'){cfg.cen=pad?(cfg.wInv?-1:1)*(pad.axes[cfg.wheel]||0):0;store();wzRender()}else if(a==='ncen'){cfg.cen=0;store();wzRender()}
    else if(a.startsWith('dev:')){cfg.dev=S.others[+a.slice(4)]||'';pi=-1;scanT=9;said='';store();wzRender()}
    else if(a.startsWith('b:')){const k=a.slice(2),lb=ACT.find(q=>q[0]===k)[1];cap={t:'btn',msg:'Press the wheel button for “'+lb+'”…',fn:i=>{for(const q of ACT)if(cfg.btn[q[0]]===i)cfg.btn[q[0]]=-1;cfg.btn[k]=i;rebuild();store();wzRender()}}}
    else if(a.startsWith('u:')){cfg.btn[a.slice(2)]=-1;rebuild();store();wzRender()}});
-  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzdz')cfg.pdz=e.target.value/100;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
- function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;q('#wzdz').value=Math.round(cfg.pdz*100);q('#wzdzv').textContent=Math.round(cfg.pdz*100);
+  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzcu'||id==='wzsm'){if(id==='wzcu')cfg.curve=+e.target.value;else cfg.smooth=e.target.value/1000;store();wzRender();return}if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzdz')cfg.pdz=e.target.value/100;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
+ function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;q('#wzdz').value=Math.round(cfg.pdz*100);q('#wzdzv').textContent=Math.round(cfg.pdz*100);q('#wzcev').textContent=((cfg.cen||0)>=0?'+':'')+((cfg.cen||0)*100).toFixed(1)+'%';q('#wzcu').value=cfg.curve||1;q('#wzcuv').textContent=(cfg.curve||1).toFixed(1);q('#wzsm').value=Math.round((cfg.smooth||0)*1000);q('#wzsmv').textContent=Math.round((cfg.smooth||0)*1000);
   q('#wzpi').textContent='Throttle: '+(cfg.thr>=0?'axis '+cfg.thr:'not calibrated')+' · Brake: '+(cfg.brk>=0?'axis '+cfg.brk:'not calibrated')+(cfg.thr>=0&&cfg.thr===cfg.brk?' (combined pedal axis)':'')+' · Clutch: '+(cfg.clu>=0?'axis '+cfg.clu:'not set');
   for(const[a]of ACT)q('#wzb_'+a).textContent=nm(cfg.btn[a]);}
  function wzLive(){if(!wz)return;const q=s=>wz.querySelector(s),m=q('#wzm');

@@ -78,6 +78,10 @@ function ptDyn(dt,st,an,hb,u,v,sfc,ax,frozen,dfx){const s=ptGeom(ptSpec(P.idx||0
   v=kin*(v+((fyf*cd+fyr)/m+u*r)*h)+(1-kin)*v*Math.exp(-8*h);
   u+=kin*((fxr-Math.abs(fyf*sd)*Math.sign(u))/m-v*r)*h;if(hb&&kin<1)u*=Math.exp(-2.5*(1-kin)*h);P.h+=r*h}
  PTS.yr=r;TSLIP.af=kin*Math.abs(af)/s.pk;TSLIP.ar=kin*Math.abs(ar)/s.pk;TSLIP.f=kin*cl(Math.abs(af)/s.pk-1,0,3);TSLIP.r=kin*Math.max(cl(Math.abs(ar)/s.pk-1,0,3),lk*cl((Math.hypot(u,v)-3)/6,0,2));TSLIP.lock=lk;return[u,v]}
+// v45: frame-rate independence for Realistic mode. A long frame (low fps, the loop clamps dt at 50 ms) is split into equal physics steps of at
+// most 1/60 s, so grip limits, steering ramp and engine force are re-evaluated as often as at 60 fps (a 20 fps frame used to turn a recoverable
+// countersteer into a spin). Arcade keeps ONE call per frame (v38-identical, off_trace).
+function updPStep(dt,frozen){if(!handlingMode||dt<=1/60+1e-6)return updP(dt,frozen);const n=Math.min(4,Math.ceil(dt*60-1e-6));let sp=0;for(let i=0;i<n;i++)sp=updP(dt/n,frozen);return sp}
 // slip state for smoke / squeal in BOTH modes (Arcade has no tyre model: the body slip angle stands in). Rendering + audio only, never physics.
 function slipTick(fs,ls,frozen,bo){const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),sp=Math.hypot(fs,ls);TSLIP.sa=sa;TSLIP.spin=bo?1:handlingMode?PTS.spin:0;
  if(!handlingMode){TSLIP.r=P.gnd&&!frozen&&sp>5?cl((sa-.12)/.15,0,3):0;TSLIP.f=TSLIP.r*.3;TSLIP.lock=0}}

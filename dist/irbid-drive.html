@@ -4,10 +4,10 @@
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif;color:#fff}
 canvas{display:block}html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}#game{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.h{position:fixed;pointer-events:none;text-shadow:0 1px 4px #000}
-#spd{right:20px;bottom:calc(16px + env(safe-area-inset-bottom));font-size:46px;font-weight:700;text-align:right}
+.h{position:fixed;z-index:3;pointer-events:none;text-shadow:0 1px 4px #000}
+#spd{right:20px;bottom:calc(26px + env(safe-area-inset-bottom));font-size:46px;font-weight:700;text-align:right}
 #spd small{display:block;font-size:14px;font-weight:500}
-#top{left:16px;top:calc(12px + env(safe-area-inset-top));font-size:14px;line-height:1.5}
+#top{left:16px;top:calc(12px + env(safe-area-inset-top));max-width:calc(100vw - 190px);font-size:14px;line-height:1.5}
 #race{left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);font-size:22px;font-weight:700;text-align:center}
 #drift{left:50%;top:62%;transform:translateX(-50%);font-size:30px;font-weight:700;color:#ffd24a}
 #car{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top));max-width:46vw;font-size:14px;background:#000b;color:#fff;border:1px solid #fff5;border-radius:6px;padding:4px}
@@ -26,7 +26,7 @@ canvas{display:block}html,body{overscroll-behavior:none;-webkit-tap-highlight-co
 #osmcr{position:fixed;right:6px;bottom:4px;z-index:5;font:11px/1.2 Arial,sans-serif;color:rgba(255,255,255,.78);background:rgba(0,0,0,.38);padding:2px 6px;border-radius:4px;pointer-events:auto;text-shadow:0 1px 2px #000}#osmcr a{color:#bfe3ff;text-decoration:none}
 #toast{left:50%;top:30%;transform:translateX(-50%);text-align:center;font-size:18px}
 #toast div{background:#000a;padding:6px 14px;border-radius:8px;margin-top:6px}
-#map{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));border-radius:8px;background:#000a}
+#map{position:fixed;z-index:3;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));border-radius:8px;background:#000a}
 #nav{position:fixed;left:16px;bottom:calc(176px + env(safe-area-inset-bottom));width:min(330px,calc(100vw - 32px));z-index:4;font-size:14px}
 #navbar{display:flex;gap:6px}
 #navIn{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid #fff6;background:#000c;color:#fff;font-size:14px;outline:none}#navIn:focus{border-color:#4aa3ff}
@@ -57,7 +57,7 @@ function initialize1080pGameDisplay(canvasElementId){
  // 1. internal drawing buffer forced to absolute 1080p (pixel ratio locked to 1 so buffer = exactly 1920x1080)
  ren.setPixelRatio(1);ren.setSize(DISP.w,DISP.h,false);
  // 2. CSS: always 16:9, scaled to fit the window (letterboxed, centred) so the picture is never stretched
- const st=canvas.style;st.position='fixed';st.left='50%';st.top='50%';st.transform='translate(-50%,-50%)';st.maxWidth='100%';st.aspectRatio='16 / 9';st.backgroundColor='#1e2023';
+ const st=canvas.style;st.position='fixed';st.left='50%';st.top='50%';st.transform='translate(-50%,-50%)';st.maxWidth='100%';st.aspectRatio='16 / 9';st.backgroundColor='#1e2023';st.zIndex='0';   // v45: explicit layer 0; the HUD (.h, #map) sits on layer 3 (positioned canvas appended after the HUD used to paint over it)
  const fit=()=>{if(!(innerWidth>0&&innerHeight>0)){st.width='100%';st.height='auto';return}const k=Math.min(innerWidth/DISP.w,innerHeight/DISP.h);st.width=(DISP.w*k)+'px';st.height=(DISP.h*k)+'px'};fit();addEventListener('resize',fit);
  // 3. razor-sharp pixel sprites: smoothing is disabled on every 2D context via crisp2d(); pixel textures use NearestFilter
  console.log("Canvas Engine successfully locked to absolute 1080p HD resolution (1920x1080) with sharp pixel styling!");
@@ -71,6 +71,9 @@ const sun=new T.DirectionalLight(0xfff2d6,1.2);sun.castShadow=true;sun.shadow.ma
 const sc=sun.shadow.camera;sc.left=sc.bottom=-110;sc.right=sc.top=110;sc.near=1;sc.far=900;scene.add(sun,sun.target);
 const disc=new T.Mesh(new T.SphereGeometry(40,16,12),new T.MeshBasicMaterial({color:0xfff3b0,fog:false}));scene.add(disc);
 const head=new T.SpotLight(0xfff0cc,0,80,.55,.5);scene.add(head,head.target);
+// v45: snapshot "was a menu open when this Esc arrived?" in the FIRST key listener. Wheel buttons dispatch synthetic keys on window itself, where
+// listeners run in registration order: a menu that closes on Esc would already have set ui=false before the pause menu (12e) looks.
+let ESC_PRE=false;addEventListener('keydown',e=>{if(e.code==='Escape')try{ESC_PRE=!!ui||(typeof diagOpen!=='undefined'&&!!diagOpen)||document.getElementById('whz')?.style.display==='flex'}catch(x){ESC_PRE=false}},true);
 // ---- Forza-style graphics layer 1: procedural sky dome + clouds + stars, PMREM reflection environment, world-space material detail (rendering only; no gameplay data) ----
 const GFX={on:false,env:null,envT:-99,q:2,mats:[]};
 try{const gl=ren.getContext&&ren.getContext();GFX.on=!!(gl&&ren.capabilities&&ren.capabilities.isWebGL2)&&!(typeof location!=='undefined'&&/[?&]gfx=0/.test(location.search))}catch(e){GFX.on=false}
@@ -2098,8 +2101,15 @@ SHOWCARS.forEach(c=>{c.idx=PORS.findIndex(m=>m[0]===c.name);c.m=null;if(c.idx>=0
 function showCarsTick(){for(const c of SHOWCARS){if(c.idx<0)continue;const d2=(c.x-P.x)**2+(c.z-P.z)**2;if(!c.m&&d2<300*300){const g=carMesh(c.idx,c.col);g.position.set(c.x,TH(c.x,c.z)+.12,c.z);g.rotation.set(0,c.h,0);c.m=g}else if(c.m&&d2>450*450){scene.remove(c.m);c.m=null}}}
 let riv=null;const P={x:START.x,z:START.z,y:groundH(START.x,START.z),vx:0,vz:0,vy:0,h:START.h,gnd:true,pgh:groundH(START.x,START.z),pitch:0,bp:0,br:0,al:0,h0:START.h,bk:9.81,prog:0,m:null};
 const drift={pts:0,t:0,off:0,total:0};let tune={},fines=0,spent=0,owned=['Ford Focus RS'],cur='Ford Focus RS';
-try{const sv=JSON.parse(localStorage.getItem('irbid-save')||'{}');fines=sv.fines||0;spent=sv.spent||0;if(Array.isArray(sv.owned))owned=sv.owned.filter(n=>PORS.some(m=>m[0]===n));if(!owned.length)owned=['Ford Focus RS'];cur=owned.includes(sv.cur)?sv.cur:owned[0];tune=sv.tune||{};drift.total=sv.dt||0}catch(e){}
-function save(){try{localStorage.setItem('irbid-save',JSON.stringify({fines,spent,owned,cur,dt:drift.total,tune}))}catch(e){}}
+// v45: the same save shape (old builds still load it; 'sv' is only a marker), but every field is validated: numbers must be finite (a string
+// "100" used to turn fines+=15 into "10015"), tune levels are integers 0-5, unknown cars are dropped. A save that does not parse is copied to
+// 'irbid-save-corrupt' BEFORE anything can overwrite it, and the last good save of the previous session is kept in 'irbid-save-prev'.
+const svNum=(v,d)=>{const n=typeof v==='string'&&v.trim()!==''?+v:v;return typeof n==='number'&&Number.isFinite(n)?n:d};let saveNote='';
+try{const raw=localStorage.getItem('irbid-save');let sv={};if(raw){try{sv=JSON.parse(raw);if(!sv||typeof sv!=='object'||Array.isArray(sv))throw Error('not an object');try{localStorage.setItem('irbid-save-prev',raw)}catch(e){}}catch(e){try{localStorage.setItem('irbid-save-corrupt',raw)}catch(e2){}sv={};saveNote='Save data was unreadable: a copy was kept (irbid-save-corrupt) and the game started fresh'}}
+ fines=Math.max(0,svNum(sv.fines,0));spent=svNum(sv.spent,0);if(Array.isArray(sv.owned))owned=[...new Set(sv.owned.filter(n=>typeof n==='string'&&PORS.some(m=>m[0]===n)))];if(!owned.length)owned=['Ford Focus RS'];cur=owned.includes(sv.cur)?sv.cur:owned[0];
+ tune={};if(sv.tune&&typeof sv.tune==='object')for(const k in sv.tune){const t=sv.tune[k];if(Array.isArray(t)&&PORS.some(m=>m[0]===k))tune[k]=[0,1,2,3].map(j=>Math.round(Math.min(5,Math.max(0,svNum(t[j],0)))))}
+ drift.total=Math.max(0,Math.round(svNum(sv.dt,0)))}catch(e){}
+function save(){try{localStorage.setItem('irbid-save',JSON.stringify({fines,spent,owned,cur,dt:drift.total,tune,sv:1}))}catch(e){}}
 const PARTS=[['Speed','Top speed +5% per upgrade','🏎️'],['Acceleration','Acceleration +6% per upgrade','🚀'],['Handling','Steering and grip +7% per upgrade','📐'],['Extra Drift Points','Drift points +20% per upgrade','💨']],PB=[1500,1200,800,3000],MAXL=5,price=(i,c)=>PB[i]*Math.pow(2,c),tl=()=>tune[cur]||(tune[cur]=[0,0,0,0]);
 function applyTune(){const m=PORS[P.idx],t=tl();P.vm=m[1]/3.6*.98*(1+.05*t[0]);P.a0=Math.min(11,27.8/m[2]*1.1)*(1+.06*t[1]);P.hd=1+.07*t[2];P.dr=t[3];P.bk=9.81*({s:.8,p:.8,r:1.1}[m[6]]||1)}
 const carSel=document.getElementById('car');
@@ -2781,6 +2791,10 @@ function ptDyn(dt,st,an,hb,u,v,sfc,ax,frozen,dfx){const s=ptGeom(ptSpec(P.idx||0
   v=kin*(v+((fyf*cd+fyr)/m+u*r)*h)+(1-kin)*v*Math.exp(-8*h);
   u+=kin*((fxr-Math.abs(fyf*sd)*Math.sign(u))/m-v*r)*h;if(hb&&kin<1)u*=Math.exp(-2.5*(1-kin)*h);P.h+=r*h}
  PTS.yr=r;TSLIP.af=kin*Math.abs(af)/s.pk;TSLIP.ar=kin*Math.abs(ar)/s.pk;TSLIP.f=kin*cl(Math.abs(af)/s.pk-1,0,3);TSLIP.r=kin*Math.max(cl(Math.abs(ar)/s.pk-1,0,3),lk*cl((Math.hypot(u,v)-3)/6,0,2));TSLIP.lock=lk;return[u,v]}
+// v45: frame-rate independence for Realistic mode. A long frame (low fps, the loop clamps dt at 50 ms) is split into equal physics steps of at
+// most 1/60 s, so grip limits, steering ramp and engine force are re-evaluated as often as at 60 fps (a 20 fps frame used to turn a recoverable
+// countersteer into a spin). Arcade keeps ONE call per frame (v38-identical, off_trace).
+function updPStep(dt,frozen){if(!handlingMode||dt<=1/60+1e-6)return updP(dt,frozen);const n=Math.min(4,Math.ceil(dt*60-1e-6));let sp=0;for(let i=0;i<n;i++)sp=updP(dt/n,frozen);return sp}
 // slip state for smoke / squeal in BOTH modes (Arcade has no tyre model: the body slip angle stands in). Rendering + audio only, never physics.
 function slipTick(fs,ls,frozen,bo){const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),sp=Math.hypot(fs,ls);TSLIP.sa=sa;TSLIP.spin=bo?1:handlingMode?PTS.spin:0;
  if(!handlingMode){TSLIP.r=P.gnd&&!frozen&&sp>5?cl((sa-.12)/.15,0,3):0;TSLIP.f=TSLIP.r*.3;TSLIP.lock=0}}
@@ -3209,7 +3223,7 @@ const WHN={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0};
 const WH=(()=>{
  const KEY='irbid-wheel',isW=id=>/046d|logitech|g29|g27|g25|g920|g923|driving force|racing wheel|wheel/i.test(id||'')||(!!cfg.dev&&id===cfg.dev);
  const ACT=[['hb','Handbrake (hold)'],['KeyC','Camera'],['KeyF','Reset to start'],['KeyR','Race / duel'],['KeyN','Next car'],['KeyB','Previous car'],['KeyG','Wheel spin'],['KeyE','Rob bank'],['KeyP','Tuning shop'],['KeyT','+1 hour'],['KeyK','Landmark tour'],['Escape','Back / close menu']];
- const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
+ const DEF=()=>({wheel:0,wInv:false,thr:-1,brk:-1,tr:1,tf:-1,br:1,bf:-1,clu:-1,cr:1,cf:-1,pdz:.03,dev:'',range:900,lock:540,dead:.015,cen:0,curve:1,smooth:0,gain:.6,ffInv:false,ffOn:true,setup:false,btn:{hb:5,KeyC:4,KeyF:0,KeyR:1,KeyP:2,KeyG:3,Escape:9}});
  let cfg=DEF();try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)cfg=Object.assign(DEF(),s,{btn:Object.assign(DEF().btn,s.btn||{})})}catch(e){}
  const store=()=>{try{localStorage.setItem(KEY,JSON.stringify(cfg))}catch(e){}},cl2=(v,a,b)=>v<a?a:v>b?b:v;
  const S={on:false,steer:0,thr:0,brk:0,clu:0,hb:false,raw:0,id:'',blocked:'',seen:0,others:[]};
@@ -3245,7 +3259,9 @@ const WH=(()=>{
    if(pi<0){S.on=false;S.steer=S.thr=S.brk=S.clu=S.raw=0;S.hb=false;if(scanT===0){S.others.length=0;for(const g of L)if(g&&g.connected)S.others.push(g.id)}return S}}
   const g=L[pi];pad=g;S.on=true;S.seen++;const ax=g.axes;
   let a=ax[cfg.wheel]||0;if(cfg.wInv)a=-a;S.raw=a;
-  let n=cl2(a*cfg.range/cfg.lock,-1,1);const d=cfg.dead;n=Math.abs(n)<d?0:Math.sign(n)*(Math.abs(n)-d)/(1-d);S.steer=n;
+  // v45: centre offset (set in the setup screen), dead zone, response curve (1 = linear, >1 = finer near centre), optional smoothing (0 = none)
+  let n=cl2((a-(cfg.cen||0))*cfg.range/cfg.lock,-1,1);const d=cfg.dead;n=Math.abs(n)<d?0:Math.sign(n)*(Math.abs(n)-d)/(1-d);if(cfg.curve>1)n=Math.sign(n)*Math.pow(Math.abs(n),cfg.curve);
+  S.steer=cfg.smooth>0?S.steer+(n-S.steer)*(1-Math.exp(-dt/cfg.smooth)):n;
   // pedal read: dead zone at both ends; a reading beyond the released end moves that end (some browsers report 0 until a pedal is first touched)
   const pz=cfg.pdz,ped=(i,rk,fk)=>{if(i<0||i>=ax.length)return 0;const r=cfg[rk],f=cfg[fk],q=f-r;if(Math.abs(q)<.2)return 0;const u=(ax[i]-r)/q;
    if(u<-.06&&cfg.thr!==cfg.brk&&!cap){cfg[rk]=ax[i];store()}const p=cl2(u,0,1);return p<pz?0:Math.min(1,(p-pz)/(1-2*pz))};
@@ -3297,6 +3313,9 @@ const WH=(()=>{
   +'<div class="r"><span>Wheel range (degrees)</span><select id="wzr"><option>270</option><option>360</option><option>540</option><option>720</option><option>900</option></select></div>'
   +'<div class="r"><span>Full steering lock = <b id="wzlv"></b>° lock-to-lock</span><input type="range" id="wzl" min="180" max="900" step="30"></div>'
   +'<div class="r"><span>Invert steering</span><input type="checkbox" id="wzi"></div>'
+  +'<div class="r"><span>Centre offset <b id="wzcev"></b></span><button data-a="cen">Set centre (hold the wheel straight)</button><button data-a="ncen">×</button></div>'
+  +'<div class="r"><span>Response curve <b id="wzcuv"></b> <small>(1 = linear; higher = finer near centre)</small></span><input type="range" id="wzcu" min="1" max="2.5" step="0.1"></div>'
+  +'<div class="r"><span>Smoothing <b id="wzsmv"></b> ms <small>(0 = none, adds delay)</small></span><input type="range" id="wzsm" min="0" max="150" step="10"></div>'
   +'<h4>Pedals</h4><div class="r"><small>Calibrate measures each pedal released (keep your feet off for a moment), then fully pressed. Reversed axes and pedals sharing one axis (combined mode) are handled.</small></div>'
   +'<div class="r"><span>Throttle <b id="wztv"></b></span><div class="bar"><i id="wzt"></i></div><button data-a="axt">Calibrate</button></div><div class="r"><span>Brake / reverse <b id="wzkv"></b></span><div class="bar"><i id="wzk"></i></div><button data-a="axb">Calibrate</button></div>'
   +'<div class="r"><span>Clutch <b id="wzcv"></b> <small>(shown only: the game has an automatic gearbox)</small></span><div class="bar"><i id="wzc"></i></div><button data-a="axc">Calibrate</button><button data-a="nclu">×</button></div>'
@@ -3314,11 +3333,12 @@ const WH=(()=>{
    else if(a==='axb')cap={t:'axis',rest:true,skip:[cfg.wheel],msg:'Keep ALL pedals released…',msg2:'Now press the BRAKE pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.brk=i;cfg.br=b;cfg.bf=x;store();wzRender()}};
    else if(a==='axc')cap={t:'axis',rest:true,skip:[cfg.wheel,cfg.thr,cfg.brk],msg:'Keep ALL pedals released…',msg2:'Now press the CLUTCH pedal all the way down and hold it…',fn:(i,b,x)=>{cfg.clu=i;cfg.cr=b;cfg.cf=x;store();wzRender()}};
    else if(a==='nclu'){cfg.clu=-1;store();wzRender()}
+   else if(a==='cen'){cfg.cen=pad?(cfg.wInv?-1:1)*(pad.axes[cfg.wheel]||0):0;store();wzRender()}else if(a==='ncen'){cfg.cen=0;store();wzRender()}
    else if(a.startsWith('dev:')){cfg.dev=S.others[+a.slice(4)]||'';pi=-1;scanT=9;said='';store();wzRender()}
    else if(a.startsWith('b:')){const k=a.slice(2),lb=ACT.find(q=>q[0]===k)[1];cap={t:'btn',msg:'Press the wheel button for “'+lb+'”…',fn:i=>{for(const q of ACT)if(cfg.btn[q[0]]===i)cfg.btn[q[0]]=-1;cfg.btn[k]=i;rebuild();store();wzRender()}}}
    else if(a.startsWith('u:')){cfg.btn[a.slice(2)]=-1;rebuild();store();wzRender()}});
-  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzdz')cfg.pdz=e.target.value/100;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
- function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;q('#wzdz').value=Math.round(cfg.pdz*100);q('#wzdzv').textContent=Math.round(cfg.pdz*100);
+  wz.addEventListener('input',e=>{const id=e.target.id;if(id==='wzcu'||id==='wzsm'){if(id==='wzcu')cfg.curve=+e.target.value;else cfg.smooth=e.target.value/1000;store();wzRender();return}if(id==='wzr'){cfg.range=+e.target.value;store();if(FF.dev)ffInit(FF.dev)}else if(id==='wzl')cfg.lock=+e.target.value;else if(id==='wzdz')cfg.pdz=e.target.value/100;else if(id==='wzi')cfg.wInv=e.target.checked;else if(id==='wzg')cfg.gain=e.target.value/100;else if(id==='wzo'){cfg.ffOn=e.target.checked;if(!cfg.ffOn)ffStop()}else if(id==='wzv'){cfg.ffInv=e.target.checked}else return;store();wzRender()})}
+ function wzRender(){const q=s=>wz.querySelector(s);q('#wzr').value=cfg.range;q('#wzl').value=cfg.lock;q('#wzlv').textContent=cfg.lock;q('#wzi').checked=cfg.wInv;q('#wzg').value=Math.round(cfg.gain*100);q('#wzgv').textContent=Math.round(cfg.gain*100);q('#wzo').checked=cfg.ffOn;q('#wzv').checked=cfg.ffInv;q('#wzdz').value=Math.round(cfg.pdz*100);q('#wzdzv').textContent=Math.round(cfg.pdz*100);q('#wzcev').textContent=((cfg.cen||0)>=0?'+':'')+((cfg.cen||0)*100).toFixed(1)+'%';q('#wzcu').value=cfg.curve||1;q('#wzcuv').textContent=(cfg.curve||1).toFixed(1);q('#wzsm').value=Math.round((cfg.smooth||0)*1000);q('#wzsmv').textContent=Math.round((cfg.smooth||0)*1000);
   q('#wzpi').textContent='Throttle: '+(cfg.thr>=0?'axis '+cfg.thr:'not calibrated')+' · Brake: '+(cfg.brk>=0?'axis '+cfg.brk:'not calibrated')+(cfg.thr>=0&&cfg.thr===cfg.brk?' (combined pedal axis)':'')+' · Clutch: '+(cfg.clu>=0?'axis '+cfg.clu:'not set');
   for(const[a]of ACT)q('#wzb_'+a).textContent=nm(cfg.btn[a]);}
  function wzLive(){if(!wz)return;const q=s=>wz.querySelector(s),m=q('#wzm');
@@ -3583,7 +3603,7 @@ const ASTORE='irbid-drive-audio-v1',AUD={master:.8,engine:.9,fx:.8,amb:.6,mute:f
 try{const o=JSON.parse(localStorage.getItem(ASTORE)||'{}');for(const k of['master','engine','fx','amb'])if(Number.isFinite(o[k]))AUD[k]=cl(o[k],0,1);if(typeof o.mute==='boolean')AUD.mute=o.mute}catch(e){}
 function audSave(){try{localStorage.setItem(ASTORE,JSON.stringify(AUD))}catch(e){}}
 const AU={ctx:null,ok:typeof(window.AudioContext||window.webkitAudioContext)==='function',state:'locked',err:'',n:{},cur:-1,ag:{gear:1,rpm:850},sw:{ph:'start',t:0},lastG:1,dip:0,pops:0,traf:null,trT:0,hits:0,hitT:0,frame:0,nodes:0};
-const audHint=document.createElement('div');audHint.id='audHint';audHint.style.cssText='position:fixed;left:50%;bottom:8px;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;font:13px system-ui,sans-serif;padding:4px 10px;border-radius:6px;pointer-events:none;z-index:30';
+const audHint=document.createElement('div');audHint.id='audHint';audHint.style.cssText='position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(0,0,0,.6);color:#fff;font:13px system-ui,sans-serif;padding:4px 10px;border-radius:6px;pointer-events:none;z-index:30';
 audHint.textContent=AU.ok?'🔇 Click or press any key to turn on sound (L = mute)':'🔇 This browser has no Web Audio: the game runs without sound';try{document.body.appendChild(audHint)}catch(e){}
 function audBus(ctx,g,dst){const x=ctx.createGain();x.gain.value=g;x.connect(dst);AU.nodes++;return x}
 function audNoise(ctx,brown){const L=ctx.sampleRate*2,b=ctx.createBuffer(1,L,ctx.sampleRate),d=b.getChannelData(0);let l=0;for(let j=0;j<L;j++){const w=Math.random()*2-1;if(brown){l=(l+.02*w)/1.02;d[j]=l*3.5}else d[j]=w}const s=ctx.createBufferSource();s.buffer=b;s.loop=true;s.start();AU.nodes++;return s}
@@ -3761,7 +3781,7 @@ const LODT={x:1e9,z:1e9,force:1};
 // frame-time meter: mean / 99th percentile frame time over the last 120 frames, fps, draw calls (counted on the next frame)
 const FPS={buf:new Float32Array(120),i:0,n:0,last:0,el:null,t:0,srt:new Float32Array(120)};
 FPS.el=document.createElement('div');FPS.el.id='fpsMeter';FPS.el.style.cssText='position:fixed;right:8px;top:8px;z-index:40;background:rgba(0,0,0,.65);color:#9f9;font:12px ui-monospace,monospace;padding:4px 7px;border-radius:5px;pointer-events:none;white-space:pre;display:none';try{document.body.appendChild(FPS.el)}catch(e){}
-function fpsTick(now){const ri=ren.info;if(GQ.fps){FPS.calls=ri.render.calls;FPS.tris=ri.render.triangles;ri.autoReset=false;ri.reset()}else if(!ri.autoReset)ri.autoReset=true;if(FPS.last){FPS.buf[FPS.i]=now-FPS.last;FPS.i=(FPS.i+1)%120;FPS.n=Math.min(120,FPS.n+1)}FPS.last=now;
+function fpsTick(now){const ri=ren.info;if(ri&&ri.render&&GQ.fps){FPS.calls=ri.render.calls;FPS.tris=ri.render.triangles;ri.autoReset=false;ri.reset()}else if(ri&&!ri.autoReset)ri.autoReset=true;if(FPS.last){FPS.buf[FPS.i]=now-FPS.last;FPS.i=(FPS.i+1)%120;FPS.n=Math.min(120,FPS.n+1)}FPS.last=now;
  if(!GQ.fps||FPS.n<10||now-FPS.t<500){FPS.el.style.display=GQ.fps?'':'none';return}FPS.t=now;FPS.el.style.display='';let s=0;for(let j=0;j<FPS.n;j++){s+=FPS.buf[j];FPS.srt[j]=FPS.buf[j]}
  const a=FPS.srt.subarray(0,FPS.n).sort(),m=s/FPS.n,p99=a[Math.min(FPS.n-1,Math.floor(FPS.n*.99))];
  FPS.el.textContent=(1000/m).toFixed(0)+' fps  '+m.toFixed(1)+' ms (99% '+p99.toFixed(1)+')\n'+FPS.calls+' draws · '+(FPS.tris/1e3).toFixed(0)+'k tris · '+DISP.w+'x'+DISP.h+' · '+GQ.q+(POST.on?'':' (no post)')}
@@ -3791,12 +3811,13 @@ pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)aud
 pauseEl.addEventListener('keydown',e=>e.stopPropagation());
 // capture phase: decide BEFORE other Esc handlers close their own menus (Esc that closes a menu never also opens the pause menu)
 addEventListener('keydown',e=>{if(e.code!=='Escape'||e.repeat)return;if(PAUSE.on){e.preventDefault();e.stopImmediatePropagation();pauseToggle(false);return}
- if(e.target&&e.target.tagName==='INPUT')return;if(ui||(typeof diagOpen!=='undefined'&&diagOpen)||(typeof wzOn!=='undefined'&&wzOn))return;e.preventDefault();pauseToggle(true)},true);
+ if(e.target&&e.target.tagName==='INPUT')return;if(ESC_PRE||ui||(typeof diagOpen!=='undefined'&&diagOpen))return;e.preventDefault();pauseToggle(true)},true);
 // a hidden tab stops rAF; stop the audio too (otherwise the last engine note keeps playing)
 document.addEventListener&&document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else if(!PAUSE.on)AU.ctx.resume().catch(()=>{})});
 if(GQ.q!=='auto')gqApply();
 // HUD lines are rebuilt every frame; only write the DOM when the text actually changed (same strings, fewer style/layout passes)
 function hudCache(){if(typeof Element!=='undefined'){const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(d&&d.set)for(const e of[spdEl,topEl,raceEl,heistEl]){let last=null;Object.defineProperty(e,'innerHTML',{configurable:true,get(){return d.get.call(e)},set(v){v=String(v);if(v!==last){last=v;d.set.call(e,v)}}})}}}
+if(typeof saveNote!=='undefined'&&saveNote)setTimeout(()=>toast(saveNote),1500);
 // ---- HUD ----
 const mp=document.getElementById('map').getContext('2d'),topEl=document.getElementById('top'),driftEl=document.getElementById('drift'),spdEl=document.getElementById('spd'),raceEl=document.getElementById('race');
 const MC={ring:'#c08ae8',main:'#a8a8a8',arch:'#ee6a6a',petra:'#5aa0f0',hw:'#f0b040',local:'#6c6c6c',svc:'#4d4d4d',alley:'#b08a4a',campus:'#5aa66a',ramp:'#f0b040'},MORD=['svc','local','main','petra','arch','ramp','ring','hw'],MWD={svc:4,local:7,main:9.5,petra:11,arch:12,ramp:6,ring:8,hw:14},MSB={},MSN={};let mapF=0;MORD.forEach(k=>{MSB[k]=new Float32Array(4*9000);MSN[k]=0});
@@ -3818,14 +3839,14 @@ const hh=()=>{const h=Math.floor(hour),m=Math.floor((hour-h)*60);return String(h
 // (window resizes only re-fit the 16:9 canvas via CSS inside initialize1080pGameDisplay; the 1920x1080 buffer and camera aspect never change)
 // ---- main loop ----
 const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();const CAMV=new T.Vector3();
-function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=='undefined'&&PAUSE.on){prev=now;requestAnimationFrame(loop);return}const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
+function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=='undefined'&&PAUSE.on){prev=now;try{WH.poll(1/60)}catch(e){}requestAnimationFrame(loop);return}const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
  const a=(hour-6)/12*Math.PI,el=Math.sin(a),dx=Math.cos(a);
  if(el>.3)sky.copy(dayC);else if(el>0)sky.copy(duskC).lerp(dayC,el/.3);else sky.copy(nightC).lerp(duskC,Math.max(0,(el+.15)/.15));
  gfxSky(el,dx*900,el*900,300,clock);const night=cl((.05-el)*8,0,1);sun.position.set(P.x+dx*400,P.y+Math.max(el,.03)*400,P.z+140);sun.target.position.set(P.x,P.y,P.z);groundTo(Math.round(P.x/100)*100,Math.round(P.z/100)*100);sun.intensity=Math.max(0,el)*1.3;
  hemi.intensity=.14+.5*Math.max(0,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
  sigTick();
  traffic.forEach(c=>updTraffic(c,dt));
- const frozen=race.s==='count';const sp=updP(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);
+ const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
  if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
  else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}

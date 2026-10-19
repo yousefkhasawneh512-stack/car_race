@@ -4,10 +4,10 @@
 <style>
 html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:system-ui,sans-serif;color:#fff}
 canvas{display:block}html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}#game{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-.h{position:fixed;pointer-events:none;text-shadow:0 1px 4px #000}
-#spd{right:20px;bottom:calc(16px + env(safe-area-inset-bottom));font-size:46px;font-weight:700;text-align:right}
+.h{position:fixed;z-index:3;pointer-events:none;text-shadow:0 1px 4px #000}
+#spd{right:20px;bottom:calc(26px + env(safe-area-inset-bottom));font-size:46px;font-weight:700;text-align:right}
 #spd small{display:block;font-size:14px;font-weight:500}
-#top{left:16px;top:calc(12px + env(safe-area-inset-top));font-size:14px;line-height:1.5}
+#top{left:16px;top:calc(12px + env(safe-area-inset-top));max-width:calc(100vw - 190px);font-size:14px;line-height:1.5}
 #race{left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);font-size:22px;font-weight:700;text-align:center}
 #drift{left:50%;top:62%;transform:translateX(-50%);font-size:30px;font-weight:700;color:#ffd24a}
 #car{position:fixed;right:12px;top:calc(12px + env(safe-area-inset-top));max-width:46vw;font-size:14px;background:#000b;color:#fff;border:1px solid #fff5;border-radius:6px;padding:4px}
@@ -26,7 +26,7 @@ canvas{display:block}html,body{overscroll-behavior:none;-webkit-tap-highlight-co
 #osmcr{position:fixed;right:6px;bottom:4px;z-index:5;font:11px/1.2 Arial,sans-serif;color:rgba(255,255,255,.78);background:rgba(0,0,0,.38);padding:2px 6px;border-radius:4px;pointer-events:auto;text-shadow:0 1px 2px #000}#osmcr a{color:#bfe3ff;text-decoration:none}
 #toast{left:50%;top:30%;transform:translateX(-50%);text-align:center;font-size:18px}
 #toast div{background:#000a;padding:6px 14px;border-radius:8px;margin-top:6px}
-#map{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));border-radius:8px;background:#000a}
+#map{position:fixed;z-index:3;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));border-radius:8px;background:#000a}
 #nav{position:fixed;left:16px;bottom:calc(176px + env(safe-area-inset-bottom));width:min(330px,calc(100vw - 32px));z-index:4;font-size:14px}
 #navbar{display:flex;gap:6px}
 #navIn{flex:1;min-width:0;padding:8px 10px;border-radius:8px;border:1px solid #fff6;background:#000c;color:#fff;font-size:14px;outline:none}#navIn:focus{border-color:#4aa3ff}

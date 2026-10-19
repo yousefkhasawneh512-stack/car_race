@@ -1,6 +1,13 @@
 const drift={pts:0,t:0,off:0,total:0};let tune={},fines=0,spent=0,owned=['Ford Focus RS'],cur='Ford Focus RS';
-try{const sv=JSON.parse(localStorage.getItem('irbid-save')||'{}');fines=sv.fines||0;spent=sv.spent||0;if(Array.isArray(sv.owned))owned=sv.owned.filter(n=>PORS.some(m=>m[0]===n));if(!owned.length)owned=['Ford Focus RS'];cur=owned.includes(sv.cur)?sv.cur:owned[0];tune=sv.tune||{};drift.total=sv.dt||0}catch(e){}
-function save(){try{localStorage.setItem('irbid-save',JSON.stringify({fines,spent,owned,cur,dt:drift.total,tune}))}catch(e){}}
+// v45: the same save shape (old builds still load it; 'sv' is only a marker), but every field is validated: numbers must be finite (a string
+// "100" used to turn fines+=15 into "10015"), tune levels are integers 0-5, unknown cars are dropped. A save that does not parse is copied to
+// 'irbid-save-corrupt' BEFORE anything can overwrite it, and the last good save of the previous session is kept in 'irbid-save-prev'.
+const svNum=(v,d)=>{const n=typeof v==='string'&&v.trim()!==''?+v:v;return typeof n==='number'&&Number.isFinite(n)?n:d};let saveNote='';
+try{const raw=localStorage.getItem('irbid-save');let sv={};if(raw){try{sv=JSON.parse(raw);if(!sv||typeof sv!=='object'||Array.isArray(sv))throw Error('not an object');try{localStorage.setItem('irbid-save-prev',raw)}catch(e){}}catch(e){try{localStorage.setItem('irbid-save-corrupt',raw)}catch(e2){}sv={};saveNote='Save data was unreadable: a copy was kept (irbid-save-corrupt) and the game started fresh'}}
+ fines=Math.max(0,svNum(sv.fines,0));spent=svNum(sv.spent,0);if(Array.isArray(sv.owned))owned=[...new Set(sv.owned.filter(n=>typeof n==='string'&&PORS.some(m=>m[0]===n)))];if(!owned.length)owned=['Ford Focus RS'];cur=owned.includes(sv.cur)?sv.cur:owned[0];
+ tune={};if(sv.tune&&typeof sv.tune==='object')for(const k in sv.tune){const t=sv.tune[k];if(Array.isArray(t)&&PORS.some(m=>m[0]===k))tune[k]=[0,1,2,3].map(j=>Math.round(Math.min(5,Math.max(0,svNum(t[j],0)))))}
+ drift.total=Math.max(0,Math.round(svNum(sv.dt,0)))}catch(e){}
+function save(){try{localStorage.setItem('irbid-save',JSON.stringify({fines,spent,owned,cur,dt:drift.total,tune,sv:1}))}catch(e){}}
 const PARTS=[['Speed','Top speed +5% per upgrade','🏎️'],['Acceleration','Acceleration +6% per upgrade','🚀'],['Handling','Steering and grip +7% per upgrade','📐'],['Extra Drift Points','Drift points +20% per upgrade','💨']],PB=[1500,1200,800,3000],MAXL=5,price=(i,c)=>PB[i]*Math.pow(2,c),tl=()=>tune[cur]||(tune[cur]=[0,0,0,0]);
 function applyTune(){const m=PORS[P.idx],t=tl();P.vm=m[1]/3.6*.98*(1+.05*t[0]);P.a0=Math.min(11,27.8/m[2]*1.1)*(1+.06*t[1]);P.hd=1+.07*t[2];P.dr=t[3];P.bk=9.81*({s:.8,p:.8,r:1.1}[m[6]]||1)}
 const carSel=document.getElementById('car');

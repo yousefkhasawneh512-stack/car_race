@@ -10,7 +10,7 @@ function initialize1080pGameDisplay(canvasElementId){
  // 1. internal drawing buffer forced to absolute 1080p (pixel ratio locked to 1 so buffer = exactly 1920x1080)
  ren.setPixelRatio(1);ren.setSize(DISP.w,DISP.h,false);
  // 2. CSS: always 16:9, scaled to fit the window (letterboxed, centred) so the picture is never stretched
- const st=canvas.style;st.position='fixed';st.left='50%';st.top='50%';st.transform='translate(-50%,-50%)';st.maxWidth='100%';st.aspectRatio='16 / 9';st.backgroundColor='#1e2023';
+ const st=canvas.style;st.position='fixed';st.left='50%';st.top='50%';st.transform='translate(-50%,-50%)';st.maxWidth='100%';st.aspectRatio='16 / 9';st.backgroundColor='#1e2023';st.zIndex='0';   // v45: explicit layer 0; the HUD (.h, #map) sits on layer 3 (positioned canvas appended after the HUD used to paint over it)
  const fit=()=>{if(!(innerWidth>0&&innerHeight>0)){st.width='100%';st.height='auto';return}const k=Math.min(innerWidth/DISP.w,innerHeight/DISP.h);st.width=(DISP.w*k)+'px';st.height=(DISP.h*k)+'px'};fit();addEventListener('resize',fit);
  // 3. razor-sharp pixel sprites: smoothing is disabled on every 2D context via crisp2d(); pixel textures use NearestFilter
  console.log("Canvas Engine successfully locked to absolute 1080p HD resolution (1920x1080) with sharp pixel styling!");
@@ -24,3 +24,6 @@ const sun=new T.DirectionalLight(0xfff2d6,1.2);sun.castShadow=true;sun.shadow.ma
 const sc=sun.shadow.camera;sc.left=sc.bottom=-110;sc.right=sc.top=110;sc.near=1;sc.far=900;scene.add(sun,sun.target);
 const disc=new T.Mesh(new T.SphereGeometry(40,16,12),new T.MeshBasicMaterial({color:0xfff3b0,fog:false}));scene.add(disc);
 const head=new T.SpotLight(0xfff0cc,0,80,.55,.5);scene.add(head,head.target);
+// v45: snapshot "was a menu open when this Esc arrived?" in the FIRST key listener. Wheel buttons dispatch synthetic keys on window itself, where
+// listeners run in registration order: a menu that closes on Esc would already have set ui=false before the pause menu (12e) looks.
+let ESC_PRE=false;addEventListener('keydown',e=>{if(e.code==='Escape')try{ESC_PRE=!!ui||(typeof diagOpen!=='undefined'&&!!diagOpen)||document.getElementById('whz')?.style.display==='flex'}catch(x){ESC_PRE=false}},true);

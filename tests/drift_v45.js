@@ -14,7 +14,7 @@ const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{L
 let seed=7;Math.random=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
 const cl0=console.log;console.log=()=>{};
 const html=fs.readFileSync(process.argv[2],'utf8');
-(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={updP,keys,P,PORS,setPlayerCar,traffic,bots,heist,COL,ptSpec,PTS,TSLIP,setHandling,hm:()=>handlingMode,drift,WH,TERR,RAMPS,groundH}');
+(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={updP,keys,P,PORS,setPlayerCar,traffic,bots,heist,COL,ptSpec,PTS,TSLIP,setHandling,hm:()=>handlingMode,drift,WH,TERR,RAMPS,groundH,updPStep}');
 const S=global.__s,P=S.P,k=S.keys;S.traffic.length=0;S.bots.length=0;S.heist.cops.length=0;S.COL.clear();
 for(let i=0;i<S.TERR.e.length;i++)S.TERR.e[i]=0;S.RAMPS.length=0;   // flat world: no slope, no ramps
 (0,eval)('fine=function(){};toast=function(){};save=function(){};surfK=function(){return 1};checkSpeedBumpCrossing=function(){};redLight=function(){};wrongWay=function(){return false}');
@@ -56,4 +56,10 @@ const ae=hbk(AE),lc=hbk(LC);ok(Math.abs(ae-lc)>.05,'vehicle-specific: AE86 and L
 let bad=0,vmax=0;for(const i of[FOCUS,MUS,FIE,AE,LC,idx('Porsche 917'),idx('Tesla Model 3')]){place(i,0);step(1500,j=>[{KeyW:1},{KeyW:1,KeyA:1},{KeyW:1,KeyD:1,Space:1},{KeyS:1,KeyA:1},{},{KeyW:1,KeyD:1}][(j>>6)%6],()=>{if(![P.x,P.z,P.vx,P.vz,P.h,S.PTS.yr].every(Number.isFinite))bad++;vmax=Math.max(vmax,spd())},()=>.004+Math.random()*.046)}
 ok(bad===0&&vmax<110,'7 cars x 1,500 random-length frames (4-50 ms): all state finite, speed bounded','bad '+bad+', vmax '+(vmax*3.6).toFixed(0)+' km/h');
 place(MUS,19.4);step(20,{KeyA:1,Space:1});const yb=Math.abs(S.PTS.yr);step(1,{KeyA:1},null,()=>.05);ok(Math.abs(S.PTS.yr)<Math.max(3,yb*2),'one 50 ms frame mid-drift: yaw rate stays bounded',yb.toFixed(2)+' -> '+Math.abs(S.PTS.yr).toFixed(2)+' rad/s');
+// frame-rate independence: the same 2.85 s of input (handbrake entry, hold, countersteer, release) at 60, 30 and 20 fps through the loop's
+// updPStep must end in the same state (recovered), also when a previous run left the gearbox in a higher gear
+function fr(fps,raw){place(FOCUS,20);S.PTS.idx=FOCUS;S.PTS.gear=4;const dt=1/fps,n=s=>Math.round(s*fps),run=(m,ks)=>{for(let i=0;i<m;i++){for(const c in k)k[c]=0;Object.assign(k,ks);t+=dt*1000;raw?S.updP(dt,false):S.updPStep(dt,false)}};
+ run(n(.45),{KeyW:1,KeyA:1,Space:1});run(n(.5),{KeyW:1,KeyA:1});run(n(.4),{KeyW:1,KeyD:1});run(n(1.5),{});return{b:Math.abs(beta()),yr:Math.abs(S.PTS.yr),h:P.h}}
+const F60=fr(60),F30=fr(30),F20=fr(20),R20=fr(20,1);cl0('     without sub-steps (one 50 ms step per frame, the pre-fix behaviour): slip '+R20.b.toFixed(2)+' rad, yaw '+R20.yr.toFixed(2)+' rad/s');
+ok([F60,F30,F20].every(q=>q.b<.1&&q.yr<.2),'same input at 60 / 30 / 20 fps: recovered every time (physics sub-steps <= 1/60 s; final heading may differ, the manoeuvre is at the edge of a spin)',[F60,F30,F20].map(q=>'slip '+q.b.toFixed(2)+' yaw '+q.yr.toFixed(2)+' h '+q.h.toFixed(2)).join(' | '));
 S.setHandling(0);cl0(fail?'drift_v45: '+fail+' FAILED':'drift_v45: all passed');process.exit(fail?1:0);
