@@ -276,3 +276,39 @@ sources: `docs/REALISM_RESEARCH.md` (46 sources actually used, not 200), screens
 - Tests added: `damage_v44.js` (29 checks incl. bump speed sweep + materials), `signals_test.js` (12), `damage_v44_pw.py`, `world_v44_pw.py`,
   `perf_pw.py`; `place_audit.py` 30 → 33; `damage_test` inspection 42 rows; `handling_test`/`realism_test` bump checks rewritten for the profile model.
   `off_trace` unchanged (identical to v38).
+
+## v45 (2026-10-19): Realistic tyre model + drift, synthesised engine audio, pause/settings, quality presets, save validation
+- **Realistic handling (`07g` `ptDyn`)**: the v41 multipliers (`ptLat`/`ptSteer`) are replaced by a two-axle tyre model: slip angle per axle,
+  saturating lateral curve `cap*sin(1.4*atan(B*a))` (peak slip angle by body type), normal load = static split + longitudinal transfer
+  (`m*ax*hcg/wb`) + aero downforce estimate (race/supercar), friction circle per axle (drive/brake force eats side grip: RWD power oversteer, FWD
+  power understeer), locked-rear handbrake (sliding friction opposite the rear contact velocity), yaw inertia `m(L²+W²)/13`, rotating-frame
+  coupling; 240 Hz sub-steps (max 12/frame); blends to the kinematic model below 2–6 m/s. Keyboard steering ramps (4 rad/s, 6 rad/s back to
+  centre / countersteer); wheel input is direct. Arcade is untouched (`off_trace` identical to v38). `TSLIP` (slip state for smoke/squeal) is filled
+  in both modes (Arcade: body slip angle), never read by physics.
+- **Audio (`12d_audio.js`, new)**: Web Audio, fully synthesised (no recordings/files/network). `ENG_DOC`: engine layout of all 217 cars (cylinders,
+  bank layout, aspiration, hybrid; 58 marked "variant not specified by the game"). Per car, one 720° cycle of exhaust pulses (firing intervals,
+  cross-plane V8 bank pattern, flat-plane, unequal-length boxer, rotary, diesel knock, hashed per-car variation) → PeriodicWave at rpm/120.
+  RPM/gear from `PTS` (Realistic) or a sound-only gearbox on the same ratios (Arcade). Turbo whistle + blow-off, supercharger whine, EV and hybrid
+  motor whine, limiter, shift dip, overrun pops (sporty petrol only), crank/start and shutdown on car change, misfires at low engine health (Full),
+  tyre squeal from `TSLIP`, gravel, wind, road, nearest traffic car, impacts (crash/glass/bump thump). Nodes built once on the first user gesture;
+  volumes Master/Engine/Effects/Ambient + mute (key **L**) under `irbid-drive-audio-v1`.
+- **Pause / settings (`12e_pause.js`, new)**: Esc (or the wheel's Back button) pauses everything (simulation, timers, audio) and shows sound
+  sliders, graphics quality (Auto = v40 adaptive, High, Medium = no bloom + 2048 shadows, Low = no post chain + 1024 shadows + 0.7× detail
+  range; key `irbid-drive-gfx-v1`), a frame-time meter (fps, mean/99th-percentile frame time, draw calls), handling and damage toggles. Esc that
+  closes another menu never also opens the pause menu. A hidden tab suspends audio.
+- **Performance (behaviour-neutral)**: `lodTick` (24,476 distance checks) only runs after the camera moved 3 m; HUD `innerHTML` written only
+  when the text changed; the camera lerp target is reused instead of allocated per frame.
+- **G29 (`10c`)**: steering centre offset ("Set centre"), response curve (1–2.5) and optional smoothing (0–150 ms) in the setup screen (V).
+- **Save (`07b`)**: same `irbid-save` shape (+ `sv:1` marker); values validated (finite numbers, tune levels 0–5 integers, known cars only); an
+  unparsable save is copied to `irbid-save-corrupt` before anything can overwrite it; the last good save is kept as `irbid-save-prev`.
+- **Signs**: plates had DoubleSide text (mirrored from behind); now a front face + a plain metal back with the same outline.
+- Tests added: `drift_v45.js` (23), `audio_v45.js` (10), `save_v45.js` (9), `audio_v45_pw.py` (12), `pause_v45_pw.py` (12), `cpu_prof_pw.py`.
+  `handling_test`: the "turns in at least as hard as Arcade" checks were tied to the removed multipliers; replaced by which axle works harder.
+- **Bugs found by the real-browser playtest and the wheel test (part 4)**: the HUD (top bar, speed, minimap, drift/race text) was painted under
+  the 3D canvas since v24 (the 1080p display lock made the canvas `position:fixed` and it is appended after the HUD; equal `z-index:auto` =>
+  DOM order); canvas is now layer 0, HUD layer 3. The wheel's Back button closing the setup also opened the new pause menu (synthetic Esc on
+  `window` runs listeners in registration order) -> `ESC_PRE` snapshot in the first key listener. Wheel buttons were not read while paused (polling
+  lives in `updP`) -> the paused loop polls the wheel. `fpsTick` crashed on renderers without `info` (Node stubs). Realistic mode: frames longer
+  than 1/60 s are split into equal physics steps (`updPStep`). HUD help line kept clear of the Damage button; speed lifted off the attribution.
+- `tools/make_offline.py`: offline copy with three r128 inlined (`dist/irbid-drive-offline.html`, git-ignored); `playtest_v45_pw ... offline`
+  passes with zero network requests. `wheel_test` 41 checks (+ Back button pauses / resumes).

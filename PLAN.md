@@ -148,6 +148,11 @@ gating the estimated speed bumps, any pause/start/audio features, and the refact
   walls, shelter glass, guardrails, building surface marks), physical speed bumps with a per-axle quarter-car response (all modes, as before:
   bumps were always on), rebuilt signals (3-aspect heads, 60 s cycle, 17 junctions instead of 177 nodes: 3 OSM + 14 estimated), the AI
   stop-line distance fix, flat-tyre rolling resistance in Full, +74 OSM places. Damage Off physics stays identical to v38 (`off_trace`).
+- v45 (owner request 2026-10-19: vehicle-specific drift physics, engine sounds for every car, 60 fps at 1080p on an RTX 3050 laptop, then the
+  "V44 ULTIMATE FULL-PROJECT REPAIR" task; owner chose "Realistic mode only" for the drift physics): Realistic handling uses the two-axle tyre
+  model (`ptDyn`) and sub-steps long frames; Arcade unchanged (`off_trace`). Synthesised engine/world audio (new, on by default after the first
+  gesture; L mutes). Esc opens a pause menu (Esc used to do nothing outside menus). Graphics quality presets (Auto = previous behaviour). HUD now
+  drawn above the canvas (it was hidden since v24: a bug fix, but players will see the HUD again). Sign backs are plain metal.
 
 # Phase 1 – Baseline and Documentation
 

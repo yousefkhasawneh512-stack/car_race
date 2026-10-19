@@ -8,6 +8,8 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 **The current game is the reference implementation:** don't redesign gameplay.
 
 Companion files (read before non-trivial work):
+- `V45_REPORT.md` (v45: Realistic tyre model + drift, synthesised engine audio, pause/settings/quality, save validation, HUD layering fix, G29 additions;
+  baseline vs after, tests, perf, limits) + `docs/screenshots/v45/` (incl. the real-input playtest log).
 - `V44_REPORT.md` (v44: visible component damage, materials, speed bumps, signals, places; tests, perf, limits) + `docs/REALISM_RESEARCH.md` (46 sources actually used) + `docs/screenshots/v44/`.
 - `BUILDING_LANDMARK_REPORT.md` + `FINAL_TEST_REPORT.md` (v43 accuracy audit; per-issue status in AUDIT_REPORT.md).
 - `PLAN.md`: approved behaviour changes, the realism roadmap, the on-hold refactor plan, expected pre-existing test results.
@@ -46,6 +48,14 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   environment materials) and `signals_test` (12: sequence, conflicts, lamps, head placement, AI waits at red / never enters on red; random traffic,
   so it can vary run to run) from a scratch dir (signals) or the repo root (damage_v44). `perf_pw.py` (load time, heap, draw calls, frame time). `damage_test`, `realism_test`, `off_trace`, `handling_test` and `bld_check` load three from `node_modules`, so run them from the repo root. Wheel: `wheel_test.py` (40 checks; also run with arg `blocked`). Landmarks vs OSM: `lmchk`.
   Realistic handling: `handling_test` (writes the per-car powertrain table if given a 2nd arg: `manifest/car_powertrain.json`). Buildings vs OSM: `bld_check`.
+  v45: `drift_v45` (23: steering both modes incl. analog wheel path, tyre model, countersteer, power over/understeer, load transfer, per-car, grip,
+  random frame times, 60/30/20 fps), `audio_v45` (10, Node: engine table, harmonics, per-car waveforms), `save_v45` (9), all from the repo root;
+  Playwright: `audio_v45_pw` (12), `pause_v45_pw` (12), `playtest_v45_pw` (21, real keyboard/mouse on the built game; arg `offline` for the
+  offline copy: zero requests), `cpu_prof_pw` (JS ms/frame per subsystem with rendering stubbed + render-submit ms; arg `click` starts audio).
+  `damage_v44_pw` / `world_v44_pw` ALWAYS write into `docs/screenshots/v44/` (they ignore `SP`): after a regression run, `git checkout -- docs/screenshots/v44`
+  unless you mean to refresh that evidence. `pause_v45_pw` / `playtest_v45_pw` honour `SP` for screenshots only. The older Playwright scripts (`wheel_test`,
+  `damage_pw`, `dc2`, `disp`, `ios`, `shopt`, `drive_pw`) use `SP` as the REPO ROOT (node_modules), so never point it at a scratch dir for them.
+  Offline copy: `python tools/make_offline.py` -> `dist/irbid-drive-offline.html` (three r128 inlined, git-ignored).
   Expected results (v44, 2026-10-19): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
   1729 (laz 1531), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060; the start view varies with random traffic (990–1,210 seen on both v43b and v44; with traffic hidden v43b 459–470, v44 451–459). `boot`/`h2`/`h13`/race/traffic output varies
   run to run (`Math.random`), so compare their shape, not their numbers.
@@ -90,7 +100,7 @@ Current order and roles:
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
 | Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive`, `07h_dmgparts` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
 | Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
-| Frame | `12a_fx`, `12b_post`, `12c_terrain`, `12_hud_loop` | effects, HDR bloom/grade chain, the terrain pass, minimap/HUD/camera and the **main loop** |
+| Frame | `12a_fx`, `12d_audio`, `12b_post`, `12c_terrain`, `12e_pause`, `12_hud_loop` | effects, Web Audio (engine/tyres/world, synthesised), HDR bloom/grade chain, the terrain pass, pause/settings/quality/frame meter, minimap/HUD/camera and the **main loop** |
 
 Order facts that have broken things before: `06h2_final_patch` runs before `06h_gen`, and `06d_fabric_driver` runs after it.
 `12a_fx` must precede `12_hud_loop`. `08a_wheel` declares `let ui`, which earlier-defined handlers read at runtime. `07c_realism`
@@ -115,7 +125,7 @@ non-instanced objects. Consequences:
 `(sin h, cos h)`. The origin (Al-Balad) is elevation 0 in `TH`.
 
 **Main loop** (`loop` in `12_hud_loop.js`): dt clamp → clock/time of day → sky/lights → traffic lights → `updTraffic` →
-`updP(dt,frozen)` → `updHeist` → `updRace` → `poiNear` → `navTick` → `navLabels` → `showCarsTick` → `fxTick` → `damageTick` →
+`updPStep(dt,frozen)` (= one `updP`; Realistic splits frames > 1/60 s) → `updHeist` → `updRace` → `poiNear` → `navTick` → `navLabels` → `showCarsTick` → `fxTick` → `damageTick` → `audTick` →
 camera → HUD `innerHTML` → `drawMap` → `gfxRender`. Communication is through shared globals (`P`, `drift`, `tune`, `fines`,
 `spent`, `race`, `heist`, `NAV`, `traffic`, `bots`, `PLACES`, `ui`, `keys`, `clock`). There is no event bus or store.
 
@@ -131,9 +141,13 @@ invented shop/venue builder. The early-return guards keep the `PR()` call order 
 
 **Storage:** `irbid-save` (`{fines,spent,owned,cur,dt,tune}`, `07b_tune.js`) is the only one that matters for compatibility.
 `irbid-wheel` (G29 setup incl. pedal/clutch calibration, `pdz` dead zone, chosen `dev`), `irbid-drive-realism-v1` (damage mode + per-car condition) and `irbid-drive-handling-v1` (0 Arcade / 1 Realistic)
-are separate keys on purpose.
+are separate keys on purpose. v45 adds `irbid-drive-audio-v1` (volumes, mute), `irbid-drive-gfx-v1` (quality, frame meter), and
+`irbid-save-prev` (last good save at load) / `irbid-save-corrupt` (an unparsable save, kept before anything can overwrite it). `irbid-save` gains
+only an `sv:1` marker; its values are validated on load (`07b`).
 
-**Handling (v41, `07g_drive.js`):** key H, `handlingMode` 0 Arcade (default) / 1 Realistic. Every Realistic term in `updP` is behind
+**Handling (v41, tyre model v45, `07g_drive.js`):** v45 replaced `ptLat`/`ptSteer` with `ptDyn` (two-axle slip-angle tyre model, load transfer,
+friction circle, locked-rear handbrake, yaw inertia, 240 Hz sub-steps, kinematic blend < 6 m/s; Realistic skips the Arcade heading/lateral lines in `updP`)
+and `slipTick` fills `TSLIP` (smoke/squeal/audio only) in both modes. `INP` carries throttle/brake to the audio.  key H, `handlingMode` 0 Arcade (default) / 1 Realistic. Every Realistic term in `updP` is behind
 `handlingMode` (`ptAccel` replaces the arcade accel/friction lines, `ptLat`/`ptSteer` scale lateral decay/steering, `ptBody` overrides body
 pitch/roll/heave, `ptBump` replaces the bump hop). Arcade must stay identical to v38 (`off_trace`). `ptSpec(i)` solves peak torque and drag
 area from the PORS 0-100 and top speed (cached); all its numbers are estimates. 07f calls `ptSpec` at runtime only (07g loads after it).
@@ -193,6 +207,12 @@ Traffic AI measures junction distance with `pathProg()` (09_ai). `tools/gen_sign
 - When architecture, commands or constraints change, update this file. Put the history in `CHANGELOG.md`, not here.
 
 ## Open issues worth knowing
+
+- **Layering (v45):** the canvas is `z-index:0`, the HUD (`.h`, `#map`) 3, damage/repair buttons 4, menus 5+, pause 50. Before v45 the HUD was
+  painted under the canvas (since v24). Keep new HUD elements on layer 3+.
+- **Esc / wheel Back:** menus that close on Esc must not also open the pause menu. `ESC_PRE` (02_setup, the FIRST key listener) snapshots whether
+  a menu was open; wheel buttons dispatch synthetic keys on `window`, where listeners run in registration order. While paused, the loop still polls
+  the wheel (`WH.poll`) so its Back button can resume.
 
 - Test DOM stubs need `dataset`, `setAttribute`, `window` and `document.body.appendChild` (07f appends its panel).
 - Chunked InstancedMeshes (`instO`, `instF`) are frustum-culled against their chunk sphere (`BS`, 520 m; `CS*.72+30` for small chunks). three

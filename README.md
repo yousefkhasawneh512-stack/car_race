@@ -15,7 +15,8 @@ no backend).
 ## Play
 
 Open `dist/irbid-drive.html` in a modern desktop or mobile browser. An internet connection is needed the first time, because
-Three.js loads from cdnjs. The world takes a few seconds to build.
+Three.js loads from cdnjs. The world takes a few seconds to build. For play without a connection, `python tools/make_offline.py`
+writes `dist/irbid-drive-offline.html` with Three.js r128 inlined (zero network requests).
 
 | Key | Action |
 |---|---|
@@ -29,14 +30,24 @@ Three.js loads from cdnjs. The world takes a few seconds to build.
 | G | wheel spin (unlock cars with JD) |
 | N / B | cycle owned cars |
 | M | search places, neighbourhoods and streets / turn-by-turn directions |
-| H | handling: Arcade (default) / Realistic (engine, gears, traction, suspension) |
+| H | handling: Arcade (default) / Realistic (engine, gears, traction, suspension, two-axle tyre model: slip angles, weight transfer, countersteer) |
 | I | vehicle damage mode: Off / Cosmetic / Full |
 | O | vehicle diagnostics: damage report, per-wheel tyres, racing-wheel status |
 | J / K | stunt ramps / landmark tour teleport |
 | T / F | +1 hour / reset to start |
+| Esc | pause menu: sound volumes, graphics quality (Auto/High/Medium/Low), frame-time meter, handling and damage (the wheel's Back button too) |
+| L | mute / unmute sound |
 | V | racing-wheel setup (Logitech G29: live readings, pedal/clutch calibration incl. combined pedals, force feedback via WebHID in Chromium) |
 
 On touch devices, on-screen pads appear (steer left/right, brake, gas, drift).
+
+**Sound** starts on your first click or key press (browser autoplay rule). Every car's engine is **synthesised** in the browser from its
+engine layout (cylinders, V/flat/inline/rotary, turbo/supercharger/diesel/electric/hybrid): there are no recordings, so it is an
+approximation, not the real car. Tyres squeal from actual tyre slip; wind, road, gravel, nearby traffic and impacts are synthesised too.
+
+**Racing wheel (V):** steering axis + inversion, lock, dead zone, centre offset, response curve, smoothing; pedal/clutch calibration;
+button binding; force feedback through WebHID in Chrome/Edge. Tested with simulated input only: the author's real G29 has not been
+verified by these tests.
 
 **Vehicle damage** (button top-right or **I**; each car keeps its own damage, saved in the browser):
 
