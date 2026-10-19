@@ -13,7 +13,7 @@ const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{L
 let seed=7;Math.random=()=>{seed=(seed*16807)%2147483647;return seed/2147483647};
 const cl0=console.log;console.log=()=>{};
 const html=fs.readFileSync(process.argv[2],'utf8');
-(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={updP,keys,P,PORS,setPlayerCar,groundH,traffic,bots,heist,COL,ptSpec,ptRun,PTS,SUSP,bumpAt,setHandling,hm:()=>handlingMode,carSpec,IRBID_SPEED_BUMPS,checkSpeedBumpCrossing,currentDamageRecord,cycleDamageMode,dm:()=>damageMode,repairCurrentCar,TH};');
+(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={updP,keys,P,PORS,setPlayerCar,groundH,traffic,bots,heist,COL,ptSpec,ptRun,PTS,SUSP,bumpAt,setHandling,hm:()=>handlingMode,carSpec,IRBID_SPEED_BUMPS,checkSpeedBumpCrossing,currentDamageRecord,cycleDamageMode,dm:()=>damageMode,repairCurrentCar,TH,TSLIP};');
 const S=global.__s,P=S.P,k=S.keys;S.traffic.length=0;S.bots.length=0;S.heist.cops.length=0;S.COL.clear();
 (0,eval)('fine=function(){};toast=function(){}');
 let fail=0;const ok=(c,m,v)=>{cl0((c?'PASS ':'FAIL ')+m+(v!==undefined?'  ['+v+']':''));if(!c)fail++};
@@ -48,9 +48,12 @@ const awd=launch('Ford Focus RS'),fwd=launch('Ford Fiesta ST'),rwd=launch('Ford 
 cl0('     launch 1.5 s full throttle: AWD Focus RS spin '+awd.spin.toFixed(2)+' / FWD Fiesta ST '+fwd.spin.toFixed(2)+' / RWD Mustang GT '+rwd.spin.toFixed(2));
 ok(awd.drive==='AWD'&&fwd.drive==='FWD'&&rwd.drive==='RWD','drivetrains as documented (AWD / FWD / RWD)');
 ok(rwd.spin>awd.spin,'powerful RWD spins its wheels more than the AWD car at launch',rwd.spin.toFixed(2)+' > '+awd.spin.toFixed(2));
-const rwdT=launch('Ford Mustang GT',1),fwdT=launch('Ford Fiesta ST',1);S.setHandling(0);const rwdA=launch('Ford Mustang GT',1),fwdA=launch('Ford Fiesta ST',1);S.setHandling(1);
-ok(rwdT.yaw>=rwdA.yaw*.98,'RWD under power turns in at least as hard as Arcade (power oversteer)',rwdT.yaw.toFixed(3)+' vs '+rwdA.yaw.toFixed(3));
-ok(fwdT.spin<=0.05||fwdT.yaw<=fwdA.yaw*1.02,'FWD with wheelspin does not turn in harder than Arcade (understeer)',fwdT.yaw.toFixed(3)+' vs '+fwdA.yaw.toFixed(3));
+// v45: Realistic steering is now a two-axle tyre model (07g ptDyn), so its yaw is no longer Arcade's multiplied; the drivetrain balance is checked by which
+// axle works harder (slip angle / peak) while launching with steer. Corner-entry versions of these checks are in tests/drift_v45.js.
+function launchSlip(n){const i=idx(n);place(i);let f=0,r=0;step(90,{KeyW:1,KeyA:1},()=>{f+=S.TSLIP.af||0;r+=S.TSLIP.ar||0});return{f,r}}
+const rwdT=launchSlip('Ford Mustang GT'),fwdT=launchSlip('Ford Fiesta ST');
+ok(rwdT.r>rwdT.f,'RWD launching with steer: the rear axle works harder (power oversteer)',(rwdT.r/90).toFixed(2)+' vs front '+(rwdT.f/90).toFixed(2));
+ok(fwdT.f>fwdT.r,'FWD launching with steer and wheelspin: the front axle works harder (understeer)',(fwdT.f/90).toFixed(2)+' vs rear '+(fwdT.r/90).toFixed(2));
 // ---- 5. braking and engine braking ----
 {place(idx('Ford Focus RS'));step(60*8,{KeyW:1});const v0=spd();step(60,{});const coast=v0-spd();place(idx('Ford Focus RS'));step(60*8,{KeyW:1});const v1=spd();let n=0;while(spd()>.6&&n<600){step(1,{KeyS:1});n++}
  const dec=v1/(n/60)/9.81;ok(coast>.2&&coast<4,'coasting 1 s slows the car by drag + engine braking',coast.toFixed(2)+' m/s from '+(v0*3.6).toFixed(0)+' km/h');ok(dec>.6&&dec<1.3,'full braking ~0.8-1.1 g (tyre/brake limited)',dec.toFixed(2)+' g')}
