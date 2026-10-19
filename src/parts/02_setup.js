@@ -4,7 +4,11 @@ const T=THREE,R=(a,b)=>a+Math.random()*(b-a),wrap=a=>Math.atan2(Math.sin(a),Math
 // the 2D canvases that really exist (minimap, wheel, label textures) get imageSmoothingEnabled=false through crisp2d(), re-applied every frame for the minimap ----
 const DISP={w:1920,h:1080};
 function crisp2d(c){if(!c)return c;c.imageSmoothingEnabled=false;c.webkitImageSmoothingEnabled=false;c.mozImageSmoothingEnabled=false;c.msImageSmoothingEnabled=false;return c}
-const ren=new T.WebGLRenderer({antialias:true});ren.shadowMap.enabled=true;document.body.appendChild(ren.domElement);ren.domElement.id='game';
+// v47: no WebGL (blocked, disabled hardware acceleration, very old device) = a readable message instead of a blank page; three r128 throws here
+function noGL(e){try{const d=document.createElement('div');d.id='nogl';d.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#0b0e13;color:#e8edf5;font:16px/1.5 system-ui,sans-serif;padding:24px;text-align:center';
+ d.innerHTML='<div style="max-width:560px"><h2 style="margin:0 0 10px">Irbid Drive needs 3D graphics (WebGL)</h2>This browser could not start WebGL'+(e&&e.message?' ('+String(e.message).replace(/[<>&]/g,'')+')':'')+'.<br><br>Turn on hardware acceleration in the browser settings, update the graphics driver, or try a current Chrome, Edge, Firefox or Safari. Your saved progress is kept.</div>';
+ const b=document.getElementById('boot');if(b)b.remove();document.body.appendChild(d)}catch(x){}}
+const ren=(()=>{try{return new T.WebGLRenderer({antialias:true})}catch(e){noGL(e);throw e}})();ren.shadowMap.enabled=true;document.body.appendChild(ren.domElement);ren.domElement.id='game';
 function initialize1080pGameDisplay(canvasElementId){
  const canvas=document.getElementById(canvasElementId)||ren.domElement;
  // 1. internal drawing buffer forced to absolute 1080p (pixel ratio locked to 1 so buffer = exactly 1920x1080)

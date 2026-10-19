@@ -14,3 +14,6 @@ osm/official/*.xlsx
 osm/overpass/out/
 !osm/manual/verified_places.json
 dist/irbid-drive-offline.html
+.check/
+dist/last-good/
+app/www/

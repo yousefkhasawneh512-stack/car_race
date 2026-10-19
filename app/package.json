@@ -1,0 +1,20 @@
+{
+ "name": "irbid-drive-app",
+ "private": true,
+ "version": "0.47.0",
+ "description": "Capacitor wrapper that packages the offline single-file Irbid Drive build (app/www/index.html, generated) for Android and iOS. The game itself is not changed.",
+ "scripts": {
+  "www": "python ../tools/make_app_www.py",
+  "sync": "npx cap sync",
+  "android": "npx cap open android",
+  "ios": "npx cap open ios"
+ },
+ "dependencies": {
+  "@capacitor/android": "^8.5.3",
+  "@capacitor/core": "^8.5.3",
+  "@capacitor/ios": "^8.5.3"
+ },
+ "devDependencies": {
+  "@capacitor/cli": "^8.5.3"
+ }
+}

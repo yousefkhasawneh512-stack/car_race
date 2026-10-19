@@ -1,0 +1,8 @@
+{
+ "appId": "com.yousefkhasawneh.irbiddrive",
+ "appName": "Irbid Drive",
+ "webDir": "www",
+ "backgroundColor": "#0b0e13",
+ "android": { "allowMixedContent": false },
+ "ios": { "contentInset": "never" }
+}

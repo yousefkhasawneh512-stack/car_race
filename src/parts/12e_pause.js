@@ -2,15 +2,24 @@
 // Pause stops the whole simulation (traffic, physics, races, heist timers, damage) and suspends audio; the main loop keeps only its rAF alive.
 // Quality: Auto = the v40 behaviour (High, drops bloom then post-processing if frames stay slow); High = never drops; Medium = no bloom,
 // 2048 shadow map; Low = no post chain (CSS grade), 1024 shadow map, shorter detail range. Stored under its own key; nothing else changes.
-const PSTORE='irbid-drive-gfx-v1',PAUSE={on:false},GQ={q:'auto',fps:false,base:null};
-try{const o=JSON.parse(localStorage.getItem(PSTORE)||'{}');if(['auto','high','medium','low'].includes(o.q))GQ.q=o.q;GQ.fps=o.fps===true}catch(e){}
-function gqSave(){try{localStorage.setItem(PSTORE,JSON.stringify({q:GQ.q,fps:GQ.fps}))}catch(e){}}
+// v47: Low also renders 1280x720 (scaled to the same 16:9 box: 2.25x fewer pixels); Ultra renders 2560x1440 (supersampled down to the screen,
+// sharper edges and far detail; 1.78x the pixels of High) with 1.3x the detail range. High already uses the 4096 shadow map where the GPU allows (02b).
+// Traffic density (High 80 cars = the v46 game, Medium 52, Low 28) is a separate setting: parked cars are hidden and not simulated.
+const PSTORE='irbid-drive-gfx-v1',PAUSE={on:false},GQ={q:'auto',fps:false,base:null,t:'high'},TDEN={high:1,medium:.65,low:.35};
+try{const o=JSON.parse(localStorage.getItem(PSTORE)||'{}');if(['auto','ultra','high','medium','low'].includes(o.q))GQ.q=o.q;GQ.fps=o.fps===true;if(TDEN[o.t])GQ.t=o.t}catch(e){}
+function gqSave(){try{localStorage.setItem(PSTORE,JSON.stringify({q:GQ.q,fps:GQ.fps,t:GQ.t}))}catch(e){}}
 function gqShadow(n){try{const ms=Math.min(n,ren.capabilities.maxTextureSize||2048);if(sun.shadow.mapSize.x===ms)return;sun.shadow.mapSize.set(ms,ms);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}catch(e){}}
 function gqApply(){if(!GQ.base)GQ.base={sh:sun.shadow.mapSize.x,post:POST.on,lod:LODL.map(o=>o.r2)};const q=GQ.q,b=GQ.base;
  window.__NOAQ=q!=='auto'?1:window.__NOAQ0;   // the adaptive drop only runs in Auto
- if(b.post&&POST.comp){if(q==='low'){if(POST.on)postLegacy()}else if(!POST.on){POST.on=true;ren.domElement.style.filter='';fxBlur.style.display='none'}if(POST.bloom)POST.bloom.enabled=q==='auto'||q==='high'}
+ const rw=q==='low'?1280:q==='ultra'?2560:DISP.w,rh=q==='low'?720:q==='ultra'?1440:DISP.h;try{const sz=ren.getSize(new T.Vector2());if(sz.x!==rw||sz.y!==rh){ren.setSize(rw,rh,false);if(POST.comp)POST.comp.setSize(rw,rh)}}catch(e){}
+ if(b.post&&POST.comp){if(q==='low'){if(POST.on)postLegacy()}else if(!POST.on){POST.on=true;ren.domElement.style.filter='';fxBlur.style.display='none'}if(POST.bloom)POST.bloom.enabled=q==='auto'||q==='high'||q==='ultra'}
  gqShadow(q==='low'?1024:q==='medium'?Math.min(2048,b.sh):b.sh);
- const k=q==='low'?.7*.7:1;for(let i=0;i<LODL.length;i++)LODL[i].r2=b.lod[i]*k;LODT.force=1}
+ const k=q==='low'?.7*.7:q==='ultra'?1.3*1.3:1;for(let i=0;i<LODL.length;i++)LODL[i].r2=b.lod[i]*k;LODT.force=1}
+// ---- v47: traffic density ----
+const TRAFALL=traffic.slice();
+function trApply(){const n=Math.round(TRAFALL.length*(TDEN[GQ.t]||1));TRAFALL.forEach((c,i)=>{const pk=i>=n;if(pk===!!c.park)return;c.park=pk;
+ if(pk){c.x=c.z=2e5;c.v=0;c.m.position.set(2e5,0,2e5);c.m.visible=false}else{c.m.visible=true;respawn(c,200)}})}
+{const u0=updTraffic;updTraffic=function(c,dt){if(c.park){if(c.m.visible)c.m.visible=false;return}u0(c,dt)}}
 window.__NOAQ0=window.__NOAQ;
 // lodTick only needs to run when the camera has moved (24k distance checks per call); behaviour-neutral below 3 m of camera travel
 const LODT={x:1e9,z:1e9,force:1};
@@ -31,8 +40,9 @@ pauseEl.innerHTML='<div style="background:#15181d;border:1px solid #333;border-r
  '<div style="font-weight:600;margin:6px 0 4px">Sound</div>'+
  [['master','Master'],['engine','Engine'],['fx','Effects (tyres, impacts)'],['amb','Ambient (wind, road, traffic)']].map(([k,l])=>'<label style="display:flex;justify-content:space-between;gap:8px;margin:3px 0">'+l+'<input type="range" min="0" max="100" data-v="'+k+'" style="width:52%"></label>').join('')+
  '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="mute"> Mute (L)</label><div data-i="aud" style="font-size:12px;color:#aaa"></div>'+
- '<div style="font-weight:600;margin:10px 0 4px">Graphics</div><label style="display:flex;justify-content:space-between">Quality <select data-s="q"><option value="auto">Auto (High, drops if slow)</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>'+
- '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="fps"> Show frame-time meter</label>'+
+ '<div style="font-weight:600;margin:10px 0 4px">Graphics</div><label style="display:flex;justify-content:space-between">Quality <select data-s="q"><option value="auto">Auto (High, drops if slow)</option><option value="ultra">Ultra (1440p supersampled, longer range)</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (720p, no effects)</option></select></label>'+
+ '<label style="display:flex;justify-content:space-between;margin-top:4px">Traffic <select data-s="tr"><option value="high">High (80 cars)</option><option value="medium">Medium (52)</option><option value="low">Low (28, weak devices)</option></select></label>'+
+ '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="fps"> Show frame-time meter</label><div data-i="plat" style="font-size:12px;color:#aaa"></div>'+
  '<div style="font-weight:600;margin:10px 0 4px">Driving</div><button data-a="hand" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="dmg" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="gear" style="width:100%;padding:6px;margin:2px 0"></button>'+
  '<div data-i="rep" style="font-size:12px;color:#aaa;margin:4px 0"></div>'+
  '<div style="font-weight:600;margin:10px 0 4px">Weather and time</div><label style="display:flex;justify-content:space-between">Weather <select data-s="wx"><option value="auto">Auto (Irbid seasons)</option><option value="clear">Clear</option><option value="cloudy">Cloudy</option><option value="rain">Rain</option></select></label>'+
@@ -40,7 +50,7 @@ pauseEl.innerHTML='<div style="background:#15181d;border:1px solid #333;border-r
  '<div style="font-size:12px;color:#aaa;margin-top:10px">W/S drive · A/D steer · Space handbrake · H handling · I damage · O diagnostics · V wheel setup · L mute · C camera · M search · P shop · F reset · Q/E gears (Realistic) · X horn · Z auto-drive (after M sets a route)</div></div>';
 try{document.body.appendChild(pauseEl)}catch(e){}
 const pq=s=>pauseEl.querySelector(s);
-function pauseSync(){try{for(const k of['master','engine','fx','amb']){const r=pq('[data-v="'+k+'"]');if(r)r.value=Math.round(AUD[k]*100)}const mu=pq('[data-c="mute"]');if(mu)mu.checked=AUD.mute;const fp=pq('[data-c="fps"]');if(fp)fp.checked=GQ.fps;const qs=pq('[data-s="q"]');if(qs)qs.value=GQ.q;
+function pauseSync(){try{for(const k of['master','engine','fx','amb']){const r=pq('[data-v="'+k+'"]');if(r)r.value=Math.round(AUD[k]*100)}const mu=pq('[data-c="mute"]');if(mu)mu.checked=AUD.mute;const fp=pq('[data-c="fps"]');if(fp)fp.checked=GQ.fps;const qs=pq('[data-s="q"]');if(qs)qs.value=GQ.q;const ts=pq('[data-s="tr"]');if(ts)ts.value=GQ.t;const pl=pq('[data-i="plat"]');if(pl&&typeof platLine==='function')pl.textContent=platLine();
  const h=pq('[data-a="hand"]');if(h)h.textContent='Handling: '+(handlingMode?'Realistic':'Arcade')+' (H)';const d=pq('[data-a="dmg"]');if(d)d.textContent='Damage: '+(['Off','Cosmetic','Full'][damageMode]||damageMode)+' (I)';
  const gb=pq('[data-a="gear"]');if(gb)gb.textContent='Gearbox: '+(PTS.man?'Manual (Q / E, paddles)':'Automatic')+(handlingMode?'':' · Realistic only');
  const rp=pq('[data-i="rep"]');if(rp&&typeof REP!=='undefined'){const r=REP.riv,rv=['Samer','Layth','Omar'].filter(n=>r[n]&&r[n].r).map(n=>n+' '+r[n].w+'–'+r[n].l+(r[n].h?' ('+r[n].h+' hits)':'')).join(' · ');rp.textContent='Road reputation '+Math.round(REP.road)+'/100 (traffic remembers hits, red lights, wrong way, speeding; clean driving earns it back)'+(rv?' · Rivals you–them: '+rv:'')}
@@ -50,14 +60,14 @@ function pauseToggle(on){on=on===undefined?!PAUSE.on:!!on;if(on===PAUSE.on)retur
  if(on){ui=true;for(const k in keys)keys[k]=0;pauseSync();pauseEl.style.display='flex';if(AU.ctx&&AU.ctx.state==='running')AU.ctx.suspend()}
  else{pauseEl.style.display='none';ui=false;if(AU.ctx&&!document.hidden)AU.ctx.resume().catch(()=>{})}}
 pauseEl.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(a==='resume')pauseToggle(false);else if(a==='hand'){setHandling(!handlingMode);pauseSync()}else if(a==='dmg'){if(typeof cycleDamageMode==='function')cycleDamageMode();pauseSync()}else if(a==='gear'){setGearbox(!PTS.man);pauseSync()}});
-pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}else if(d.s==='wx'){wxSet('mode',t.value);pauseSync()}else if(d.s==='clk'){wxSet('clock',t.value);pauseSync()}});
+pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}else if(d.s==='tr'){GQ.t=t.value;gqSave();trApply();toast('Traffic: '+GQ.t)}else if(d.s==='wx'){wxSet('mode',t.value);pauseSync()}else if(d.s==='clk'){wxSet('clock',t.value);pauseSync()}});
 pauseEl.addEventListener('keydown',e=>e.stopPropagation());
 // capture phase: decide BEFORE other Esc handlers close their own menus (Esc that closes a menu never also opens the pause menu)
 addEventListener('keydown',e=>{if(e.code!=='Escape'||e.repeat)return;if(PAUSE.on){e.preventDefault();e.stopImmediatePropagation();pauseToggle(false);return}
  if(e.target&&e.target.tagName==='INPUT')return;if(ESC_PRE||ui||(typeof diagOpen!=='undefined'&&diagOpen))return;e.preventDefault();pauseToggle(true)},true);
 // a hidden tab stops rAF; stop the audio too (otherwise the last engine note keeps playing)
 document.addEventListener&&document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else if(!PAUSE.on)AU.ctx.resume().catch(()=>{})});
-if(GQ.q!=='auto')gqApply();
+if(GQ.q!=='auto')gqApply();if(GQ.t!=='high')trApply();
 // HUD lines are rebuilt every frame; only write the DOM when the text actually changed (same strings, fewer style/layout passes)
 function hudCache(){if(typeof Element!=='undefined'){const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(d&&d.set)for(const e of[spdEl,topEl,raceEl,heistEl]){let last=null;Object.defineProperty(e,'innerHTML',{configurable:true,get(){return d.get.call(e)},set(v){v=String(v);if(v!==last){last=v;d.set.call(e,v)}}})}}}
 if(typeof saveNote!=='undefined'&&saveNote)setTimeout(()=>toast(saveNote),1500);

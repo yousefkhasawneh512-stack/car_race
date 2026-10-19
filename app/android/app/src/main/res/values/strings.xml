@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Irbid Drive</string>
+    <string name="title_activity_main">Irbid Drive</string>
+    <string name="package_name">com.yousefkhasawneh.irbiddrive</string>
+    <string name="custom_url_scheme">com.yousefkhasawneh.irbiddrive</string>
+</resources>
