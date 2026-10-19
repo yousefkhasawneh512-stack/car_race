@@ -153,6 +153,14 @@ gating the estimated speed bumps, any pause/start/audio features, and the refact
   model (`ptDyn`) and sub-steps long frames; Arcade unchanged (`off_trace`). Synthesised engine/world audio (new, on by default after the first
   gesture; L mutes). Esc opens a pause menu (Esc used to do nothing outside menus). Graphics quality presets (Auto = previous behaviour). HUD now
   drawn above the canvas (it was hidden since v24: a bug fix, but players will see the HUD again). Sign backs are plain metal.
+- v46 (owner "MASTER RESEARCH, AUTONOMOUS IMPLEMENTATION AND PERMISSION ADDENDUM", 2026-10-19: "Map Q to downshift and E to upshift", paddles,
+  horns, weather/local time, bot reputation, automatic driving; default answer YES for ordinary decisions): manual gearbox in Realistic (Q/E,
+  paddles; E still robs the bank next to it); G29 default buttons: paddles 4/5 shift, handbrake 6, camera 7, horn 10, auto-drive 11 (saved
+  layouts keep theirs); horn (X); auto-drive (Z, follows the NAV route through `updP`); simulated weather from the JMD Irbid climate table, wet
+  grip in Realistic only; optional Irbid local clock; road reputation + rival memory (`irbid-drive-rep-v1`; traffic following gap behind the
+  player 6.5 -> 12 m at low reputation; rival skill +/-). Bug fixes that change fines: speeding is fined only after 1.5 s on a road (junction
+  crossings of slower side streets were fined); the red-light rule uses height above the ground (absolute height disabled it above
+  Al-Balad's level since v37). Live weather (Open-Meteo) NOT added: it would add a network host (constraint 8) and its terms need the owner.
 
 # Phase 1 – Baseline and Documentation
 

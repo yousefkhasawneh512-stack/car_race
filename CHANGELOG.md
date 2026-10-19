@@ -312,3 +312,34 @@ sources: `docs/REALISM_RESEARCH.md` (46 sources actually used, not 200), screens
   than 1/60 s are split into equal physics steps (`updPStep`). HUD help line kept clear of the Damage button; speed lifted off the attribution.
 - `tools/make_offline.py`: offline copy with three r128 inlined (`dist/irbid-drive-offline.html`, git-ignored); `playtest_v45_pw ... offline`
   passes with zero network requests. `wheel_test` 41 checks (+ Back button pauses / resumes).
+
+## v46
+
+Owner request 2026-10-19 ("MASTER RESEARCH, AUTONOMOUS IMPLEMENTATION AND PERMISSION ADDENDUM"). Full report: `V46_REPORT.md`.
+- **Manual gearbox (Realistic, `07g` + `11c_assist.js` new)**: `PTS.man`/`PTS.req`; Q down, E up (E still robs the bank when standing at it), wheel
+  paddles. The first Q/E switches Automatic -> Manual; the Esc menu switches back (`irbid-drive-gearbox-v1`). A downshift that would put the engine
+  above 103 % of the redline is refused; at the redline in Manual the drive force is cut (limiter). HUD `M3` instead of `G3`. Arcade: Q/E only
+  explain that gears are Realistic-only. EVs/single-speed: no shifting.
+- **G29 defaults (`10c`)**: right paddle (4) shift up, left paddle (5) shift down, handbrake 6, camera 7, horn 10 (held), auto-drive 11. A layout
+  saved by an earlier version keeps its buttons; new actions only take buttons it does not use. Button numbers are the commonly reported Chrome
+  layout of the G29; not verified on the owner's hardware.
+- **Horn (X)**: synthesised dual-tone horn (~405/508 Hz square pair, shaped, band-passed). A traffic car still sitting after a knock moves off.
+- **Auto-drive (Z)**: follows `NAV.pts` (pure pursuit on a point 7 m + 0.45 s ahead, offset into the right-hand lane like traffic), speed from
+  the route legs' posted limits (braking 2.5 m/s² for lower limits ahead), curvature (3 m/s² lateral x wet grip), red/amber lights (stops
+  13.5 m before the junction node: the red-light rule watches a 12 m circle), cars ahead, heading error, the destination. Feeds `updP` as a
+  wheel-input object, so it uses the player's physics in both handling modes; never moves the car directly. Any steering/gas/brake/handbrake
+  input hands back control; gives up when blocked for 6 s; off in races and heists. `planRoute` now returns its `legs` (`NAV.legs`).
+- **Road reputation + rival memory**: 0-100 (start 70): -6 hit traffic, -4 red light, -2 wrong way, -1 speeding (counted only when the fine
+  actually applies), +1 per 45 s of clean driving above 15 km/h. Below 50, traffic behind the player keeps 6.5 -> 12 m (`REPG.gap`, `09_ai`);
+  blocked drivers behind a stopped player honk after 6 / 3 / 1.5 s (not while their own light is red); a car you hit honks (positional,
+  `audHornAt`: stereo pan + 1/(1+d/8) + distance low-pass). Samer/Layth/Omar remember races, wins, losses, hits; next race skill
+  `base + clamp((wins-losses)*.004, -.02, .03) (+.01 after 3 hits)`, bounded .94-1.05. Saved in `irbid-drive-rep-v1`, validated, log capped at 20.
+- **Weather + clock (`12f_weather.js` new)**: simulated. Auto: per "day" (8 blocks of 3 game hours), rain-day chance = JMD Irbid precipitation
+  days / days in the month (Asia/Amman month); a rainy day rains in 45 % of its blocks (estimate). Cloud cover (sky shader `uCov`), grey sky and
+  zenith, dimmer sun, shorter fog in rain, 1,800 rain streaks (one LineSegments, wrapped round the camera in the vertex shader), wetting and
+  drying (estimates), darker/glossier road materials. Realistic grip x(1 - .28 x wet); Arcade unchanged. Clock: game time (default) or
+  Irbid local time (Intl Asia/Amman; fallback UTC+3); T switches back to game time. Rain and wet-tyre hiss audio. Live weather not added.
+- **Bug fixes (fines)**: (1) speeding was fined while crossing a junction of a slower side street (the nearest road at the junction is the cross
+  street); a limit now counts after 1.5 s on that road. (2) the red-light rule tested the absolute `P.y < 1.5` (a pre-terrain "not airborne"
+  check), so since v37 no red light was enforced anywhere above Al-Balad's level; it now tests the height above the ground.
+- Tests: `assist_v46.js` (Node), `v46_pw.py` (Playwright), `wheel_test` +2 (paddles, horn; handbrake button moved to 6 with the new defaults).

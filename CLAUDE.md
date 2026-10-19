@@ -8,6 +8,8 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 **The current game is the reference implementation:** don't redesign gameplay.
 
 Companion files (read before non-trivial work):
+- `V46_REPORT.md` (v46: manual gearbox + paddles, horn, auto-drive, road reputation / rival memory, simulated weather + Irbid local clock,
+  two fine-rule bug fixes; tests, limits) + `docs/screenshots/v46/`.
 - `V45_REPORT.md` (v45: Realistic tyre model + drift, synthesised engine audio, pause/settings/quality, save validation, HUD layering fix, G29 additions;
   baseline vs after, tests, perf, limits) + `docs/screenshots/v45/` (incl. the real-input playtest log).
 - `V44_REPORT.md` (v44: visible component damage, materials, speed bumps, signals, places; tests, perf, limits) + `docs/REALISM_RESEARCH.md` (46 sources actually used) + `docs/screenshots/v44/`.
@@ -55,6 +57,9 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   `damage_v44_pw` / `world_v44_pw` ALWAYS write into `docs/screenshots/v44/` (they ignore `SP`): after a regression run, `git checkout -- docs/screenshots/v44`
   unless you mean to refresh that evidence. `pause_v45_pw` / `playtest_v45_pw` honour `SP` for screenshots only. The older Playwright scripts (`wheel_test`,
   `damage_pw`, `dc2`, `disp`, `ios`, `shopt`, `drive_pw`) use `SP` as the REPO ROOT (node_modules), so never point it at a scratch dir for them.
+  v46: `assist_v46` (Node, repo root: manual gearbox, weather grip + climate table, Amman clock, reputation/rivals, saved wheel layout migration,
+  auto-drive on a real 1.4 km route in both modes + at a red light) and `v46_pw.py` (Playwright: weather visuals, pause rows, local clock,
+  auto-drive via the real search box, takeover, horn, E shift; screenshots into `docs/screenshots/v46/`, honours `SP`). `wheel_test` 43 checks.
   Offline copy: `python tools/make_offline.py` -> `dist/irbid-drive-offline.html` (three r128 inlined, git-ignored).
   Expected results (v44, 2026-10-19): `h24` "bad 6", `vg` "bad 9" (searches for removed invented shops), `h14` "bad 2", `h21` places
   1729 (laz 1531), `tour` 0 off-road, `dyn_check` bad 0, `h16` fines 0, `lmchk` every landmark <= 5 m. `dc2` (draw calls) 540–1,060; the start view varies with random traffic (990–1,210 seen on both v43b and v44; with traffic hidden v43b 459–470, v44 451–459). `boot`/`h2`/`h13`/race/traffic output varies
@@ -99,8 +104,8 @@ Current order and roles:
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
 | Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive`, `07h_dmgparts` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
-| Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav |
-| Frame | `12a_fx`, `12d_audio`, `12b_post`, `12c_terrain`, `12e_pause`, `12_hud_loop` | effects, Web Audio (engine/tyres/world, synthesised), HDR bloom/grade chain, the terrain pass, pause/settings/quality/frame meter, minimap/HUD/camera and the **main loop** |
+| Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav`, `11c_assist` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav, manual gearbox / horn / auto-drive / road reputation + rival memory |
+| Frame | `12a_fx`, `12d_audio`, `12b_post`, `12c_terrain`, `12e_pause`, `12f_weather`, `12_hud_loop` | effects, Web Audio (engine/tyres/world, synthesised), HDR bloom/grade chain, the terrain pass, pause/settings/quality/frame meter, simulated weather + Irbid local clock, minimap/HUD/camera and the **main loop** |
 
 Order facts that have broken things before: `06h2_final_patch` runs before `06h_gen`, and `06d_fabric_driver` runs after it.
 `12a_fx` must precede `12_hud_loop`. `08a_wheel` declares `let ui`, which earlier-defined handlers read at runtime. `07c_realism`
@@ -125,7 +130,7 @@ non-instanced objects. Consequences:
 `(sin h, cos h)`. The origin (Al-Balad) is elevation 0 in `TH`.
 
 **Main loop** (`loop` in `12_hud_loop.js`): dt clamp → clock/time of day → sky/lights → traffic lights → `updTraffic` →
-`updPStep(dt,frozen)` (= one `updP`; Realistic splits frames > 1/60 s) → `updHeist` → `updRace` → `poiNear` → `navTick` → `navLabels` → `showCarsTick` → `fxTick` → `damageTick` → `audTick` →
+`updPStep(dt,frozen)` (= one `updP`; Realistic splits frames > 1/60 s) → `updHeist` → `updRace` → `poiNear` → `navTick` → `navLabels` → `showCarsTick` → `fxTick` → `damageTick` → `audTick` → `assistTick` →
 camera → HUD `innerHTML` → `drawMap` → `gfxRender`. Communication is through shared globals (`P`, `drift`, `tune`, `fines`,
 `spent`, `race`, `heist`, `NAV`, `traffic`, `bots`, `PLACES`, `ui`, `keys`, `clock`). There is no event bus or store.
 
@@ -214,6 +219,11 @@ Traffic AI measures junction distance with `pathProg()` (09_ai). `tools/gen_sign
   a menu was open; wheel buttons dispatch synthetic keys on `window`, where listeners run in registration order. While paused, the loop still polls
   the wheel (`WH.poll`) so its Back button can resume.
 
+- **Inline comments in dense one-liners:** a `//` comment added mid-line comments out the REST of that line (v46 lost `const toastEl` this way;
+  Node tests that stub `toast` did not notice). Put new comments on their own line, then run `new Function(src)` on each changed part.
+- **v46 storage keys:** `irbid-drive-gearbox-v1` ('1' manual), `irbid-drive-weather-v1` ({mode,clock}), `irbid-drive-rep-v1` ({v,road,riv,log}).
+  Wet grip (`WX.mu`) multiplies `sfc` in `updP` ONLY when `handlingMode`; auto-drive feeds `updP` through the wheel-input object (`apInput`), so
+  with it off and the gearbox on Automatic `updP` is unchanged (`off_trace`).
 - Test DOM stubs need `dataset`, `setAttribute`, `window` and `document.body.appendChild` (07f appends its panel).
 - Chunked InstancedMeshes (`instO`, `instF`) are frustum-culled against their chunk sphere (`BS`, 520 m; `CS*.72+30` for small chunks). three
   r128 creates InstancedMesh with `frustumCulled=false`; the terrain pass turns culling off again for a chunk whose instances spread > 440 m.

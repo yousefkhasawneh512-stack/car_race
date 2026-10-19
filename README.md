@@ -25,7 +25,10 @@ writes `dist/irbid-drive-offline.html` with Three.js r128 inlined (zero network 
 | Space | handbrake (drift) |
 | C | camera (chase / hood) |
 | R | start a race at the nearest circuit, or duel the car next to you |
-| E | rob the bank (when near it) |
+| E | rob the bank (when near it); elsewhere, in Realistic handling: shift up (selects the manual gearbox) |
+| Q | shift down (Realistic, manual gearbox; refused if the engine would over-rev) |
+| X | horn (hold) |
+| Z | auto-drive along the current route (set one with M first); any steering, gas or brake input takes over |
 | U or P | Apex Drift Customs: upgrades (drift points) and the repair bay (JD, priced per part) when near it |
 | G | wheel spin (unlock cars with JD) |
 | N / B | cycle owned cars |
@@ -35,7 +38,7 @@ writes `dist/irbid-drive-offline.html` with Three.js r128 inlined (zero network 
 | O | vehicle diagnostics: damage report, per-wheel tyres, racing-wheel status |
 | J / K | stunt ramps / landmark tour teleport |
 | T / F | +1 hour / reset to start |
-| Esc | pause menu: sound volumes, graphics quality (Auto/High/Medium/Low), frame-time meter, handling and damage (the wheel's Back button too) |
+| Esc | pause menu: sound volumes, graphics quality (Auto/High/Medium/Low), frame-time meter, handling, damage, gearbox (Auto/Manual), weather (Auto/Clear/Cloudy/Rain), clock (game time / Irbid local time), road reputation (the wheel's Back button too) |
 | L | mute / unmute sound |
 | V | racing-wheel setup (Logitech G29: live readings, pedal/clutch calibration incl. combined pedals, force feedback via WebHID in Chromium) |
 
@@ -45,8 +48,23 @@ On touch devices, on-screen pads appear (steer left/right, brake, gas, drift).
 engine layout (cylinders, V/flat/inline/rotary, turbo/supercharger/diesel/electric/hybrid): there are no recordings, so it is an
 approximation, not the real car. Tyres squeal from actual tyre slip; wind, road, gravel, nearby traffic and impacts are synthesised too.
 
+**Weather and time (Esc menu):** weather is **simulated, not live**. In Auto, the chance of rain each month comes from the Jordan
+Meteorological Department's climate table for Irbid (1985–2018 rain days per month, read from the Asia/Amman calendar), so it rains in
+winter and almost never in summer. Rain greys the sky, shortens the view, draws rain and makes the roads darker and glossier; in
+Realistic handling a wet road also reduces tyre grip (up to −28 %, an estimate from published wet/dry friction ratios). Arcade grip never
+changes. The clock can follow Irbid's real local time instead of the 16-minute game day.
+
+**Auto-drive (Z)** follows the route you set with **M** through the real street network, using the same car physics as you: it keeps
+right, keeps to the speed limit, stops at red lights and for cars ahead, slows for curves and stops at the destination. Any steering, gas or
+brake input takes control back. It is a simple rule-based driver, not a self-driving system, and it can be blocked (it gives up after 6 s).
+
+**Traffic remembers you (road reputation, 0–100, Esc menu):** hitting traffic, red lights, wrong-way driving and speeding lower it; clean
+driving earns it back. Low reputation makes drivers behind you keep their distance and lose patience (honk) sooner; a car you hit always
+honks. The three named racers remember wins, losses and hits, and one you keep beating tries harder. Fixed, documented rules (no machine
+learning); saved under its own key.
+
 **Racing wheel (V):** steering axis + inversion, lock, dead zone, centre offset, response curve, smoothing; pedal/clutch calibration;
-button binding; force feedback through WebHID in Chrome/Edge. Tested with simulated input only: the author's real G29 has not been
+button binding (defaults: right paddle shift up, left paddle shift down; a layout saved by an earlier version keeps its buttons); force feedback through WebHID in Chrome/Edge. Tested with simulated input only: the author's real G29 has not been
 verified by these tests.
 
 **Vehicle damage** (button top-right or **I**; each car keeps its own damage, saved in the browser):
