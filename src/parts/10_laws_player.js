@@ -23,7 +23,7 @@ function warp(x,z,h){P.x=x;P.z=z;P.h=h;P.vx=P.vz=P.vy=0;P.y=P.pgh=groundH(x,z);c
 const keys={};addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='KeyP'){e.preventDefault();TuningShopInterface.toggleShopMenu();return}if(ui){if(e.code==='Escape'){closeWheel();closeShop()}return}keys[e.code]=1;if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault();
  if(e.code==='KeyN'||e.code==='KeyB')cycleCar(e.code==='KeyN'?1:-1);if(e.code==='KeyG')openWheel();if(e.code==='KeyE'&&!(typeof gearKey==='function'&&gearKey(1)))tryRob();if(e.code==='KeyQ'&&typeof gearKey==='function')gearKey(-1);if(e.code==='KeyU')openShop();if(e.code==='KeyM'){e.preventDefault();navFocus()}
  if(e.code==='KeyK'&&heist.s==='idle'){const L=LM[lmI++%LM.length];warp(L[1],L[2],L[3]);toast('📍 '+L[0])}if(e.code==='KeyJ'&&heist.s==='idle')warp(RAMP0[0]+50,RAMP0[1]-70,0);
- if(e.code==='KeyC')camMode^=1;if(e.code==='KeyT')hour=(hour+1)%24;if(e.code==='KeyR'){const c=(race.s==='idle'||race.s==='done')?nearCar():null;c?startDuel(c):startRace()}if(e.code==='KeyF')warp(START.x,START.z,START.h)});
+ if(e.code==='KeyC'){camMode=(camMode+1)%4;toast('Camera: '+['chase','cockpit','bonnet','bumper'][camMode])}if(e.code==='KeyT')hour=(hour+1)%24;if(e.code==='KeyR'){const c=(race.s==='idle'||race.s==='done')?nearCar():null;c?startDuel(c):startRace()}if(e.code==='KeyF')warp(START.x,START.z,START.h)});
 addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
 // touch/iOS driving input (filled by iOSBypassEngine in 10b_ios_touch.js); all idle on PC
 const MobilePCInputController={steeringAngle:0,isAccelerating:false,isBraking:false,isHandbrake:false,sig:function(){return[this.steeringAngle,this.isAccelerating,this.isBraking,this.isHandbrake].join()}};
@@ -34,9 +34,12 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  if(!handlingMode)P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);let rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
  const sfc=surfK()*dfx.grip*(handlingMode?WX.mu:1),vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
- const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);
+ const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);if(handlingMode){PTS.flock=0;PTS.absA=0}
  if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
-  if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
+  if(br){if(fs>.5){
+   // v48 ABS (07g ASSIST): without ABS a brake demand above the tyre limit locks the wheels; with ABS (default) the v47 line runs unchanged
+   if(handlingMode&&fs>2&&bkEff*brA>.92*ptSpec(P.idx||0).mu*9.81){if(ASSIST.abs)PTS.absA=1;else{PTS.flock=1;fs=Math.max(0,fs-.8*ptSpec(P.idx||0).mu*9.81*sfc*dt)}}
+   if(!(handlingMode&&PTS.flock))fs=Math.max(0,fs-bkEff*sfc*dt*brA)}else fs=Math.max(-10,fs-3.5*dt*brA)}}
   if(!(bo||Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
   if(dfx.roll&&Math.abs(fs)>.3)fs-=Math.sign(fs)*Math.min(Math.abs(fs)-.3,dfx.roll*dt);if(hb&&!handlingMode)fs*=1-.8*dt;if(!handlingMode){if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt}if(!handlingMode)ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*dt)}
  if(handlingMode){const q=ptDyn(dt,st,wi.on&&st===-wi.steer,hb,fs,ls,sfc*dfx.lat,(fs-pfs)/dt,frozen,dfx);fs=q[0];ls=q[1];fx=Math.sin(P.h);fz=Math.cos(P.h);rx=-fz;rz=fx}

@@ -2737,7 +2737,7 @@ diagReady=true;diagSync();
 // listed top speed and 0-100 time (ptCalib); redline, gear count, ratios, tyre mu and spring frequency come from the body type. No manufacturer
 // torque curve, gear ratio or spring rate is claimed. The calibration error per car is in CAR_ASSETS_AND_SPECS.md (tests/handling_test.js).
 const HSTORE='irbid-drive-handling-v1';let handlingMode=0;try{handlingMode=localStorage.getItem(HSTORE)==='1'?1:0}catch(e){}
-const INP={th:0,br:0},PT_CACHE=new Map(),PTS={yr:0,dl:0,h0:0,gear:1,rpm:850,shift:0,spin:0,lim:0,hz:0,hv:0,pz:0,pv:0,rz:0,rv:0,idx:-1,man:0,req:0,deny:0};
+const INP={th:0,br:0},PT_CACHE=new Map(),PTS={yr:0,dl:0,h0:0,gear:1,rpm:850,shift:0,spin:0,lim:0,hz:0,hv:0,pz:0,pv:0,rz:0,rv:0,idx:-1,man:0,req:0,deny:0,flock:0,absA:0,tcA:0,escA:0};
 const PT_CD={r:.4,m:.33,q:.33,c:.31,o:.36,s:.38,p:.45,h:.32,v:.42},PT_RED={r:9000,m:8500,q:8500,c:7200,o:7000,s:6200,p:6000,h:6500,v:5500},PT_MU={r:1.3,m:1.15,q:1.15,c:1.05,o:1,s:.95,p:.9,h:.95,v:.85},PT_FN={r:2.8,m:2.1,q:2.1,c:1.8,o:1.6,s:1.3,p:1.25,h:1.5,v:1.2};
 // generic engine torque shape vs x = rpm/redline (petrol NA/turbo blend), EV: constant torque, then constant power
 const ptCurve=(x,ev)=>ev?(x<.35?1:.35/x):x<.12?.5:x<.6?.55+.45*Math.sin((x-.12)/.48*Math.PI/2):x<.85?1:Math.max(.6,1-(x-.85)*1.3);
@@ -2763,7 +2763,14 @@ function ptCalib(s){const x=.97/1.02,pw=T=>T*ptCurve(x,s.ev)*s.red*x*2*Math.PI/6
  // traction-limited cars cannot beat a grip-defined best time: aim for max(listed, best*1.03) with the SMALLEST torque (no wheelspin in every gear)
  const tgt=Math.max(s.t100,ptRun(s,4000,cda(4000))*1.03);let lo=2,hi=4000;for(let it=0;it<28;it++){const T=(lo+hi)/2;if(ptRun(s,T,cda(T))>tgt)lo=T;else hi=T}s.T=hi;s.CdA=cda(hi);if(s.CdA>s.cdaMax*1.15){s.CdA=s.cdaMax;s.gov=s.vmax}s.err=ptRun(s,s.T,s.CdA)-s.t100}   // drag above a plausible Cd*area => the listed top speed is a limiter (governor), not drag
 // longitudinal acceleration for this frame (throttle, gearbox, traction limit, drag, rolling, engine braking). Called by updP only in Realistic mode
-function ptAccel(dt,thA,fs,sfc,dfx){const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv=Math.max(.3,(P.vm/(m[1]/3.6*.98))*dfx.maxSpeed),ka=(P.a0/Math.min(11,27.8/m[2]*1.1))*dfx.accel,v=Math.max(0,fs);
+// ---- v48: driver assists (Realistic only; Arcade never reads them). ABS on = the v47 braking exactly; ABS off = a brake demand above the tyre limit
+// locks the wheels (sliding friction ~0.8 of peak, front tyres lose most of their side grip). TC on caps drive force under the grip limit (no
+// wheelspin build-up). ESC on pulls the yaw rate back toward the steering's kinematic rate when the car rotates faster than steered and cuts
+// throttle while it acts. Defaults ABS on, TC off, ESC off = v47 handling (tests: assist_v48).
+const ASSTORE='irbid-drive-assist-v1',ASSIST={abs:true,tc:false,esc:false};
+try{const o=JSON.parse(localStorage.getItem(ASSTORE)||'{}');for(const k of['abs','tc','esc'])if(typeof o[k]==='boolean')ASSIST[k]=o[k]}catch(e){}
+function assistSave(){try{localStorage.setItem(ASSTORE,JSON.stringify(ASSIST))}catch(e){}}
+function ptAccel(dt,thA,fs,sfc,dfx){if(PTS.escA)thA*=.3;const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv=Math.max(.3,(P.vm/(m[1]/3.6*.98))*dfx.maxSpeed),ka=(P.a0/Math.min(11,27.8/m[2]*1.1))*dfx.accel,v=Math.max(0,fs);
  if(PTS.idx!==s.i){PTS.idx=s.i;PTS.gear=1;PTS.shift=0;PTS.spin=0}
  const red=s.red,idl=s.idle;let g=PTS.gear,rpm=ptGear(s,v,g)/kv;
  if(PTS.shift>0)PTS.shift-=dt;
@@ -2774,6 +2781,7 @@ function ptAccel(dt,thA,fs,sfc,dfx){const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv
  if(PTS.shift<=0&&thA>0&&!gov&&!(PTS.man&&rpm>=red)){const r=Math.min(Math.max(eng,v<6&&g===1&&!s.ev?red*.45*thA:0),red);F=s.T*ka*thA*ptCurve(r/red,s.ev)*s.ratio[g-1]/s.rw*s.eff}
  else if(thA<=0&&PTS.shift<=0&&!s.ev&&v>1)F=-s.T*.12*(eng/red)*s.ratio[g-1]/s.rw;           // engine braking (EV regen not modelled)
  const al=cl(P.al||0,-12,12),lim=s.mu*sfc*9.81*ptShare(s,Math.max(0,al))*s.m;PTS.lim=lim;
+ PTS.tcA=0;if(ASSIST.tc&&F>lim*.97){F=lim*.97;PTS.tcA=1}
  if(F>lim){PTS.spin=Math.min(1,PTS.spin+dt*4*(F/lim-1)+dt);F=lim*.9}else PTS.spin=Math.max(0,PTS.spin-dt*3);
  PTS.rpm=PTS.spin>.2?Math.min(red,Math.max(eng,red*(.55+.4*PTS.spin))):Math.min(eng,red);
  return(F-.5*1.2*s.CdA/(kv*kv*kv)*v*v*Math.sign(fs)-s.crr*s.m*9.81*Math.sign(fs)*(Math.abs(fs)>.3?1:0))/s.m}
@@ -2801,7 +2809,7 @@ function ptDyn(dt,st,an,hb,u,v,sfc,ax,frozen,dfx){const s=ptGeom(ptSpec(P.idx||0
  if(!P.gnd){P.h+=PTS.yr*dt;PTS.yr*=1-.8*dt;return[u,v]}
  const g=9.81*m,dT=m*cl(ax,-12,12)*s.hcg/s.wb,dn=.6*s.cl*u*u,Ff=Math.max(.15*g,g*s.fw-dT+dn*.45),Fr=Math.max(.15*g,g*(1-s.fw)+dT+dn*.55);
  const Fx=m*Math.min(12,Math.abs(ax)),sh=ax>.3?(s.drive==='FWD'?1:s.drive==='AWD'?.4:0):ax<-.3?.65:.5,ci=(c,f)=>Math.max(.3*c,Math.sqrt(Math.max(0,c*c-f*f)));
- let cF=ci(mu*Ff,Fx*sh),cR=ci(mu*Fr,Fx*(1-sh));const sp=PTS.spin;if(sp>0){if(s.drive==='FWD')cF*=1-.6*sp;else cR*=1-(s.drive==='RWD'?.65:.3)*sp}
+ let cF=ci(mu*Ff,Fx*sh),cR=ci(mu*Fr,Fx*(1-sh));const sp=PTS.spin;if(PTS.flock)cF*=.15;if(sp>0){if(s.drive==='FWD')cF*=1-.6*sp;else cR*=1-(s.drive==='RWD'?.65:.3)*sp}
  const n=Math.min(12,Math.ceil(dt*240)),h=dt/n,kin=cl((u-2)/4,0,1);let r=PTS.yr,af=0,ar=0,lk=0;
  for(let i=0;i<n;i++){let fyf=0,fyr=0,fxr=0;
   if(kin>0){const au=Math.max(Math.abs(u),.5),vr=v+b*r;af=Math.atan2(v-a*r,au)+d;ar=Math.atan2(vr,au);fyf=-cF*Math.sin(C*Math.atan(s.B*af));
@@ -2809,7 +2817,8 @@ function ptDyn(dt,st,an,hb,u,v,sfc,ax,frozen,dfx){const s=ptGeom(ptSpec(P.idx||0
   const rd=r+(-a*fyf*cd+b*fyr)/s.Iz*h,rk=u*Math.tan(d)/s.wb;r=kin*rd+(1-kin)*rk;
   v=kin*(v+((fyf*cd+fyr)/m+u*r)*h)+(1-kin)*v*Math.exp(-8*h);
   u+=kin*((fxr-Math.abs(fyf*sd)*Math.sign(u))/m-v*r)*h;if(hb&&kin<1)u*=Math.exp(-2.5*(1-kin)*h);P.h+=r*h}
- PTS.yr=r;TSLIP.af=kin*Math.abs(af)/s.pk;TSLIP.ar=kin*Math.abs(ar)/s.pk;TSLIP.f=kin*cl(Math.abs(af)/s.pk-1,0,3);TSLIP.r=kin*Math.max(cl(Math.abs(ar)/s.pk-1,0,3),lk*cl((Math.hypot(u,v)-3)/6,0,2));TSLIP.lock=lk;return[u,v]}
+ PTS.escA=0;if(ASSIST.esc&&kin>.5&&u>6&&!hb){const rk=u*Math.tan(d)/s.wb;if(Math.abs(r-rk)>.12){r+=(rk-r)*Math.min(1,6*dt);PTS.escA=1}}
+ PTS.yr=r;TSLIP.af=kin*Math.abs(af)/s.pk;TSLIP.ar=kin*Math.abs(ar)/s.pk;TSLIP.f=kin*cl(Math.abs(af)/s.pk-1,0,3);TSLIP.r=kin*Math.max(cl(Math.abs(ar)/s.pk-1,0,3),lk*cl((Math.hypot(u,v)-3)/6,0,2));TSLIP.lock=Math.max(lk,PTS.flock?1:0);return[u,v]}
 // v45: frame-rate independence for Realistic mode. A long frame (low fps, the loop clamps dt at 50 ms) is split into equal physics steps of at
 // most 1/60 s, so grip limits, steering ramp and engine force are re-evaluated as often as at 60 fps (a 20 fps frame used to turn a recoverable
 // countersteer into a spin). Arcade keeps ONE call per frame (v38-identical, off_trace).
@@ -2817,7 +2826,7 @@ function updPStep(dt,frozen){if(!handlingMode||dt<=1/60+1e-6)return updP(dt,froz
 // slip state for smoke / squeal in BOTH modes (Arcade has no tyre model: the body slip angle stands in). Rendering + audio only, never physics.
 function slipTick(fs,ls,frozen,bo){const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),sp=Math.hypot(fs,ls);TSLIP.sa=sa;TSLIP.spin=bo?1:handlingMode?PTS.spin:0;
  if(!handlingMode){TSLIP.r=P.gnd&&!frozen&&sp>5?cl((sa-.12)/.15,0,3):0;TSLIP.f=TSLIP.r*.3;TSLIP.lock=0}}
-function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+'</small>'}
+function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+(PTS.flock?' · <b style="color:#ff8a7a">LOCKED</b>':'')+(PTS.absA?' · ABS':'')+(PTS.tcA?' · TC':'')+(PTS.escA?' · ESC':'')+'</small>'}
 function setHandling(mo){handlingMode=mo?1:0;try{localStorage.setItem(HSTORE,String(handlingMode))}catch(e){}PTS.idx=-1;PTS.yr=PTS.dl=0;PTS.hz=PTS.hv=PTS.pz=PTS.pv=PTS.rz=PTS.rv=0;toast(handlingMode?'Handling: Realistic (engine, gears, traction, suspension; estimates)':'Handling: Arcade')}
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')&&!ui){e.preventDefault();setHandling(!handlingMode)}});
 // ---- visible vehicle components (v44): bumpers, mirrors, bonnet / boot lids, door skins, per-pane glass cracks, bent rims, flat tyres, detached parts ----
@@ -3162,7 +3171,7 @@ function warp(x,z,h){P.x=x;P.z=z;P.h=h;P.vx=P.vz=P.vy=0;P.y=P.pgh=groundH(x,z);c
 const keys={};addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.code==='KeyP'){e.preventDefault();TuningShopInterface.toggleShopMenu();return}if(ui){if(e.code==='Escape'){closeWheel();closeShop()}return}keys[e.code]=1;if(e.code.startsWith('Arrow')||e.code==='Space')e.preventDefault();
  if(e.code==='KeyN'||e.code==='KeyB')cycleCar(e.code==='KeyN'?1:-1);if(e.code==='KeyG')openWheel();if(e.code==='KeyE'&&!(typeof gearKey==='function'&&gearKey(1)))tryRob();if(e.code==='KeyQ'&&typeof gearKey==='function')gearKey(-1);if(e.code==='KeyU')openShop();if(e.code==='KeyM'){e.preventDefault();navFocus()}
  if(e.code==='KeyK'&&heist.s==='idle'){const L=LM[lmI++%LM.length];warp(L[1],L[2],L[3]);toast('📍 '+L[0])}if(e.code==='KeyJ'&&heist.s==='idle')warp(RAMP0[0]+50,RAMP0[1]-70,0);
- if(e.code==='KeyC')camMode^=1;if(e.code==='KeyT')hour=(hour+1)%24;if(e.code==='KeyR'){const c=(race.s==='idle'||race.s==='done')?nearCar():null;c?startDuel(c):startRace()}if(e.code==='KeyF')warp(START.x,START.z,START.h)});
+ if(e.code==='KeyC'){camMode=(camMode+1)%4;toast('Camera: '+['chase','cockpit','bonnet','bumper'][camMode])}if(e.code==='KeyT')hour=(hour+1)%24;if(e.code==='KeyR'){const c=(race.s==='idle'||race.s==='done')?nearCar():null;c?startDuel(c):startRace()}if(e.code==='KeyF')warp(START.x,START.z,START.h)});
 addEventListener('keyup',e=>keys[e.code]=0);let camMode=0;
 // touch/iOS driving input (filled by iOSBypassEngine in 10b_ios_touch.js); all idle on PC
 const MobilePCInputController={steeringAngle:0,isAccelerating:false,isBraking:false,isHandbrake:false,sig:function(){return[this.steeringAngle,this.isAccelerating,this.isBraking,this.isHandbrake].join()}};
@@ -3173,9 +3182,12 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  if(!handlingMode)P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);let rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
  const sfc=surfK()*dfx.grip*(handlingMode?WX.mu:1),vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
- const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);
+ const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);if(handlingMode){PTS.flock=0;PTS.absA=0}
  if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
-  if(br){if(fs>.5)fs=Math.max(0,fs-bkEff*sfc*dt*brA);else fs=Math.max(-10,fs-3.5*dt*brA)}}
+  if(br){if(fs>.5){
+   // v48 ABS (07g ASSIST): without ABS a brake demand above the tyre limit locks the wheels; with ABS (default) the v47 line runs unchanged
+   if(handlingMode&&fs>2&&bkEff*brA>.92*ptSpec(P.idx||0).mu*9.81){if(ASSIST.abs)PTS.absA=1;else{PTS.flock=1;fs=Math.max(0,fs-.8*ptSpec(P.idx||0).mu*9.81*sfc*dt)}}
+   if(!(handlingMode&&PTS.flock))fs=Math.max(0,fs-bkEff*sfc*dt*brA)}else fs=Math.max(-10,fs-3.5*dt*brA)}}
   if(!(bo||Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
   if(dfx.roll&&Math.abs(fs)>.3)fs-=Math.sign(fs)*Math.min(Math.abs(fs)-.3,dfx.roll*dt);if(hb&&!handlingMode)fs*=1-.8*dt;if(!handlingMode){if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt}if(!handlingMode)ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*dt)}
  if(handlingMode){const q=ptDyn(dt,st,wi.on&&st===-wi.steer,hb,fs,ls,sfc*dfx.lat,(fs-pfs)/dt,frozen,dfx);fs=q[0];ls=q[1];fx=Math.sin(P.h);fz=Math.cos(P.h);rx=-fz;rz=fx}
@@ -3611,6 +3623,90 @@ function apHud(){if(!AP.on)return;const t='🤖 AUTO · '+Math.round(AP.vt*3.6)+
 addEventListener('keydown',e=>{if(e.repeat||ui||(e.target&&e.target.tagName==='INPUT'))return;if(e.code==='KeyX')hornSet(true);if(e.code==='KeyZ')apToggle()});
 addEventListener('keyup',e=>{if(e.code==='KeyX')hornSet(false)});
 function assistTick(dt){repTick(dt);apHud();if(HORN.on&&ui)hornSet(false)}
+// ---- v48: driving school. Lessons run on REAL streets near the start with the player's normal car and controls (updP, keyboard / touch /
+// wheel); nothing is simulated for the player. A lesson picks a straight two-way OSM street (or a signalised approach), marks zones on the road,
+// gives instructions, watches speed, stops, the real fine rules (speeding, red light, wrong way, hitting cars) and scores 0-100.
+// Rules: right-hand traffic, stop lines ~13.5 m before the junction centre, OSM speed limits (Jordan; SCH_RULES holds the regional values).
+// Best scores are stored under irbid-drive-school-v1. Opened from the pause menu (Esc -> Driving school).
+const SCH_RULES={side:1,stopLine:13.5,tolKmh:3},SSTORE='irbid-drive-school-v1';
+const SCH={on:null,t:0,best:{},runs:0,site:null,pen:[],score:0,st:'',msg:'',over:0,last:{}};
+try{const o=JSON.parse(localStorage.getItem(SSTORE)||'{}');if(o&&typeof o.best==='object')for(const k in o.best)if(isFinite(o.best[k]))SCH.best[k]=cl(+o.best[k],0,100);if(isFinite(o.runs))SCH.runs=+o.runs}catch(e){}
+function schSave(){try{localStorage.setItem(SSTORE,JSON.stringify({v:1,best:SCH.best,runs:SCH.runs}))}catch(e){}}
+// a straight stretch of `len` m on a street: travel order dir (1 = along pts, -1 = against), toEnd = the stretch must END at the polyline end
+function schStraight(e,dir,len,toEnd){const p=dir>0?e.pts:e.pts.slice().reverse(),n=p.length,c=[0];for(let i=1;i<n;i++)c.push(c[i-1]+Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]));
+ const ok=(i,j)=>{const ax=p[i][0],az=p[i][1],dx=p[j][0]-ax,dz=p[j][1]-az,l=Math.hypot(dx,dz)||1;for(let k=i+1;k<j;k++)if(Math.abs(((p[k][0]-ax)*dz-(p[k][1]-az)*dx)/l)>1.2)return false;return true};
+ for(let j=n-1;j>0;j--){let i=j;while(i>0&&c[j]-c[i]<len)i--;if(c[j]-c[i]>=len&&ok(i,j)){const dx=p[j][0]-p[i][0],dz=p[j][1]-p[i][1],l=Math.hypot(dx,dz);return{x0:p[i][0],z0:p[i][1],x1:p[j][0],z1:p[j][1],ux:dx/l,uz:dz/l,len:l,e}}if(toEnd)return null}return null}
+// the nearest suitable street to (x,z): two-way, not a ramp/roundabout/bridge/tunnel, 6+ m wide; lit = approach to a signalised junction
+function schFind(x,z,len,lit){let best=null,bd=1e18;
+ for(const e of EDGES){if(e.ow||e.rb||e.br||e.tn||e.kind==='ramp'||e.w<6||e.lim<30||e.lim>70||e.len<len)continue;const d=(e.mx-x)**2+(e.mz-z)**2;if(d>=bd||d>3000*3000)continue;
+  if(lit){for(const [nid,dir] of [[e.b,1],[e.a,-1]]){const nd=NODES[nid];if(!nd||!nd.lit||!nd.ph||nd.ph[e.id]===undefined)continue;const s=schStraight(e,dir,len,true);if(s){s.nd=nd;best=s;bd=d}}}
+  else{const s=schStraight(e,1,len,false);if(s){best=s;bd=d}}}
+ if(best){best.rx=-best.uz*SCH_RULES.side;best.rz=best.ux*SCH_RULES.side;best.h=Math.atan2(best.ux,best.uz);best.lane=Math.min(2.6,best.e.w*.25)}return best}
+// road markers (created after the terrain pass, so they add TH themselves)
+// each marker: a translucent floor (scaled to the zone) + two 1.8 m posts at its far corners, so it reads from 100 m away
+const SCHM=(()=>{const g=new T.Group(),pg=new T.CylinderGeometry(.09,.09,1.8,8),mk=c=>{const o=new T.Group(),mt=new T.MeshBasicMaterial({color:c,transparent:true,opacity:.6,depthWrite:false}),pm=new T.MeshBasicMaterial({color:c});
+  o.userData.f=new T.Mesh(new T.BoxGeometry(1,.08,1),mt);o.userData.p=[new T.Mesh(pg,pm),new T.Mesh(pg,pm)];o.add(o.userData.f,...o.userData.p);o.visible=false;g.add(o);return o};
+ // added to the scene on the first lesson (after the terrain pass, which would otherwise lift the group)
+ return{g,zone:mk(0x3cff9a),line:mk(0xff5a5a),end:mk(0x4aa3ff)}})();
+function schPut(m,s,along,side,w,l){const x=s.x0+s.ux*along+s.rx*side,z=s.z0+s.uz*along+s.rz*side;m.position.set(x,TH(x,z)+.08,z);m.rotation.y=s.h;m.userData.f.scale.set(w,1,l);
+ m.userData.p.forEach((p,i)=>p.position.set((i?-1:1)*w/2,.9,l/2));m.visible=true;return{x,z}}
+function schLocal(s){const dx=P.x-s.x0,dz=P.z-s.z0;return{a:dx*s.ux+dz*s.uz,l:(dx*s.rx+dz*s.rz)}}
+const schKmh=()=>Math.hypot(P.vx,P.vz)*3.6,schFwd=()=>P.vx*Math.sin(P.h)+P.vz*Math.cos(P.h);
+// ---- lessons: setup(site) places markers and the car; tick(dt,L) returns 'run' | 'pass' | 'fail' ----
+const LESSONS=[
+ {id:'stop',name:'1. Start and stop',goal:'Drive to the green box and stop inside it. Stay under 40 km/h.',len:130,
+  setup(s){s.zc=schPut(SCHM.zone,s,90,s.lane,3.2,8)},
+  tick(dt,s,L){if(schKmh()>40+SCH_RULES.tolKmh)schPen('Too fast: '+Math.round(schKmh())+' km/h (40 max)',8,'spd',1.5);
+   if(L.a>110)return schEnd('fail','You drove past the box.');
+   if(schKmh()<.6&&SCH.t>3&&L.a>20){const da=Math.abs(L.a-90),dl=Math.abs(L.l-s.lane);if(da<=4&&dl<=1.6){schPen('Distance from the box centre '+da.toFixed(1)+' m',Math.round(da*3),'pos',99);return schEnd('pass','Stopped in the box.')}if(SCH.t>8)SCH.msg='Not in the box yet: '+(L.a<90?Math.round(86-L.a)+' m to go':'too far')}return'run'}},
+ {id:'brake',name:'2. Emergency stop',goal:'Reach 50 km/h before the red line, then brake hard and stop within 30 m, keeping straight.',len:230,
+  setup(s){schPut(SCHM.line,s,130,s.lane,4,1.2);schPut(SCHM.zone,s,145,s.lane,3.2,30)},
+  tick(dt,s,L){if(!s.at&&L.a>=130){s.at=1;s.v0=schKmh();s.l0=L.l;if(s.v0<50)schPen('Only '+Math.round(s.v0)+' km/h at the line (50 needed)',Math.round((50-s.v0)*2),'slow',99);SCH.msg='BRAKE!'}
+   if(s.at){s.dl=Math.max(s.dl||0,Math.abs(L.l-s.l0));if(schKmh()<.6){const d=L.a-130;if(d>30)return schEnd('fail','Stopped '+d.toFixed(1)+' m after the line (30 m allowed).');schPen('Stopping distance '+d.toFixed(1)+' m',Math.max(0,Math.round((d-18)*2)),'dist',99);if(s.dl>1.5)schPen('Drifted '+s.dl.toFixed(1)+' m sideways',Math.round(s.dl*6),'lat',99);return schEnd('pass','Stopped '+d.toFixed(1)+' m after the line from '+Math.round(s.v0)+' km/h.')}}
+   else if(L.a>40&&schKmh()<5&&SCH.t>12)SCH.msg='Accelerate to 50 km/h before the red line.';if(L.a>200)return schEnd('fail','You did not stop.');return'run'}},
+ {id:'limit',name:'3. Speed limit',goal:'Drive to the blue marker without going over the street\'s speed limit. Keep to the right.',len:320,
+  setup(s){s.lim=s.e.lim||50;schPut(SCHM.end,s,300,s.lane,4,3)},
+  tick(dt,s,L){if(schKmh()>s.lim+SCH_RULES.tolKmh)schPen('Over the limit: '+Math.round(schKmh())+' in a '+s.lim+' km/h street',4,'spd',1);
+   if(L.l<-.3)schPen('Left of the centre line (keep right)',5,'side',2);SCH.msg=SCH.msg||('Limit '+s.lim+' km/h · '+Math.max(0,Math.round(300-L.a))+' m to go');
+   if(L.a>=298)return schEnd(SCH.t<300/(s.lim/3.6)*.8?'fail':'pass',SCH.t<300/(s.lim/3.6)*.8?'Impossible time: you must have sped.':'Reached the marker in '+SCH.t.toFixed(0)+' s.');if(SCH.t>120)return schEnd('fail','Too slow (2 minutes).');return'run'}},
+ {id:'light',name:'4. Traffic light',goal:'Approach the junction. Stop before the line on red or amber; go on green. Cross the junction.',len:130,lit:true,
+  setup(s){s.stop=s.len-SCH_RULES.stopLine;schPut(SCHM.line,s,s.stop,s.lane,4,.6);s.red0=last.red},
+  tick(dt,s,L){const nd=s.nd,st=light(nd.ph[s.e.id],nd);SCH.msg=(st==='g'?'🟢 Green: go':st==='y'?'🟡 Amber: stop if you safely can':'🔴 Red: stop before the line')+' · '+Math.max(0,Math.round(s.stop-L.a))+' m to the line';
+   if(last.red!==s.red0)return schEnd('fail','You ran the red light.');if(L.a>s.stop&&!s.cross){s.cross=1;s.cst=st}
+   if(st!=='g'&&L.a<s.stop&&L.a>s.stop-6&&schKmh()<1)s.waited=1;if(L.a>s.len+25)return schEnd('pass',s.waited?'Waited for green, then crossed.':'Crossed on '+(s.cst==='g'?'green':'amber')+'.');if(SCH.t>150)return schEnd('fail','Too slow.');return'run'}},
+ {id:'park',name:'5. Reverse parking',goal:'Reverse (S) into the green bay behind you and stop straight inside it.',len:60,
+  setup(s){s.zc=schPut(SCHM.zone,s,22,s.lane+.2,2.8,6)},
+  start(s){return 34},
+  tick(dt,s,L){if(schFwd()>2&&SCH.t>2)SCH.msg='Reverse: hold S (brake, then backwards).';if(L.a<10)return schEnd('fail','You reversed past the bay.');
+   if(schKmh()<.4&&SCH.t>3&&L.a<30){const da=Math.abs(L.a-22),dl=Math.abs(L.l-(s.lane+.2)),dh=Math.abs(wrap(P.h-s.h))*57.3;if(da<=2&&dl<=.9&&dh<=12){schPen('Off-centre '+Math.hypot(da,dl).toFixed(1)+' m, angle '+dh.toFixed(0)+'°',Math.round(da*6+dl*12+dh),'pos',99);return schEnd('pass','Parked.')}if(SCH.t>6)SCH.msg='Not inside yet ('+(dh>12?'straighten up':da>2?(L.a>22?'further back':'too far back'):'line up sideways')+').'}
+   if(SCH.t>90)return schEnd('fail','Out of time (90 s).');return'run'}}];
+function schPen(m,p,k,cd){if(!SCH.on||SCH.over)return;const t=SCH.last[k];if(t!==undefined&&SCH.t-t<cd)return;SCH.last[k]=SCH.t;SCH.pen.push([m,p]);SCH.score=Math.max(0,SCH.score-p);if(p>0)toast('Instructor: '+m+' (−'+p+')')}
+function schEnd(r,m){SCH.over=1;SCH.st=r;SCH.msg=m;if(r==='fail')SCH.score=0;const L=SCH.on;SCH.runs++;if(r==='pass'&&!(SCH.best[L.id]>=SCH.score))SCH.best[L.id]=SCH.score;schSave();schResult();return r}
+function schStart(i){const L=LESSONS[i];if(!L)return false;const s=schFind(START.x,START.z,L.len,!!L.lit);if(!s){toast('No suitable street found for this lesson');return false}
+ if(!SCHM.g.parent)scene.add(SCHM.g);schStop(true);if(typeof apOff==='function')apOff();if(typeof navClear==='function'&&typeof NAV!=='undefined'&&NAV.on)navClear();
+ SCH.on=L;SCH.site=s;SCH.t=0;SCH.pen=[];SCH.score=100;SCH.over=0;SCH.st='run';SCH.msg='';SCH.last={};L.setup(s);
+ const a0=L.start?L.start(s):(L.lit?0:5);warp(s.x0+s.ux*a0+s.rx*s.lane,s.z0+s.uz*a0+s.rz*s.lane,s.h);
+ traffic.forEach(c=>{if(!c.park&&Math.hypot(c.x-P.x,c.z-P.z)<L.len+80)respawn(c,L.len+150)});
+ schEl.style.display='block';schRes.style.display='none';toast('Driving school: '+L.name);return true}
+function schStop(silent){SCH.on=null;SCH.site=null;for(const k of['zone','line','end'])SCHM[k].visible=false;schEl.style.display='none';if(!silent)schRes.style.display='none'}
+// ---- UI: instructor panel (top centre) + result card ----
+const schEl=document.createElement('div');schEl.id='school';schEl.style.cssText='position:fixed;left:50%;top:calc(96px + env(safe-area-inset-top));transform:translateX(-50%);z-index:4;max-width:min(560px,92vw);background:#0d2a1ce8;border:1px solid #3cff9a88;border-radius:10px;padding:8px 14px;font:14px/1.4 system-ui,sans-serif;color:#eafff2;display:none;pointer-events:none';
+const schRes=document.createElement('div');schRes.id='schoolRes';schRes.style.cssText='position:fixed;inset:0;z-index:55;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);font:14px system-ui,sans-serif;color:#eee';
+try{document.body.appendChild(schEl);document.body.appendChild(schRes)}catch(e){}
+function schResult(){const L=SCH.on;if(!L)return;const ok=SCH.st==='pass',ix=LESSONS.indexOf(L);
+ schRes.innerHTML='<div style="background:#15181d;border:1px solid #333;border-radius:10px;padding:16px 20px;width:min(420px,92vw)"><div style="font-size:19px;font-weight:700">'+(ok?'✅ Passed':'❌ Not passed')+' · '+L.name+'</div>'+
+  '<div style="font-size:30px;font-weight:800;margin:6px 0;color:'+(ok?'#3cff9a':'#ff8a7a')+'">'+SCH.score+'/100</div><div style="margin-bottom:6px">'+SCH.msg.replace(/[<>&]/g,'')+'</div>'+
+  (SCH.pen.length?'<div style="font-size:12px;color:#bbb">'+SCH.pen.map(([m,p])=>'• '+m.replace(/[<>&]/g,'')+(p?' (−'+p+')':'')).join('<br>')+'</div>':'<div style="font-size:12px;color:#bbb">No mistakes.</div>')+
+  '<div style="font-size:12px;color:#9ad;margin-top:6px">Best: '+(SCH.best[L.id]!==undefined?SCH.best[L.id]+'/100':'—')+'</div><div style="display:flex;gap:8px;margin-top:10px"><button data-s="retry" style="flex:1;padding:8px">↻ Retry</button>'+
+  (ix<LESSONS.length-1?'<button data-s="next" style="flex:1;padding:8px">Next ▶</button>':'')+'<button data-s="close" style="flex:1;padding:8px">Close</button></div></div>';
+ schRes.style.display='flex';ui=true;for(const k in keys)keys[k]=0}
+schRes.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.s;if(!a)return;const ix=LESSONS.indexOf(SCH.on);schRes.style.display='none';ui=false;if(a==='retry')schStart(ix);else if(a==='next')schStart(ix+1);else schStop()});
+function schMenuHtml(){return LESSONS.map((L,i)=>'<button data-sch="'+i+'" style="width:100%;padding:6px;margin:2px 0;text-align:left">'+L.name+(SCH.best[L.id]!==undefined?' · best '+SCH.best[L.id]:'')+'</button>').join('')+
+ (SCH.on?'<button data-sch="quit" style="width:100%;padding:6px;margin:2px 0">✕ Quit the lesson</button>':'')}
+function schoolTick(dt){if(!SCH.on||SCH.over||PAUSE.on)return;SCH.t+=dt;SCH.msg='';const s=SCH.site,L=schLocal(s);
+ if(Math.abs(L.l)>12&&SCH.t>2&&L.a>-5&&L.a<s.len)return schEnd('fail','You left the street.');SCH.on.tick(dt,s,L);
+ if(!SCH.over)schEl.innerHTML='<b>🎓 '+SCH.on.name+'</b> · '+SCH.score+' pts · '+SCH.t.toFixed(0)+' s<br>'+SCH.on.goal+(SCH.msg?'<br><b style="color:#ffd24a">'+SCH.msg+'</b>':'')}
+{const f2=fine;fine=function(k){const b=last[k];const r=f2.apply(this,arguments);if(SCH.on&&!SCH.over&&last[k]!==b){if(k==='hit')schPen('Hit another car',30,'hit',2);else if(k==='way')schPen('Wrong way',20,'way',3)}return r}}
 // ---- Forza-style look: Levant colour grade, drift tyre smoke, wet-asphalt glare streaks, peripheral speed blur (rendering only) ----
 {const f='contrast(1.15) saturate(1.1) sepia(.06)';ren.domElement.style.filter=f;try{mp.filter='contrast(1.15) saturate(1.1)'}catch(e){}}
 // radial speed blur: backdrop blur(1px) over everything except a clear ellipse around the player car (HUD sits above it)
@@ -3839,7 +3935,7 @@ function gfxRender(){
  if(!POST.on){ren.render(scene,cam);return}
  const now=performance.now(),dtm=(now-POST.t0)/1000;POST.t0=now;
  pv.set(P.x,P.y+.9,P.z).project(cam);GRADE.uniforms.uCar.value.set(pv.x*.5+.5,pv.y*.5+.5);
- GRADE.uniforms.uAsp.value=DISP.w/DISP.h;GRADE.uniforms.uBlur.value=fxK<.02?0:fxK;GRADE.uniforms.uTime.value=clock%100;
+ GRADE.uniforms.uAsp.value=DISP.w/DISP.h;GRADE.uniforms.uBlur.value=fxK<.02||A11Y.rm?0:fxK;GRADE.uniforms.uTime.value=clock%100;
  GRADE.uniforms.uNight.value=1-SKYU.uDay.value;
  if(POST.hdr){winMat.emissive.multiplyScalar(1.45);glassMat.emissive.copy(winMat.emissive);if(facMat)FACU.uFacNight.value*=1.45}
  try{POST.comp.render()}catch(e){POST.err=String(e);postLegacy();ren.render(scene,cam);return}
@@ -3892,6 +3988,15 @@ function gqApply(){if(!GQ.base)GQ.base={sh:sun.shadow.mapSize.x,post:POST.on,lod
  if(b.post&&POST.comp){if(q==='low'){if(POST.on)postLegacy()}else if(!POST.on){POST.on=true;ren.domElement.style.filter='';fxBlur.style.display='none'}if(POST.bloom)POST.bloom.enabled=q==='auto'||q==='high'||q==='ultra'}
  gqShadow(q==='low'?1024:q==='medium'?Math.min(2048,b.sh):b.sh);
  const k=q==='low'?.7*.7:q==='ultra'?1.3*1.3:1;for(let i=0;i<LODL.length;i++)LODL[i].r2=b.lod[i]*k;LODT.force=1}
+// ---- v48: accessibility: HUD text size (CSS zoom on the HUD / menus) and reduced motion (no speed FOV pump, no post-chain motion blur).
+// Reduced motion defaults to the OS "reduce motion" setting. Stored under irbid-drive-a11y-v1. ----
+const A11STORE='irbid-drive-a11y-v1',A11Y={ts:1,rm:false};
+try{A11Y.rm=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+try{const o=JSON.parse(localStorage.getItem(A11STORE)||'{}');if([.9,1,1.2,1.4].includes(o.ts))A11Y.ts=o.ts;if(typeof o.rm==='boolean')A11Y.rm=o.rm}catch(e){}
+function a11yApply(){try{let st=document.getElementById('a11yCss');if(!st){st=document.createElement('style');st.id='a11yCss';document.head.appendChild(st)}
+ st.textContent=A11Y.ts===1?'':'#top,#spd,#race,#drift,#heist,#toast,#navBan,#nav,#car,#damageBtn,#repairBtn,#school,#pauseMenu>div,#schoolRes>div{zoom:'+A11Y.ts+'}'}catch(e){}}
+function a11ySave(){try{localStorage.setItem(A11STORE,JSON.stringify(A11Y))}catch(e){}}
+a11yApply();
 // ---- v47: traffic density ----
 const TRAFALL=traffic.slice();
 function trApply(){const n=Math.round(TRAFALL.length*(TDEN[GQ.t]||1));TRAFALL.forEach((c,i)=>{const pk=i>=n;if(pk===!!c.park)return;c.park=pk;
@@ -3920,15 +4025,21 @@ pauseEl.innerHTML='<div style="background:#15181d;border:1px solid #333;border-r
  '<div style="font-weight:600;margin:10px 0 4px">Graphics</div><label style="display:flex;justify-content:space-between">Quality <select data-s="q"><option value="auto">Auto (High, drops if slow)</option><option value="ultra">Ultra (1440p supersampled, longer range)</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low (720p, no effects)</option></select></label>'+
  '<label style="display:flex;justify-content:space-between;margin-top:4px">Traffic <select data-s="tr"><option value="high">High (80 cars)</option><option value="medium">Medium (52)</option><option value="low">Low (28, weak devices)</option></select></label>'+
  '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="fps"> Show frame-time meter</label><div data-i="plat" style="font-size:12px;color:#aaa"></div>'+
+ '<div style="font-weight:600;margin:10px 0 4px">Driving school</div><div data-i="sch"></div>'+
+ '<div style="font-weight:600;margin:10px 0 4px">Accessibility</div><label style="display:flex;justify-content:space-between">Text size <select data-s="ts"><option value="0.9">Small</option><option value="1">Normal</option><option value="1.2">Large</option><option value="1.4">Extra large</option></select></label>'+
+ '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="rm"> Reduced motion (no speed zoom or motion blur)</label>'+
  '<div style="font-weight:600;margin:10px 0 4px">Driving</div><button data-a="hand" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="dmg" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="gear" style="width:100%;padding:6px;margin:2px 0"></button>'+
+ '<div style="display:flex;gap:4px"><button data-a="abs" style="flex:1;padding:6px"></button><button data-a="tc" style="flex:1;padding:6px"></button><button data-a="esc" style="flex:1;padding:6px"></button></div>'+
  '<div data-i="rep" style="font-size:12px;color:#aaa;margin:4px 0"></div>'+
  '<div style="font-weight:600;margin:10px 0 4px">Weather and time</div><label style="display:flex;justify-content:space-between">Weather <select data-s="wx"><option value="auto">Auto (Irbid seasons)</option><option value="clear">Clear</option><option value="cloudy">Cloudy</option><option value="rain">Rain</option></select></label>'+
  '<label style="display:flex;justify-content:space-between;margin-top:4px">Clock <select data-s="clk"><option value="game">Game time (1 day = 16 min)</option><option value="local">Irbid local time (Asia/Amman)</option></select></label><div data-i="wx" style="font-size:12px;color:#aaa;margin-top:4px"></div>'+
- '<div style="font-size:12px;color:#aaa;margin-top:10px">W/S drive · A/D steer · Space handbrake · H handling · I damage · O diagnostics · V wheel setup · L mute · C camera · M search · P shop · F reset · Q/E gears (Realistic) · X horn · Z auto-drive (after M sets a route)</div></div>';
+ '<div style="font-size:12px;color:#aaa;margin-top:10px">W/S drive · A/D steer · Space handbrake · H handling · I damage · O diagnostics · V wheel setup · L mute · C camera (chase / cockpit / bonnet / bumper) · M search · P shop · F reset · Q/E gears (Realistic) · X horn · Z auto-drive (after M sets a route)</div></div>';
 try{document.body.appendChild(pauseEl)}catch(e){}
 const pq=s=>pauseEl.querySelector(s);
 function pauseSync(){try{for(const k of['master','engine','fx','amb']){const r=pq('[data-v="'+k+'"]');if(r)r.value=Math.round(AUD[k]*100)}const mu=pq('[data-c="mute"]');if(mu)mu.checked=AUD.mute;const fp=pq('[data-c="fps"]');if(fp)fp.checked=GQ.fps;const qs=pq('[data-s="q"]');if(qs)qs.value=GQ.q;const ts=pq('[data-s="tr"]');if(ts)ts.value=GQ.t;const pl=pq('[data-i="plat"]');if(pl&&typeof platLine==='function')pl.textContent=platLine();
  const h=pq('[data-a="hand"]');if(h)h.textContent='Handling: '+(handlingMode?'Realistic':'Arcade')+' (H)';const d=pq('[data-a="dmg"]');if(d)d.textContent='Damage: '+(['Off','Cosmetic','Full'][damageMode]||damageMode)+' (I)';
+ for(const [k,n] of [['abs','ABS'],['tc','Traction control'],['esc','Stability (ESC)']]){const b=pq('[data-a="'+k+'"]');if(b)b.textContent=n+': '+(ASSIST[k]?'on':'off')+(handlingMode?'':' (Realistic)')}
+ const sc=pq('[data-i="sch"]');if(sc&&typeof schMenuHtml==='function')sc.innerHTML=schMenuHtml();const tz=pq('[data-s="ts"]');if(tz)tz.value=String(A11Y.ts);const rm=pq('[data-c="rm"]');if(rm)rm.checked=A11Y.rm;
  const gb=pq('[data-a="gear"]');if(gb)gb.textContent='Gearbox: '+(PTS.man?'Manual (Q / E, paddles)':'Automatic')+(handlingMode?'':' · Realistic only');
  const rp=pq('[data-i="rep"]');if(rp&&typeof REP!=='undefined'){const r=REP.riv,rv=['Samer','Layth','Omar'].filter(n=>r[n]&&r[n].r).map(n=>n+' '+r[n].w+'–'+r[n].l+(r[n].h?' ('+r[n].h+' hits)':'')).join(' · ');rp.textContent='Road reputation '+Math.round(REP.road)+'/100 (traffic remembers hits, red lights, wrong way, speeding; clean driving earns it back)'+(rv?' · Rivals you–them: '+rv:'')}
  const ws=pq('[data-s="wx"]');if(ws&&typeof WX!=='undefined'){ws.value=WX.mode;pq('[data-s="clk"]').value=WX.clock;pq('[data-i="wx"]').textContent=wxLine()}
@@ -3936,8 +4047,9 @@ function pauseSync(){try{for(const k of['master','engine','fx','amb']){const r=p
 function pauseToggle(on){on=on===undefined?!PAUSE.on:!!on;if(on===PAUSE.on)return;PAUSE.on=on;
  if(on){ui=true;for(const k in keys)keys[k]=0;pauseSync();pauseEl.style.display='flex';if(AU.ctx&&AU.ctx.state==='running')AU.ctx.suspend()}
  else{pauseEl.style.display='none';ui=false;if(AU.ctx&&!document.hidden)AU.ctx.resume().catch(()=>{})}}
-pauseEl.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(a==='resume')pauseToggle(false);else if(a==='hand'){setHandling(!handlingMode);pauseSync()}else if(a==='dmg'){if(typeof cycleDamageMode==='function')cycleDamageMode();pauseSync()}else if(a==='gear'){setGearbox(!PTS.man);pauseSync()}});
-pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}else if(d.s==='tr'){GQ.t=t.value;gqSave();trApply();toast('Traffic: '+GQ.t)}else if(d.s==='wx'){wxSet('mode',t.value);pauseSync()}else if(d.s==='clk'){wxSet('clock',t.value);pauseSync()}});
+pauseEl.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(a==='resume')pauseToggle(false);else if(a==='hand'){setHandling(!handlingMode);pauseSync()}else if(a==='dmg'){if(typeof cycleDamageMode==='function')cycleDamageMode();pauseSync()}else if(a==='gear'){setGearbox(!PTS.man);pauseSync()}else if(a==='abs'||a==='tc'||a==='esc'){ASSIST[a]=!ASSIST[a];assistSave();pauseSync()}
+ const si=e.target.dataset&&e.target.dataset.sch;if(si!==undefined){if(si==='quit'){schStop();pauseSync()}else{pauseToggle(false);schStart(+si)}}});
+pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}else if(d.s==='ts'){A11Y.ts=+t.value;a11ySave();a11yApply()}else if(d.c==='rm'){A11Y.rm=t.checked;a11ySave()}else if(d.s==='tr'){GQ.t=t.value;gqSave();trApply();toast('Traffic: '+GQ.t)}else if(d.s==='wx'){wxSet('mode',t.value);pauseSync()}else if(d.s==='clk'){wxSet('clock',t.value);pauseSync()}});
 pauseEl.addEventListener('keydown',e=>e.stopPropagation());
 // capture phase: decide BEFORE other Esc handlers close their own menus (Esc that closes a menu never also opens the pause menu)
 addEventListener('keydown',e=>{if(e.code!=='Escape'||e.repeat)return;if(PAUSE.on){e.preventDefault();e.stopImmediatePropagation();pauseToggle(false);return}
@@ -4035,11 +4147,13 @@ function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=
  hemi.intensity=.14+.5*Math.max(0,el);if(typeof wxTick==='function')wxTick(dt,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
  sigTick();
  traffic.forEach(c=>updTraffic(c,dt));
- const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);
+ const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);if(typeof schoolTick==='function')schoolTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
  if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
- else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}
- cam.fov=65+Math.min(20,sp*.12);cam.updateProjectionMatrix();
+ // v48: per-car views from the model's length / height (PORS): 1 cockpit (driver eye height ~0.8 of the roof), 2 bonnet, 3 front bumper
+ else{const pm=PORS[P.idx||0]||PORS[0],L=pm[3]||4.4,Hh=pm[5]||1.4,cf=camMode===1?.08*L:camMode===2?.2*L:.5*L+.25,cy=camMode===1?Math.max(1.05,.82*Hh+.08):camMode===2?Hh*.86+.12:.55;
+  cam.position.set(P.x+fx*cf,P.y+cy,P.z+fz*cf);cam.lookAt(P.x+fx*(cf+20),P.y+cy-.08,P.z+fz*(cf+20))}
+ cam.fov=65+(A11Y.rm?0:Math.min(20,sp*.12));cam.updateProjectionMatrix();
  head.position.set(P.x,P.y+1,P.z);head.target.position.set(P.x+fx*25,P.y,P.z+fz*25);head.intensity=night*3;
  driftEl.textContent=drift.pts>0?'DRIFT '+Math.round(drift.pts)+' ×'+(1+Math.min(4,drift.t/3)).toFixed(1)+(P.rm>1?' · '+RARN[P.rt]+' ×'+P.rm.toFixed(1):''):'';
  const dmgState=typeof currentDamageRecord==='function'?currentDamageRecord():null,dmgLine=ptHud()+(damageMode===2&&dmgState?'<small>Body '+Math.round(dmgState.body)+'% · Engine '+Math.round(dmgState.engine)+'% · Tyres '+Math.round(dmgState.tyres)+'%</small>':damageMode===1&&dmgState?'<small>Cosmetic condition '+Math.round(dmgState.body)+'%</small>':'');spdEl.innerHTML=Math.round(sp)+' <small>km/h · '+(inDrift(P.x,P.z)?'DRIFT ZONE · no limit':'limit '+curLim)+'</small>'+dmgLine;

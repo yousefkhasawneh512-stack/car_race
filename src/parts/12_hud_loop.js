@@ -26,11 +26,13 @@ function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=
  hemi.intensity=.14+.5*Math.max(0,el);if(typeof wxTick==='function')wxTick(dt,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
  sigTick();
  traffic.forEach(c=>updTraffic(c,dt));
- const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);
+ const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);if(typeof schoolTick==='function')schoolTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
  if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
- else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}
- cam.fov=65+Math.min(20,sp*.12);cam.updateProjectionMatrix();
+ // v48: per-car views from the model's length / height (PORS): 1 cockpit (driver eye height ~0.8 of the roof), 2 bonnet, 3 front bumper
+ else{const pm=PORS[P.idx||0]||PORS[0],L=pm[3]||4.4,Hh=pm[5]||1.4,cf=camMode===1?.08*L:camMode===2?.2*L:.5*L+.25,cy=camMode===1?Math.max(1.05,.82*Hh+.08):camMode===2?Hh*.86+.12:.55;
+  cam.position.set(P.x+fx*cf,P.y+cy,P.z+fz*cf);cam.lookAt(P.x+fx*(cf+20),P.y+cy-.08,P.z+fz*(cf+20))}
+ cam.fov=65+(A11Y.rm?0:Math.min(20,sp*.12));cam.updateProjectionMatrix();
  head.position.set(P.x,P.y+1,P.z);head.target.position.set(P.x+fx*25,P.y,P.z+fz*25);head.intensity=night*3;
  driftEl.textContent=drift.pts>0?'DRIFT '+Math.round(drift.pts)+' ×'+(1+Math.min(4,drift.t/3)).toFixed(1)+(P.rm>1?' · '+RARN[P.rt]+' ×'+P.rm.toFixed(1):''):'';
  const dmgState=typeof currentDamageRecord==='function'?currentDamageRecord():null,dmgLine=ptHud()+(damageMode===2&&dmgState?'<small>Body '+Math.round(dmgState.body)+'% · Engine '+Math.round(dmgState.engine)+'% · Tyres '+Math.round(dmgState.tyres)+'%</small>':damageMode===1&&dmgState?'<small>Cosmetic condition '+Math.round(dmgState.body)+'%</small>':'');spdEl.innerHTML=Math.round(sp)+' <small>km/h · '+(inDrift(P.x,P.z)?'DRIFT ZONE · no limit':'limit '+curLim)+'</small>'+dmgLine;

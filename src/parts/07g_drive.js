@@ -6,7 +6,7 @@
 // listed top speed and 0-100 time (ptCalib); redline, gear count, ratios, tyre mu and spring frequency come from the body type. No manufacturer
 // torque curve, gear ratio or spring rate is claimed. The calibration error per car is in CAR_ASSETS_AND_SPECS.md (tests/handling_test.js).
 const HSTORE='irbid-drive-handling-v1';let handlingMode=0;try{handlingMode=localStorage.getItem(HSTORE)==='1'?1:0}catch(e){}
-const INP={th:0,br:0},PT_CACHE=new Map(),PTS={yr:0,dl:0,h0:0,gear:1,rpm:850,shift:0,spin:0,lim:0,hz:0,hv:0,pz:0,pv:0,rz:0,rv:0,idx:-1,man:0,req:0,deny:0};
+const INP={th:0,br:0},PT_CACHE=new Map(),PTS={yr:0,dl:0,h0:0,gear:1,rpm:850,shift:0,spin:0,lim:0,hz:0,hv:0,pz:0,pv:0,rz:0,rv:0,idx:-1,man:0,req:0,deny:0,flock:0,absA:0,tcA:0,escA:0};
 const PT_CD={r:.4,m:.33,q:.33,c:.31,o:.36,s:.38,p:.45,h:.32,v:.42},PT_RED={r:9000,m:8500,q:8500,c:7200,o:7000,s:6200,p:6000,h:6500,v:5500},PT_MU={r:1.3,m:1.15,q:1.15,c:1.05,o:1,s:.95,p:.9,h:.95,v:.85},PT_FN={r:2.8,m:2.1,q:2.1,c:1.8,o:1.6,s:1.3,p:1.25,h:1.5,v:1.2};
 // generic engine torque shape vs x = rpm/redline (petrol NA/turbo blend), EV: constant torque, then constant power
 const ptCurve=(x,ev)=>ev?(x<.35?1:.35/x):x<.12?.5:x<.6?.55+.45*Math.sin((x-.12)/.48*Math.PI/2):x<.85?1:Math.max(.6,1-(x-.85)*1.3);
@@ -32,7 +32,14 @@ function ptCalib(s){const x=.97/1.02,pw=T=>T*ptCurve(x,s.ev)*s.red*x*2*Math.PI/6
  // traction-limited cars cannot beat a grip-defined best time: aim for max(listed, best*1.03) with the SMALLEST torque (no wheelspin in every gear)
  const tgt=Math.max(s.t100,ptRun(s,4000,cda(4000))*1.03);let lo=2,hi=4000;for(let it=0;it<28;it++){const T=(lo+hi)/2;if(ptRun(s,T,cda(T))>tgt)lo=T;else hi=T}s.T=hi;s.CdA=cda(hi);if(s.CdA>s.cdaMax*1.15){s.CdA=s.cdaMax;s.gov=s.vmax}s.err=ptRun(s,s.T,s.CdA)-s.t100}   // drag above a plausible Cd*area => the listed top speed is a limiter (governor), not drag
 // longitudinal acceleration for this frame (throttle, gearbox, traction limit, drag, rolling, engine braking). Called by updP only in Realistic mode
-function ptAccel(dt,thA,fs,sfc,dfx){const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv=Math.max(.3,(P.vm/(m[1]/3.6*.98))*dfx.maxSpeed),ka=(P.a0/Math.min(11,27.8/m[2]*1.1))*dfx.accel,v=Math.max(0,fs);
+// ---- v48: driver assists (Realistic only; Arcade never reads them). ABS on = the v47 braking exactly; ABS off = a brake demand above the tyre limit
+// locks the wheels (sliding friction ~0.8 of peak, front tyres lose most of their side grip). TC on caps drive force under the grip limit (no
+// wheelspin build-up). ESC on pulls the yaw rate back toward the steering's kinematic rate when the car rotates faster than steered and cuts
+// throttle while it acts. Defaults ABS on, TC off, ESC off = v47 handling (tests: assist_v48).
+const ASSTORE='irbid-drive-assist-v1',ASSIST={abs:true,tc:false,esc:false};
+try{const o=JSON.parse(localStorage.getItem(ASSTORE)||'{}');for(const k of['abs','tc','esc'])if(typeof o[k]==='boolean')ASSIST[k]=o[k]}catch(e){}
+function assistSave(){try{localStorage.setItem(ASSTORE,JSON.stringify(ASSIST))}catch(e){}}
+function ptAccel(dt,thA,fs,sfc,dfx){if(PTS.escA)thA*=.3;const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv=Math.max(.3,(P.vm/(m[1]/3.6*.98))*dfx.maxSpeed),ka=(P.a0/Math.min(11,27.8/m[2]*1.1))*dfx.accel,v=Math.max(0,fs);
  if(PTS.idx!==s.i){PTS.idx=s.i;PTS.gear=1;PTS.shift=0;PTS.spin=0}
  const red=s.red,idl=s.idle;let g=PTS.gear,rpm=ptGear(s,v,g)/kv;
  if(PTS.shift>0)PTS.shift-=dt;
@@ -43,6 +50,7 @@ function ptAccel(dt,thA,fs,sfc,dfx){const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv
  if(PTS.shift<=0&&thA>0&&!gov&&!(PTS.man&&rpm>=red)){const r=Math.min(Math.max(eng,v<6&&g===1&&!s.ev?red*.45*thA:0),red);F=s.T*ka*thA*ptCurve(r/red,s.ev)*s.ratio[g-1]/s.rw*s.eff}
  else if(thA<=0&&PTS.shift<=0&&!s.ev&&v>1)F=-s.T*.12*(eng/red)*s.ratio[g-1]/s.rw;           // engine braking (EV regen not modelled)
  const al=cl(P.al||0,-12,12),lim=s.mu*sfc*9.81*ptShare(s,Math.max(0,al))*s.m;PTS.lim=lim;
+ PTS.tcA=0;if(ASSIST.tc&&F>lim*.97){F=lim*.97;PTS.tcA=1}
  if(F>lim){PTS.spin=Math.min(1,PTS.spin+dt*4*(F/lim-1)+dt);F=lim*.9}else PTS.spin=Math.max(0,PTS.spin-dt*3);
  PTS.rpm=PTS.spin>.2?Math.min(red,Math.max(eng,red*(.55+.4*PTS.spin))):Math.min(eng,red);
  return(F-.5*1.2*s.CdA/(kv*kv*kv)*v*v*Math.sign(fs)-s.crr*s.m*9.81*Math.sign(fs)*(Math.abs(fs)>.3?1:0))/s.m}
@@ -70,7 +78,7 @@ function ptDyn(dt,st,an,hb,u,v,sfc,ax,frozen,dfx){const s=ptGeom(ptSpec(P.idx||0
  if(!P.gnd){P.h+=PTS.yr*dt;PTS.yr*=1-.8*dt;return[u,v]}
  const g=9.81*m,dT=m*cl(ax,-12,12)*s.hcg/s.wb,dn=.6*s.cl*u*u,Ff=Math.max(.15*g,g*s.fw-dT+dn*.45),Fr=Math.max(.15*g,g*(1-s.fw)+dT+dn*.55);
  const Fx=m*Math.min(12,Math.abs(ax)),sh=ax>.3?(s.drive==='FWD'?1:s.drive==='AWD'?.4:0):ax<-.3?.65:.5,ci=(c,f)=>Math.max(.3*c,Math.sqrt(Math.max(0,c*c-f*f)));
- let cF=ci(mu*Ff,Fx*sh),cR=ci(mu*Fr,Fx*(1-sh));const sp=PTS.spin;if(sp>0){if(s.drive==='FWD')cF*=1-.6*sp;else cR*=1-(s.drive==='RWD'?.65:.3)*sp}
+ let cF=ci(mu*Ff,Fx*sh),cR=ci(mu*Fr,Fx*(1-sh));const sp=PTS.spin;if(PTS.flock)cF*=.15;if(sp>0){if(s.drive==='FWD')cF*=1-.6*sp;else cR*=1-(s.drive==='RWD'?.65:.3)*sp}
  const n=Math.min(12,Math.ceil(dt*240)),h=dt/n,kin=cl((u-2)/4,0,1);let r=PTS.yr,af=0,ar=0,lk=0;
  for(let i=0;i<n;i++){let fyf=0,fyr=0,fxr=0;
   if(kin>0){const au=Math.max(Math.abs(u),.5),vr=v+b*r;af=Math.atan2(v-a*r,au)+d;ar=Math.atan2(vr,au);fyf=-cF*Math.sin(C*Math.atan(s.B*af));
@@ -78,7 +86,8 @@ function ptDyn(dt,st,an,hb,u,v,sfc,ax,frozen,dfx){const s=ptGeom(ptSpec(P.idx||0
   const rd=r+(-a*fyf*cd+b*fyr)/s.Iz*h,rk=u*Math.tan(d)/s.wb;r=kin*rd+(1-kin)*rk;
   v=kin*(v+((fyf*cd+fyr)/m+u*r)*h)+(1-kin)*v*Math.exp(-8*h);
   u+=kin*((fxr-Math.abs(fyf*sd)*Math.sign(u))/m-v*r)*h;if(hb&&kin<1)u*=Math.exp(-2.5*(1-kin)*h);P.h+=r*h}
- PTS.yr=r;TSLIP.af=kin*Math.abs(af)/s.pk;TSLIP.ar=kin*Math.abs(ar)/s.pk;TSLIP.f=kin*cl(Math.abs(af)/s.pk-1,0,3);TSLIP.r=kin*Math.max(cl(Math.abs(ar)/s.pk-1,0,3),lk*cl((Math.hypot(u,v)-3)/6,0,2));TSLIP.lock=lk;return[u,v]}
+ PTS.escA=0;if(ASSIST.esc&&kin>.5&&u>6&&!hb){const rk=u*Math.tan(d)/s.wb;if(Math.abs(r-rk)>.12){r+=(rk-r)*Math.min(1,6*dt);PTS.escA=1}}
+ PTS.yr=r;TSLIP.af=kin*Math.abs(af)/s.pk;TSLIP.ar=kin*Math.abs(ar)/s.pk;TSLIP.f=kin*cl(Math.abs(af)/s.pk-1,0,3);TSLIP.r=kin*Math.max(cl(Math.abs(ar)/s.pk-1,0,3),lk*cl((Math.hypot(u,v)-3)/6,0,2));TSLIP.lock=Math.max(lk,PTS.flock?1:0);return[u,v]}
 // v45: frame-rate independence for Realistic mode. A long frame (low fps, the loop clamps dt at 50 ms) is split into equal physics steps of at
 // most 1/60 s, so grip limits, steering ramp and engine force are re-evaluated as often as at 60 fps (a 20 fps frame used to turn a recoverable
 // countersteer into a spin). Arcade keeps ONE call per frame (v38-identical, off_trace).
@@ -86,6 +95,6 @@ function updPStep(dt,frozen){if(!handlingMode||dt<=1/60+1e-6)return updP(dt,froz
 // slip state for smoke / squeal in BOTH modes (Arcade has no tyre model: the body slip angle stands in). Rendering + audio only, never physics.
 function slipTick(fs,ls,frozen,bo){const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),sp=Math.hypot(fs,ls);TSLIP.sa=sa;TSLIP.spin=bo?1:handlingMode?PTS.spin:0;
  if(!handlingMode){TSLIP.r=P.gnd&&!frozen&&sp>5?cl((sa-.12)/.15,0,3):0;TSLIP.f=TSLIP.r*.3;TSLIP.lock=0}}
-function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+'</small>'}
+function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+(PTS.flock?' · <b style="color:#ff8a7a">LOCKED</b>':'')+(PTS.absA?' · ABS':'')+(PTS.tcA?' · TC':'')+(PTS.escA?' · ESC':'')+'</small>'}
 function setHandling(mo){handlingMode=mo?1:0;try{localStorage.setItem(HSTORE,String(handlingMode))}catch(e){}PTS.idx=-1;PTS.yr=PTS.dl=0;PTS.hz=PTS.hv=PTS.pz=PTS.pv=PTS.rz=PTS.rv=0;toast(handlingMode?'Handling: Realistic (engine, gears, traction, suspension; estimates)':'Handling: Arcade')}
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')&&!ui){e.preventDefault();setHandling(!handlingMode)}});

@@ -32,7 +32,7 @@ function gfxRender(){
  if(!POST.on){ren.render(scene,cam);return}
  const now=performance.now(),dtm=(now-POST.t0)/1000;POST.t0=now;
  pv.set(P.x,P.y+.9,P.z).project(cam);GRADE.uniforms.uCar.value.set(pv.x*.5+.5,pv.y*.5+.5);
- GRADE.uniforms.uAsp.value=DISP.w/DISP.h;GRADE.uniforms.uBlur.value=fxK<.02?0:fxK;GRADE.uniforms.uTime.value=clock%100;
+ GRADE.uniforms.uAsp.value=DISP.w/DISP.h;GRADE.uniforms.uBlur.value=fxK<.02||A11Y.rm?0:fxK;GRADE.uniforms.uTime.value=clock%100;
  GRADE.uniforms.uNight.value=1-SKYU.uDay.value;
  if(POST.hdr){winMat.emissive.multiplyScalar(1.45);glassMat.emissive.copy(winMat.emissive);if(facMat)FACU.uFacNight.value*=1.45}
  try{POST.comp.render()}catch(e){POST.err=String(e);postLegacy();ren.render(scene,cam);return}
