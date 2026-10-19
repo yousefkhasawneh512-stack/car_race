@@ -167,6 +167,11 @@ gating the estimated speed bumps, any pause/start/audio features, and the refact
   wrapper in `app/` (offline build; no native plugins). Asset manifests describe the generated assets; the single-file rule is kept (no
   binary assets exist yet). NOT done, owner decisions: licensed car models / recorded engines (accounts, licences, trademarks), app builds
   (Android SDK licence, Mac), store accounts.
+- v48 (owner brief "THE COMPLETE MASTER DEVELOPMENT PROMPT", 2026-10-20: driving school "using the actual driving system", ABS / traction /
+  stability assistance, "cockpit, bonnet, bumper and chase cameras", vehicle-specific camera positions, text size, reduced motion): C now cycles
+  4 views (the cockpit view is lower and per car); assists are Realistic-only with defaults ABS on / TC off / ESC off = v47 handling
+  (`assist_v48` trace identical to v47); ABS off adds wheel lock. Reduced motion defaults to the OS setting. Multiplayer, in-game content updates,
+  admin publishing, public hosting: BLOCKED (infrastructure, accounts, costs; `docs/MULTIPLAYER_PLAN.md`). Genuine ray tracing: not feasible in WebGL.
 
 # Phase 1 – Baseline and Documentation
 

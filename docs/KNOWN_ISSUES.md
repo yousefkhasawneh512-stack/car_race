@@ -26,3 +26,12 @@
 - The attribution line overlaps the GAS pad on narrow phones.
 - Headless Chromium (SwiftShader) loses and restores the WebGL context once at startup; the game recovers. Not seen on a real GPU yet.
 - `npm audit` in `app/`: 3 moderate issues in the build-time Capacitor CLI (`uuid` via `xcode`); not shipped in the app.
+
+## Added in v48
+
+- The cockpit view has no dashboard or interior (the procedural cars have none); you see the bonnet from the driver's eye height.
+- Driving-school lessons pick the nearest suitable street to the start; the streets found today are unnamed 40 km/h streets 80 m to 1.6 km away.
+  The traffic-light lesson's light follows the normal 60 s cycle, so you may arrive on green. Pedestrians (none exist) and give-way at unsignalled
+  junctions are not part of the lessons.
+- Driver assists apply only in Realistic handling (Arcade has no tyre model to assist).
+- Multiplayer, in-game content updates, admin publishing and public hosting are blocked on infrastructure (`docs/MULTIPLAYER_PLAN.md`).

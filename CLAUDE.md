@@ -8,6 +8,8 @@ a car-unlock wheel), and play races, duels, a bank heist, a landmark tour and na
 **The current game is the reference implementation:** don't redesign gameplay.
 
 Companion files (read before non-trivial work):
+- `docs/FEATURES_100.md` (v48: status of the brief's 100 features, checked against the code) and `docs/MULTIPLAYER_PLAN.md` (multiplayer, content
+  updates, public release, ray tracing: what is blocked and why).
 - `docs/` (v47): `PROJECT_AUDIT.md` (dependency map, findings), `DEVELOPMENT_PLAN.md` (workflow, status per brief phase, next steps), `TEST_REPORT.md`,
   `PERFORMANCE_REPORT.md`, `ASSET_SOURCES_AND_LICENSES.md` (licence research; rules for adding assets), `KNOWN_ISSUES.md`, `PLATFORM_SUPPORT.md` (browsers, Capacitor apps).
 - `V46_REPORT.md` (v46: manual gearbox + paddles, horn, auto-drive, road reputation / rival memory, simulated weather + Irbid local clock,
@@ -65,6 +67,7 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   Offline copy: `python tools/make_offline.py` -> `dist/irbid-drive-offline.html` (three r128 inlined, git-ignored).
   v47: **`python tools/check.py`** (quick: parts exist + parse, build, head-script guard, hosts, attribution, JSON, asset manifests, core Node checks;
   `--full` adds every Node and Playwright check incl. `xbrowser_pw`; report `.check/report.md`; on success copies the build to `dist/last-good/`).
+  v48: `assist_v48` (Node, repo root, 19) and `v48_pw.py` (12, screenshots `docs/screenshots/v48/`, honours `SP`); both are in `check.py`.
   `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),
   `xbrowser_pw.py` (Chromium/Firefox/WebKit + iPhone/iPad/Pixel emulation; needs `python -m playwright install firefox webkit`; one browser per case,
   WebKit lost its software-GL context on the 4th page of one process), `perf_v47_pw.py` (preset render cost, traffic cost). Assets:
@@ -113,7 +116,7 @@ Current order and roles:
 | World math | `03_world_data`, `04_graph`, `04b_streets`, `04c_budget` | `LL2XZ` projection, `TH()` terrain; graph `EDGES/NODES/HASH`, `roadAt`/`roadNear`/`route`; legacy street-role mapping; detail budget / zones |
 | World build (flat frame) | `05a_roads`, `05b_decor`, `06a`…`06l` | road ribbons, colliders `COL`/`addCol`/`colB`, buildings (`placeReal`), landmarks, campuses, infra, vegetation, `PLACES` registry |
 | Entities | `07a0`, `07a_cars`, `07a2_traffic`, `07a4_carvis`, `07a3_showcars`, `07p_player`, `07b_tune`, `07c_realism`, `07d_tyres`, `07e_objects`, `07f_diag`, `07g_drive`, `07h_dmgparts` | `PORS` (217 models), rarity, player `P`, save/tune/`applyTune`, damage (`carSpec`, impacts, dents), per-wheel tyres + burnouts, world-object classes, diagnostics panel |
-| Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav`, `11c_assist` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav, manual gearbox / horn / auto-drive / road reputation + rival memory |
+| Rules / UI | `08a_wheel`, `08b_heist`, `08c_shop`, `08d_repair`, `09_ai`, `10_laws_player`, `10b_ios_touch`, `10c_wheel`, `11_race`, `11b_nav`, `11c_assist`, `11d_school` | economy, heist/cops, traffic/bot agents, **`updP` physics** + fines + keyboard, touch pads, G29 wheel, races, search/nav, manual gearbox / horn / auto-drive / road reputation + rival memory, driving school |
 | Frame | `12a_fx`, `12d_audio`, `12b_post`, `12c_terrain`, `12e_pause`, `12f_weather`, `12g_platform`, `12_hud_loop` | effects, Web Audio (engine/tyres/world, synthesised), HDR bloom/grade chain, the terrain pass, pause/settings/quality presets/traffic density/frame meter, simulated weather + Irbid local clock, WebGL context loss + device report + loading-screen removal, minimap/HUD/camera and the **main loop** |
 
 Order facts that have broken things before: `06h2_final_patch` runs before `06h_gen`, and `06d_fabric_driver` runs after it.
@@ -230,6 +233,11 @@ Traffic AI measures junction distance with `pathProg()` (09_ai). `tools/gen_sign
 
 - **Head scripts (v47):** ~45 Node tests/tools extract the game with `/<script>\n([\s\S]*?)<\/script>/` (first match). Any other inline script must
   NOT start with `<script>` + newline (the v47 error-banner script starts `<script>(function`). `tools/check.py` fails if this breaks.
+- **v48:** `ASSIST` (07g, `irbid-drive-assist-v1`): ABS / TC / ESC, Realistic only. Defaults reproduce v47 exactly (`assist_v48` compares a Realistic
+  trajectory hash against `git show backup/v47:dist/irbid-drive.html`). Driving school `11d_school.js` (`irbid-drive-school-v1`, `schoolTick`
+  after `assistTick`); `A11Y` (12e, `irbid-drive-a11y-v1`) is read by the loop (FOV) and 12b (blur) at run time only. `camMode` 0-3 (1 = cockpit,
+  which the audio low-pass keys on). **Top-level names are shared by ALL parts:** `ASTORE` was already taken by 12d (audio); `check.py`
+  parses the whole script to catch this.
 - **v47 settings:** `irbid-drive-gfx-v1` gains `t` (traffic density high/medium/low). Low quality = 1280x720 buffer, Ultra = 2560x1440 (the composer is
   resized too); defaults (Auto, High traffic) = v46. Parked traffic cars have `c.park`, sit at 2e5 and are skipped by the `updTraffic` wrapper.
 - **Inline comments in dense one-liners:** a `//` comment added mid-line comments out the REST of that line (v46 lost `const toastEl` this way;

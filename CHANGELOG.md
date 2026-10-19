@@ -368,3 +368,22 @@ options only: with the defaults (Auto quality, High traffic) the game plays exac
   `KNOWN_ISSUES.md`, `PLATFORM_SUPPORT.md`, `CHANGELOG.md` (a pointer here).
 - **Tests:** `v47_pw.py` (15: presets, traffic, pause rows, context loss/restore with a pixel check, error banner, no-WebGL), `xbrowser_pw.py`
   (Chromium, Firefox, WebKit desktop; WebKit iPhone landscape, portrait and iPad; Chromium Pixel 7), `perf_v47_pw.py` (preset and traffic cost).
+
+## v48
+
+Owner brief 2026-10-20 ("THE COMPLETE MASTER DEVELOPMENT PROMPT", Parts 1-19 and 100 features). Checklist: `docs/FEATURES_100.md`.
+Blocked parts: `docs/MULTIPLAYER_PLAN.md`.
+- **Driving school (`11d_school.js`, new):** 5 lessons (start and stop, emergency stop, speed limit, traffic light, reverse parking) on real
+  OSM streets found near the start (`schFind`: straight, two-way, 6+ m wide, 30-70 km/h; the light lesson ends at a signalised junction).
+  The player drives with the normal controller; instructor panel, penalties (speed, lane side, hits via the fine wrapper, red light via
+  `last.red`), score 0-100, result card (Retry / Next / Close), best scores in `irbid-drive-school-v1`. Markers are added after the terrain pass.
+- **Driver assists (Realistic, `07g` + the `updP` brake line):** ABS (default on = v47 braking; off: demand above 0.92·mu·g locks the wheels,
+  0.8·mu·g sliding, front side grip ×0.15), traction control (caps drive force at 0.97 of the limit), stability control (yaw rate pulled toward
+  the kinematic rate, throttle ×0.3 while active). `irbid-drive-assist-v1`. The HUD shows LOCKED / ABS / TC / ESC when active.
+- **Cameras:** C cycles chase / cockpit / bonnet / bumper; positions come from the car's length and height (the cockpit view was a fixed 1.5 m).
+- **Accessibility (`12e`):** text size 90-140 % (CSS zoom on the HUD and menus), reduced motion (no speed FOV zoom, no post motion blur;
+  defaults to `prefers-reduced-motion`). `irbid-drive-a11y-v1`.
+- **Bug caught before release:** `ASTORE` (assists) clashed with the audio part's `ASTORE`; the whole game would not have started. Renamed
+  `ASSTORE`; `tools/check.py` now parses the WHOLE game script too (per-part checks cannot see cross-part duplicates).
+- **Tests:** `assist_v48` (19: the defaults' Realistic trace equals v47's, ABS lock and steering, TC spin, ESC slip, Arcade unaffected, 5 lessons
+  pass and fail by the rules, saving), `v48_pw` (12: cameras, menu rows, a lesson started by a real click, result card, retry, text size, reduced motion).
