@@ -1724,14 +1724,18 @@ function addSign(x,z,dx,dz,ph,w,h,key,big){const sk='sign:'+SGS.length;SGS.push(
  drawBig('STOP',(g,cx,cy)=>{g.fillStyle='#d41f1f';g.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;g.lineTo(cx+Math.cos(a)*62,cy+Math.sin(a)*62)}g.closePath();g.fill();g.strokeStyle='#fff';g.lineWidth=5;g.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;g.lineTo(cx+Math.cos(a)*54,cy+Math.sin(a)*54)}g.closePath();g.stroke();g.fillStyle='#fff';g.font='bold 40px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('STOP',cx,cy+3)});
  // merged plates (one mesh per 600 m cell), uv rectangles into the atlas
  const cells=new Map();
- SGS.forEach(s=>{const k=Math.floor(s[0]/300)+','+Math.floor(s[2]/300);let C=cells.get(k);if(!C)cells.set(k,C={p:[],uv:[],n:[],i:[],cx:(Math.floor(s[0]/300)+.5)*300,cz:(Math.floor(s[2]/300)+.5)*300});
+ SGS.forEach(s=>{const k=Math.floor(s[0]/300)+','+Math.floor(s[2]/300);let C=cells.get(k);if(!C)cells.set(k,C={p:[],uv:[],n:[],i:[],ib:[],cx:(Math.floor(s[0]/300)+.5)*300,cz:(Math.floor(s[2]/300)+.5)*300});
   const r=s[7]?sgRect(bigCell[s[6]],1):sgRect(SGA.cells.get(s[6].slice(1)),0),u0=r[0]/2048,u1=(r[0]+r[2])/2048,v1=1-r[1]/1024,v0=1-(r[1]+r[3])/1024,hx=s[4]/2,sx=Math.cos(s[3]),sz=-Math.sin(s[3]),n=C.p.length/3;SIGN_PLATES.set(s[8],{C,n});
   // plate faces direction (sin ry, cos ry); its local x axis is (cos ry, -sin ry)
-  for(const[a,b,uu,vv]of[[-1,0,u0,v0],[1,0,u1,v0],[-1,1,u0,v1],[1,1,u1,v1]]){C.p.push(s[0]+sx*hx*a,s[1]+s[5]*b,s[2]+sz*hx*a);C.uv.push(uu,vv);C.n.push(Math.sin(s[3]),0,Math.cos(s[3]))}
-  C.i.push(n,n+1,n+2,n+1,n+3,n+2)});
+  // v45: 4 front + 4 back vertices; the back is plain metal (same outline), so a sign seen from behind no longer shows mirrored text
+  const nx=Math.sin(s[3]),nz=Math.cos(s[3]);for(const bk of[0,1])for(const[a,b,uu,vv]of[[-1,0,u0,v0],[1,0,u1,v0],[-1,1,u0,v1],[1,1,u1,v1]]){C.p.push(s[0]+sx*hx*a-(bk?nx*.012:0),s[1]+s[5]*b,s[2]+sz*hx*a-(bk?nz*.012:0));C.uv.push(uu,vv);C.n.push(bk?-nx:nx,0,bk?-nz:nz)}
+  C.i.push(n,n+1,n+2,n+1,n+3,n+2);C.ib.push(n+4,n+6,n+5,n+5,n+6,n+7)});
  const tex=new T.CanvasTexture(SGA.cv);tex.anisotropy=4;tex.minFilter=T.LinearMipmapLinearFilter;
- const sm=new T.MeshLambertMaterial({map:tex,alphaTest:.5,side:T.DoubleSide});
- cells.forEach(C=>{const g2=new T.BufferGeometry();g2.setAttribute('position',new T.Float32BufferAttribute(C.p,3));g2.setAttribute('uv',new T.Float32BufferAttribute(C.uv,2));g2.setAttribute('normal',new T.Float32BufferAttribute(C.n,3));g2.setIndex(C.i);const m=new T.Mesh(g2,sm);C.mesh=m;scene.add(m);lodReg(m,C.cx,C.cz,260,300)});
+ const sm=new T.MeshLambertMaterial({map:tex,alphaTest:.5}),smB=new T.MeshLambertMaterial({color:0x8d939a,map:tex,alphaTest:.5});
+ smB.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
+ diffuseColor.a*=texture2D(map,vUv).a;
+#endif`)};
+ cells.forEach(C=>{const g2=new T.BufferGeometry();g2.setAttribute('position',new T.Float32BufferAttribute(C.p,3));g2.setAttribute('uv',new T.Float32BufferAttribute(C.uv,2));g2.setAttribute('normal',new T.Float32BufferAttribute(C.n,3));g2.setIndex(C.i.concat(C.ib));g2.addGroup(0,C.i.length,0);g2.addGroup(C.i.length,C.ib.length,1);const m=new T.Mesh(g2,[sm,smB]);C.mesh=m;scene.add(m);lodReg(m,C.cx,C.cz,260,300)});
  instO(UB,gfxStd({color:0xb4bac1,roughness:.42,metalness:.6,envMapIntensity:.9},'none')||UBm(0x7c838a),signPole,false,230,200)}
 // ===== highway guardrails (W-beam rail + posts, stopped near every junction and wherever another road crosses) =====
 {const rails=[],posts=[];
@@ -2526,10 +2530,10 @@ function leanObstacle(o,ang,dx,dz){
  const e=DESTRUCTIBLE_INSTANCES.get(o.visualKey);if(!e)return;const by=instBase(e),l=Math.hypot(dx,dz)||1;_V.set(dz/l,0,-dx/l);_Q.setFromAxisAngle(_V,ang);
  for(const k of[''].concat(ATTACHED[o.type]||[])){const q=DESTRUCTIBLE_INSTANCES.get(o.visualKey+k);if(!q||q.broken&&k)continue;const orig=keepOrig(q),mp=q.mesh.position;
   _M2.makeTranslation(o.x-mp.x,by-mp.y,o.z-mp.z);_M3.makeRotationFromQuaternion(_Q);_M2.multiply(_M3);_M3.makeTranslation(-(o.x-mp.x),-(by-mp.y),-(o.z-mp.z));_M2.multiply(_M3);_M2.multiply(orig);q.mesh.setMatrixAt(q.index,_M2);q.mesh.instanceMatrix.needsUpdate=true}
- const sp=SIGN_PLATES.get(o.visualKey);if(sp&&sp.C.mesh){const a=sp.C.mesh.geometry.attributes.position;if(!sp.orig)sp.orig=Float32Array.from(a.array.subarray(sp.n*3,sp.n*3+12));
+ const sp=SIGN_PLATES.get(o.visualKey);if(sp&&sp.C.mesh){const a=sp.C.mesh.geometry.attributes.position;if(!sp.orig)sp.orig=Float32Array.from(a.array.subarray(sp.n*3,sp.n*3+24));
   _M2.makeTranslation(o.x,by,o.z);_M3.makeRotationFromQuaternion(_Q);_M2.multiply(_M3);_M3.makeTranslation(-o.x,-by,-o.z);_M2.multiply(_M3);
-  for(let k=0;k<4;k++){_V.fromArray(sp.orig,k*3).applyMatrix4(_M2);a.array[sp.n*3+k*3]=_V.x;a.array[sp.n*3+k*3+1]=_V.y;a.array[sp.n*3+k*3+2]=_V.z}a.needsUpdate=true}}
-function hideSignPlate(key){const sp=SIGN_PLATES.get(key);if(!sp||!sp.C.mesh)return;const a=sp.C.mesh.geometry.attributes.position,i=sp.n*3;for(let k=1;k<4;k++){a.array[i+k*3]=a.array[i];a.array[i+k*3+1]=a.array[i+1];a.array[i+k*3+2]=a.array[i+2]}a.needsUpdate=true}
+  for(let k=0;k<8;k++){_V.fromArray(sp.orig,k*3).applyMatrix4(_M2);a.array[sp.n*3+k*3]=_V.x;a.array[sp.n*3+k*3+1]=_V.y;a.array[sp.n*3+k*3+2]=_V.z}a.needsUpdate=true}}
+function hideSignPlate(key){const sp=SIGN_PLATES.get(key);if(!sp||!sp.C.mesh)return;const a=sp.C.mesh.geometry.attributes.position,i=sp.n*3;for(let k=1;k<8;k++){a.array[i+k*3]=a.array[i];a.array[i+k*3+1]=a.array[i+1];a.array[i+k*3+2]=a.array[i+2]}a.needsUpdate=true}
 // breakObstacle(collider, normal speed m/s, car mass kg = 1,500): true when the impact energy reaches the object's break energy
 function breakObstacle(obstacle,incoming,mass){
  if(!obstacle||!obstacle.breakable||obstacle.broken)return false;const c=objClass(obstacle),ms=mass||1500;
@@ -3613,7 +3617,7 @@ function audInit(){if(AU.ctx||!AU.ok)return;try{const C=window.AudioContext||win
  {const e={lay:'I',cyl:4,asp:'n',seed:12345},c=engCycle(e,64);n.oTr.setPeriodicWave(ctx.createPeriodicWave(c.re,c.im))}
  n.buf=audBufs(ctx);AU.state=ctx.state;AU.cur=-1;audApply();
  ctx.onstatechange=()=>{AU.state=ctx.state;audHintUpd()}}catch(e){AU.ok=false;AU.err=String(e);AU.ctx=null}audHintUpd()}
-function audHintUpd(){const run=AU.ctx&&AU.ctx.state==='running';audHint.style.display=run&&!AUD.mute?'none':'';if(!AU.ok)audHint.textContent='🔇 Sound unavailable in this browser'+(AU.err?' ('+AU.err.slice(0,60)+')':'');else if(AUD.mute)audHint.textContent='🔇 Muted (L)';else if(!run)audHint.textContent='🔇 Click or press any key to turn on sound (L = mute)';if(AUD.mute&&run){audHint.style.display='';clearTimeout(AU.hT);AU.hT=setTimeout(()=>{if(AUD.mute)audHint.style.display='none'},2500)}}
+function audHintUpd(){if(typeof PAUSE!=='undefined'&&PAUSE.on){audHint.style.display='none';return}const run=AU.ctx&&AU.ctx.state==='running';audHint.style.display=run&&!AUD.mute?'none':'';if(!AU.ok)audHint.textContent='🔇 Sound unavailable in this browser'+(AU.err?' ('+AU.err.slice(0,60)+')':'');else if(AUD.mute)audHint.textContent='🔇 Muted (L)';else if(!run)audHint.textContent='🔇 Click or press any key to turn on sound (L = mute)';if(AUD.mute&&run){audHint.style.display='';clearTimeout(AU.hT);AU.hT=setTimeout(()=>{if(AUD.mute)audHint.style.display='none'},2500)}}
 function audUnlock(){if(!AU.ok)return;if(!AU.ctx)audInit();if(AU.ctx&&AU.ctx.state!=='running'&&!(typeof PAUSE!=='undefined'&&PAUSE.on))AU.ctx.resume().then(audHintUpd,e=>{AU.err=String(e);audHintUpd()})}
 ['pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,audUnlock,{capture:true,passive:true}));
 function audApply(){if(!AU.ctx)return;const n=AU.n,t=AU.ctx.currentTime;n.master.gain.setTargetAtTime(AUD.mute?0:AUD.master*.8,t,.05);n.eng.gain.setTargetAtTime(AUD.engine,t,.05);n.fx.gain.setTargetAtTime(AUD.fx,t,.05);n.amb.gain.setTargetAtTime(AUD.amb,t,.05)}
@@ -3737,6 +3741,62 @@ function applyTerrain(){
    const A=pa.array;for(let i=0;i<pa.count;i++){const o=i*3;A[o+1]+=TH(A[o],A[o+2])}pa.needsUpdate=true;g.computeBoundingBox();g.computeBoundingSphere();TERRSTAT.vtx+=pa.count;continue}
   c.position.y+=TH(c.position.x,c.position.z);if(!c.matrixAutoUpdate)c.updateMatrix();TERRSTAT.obj++}
  TERRSTAT.ms=Math.round(performance.now()-t0);console.log('terrain pass: instances',TERRSTAT.inst,'skirted',TERRSTAT.skirt,'merged vertices',TERRSTAT.vtx,'objects',TERRSTAT.obj,'skipped',TERRSTAT.skipped,TERRSTAT.ms+' ms, max lift '+Math.round(TERRSTAT.maxLift)+' m')}
+// ---- v45: pause + settings menu (Esc, or the wheel's Back button), graphics quality presets, frame-time meter ----
+// Pause stops the whole simulation (traffic, physics, races, heist timers, damage) and suspends audio; the main loop keeps only its rAF alive.
+// Quality: Auto = the v40 behaviour (High, drops bloom then post-processing if frames stay slow); High = never drops; Medium = no bloom,
+// 2048 shadow map; Low = no post chain (CSS grade), 1024 shadow map, shorter detail range. Stored under its own key; nothing else changes.
+const PSTORE='irbid-drive-gfx-v1',PAUSE={on:false},GQ={q:'auto',fps:false,base:null};
+try{const o=JSON.parse(localStorage.getItem(PSTORE)||'{}');if(['auto','high','medium','low'].includes(o.q))GQ.q=o.q;GQ.fps=o.fps===true}catch(e){}
+function gqSave(){try{localStorage.setItem(PSTORE,JSON.stringify({q:GQ.q,fps:GQ.fps}))}catch(e){}}
+function gqShadow(n){try{const ms=Math.min(n,ren.capabilities.maxTextureSize||2048);if(sun.shadow.mapSize.x===ms)return;sun.shadow.mapSize.set(ms,ms);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}catch(e){}}
+function gqApply(){if(!GQ.base)GQ.base={sh:sun.shadow.mapSize.x,post:POST.on,lod:LODL.map(o=>o.r2)};const q=GQ.q,b=GQ.base;
+ window.__NOAQ=q!=='auto'?1:window.__NOAQ0;   // the adaptive drop only runs in Auto
+ if(b.post&&POST.comp){if(q==='low'){if(POST.on)postLegacy()}else if(!POST.on){POST.on=true;ren.domElement.style.filter='';fxBlur.style.display='none'}if(POST.bloom)POST.bloom.enabled=q==='auto'||q==='high'}
+ gqShadow(q==='low'?1024:q==='medium'?Math.min(2048,b.sh):b.sh);
+ const k=q==='low'?.7*.7:1;for(let i=0;i<LODL.length;i++)LODL[i].r2=b.lod[i]*k;LODT.force=1}
+window.__NOAQ0=window.__NOAQ;
+// lodTick only needs to run when the camera has moved (24k distance checks per call); behaviour-neutral below 3 m of camera travel
+const LODT={x:1e9,z:1e9,force:1};
+{const lt0=lodTick;lodTick=function(){const dx=cam.position.x-LODT.x,dz=cam.position.z-LODT.z;if(!LODT.force&&dx*dx+dz*dz<9)return;LODT.force=0;LODT.x=cam.position.x;LODT.z=cam.position.z;lt0()}}
+// frame-time meter: mean / 99th percentile frame time over the last 120 frames, fps, draw calls (counted on the next frame)
+const FPS={buf:new Float32Array(120),i:0,n:0,last:0,el:null,t:0,srt:new Float32Array(120)};
+FPS.el=document.createElement('div');FPS.el.id='fpsMeter';FPS.el.style.cssText='position:fixed;right:8px;top:8px;z-index:40;background:rgba(0,0,0,.65);color:#9f9;font:12px ui-monospace,monospace;padding:4px 7px;border-radius:5px;pointer-events:none;white-space:pre;display:none';try{document.body.appendChild(FPS.el)}catch(e){}
+function fpsTick(now){const ri=ren.info;if(GQ.fps){FPS.calls=ri.render.calls;FPS.tris=ri.render.triangles;ri.autoReset=false;ri.reset()}else if(!ri.autoReset)ri.autoReset=true;if(FPS.last){FPS.buf[FPS.i]=now-FPS.last;FPS.i=(FPS.i+1)%120;FPS.n=Math.min(120,FPS.n+1)}FPS.last=now;
+ if(!GQ.fps||FPS.n<10||now-FPS.t<500){FPS.el.style.display=GQ.fps?'':'none';return}FPS.t=now;FPS.el.style.display='';let s=0;for(let j=0;j<FPS.n;j++){s+=FPS.buf[j];FPS.srt[j]=FPS.buf[j]}
+ const a=FPS.srt.subarray(0,FPS.n).sort(),m=s/FPS.n,p99=a[Math.min(FPS.n-1,Math.floor(FPS.n*.99))];
+ FPS.el.textContent=(1000/m).toFixed(0)+' fps  '+m.toFixed(1)+' ms (99% '+p99.toFixed(1)+')\n'+FPS.calls+' draws · '+(FPS.tris/1e3).toFixed(0)+'k tris · '+DISP.w+'x'+DISP.h+' · '+GQ.q+(POST.on?'':' (no post)')}
+// ---- menu ----
+const pauseEl=document.createElement('div');pauseEl.id='pauseMenu';
+pauseEl.style.cssText='position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.55);font:14px system-ui,sans-serif;color:#eee';
+pauseEl.innerHTML='<div style="background:#15181d;border:1px solid #333;border-radius:10px;padding:16px 20px;width:min(420px,92vw);max-height:92vh;overflow:auto">'+
+ '<div style="font-size:20px;font-weight:700;margin-bottom:8px">Paused</div>'+
+ '<button data-a="resume" style="width:100%;padding:8px;margin-bottom:10px;font-size:15px">▶ Resume (Esc)</button>'+
+ '<div style="font-weight:600;margin:6px 0 4px">Sound</div>'+
+ [['master','Master'],['engine','Engine'],['fx','Effects (tyres, impacts)'],['amb','Ambient (wind, road, traffic)']].map(([k,l])=>'<label style="display:flex;justify-content:space-between;gap:8px;margin:3px 0">'+l+'<input type="range" min="0" max="100" data-v="'+k+'" style="width:52%"></label>').join('')+
+ '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="mute"> Mute (L)</label><div data-i="aud" style="font-size:12px;color:#aaa"></div>'+
+ '<div style="font-weight:600;margin:10px 0 4px">Graphics</div><label style="display:flex;justify-content:space-between">Quality <select data-s="q"><option value="auto">Auto (High, drops if slow)</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></label>'+
+ '<label style="display:block;margin:4px 0"><input type="checkbox" data-c="fps"> Show frame-time meter</label>'+
+ '<div style="font-weight:600;margin:10px 0 4px">Driving</div><button data-a="hand" style="width:100%;padding:6px;margin:2px 0"></button><button data-a="dmg" style="width:100%;padding:6px;margin:2px 0"></button>'+
+ '<div style="font-size:12px;color:#aaa;margin-top:10px">W/S drive · A/D steer · Space handbrake · H handling · I damage · O diagnostics · V wheel setup · L mute · C camera · M search · P shop · F reset</div></div>';
+try{document.body.appendChild(pauseEl)}catch(e){}
+const pq=s=>pauseEl.querySelector(s);
+function pauseSync(){try{for(const k of['master','engine','fx','amb']){const r=pq('[data-v="'+k+'"]');if(r)r.value=Math.round(AUD[k]*100)}const mu=pq('[data-c="mute"]');if(mu)mu.checked=AUD.mute;const fp=pq('[data-c="fps"]');if(fp)fp.checked=GQ.fps;const qs=pq('[data-s="q"]');if(qs)qs.value=GQ.q;
+ const h=pq('[data-a="hand"]');if(h)h.textContent='Handling: '+(handlingMode?'Realistic':'Arcade')+' (H)';const d=pq('[data-a="dmg"]');if(d)d.textContent='Damage: '+(['Off','Cosmetic','Full'][damageMode]||damageMode)+' (I)';
+ const ai=pq('[data-i="aud"]');if(ai)ai.textContent=!AU.ok?'Sound unavailable in this browser':!AU.ctx?'Sound starts on your first click or key press':'Engine: '+engProfile(P.idx).code+' · '+engProfile(P.idx).src+' (synthesised, not a recording)'}catch(e){}}
+function pauseToggle(on){on=on===undefined?!PAUSE.on:!!on;if(on===PAUSE.on)return;PAUSE.on=on;
+ if(on){ui=true;for(const k in keys)keys[k]=0;pauseSync();pauseEl.style.display='flex';if(AU.ctx&&AU.ctx.state==='running')AU.ctx.suspend()}
+ else{pauseEl.style.display='none';ui=false;if(AU.ctx&&!document.hidden)AU.ctx.resume().catch(()=>{})}}
+pauseEl.addEventListener('click',e=>{const a=e.target.dataset&&e.target.dataset.a;if(a==='resume')pauseToggle(false);else if(a==='hand'){setHandling(!handlingMode);pauseSync()}else if(a==='dmg'){if(typeof cycleDamageMode==='function')cycleDamageMode();pauseSync()}});
+pauseEl.addEventListener('input',e=>{const t=e.target,d=t.dataset||{};if(d.v)audSet(d.v,t.value/100);else if(d.c==='mute')audSet('mute',t.checked);else if(d.c==='fps'){GQ.fps=t.checked;gqSave()}else if(d.s==='q'){GQ.q=t.value;gqSave();gqApply();toast('Graphics: '+GQ.q)}});
+pauseEl.addEventListener('keydown',e=>e.stopPropagation());
+// capture phase: decide BEFORE other Esc handlers close their own menus (Esc that closes a menu never also opens the pause menu)
+addEventListener('keydown',e=>{if(e.code!=='Escape'||e.repeat)return;if(PAUSE.on){e.preventDefault();e.stopImmediatePropagation();pauseToggle(false);return}
+ if(e.target&&e.target.tagName==='INPUT')return;if(ui||(typeof diagOpen!=='undefined'&&diagOpen)||(typeof wzOn!=='undefined'&&wzOn))return;e.preventDefault();pauseToggle(true)},true);
+// a hidden tab stops rAF; stop the audio too (otherwise the last engine note keeps playing)
+document.addEventListener&&document.addEventListener('visibilitychange',()=>{if(!AU.ctx)return;if(document.hidden)AU.ctx.suspend();else if(!PAUSE.on)AU.ctx.resume().catch(()=>{})});
+if(GQ.q!=='auto')gqApply();
+// HUD lines are rebuilt every frame; only write the DOM when the text actually changed (same strings, fewer style/layout passes)
+function hudCache(){if(typeof Element!=='undefined'){const d=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');if(d&&d.set)for(const e of[spdEl,topEl,raceEl,heistEl]){let last=null;Object.defineProperty(e,'innerHTML',{configurable:true,get(){return d.get.call(e)},set(v){v=String(v);if(v!==last){last=v;d.set.call(e,v)}}})}}}
 // ---- HUD ----
 const mp=document.getElementById('map').getContext('2d'),topEl=document.getElementById('top'),driftEl=document.getElementById('drift'),spdEl=document.getElementById('spd'),raceEl=document.getElementById('race');
 const MC={ring:'#c08ae8',main:'#a8a8a8',arch:'#ee6a6a',petra:'#5aa0f0',hw:'#f0b040',local:'#6c6c6c',svc:'#4d4d4d',alley:'#b08a4a',campus:'#5aa66a',ramp:'#f0b040'},MORD=['svc','local','main','petra','arch','ramp','ring','hw'],MWD={svc:4,local:7,main:9.5,petra:11,arch:12,ramp:6,ring:8,hw:14},MSB={},MSN={};let mapF=0;MORD.forEach(k=>{MSB[k]=new Float32Array(4*9000);MSN[k]=0});
@@ -3757,8 +3817,8 @@ function drawMap(){crisp2d(mp);mp.clearRect(0,0,150,150);const S=150/700,X=x=>75
 const hh=()=>{const h=Math.floor(hour),m=Math.floor((hour-h)*60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')};
 // (window resizes only re-fit the 16:9 canvas via CSS inside initialize1080pGameDisplay; the 1920x1080 buffer and camera aspect never change)
 // ---- main loop ----
-const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();
-function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
+const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();const CAMV=new T.Vector3();
+function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=='undefined'&&PAUSE.on){prev=now;requestAnimationFrame(loop);return}const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
  const a=(hour-6)/12*Math.PI,el=Math.sin(a),dx=Math.cos(a);
  if(el>.3)sky.copy(dayC);else if(el>0)sky.copy(duskC).lerp(dayC,el/.3);else sky.copy(nightC).lerp(duskC,Math.max(0,(el+.15)/.15));
  gfxSky(el,dx*900,el*900,300,clock);const night=cl((.05-el)*8,0,1);sun.position.set(P.x+dx*400,P.y+Math.max(el,.03)*400,P.z+140);sun.target.position.set(P.x,P.y,P.z);groundTo(Math.round(P.x/100)*100,Math.round(P.z/100)*100);sun.intensity=Math.max(0,el)*1.3;
@@ -3767,7 +3827,7 @@ function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour
  traffic.forEach(c=>updTraffic(c,dt));
  const frozen=race.s==='count';const sp=updP(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
- if(camMode===0){cam.position.lerp(new T.Vector3(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
+ if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
  else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}
  cam.fov=65+Math.min(20,sp*.12);cam.updateProjectionMatrix();
  head.position.set(P.x,P.y+1,P.z);head.target.position.set(P.x+fx*25,P.y,P.z+fz*25);head.intensity=night*3;
@@ -3777,5 +3837,5 @@ function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour
  topEl.innerHTML='<b>IRBID DRIVE</b> · 📍 '+(sn?sn+' · ':'')+dn+(hn?' · 🏠 '+hn.tag+' house':'')+' · '+hh()+' · Balance: '+(fines-spent)+' JD · Drift: '+drift.total+' · 🚗 '+RARN[P.rt]+' ×'+P.rm.toFixed(1)+(PASS?'<br>📍 Passing: <b>'+PASS.name+'</b>'+(PASS.sub?' · '+PASS.sub:''):'')+(driftZoneAt(P.x,P.z)?'<br>🏁 <b>'+driftZoneAt(P.x,P.z).name+'</b> — no speed limit, no fines':'')+'<br>W/S gas·brake · A/D steer · Space handbrake (drift)<br>R race (nearest circuit), or R next to a car to duel it · C camera · T +1 hour · F reset · J stunt ramps · K tour landmarks · G wheel spin · E rob bank · U / P Apex Drift Customs · M maps / directions · I damage mode'+(WH.state.on?'<br>🎮 Racing wheel connected · V wheel setup'+(WH.ff.dev?' · force feedback on':''):'')+'<br>🚗 Traffic zone: '+tzs+'<br>Car: '+PORS[P.idx][0]+' (N/B or menu to change)';
  raceEl.innerHTML=race.s==='count'?Math.ceil(race.t):race.s==='run'?(race.kind==='duel'&&riv?'Duel · you '+Math.round(Math.hypot(race.dest[0]-P.x,race.dest[1]-P.z))+' m · rival '+Math.round(Math.hypot(race.dest[0]-riv.x,race.dest[1]-riv.z))+' m':race.c.n+' · P'+rankP()+'/4 · '+(race.c.loop?'Lap '+Math.min(race.c.laps,Math.floor(P.prog/race.c.nodes.length)+1)+'/'+race.c.laps:'Checkpoint '+Math.min(P.prog+1,race.total)+'/'+race.total)):'';
  heistEl.innerHTML=heistHud();spinBtn.textContent='🎡 Wheel spin (G) · '+Math.min(COST,fines-spent)+'/'+COST+' JD';drawMap();TuningShopInterface.tick();gfxRender();requestAnimationFrame(loop)}
-applyTerrain();requestAnimationFrame(loop);
+if(typeof hudCache==='function')hudCache();applyTerrain();requestAnimationFrame(loop);
 </script></body></html>

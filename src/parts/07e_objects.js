@@ -41,10 +41,10 @@ function leanObstacle(o,ang,dx,dz){
  const e=DESTRUCTIBLE_INSTANCES.get(o.visualKey);if(!e)return;const by=instBase(e),l=Math.hypot(dx,dz)||1;_V.set(dz/l,0,-dx/l);_Q.setFromAxisAngle(_V,ang);
  for(const k of[''].concat(ATTACHED[o.type]||[])){const q=DESTRUCTIBLE_INSTANCES.get(o.visualKey+k);if(!q||q.broken&&k)continue;const orig=keepOrig(q),mp=q.mesh.position;
   _M2.makeTranslation(o.x-mp.x,by-mp.y,o.z-mp.z);_M3.makeRotationFromQuaternion(_Q);_M2.multiply(_M3);_M3.makeTranslation(-(o.x-mp.x),-(by-mp.y),-(o.z-mp.z));_M2.multiply(_M3);_M2.multiply(orig);q.mesh.setMatrixAt(q.index,_M2);q.mesh.instanceMatrix.needsUpdate=true}
- const sp=SIGN_PLATES.get(o.visualKey);if(sp&&sp.C.mesh){const a=sp.C.mesh.geometry.attributes.position;if(!sp.orig)sp.orig=Float32Array.from(a.array.subarray(sp.n*3,sp.n*3+12));
+ const sp=SIGN_PLATES.get(o.visualKey);if(sp&&sp.C.mesh){const a=sp.C.mesh.geometry.attributes.position;if(!sp.orig)sp.orig=Float32Array.from(a.array.subarray(sp.n*3,sp.n*3+24));
   _M2.makeTranslation(o.x,by,o.z);_M3.makeRotationFromQuaternion(_Q);_M2.multiply(_M3);_M3.makeTranslation(-o.x,-by,-o.z);_M2.multiply(_M3);
-  for(let k=0;k<4;k++){_V.fromArray(sp.orig,k*3).applyMatrix4(_M2);a.array[sp.n*3+k*3]=_V.x;a.array[sp.n*3+k*3+1]=_V.y;a.array[sp.n*3+k*3+2]=_V.z}a.needsUpdate=true}}
-function hideSignPlate(key){const sp=SIGN_PLATES.get(key);if(!sp||!sp.C.mesh)return;const a=sp.C.mesh.geometry.attributes.position,i=sp.n*3;for(let k=1;k<4;k++){a.array[i+k*3]=a.array[i];a.array[i+k*3+1]=a.array[i+1];a.array[i+k*3+2]=a.array[i+2]}a.needsUpdate=true}
+  for(let k=0;k<8;k++){_V.fromArray(sp.orig,k*3).applyMatrix4(_M2);a.array[sp.n*3+k*3]=_V.x;a.array[sp.n*3+k*3+1]=_V.y;a.array[sp.n*3+k*3+2]=_V.z}a.needsUpdate=true}}
+function hideSignPlate(key){const sp=SIGN_PLATES.get(key);if(!sp||!sp.C.mesh)return;const a=sp.C.mesh.geometry.attributes.position,i=sp.n*3;for(let k=1;k<8;k++){a.array[i+k*3]=a.array[i];a.array[i+k*3+1]=a.array[i+1];a.array[i+k*3+2]=a.array[i+2]}a.needsUpdate=true}
 // breakObstacle(collider, normal speed m/s, car mass kg = 1,500): true when the impact energy reaches the object's break energy
 function breakObstacle(obstacle,incoming,mass){
  if(!obstacle||!obstacle.breakable||obstacle.broken)return false;const c=objClass(obstacle),ms=mass||1500;

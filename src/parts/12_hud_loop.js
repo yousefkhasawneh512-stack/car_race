@@ -18,8 +18,8 @@ function drawMap(){crisp2d(mp);mp.clearRect(0,0,150,150);const S=150/700,X=x=>75
 const hh=()=>{const h=Math.floor(hour),m=Math.floor((hour-h)*60);return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')};
 // (window resizes only re-fit the 16:9 canvas via CSS inside initialize1080pGameDisplay; the 1920x1080 buffer and camera aspect never change)
 // ---- main loop ----
-const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();
-function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
+const dayC=new T.Color(0x8ec5ee),duskC=new T.Color(0xf0925a),nightC=new T.Color(0x070b1d);let prev=performance.now();const CAMV=new T.Vector3();
+function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=='undefined'&&PAUSE.on){prev=now;requestAnimationFrame(loop);return}const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour=(hour+dt/40)%24;
  const a=(hour-6)/12*Math.PI,el=Math.sin(a),dx=Math.cos(a);
  if(el>.3)sky.copy(dayC);else if(el>0)sky.copy(duskC).lerp(dayC,el/.3);else sky.copy(nightC).lerp(duskC,Math.max(0,(el+.15)/.15));
  gfxSky(el,dx*900,el*900,300,clock);const night=cl((.05-el)*8,0,1);sun.position.set(P.x+dx*400,P.y+Math.max(el,.03)*400,P.z+140);sun.target.position.set(P.x,P.y,P.z);groundTo(Math.round(P.x/100)*100,Math.round(P.z/100)*100);sun.intensity=Math.max(0,el)*1.3;
@@ -28,7 +28,7 @@ function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour
  traffic.forEach(c=>updTraffic(c,dt));
  const frozen=race.s==='count';const sp=updP(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
- if(camMode===0){cam.position.lerp(new T.Vector3(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
+ if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
  else{cam.position.set(P.x+fx*.6,P.y+1.5,P.z+fz*.6);cam.lookAt(P.x+fx*20,P.y+1.4,P.z+fz*20)}
  cam.fov=65+Math.min(20,sp*.12);cam.updateProjectionMatrix();
  head.position.set(P.x,P.y+1,P.z);head.target.position.set(P.x+fx*25,P.y,P.z+fz*25);head.intensity=night*3;
@@ -38,4 +38,4 @@ function loop(now){const dt=cl((now-prev)/1000,.004,.05);prev=now;clock+=dt;hour
  topEl.innerHTML='<b>IRBID DRIVE</b> · 📍 '+(sn?sn+' · ':'')+dn+(hn?' · 🏠 '+hn.tag+' house':'')+' · '+hh()+' · Balance: '+(fines-spent)+' JD · Drift: '+drift.total+' · 🚗 '+RARN[P.rt]+' ×'+P.rm.toFixed(1)+(PASS?'<br>📍 Passing: <b>'+PASS.name+'</b>'+(PASS.sub?' · '+PASS.sub:''):'')+(driftZoneAt(P.x,P.z)?'<br>🏁 <b>'+driftZoneAt(P.x,P.z).name+'</b> — no speed limit, no fines':'')+'<br>W/S gas·brake · A/D steer · Space handbrake (drift)<br>R race (nearest circuit), or R next to a car to duel it · C camera · T +1 hour · F reset · J stunt ramps · K tour landmarks · G wheel spin · E rob bank · U / P Apex Drift Customs · M maps / directions · I damage mode'+(WH.state.on?'<br>🎮 Racing wheel connected · V wheel setup'+(WH.ff.dev?' · force feedback on':''):'')+'<br>🚗 Traffic zone: '+tzs+'<br>Car: '+PORS[P.idx][0]+' (N/B or menu to change)';
  raceEl.innerHTML=race.s==='count'?Math.ceil(race.t):race.s==='run'?(race.kind==='duel'&&riv?'Duel · you '+Math.round(Math.hypot(race.dest[0]-P.x,race.dest[1]-P.z))+' m · rival '+Math.round(Math.hypot(race.dest[0]-riv.x,race.dest[1]-riv.z))+' m':race.c.n+' · P'+rankP()+'/4 · '+(race.c.loop?'Lap '+Math.min(race.c.laps,Math.floor(P.prog/race.c.nodes.length)+1)+'/'+race.c.laps:'Checkpoint '+Math.min(P.prog+1,race.total)+'/'+race.total)):'';
  heistEl.innerHTML=heistHud();spinBtn.textContent='🎡 Wheel spin (G) · '+Math.min(COST,fines-spent)+'/'+COST+' JD';drawMap();TuningShopInterface.tick();gfxRender();requestAnimationFrame(loop)}
-applyTerrain();requestAnimationFrame(loop);
+if(typeof hudCache==='function')hudCache();applyTerrain();requestAnimationFrame(loop);

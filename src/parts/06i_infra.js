@@ -111,14 +111,18 @@ function addSign(x,z,dx,dz,ph,w,h,key,big){const sk='sign:'+SGS.length;SGS.push(
  drawBig('STOP',(g,cx,cy)=>{g.fillStyle='#d41f1f';g.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;g.lineTo(cx+Math.cos(a)*62,cy+Math.sin(a)*62)}g.closePath();g.fill();g.strokeStyle='#fff';g.lineWidth=5;g.beginPath();for(let i=0;i<8;i++){const a=Math.PI/8+i*Math.PI/4;g.lineTo(cx+Math.cos(a)*54,cy+Math.sin(a)*54)}g.closePath();g.stroke();g.fillStyle='#fff';g.font='bold 40px Arial,sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('STOP',cx,cy+3)});
  // merged plates (one mesh per 600 m cell), uv rectangles into the atlas
  const cells=new Map();
- SGS.forEach(s=>{const k=Math.floor(s[0]/300)+','+Math.floor(s[2]/300);let C=cells.get(k);if(!C)cells.set(k,C={p:[],uv:[],n:[],i:[],cx:(Math.floor(s[0]/300)+.5)*300,cz:(Math.floor(s[2]/300)+.5)*300});
+ SGS.forEach(s=>{const k=Math.floor(s[0]/300)+','+Math.floor(s[2]/300);let C=cells.get(k);if(!C)cells.set(k,C={p:[],uv:[],n:[],i:[],ib:[],cx:(Math.floor(s[0]/300)+.5)*300,cz:(Math.floor(s[2]/300)+.5)*300});
   const r=s[7]?sgRect(bigCell[s[6]],1):sgRect(SGA.cells.get(s[6].slice(1)),0),u0=r[0]/2048,u1=(r[0]+r[2])/2048,v1=1-r[1]/1024,v0=1-(r[1]+r[3])/1024,hx=s[4]/2,sx=Math.cos(s[3]),sz=-Math.sin(s[3]),n=C.p.length/3;SIGN_PLATES.set(s[8],{C,n});
   // plate faces direction (sin ry, cos ry); its local x axis is (cos ry, -sin ry)
-  for(const[a,b,uu,vv]of[[-1,0,u0,v0],[1,0,u1,v0],[-1,1,u0,v1],[1,1,u1,v1]]){C.p.push(s[0]+sx*hx*a,s[1]+s[5]*b,s[2]+sz*hx*a);C.uv.push(uu,vv);C.n.push(Math.sin(s[3]),0,Math.cos(s[3]))}
-  C.i.push(n,n+1,n+2,n+1,n+3,n+2)});
+  // v45: 4 front + 4 back vertices; the back is plain metal (same outline), so a sign seen from behind no longer shows mirrored text
+  const nx=Math.sin(s[3]),nz=Math.cos(s[3]);for(const bk of[0,1])for(const[a,b,uu,vv]of[[-1,0,u0,v0],[1,0,u1,v0],[-1,1,u0,v1],[1,1,u1,v1]]){C.p.push(s[0]+sx*hx*a-(bk?nx*.012:0),s[1]+s[5]*b,s[2]+sz*hx*a-(bk?nz*.012:0));C.uv.push(uu,vv);C.n.push(bk?-nx:nx,0,bk?-nz:nz)}
+  C.i.push(n,n+1,n+2,n+1,n+3,n+2);C.ib.push(n+4,n+6,n+5,n+5,n+6,n+7)});
  const tex=new T.CanvasTexture(SGA.cv);tex.anisotropy=4;tex.minFilter=T.LinearMipmapLinearFilter;
- const sm=new T.MeshLambertMaterial({map:tex,alphaTest:.5,side:T.DoubleSide});
- cells.forEach(C=>{const g2=new T.BufferGeometry();g2.setAttribute('position',new T.Float32BufferAttribute(C.p,3));g2.setAttribute('uv',new T.Float32BufferAttribute(C.uv,2));g2.setAttribute('normal',new T.Float32BufferAttribute(C.n,3));g2.setIndex(C.i);const m=new T.Mesh(g2,sm);C.mesh=m;scene.add(m);lodReg(m,C.cx,C.cz,260,300)});
+ const sm=new T.MeshLambertMaterial({map:tex,alphaTest:.5}),smB=new T.MeshLambertMaterial({color:0x8d939a,map:tex,alphaTest:.5});
+ smB.onBeforeCompile=sh=>{sh.fragmentShader=sh.fragmentShader.replace('#include <map_fragment>',`#ifdef USE_MAP
+ diffuseColor.a*=texture2D(map,vUv).a;
+#endif`)};
+ cells.forEach(C=>{const g2=new T.BufferGeometry();g2.setAttribute('position',new T.Float32BufferAttribute(C.p,3));g2.setAttribute('uv',new T.Float32BufferAttribute(C.uv,2));g2.setAttribute('normal',new T.Float32BufferAttribute(C.n,3));g2.setIndex(C.i.concat(C.ib));g2.addGroup(0,C.i.length,0);g2.addGroup(C.i.length,C.ib.length,1);const m=new T.Mesh(g2,[sm,smB]);C.mesh=m;scene.add(m);lodReg(m,C.cx,C.cz,260,300)});
  instO(UB,gfxStd({color:0xb4bac1,roughness:.42,metalness:.6,envMapIntensity:.9},'none')||UBm(0x7c838a),signPole,false,230,200)}
 // ===== highway guardrails (W-beam rail + posts, stopped near every junction and wherever another road crosses) =====
 {const rails=[],posts=[];
