@@ -7,6 +7,8 @@ no backend).
 
 **Play in your browser:** https://yousefkhasawneh512-stack.github.io/car_race/ (live once GitHub Pages is switched on: Settings → Pages → Source: GitHub Actions).
 
+**Roblox version (starter, untested in Studio):** `roblox/` (see `roblox/README.md`), generated from the same map data by `tools/make_roblox.js`.
+
 **Author:** Yousef Khasawneh
 
 > **AI-generated code:** the source code in this repository was written with AI assistance (Anthropic's Claude), under

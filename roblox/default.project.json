@@ -1,0 +1,13 @@
+{
+  "name": "IrbidDrive",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": { "Config": { "$path": "build/Config.lua" } },
+    "ServerStorage": { "IrbidData": { "$path": "data" } },
+    "ServerScriptService": {
+      "WorldBuilder": { "$path": "src/ServerScriptService/WorldBuilder.server.lua" },
+      "GameServer": { "$path": "src/ServerScriptService/GameServer.server.lua" }
+    },
+    "StarterPlayer": { "StarterPlayerScripts": { "CarClient": { "$path": "src/StarterPlayerScripts/CarClient.client.lua" } } }
+  }
+}
