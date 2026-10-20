@@ -68,6 +68,7 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   v47: **`python tools/check.py`** (quick: parts exist + parse, build, head-script guard, hosts, attribution, JSON, asset manifests, core Node checks;
   `--full` adds every Node and Playwright check incl. `xbrowser_pw`; report `.check/report.md`; on success copies the build to `dist/last-good/`).
   v48: `assist_v48` (Node, repo root, 19) and `v48_pw.py` (12, screenshots `docs/screenshots/v48/`, honours `SP`); both are in `check.py`.
+  v49: `assist_v49` (Node, repo root, 30; needs tag `backup/v48`) and `v49_pw.py` (12, `docs/screenshots/v49/`, honours `SP`); both in `check.py`.
   `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),
   `xbrowser_pw.py` (Chromium/Firefox/WebKit + iPhone/iPad/Pixel emulation; needs `python -m playwright install firefox webkit`; one browser per case,
   WebKit lost its software-GL context on the 4th page of one process), `perf_v47_pw.py` (preset render cost, traffic cost). Assets:
@@ -238,6 +239,11 @@ Traffic AI measures junction distance with `pathProg()` (09_ai). `tools/gen_sign
   after `assistTick`); `A11Y` (12e, `irbid-drive-a11y-v1`) is read by the loop (FOV) and 12b (blur) at run time only. `camMode` 0-3 (1 = cockpit,
   which the audio low-pass keys on). **Top-level names are shared by ALL parts:** `ASTORE` was already taken by 12d (audio); `check.py`
   parses the whole script to catch this.
+- **v49:** `SIMX` (07g, `irbid-drive-sim-v1`): optional tyre temperature / brake fade. `SIMX.gk` multiplies `sfc` and `SIMX.bk` multiplies `bkEff`
+  in `updP`, both ONLY when `handlingMode`, and both are exactly 1 when the options are off (`assist_v49` compares a Realistic trace with
+  `backup/v48`). `simxTick` runs inside `updP` after `slipTick` (Realistic only). Traffic option `auto` (12e `trDen`/`TPROF`, `trAutoTick` from the loop
+  after `schoolTick`; `trApply(true)` never parks a car within 250 m). Search (11b): `NAVF` (`cat` chip filter checked in `navSearch`, `fav` list in
+  `irbid-drive-fav-v1`); the results box now starts with a `.ncat` chip row, so select result rows with `.nr`, not `navRes.children`.
 - **v47 settings:** `irbid-drive-gfx-v1` gains `t` (traffic density high/medium/low). Low quality = 1280x720 buffer, Ultra = 2560x1440 (the composer is
   resized too); defaults (Auto, High traffic) = v46. Parked traffic cars have `c.park`, sit at 2e5 and are skipped by the `updTraffic` wrapper.
 - **Inline comments in dense one-liners:** a `//` comment added mid-line comments out the REST of that line (v46 lost `const toastEl` this way;

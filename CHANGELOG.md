@@ -387,3 +387,20 @@ Blocked parts: `docs/MULTIPLAYER_PLAN.md`.
   `ASSTORE`; `tools/check.py` now parses the WHOLE game script too (per-part checks cannot see cross-part duplicates).
 - **Tests:** `assist_v48` (19: the defaults' Realistic trace equals v47's, ABS lock and steering, TC spin, ESC slip, Arcade unaffected, 5 lessons
   pass and fail by the rules, saving), `v48_pw` (12: cameras, menu rows, a lesson started by a real click, result card, retry, text size, reduced motion).
+
+## v49
+
+Continues the v48 list of not-started features that need no accounts (`docs/FEATURES_100.md` #14, #16, #31, #53, #54). Every change is an
+OPTION or an addition to the search list: with the defaults the game plays exactly as v48 (`assist_v49` compares a Realistic trace with
+`backup/v48`; `off_trace` unchanged).
+- **Tyre temperature and brake fade (`07g` `SIMX`, two factors in the `updP` sfc / bkEff lines):** Realistic only, both off by default (factors
+  exactly 1). One temperature for all tyres: heated by cornering / traction work, rolling and slip, cooled toward the air (lower when the road
+  is wet); grip ×0.92 cold, 1.0 at 90 °C, down to ×0.85 overheated. One brake temperature: braking energy heats it (~215 °C for a stop from 140
+  km/h), airflow cools it; above 400 °C the brake force fades to 60 % at 700 °C. HUD shows both (and FADE). `irbid-drive-sim-v1`. All estimates.
+- **Traffic "By time of day" (`12e`):** density follows the hour (`TPROF`, a generic weekday curve, not Irbid counts: 30 % at night, 100 % at
+  08:00 and 14:00-16:00). Checked every 5 s (`trAutoTick` from the loop); a car within 250 m of the player is never parked.
+- **Search (`11b`):** 11 category chips above the results filter by place kind (also with a typed query; empty query = nearest of that kind).
+  ☆ / ★ on each result saves up to 20 places or streets (`irbid-drive-fav-v1`); the empty search box lists them first. Arrow keys skip the chips.
+- **Tests:** `assist_v49` (30: v48 trace with options off, tyre warm-up / cooling / overheat, brake fade over 8 stops and recovery, Arcade
+  unaffected, saving, traffic by hour and the 250 m rule, chips, saved places), `v49_pw` (12: real clicks on chips, ☆ and a saved place,
+  pause-menu rows and storage, HUD temperatures). Both are in `tools/check.py`.

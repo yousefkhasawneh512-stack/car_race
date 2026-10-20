@@ -32,13 +32,13 @@ writes `dist/irbid-drive-offline.html` with Three.js r128 inlined (zero network 
 | U or P | Apex Drift Customs: upgrades (drift points) and the repair bay (JD, priced per part) when near it |
 | G | wheel spin (unlock cars with JD) |
 | N / B | cycle owned cars |
-| M | search places, neighbourhoods and streets / turn-by-turn directions |
+| M | search places, neighbourhoods and streets / turn-by-turn directions; category chips (food, shops, schools …) and ☆ saved places |
 | H | handling: Arcade (default) / Realistic (engine, gears, traction, suspension, two-axle tyre model: slip angles, weight transfer, countersteer) |
 | I | vehicle damage mode: Off / Cosmetic / Full |
 | O | vehicle diagnostics: damage report, per-wheel tyres, racing-wheel status |
 | J / K | stunt ramps / landmark tour teleport |
 | T / F | +1 hour / reset to start |
-| Esc | pause menu: **driving school** (5 lessons on real streets), sound volumes, graphics quality (Auto/Ultra/High/Medium/Low), traffic density (High/Medium/Low), text size, reduced motion, driver assists (ABS / traction control / stability, Realistic), frame-time meter, handling, damage, gearbox (Auto/Manual), weather (Auto/Clear/Cloudy/Rain), clock (game time / Irbid local time), road reputation (the wheel's Back button too) |
+| Esc | pause menu: **driving school** (5 lessons on real streets), sound volumes, graphics quality (Auto/Ultra/High/Medium/Low), traffic density (High/Medium/Low/by time of day), text size, reduced motion, driver assists (ABS / traction control / stability, Realistic), tyre temperature and brake fade (optional, Realistic), frame-time meter, handling, damage, gearbox (Auto/Manual), weather (Auto/Clear/Cloudy/Rain), clock (game time / Irbid local time), road reputation (the wheel's Back button too) |
 | L | mute / unmute sound |
 | V | racing-wheel setup (Logitech G29: live readings, pedal/clutch calibration incl. combined pedals, force feedback via WebHID in Chromium) |
 

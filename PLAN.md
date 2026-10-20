@@ -172,6 +172,9 @@ gating the estimated speed bumps, any pause/start/audio features, and the refact
   4 views (the cockpit view is lower and per car); assists are Realistic-only with defaults ABS on / TC off / ESC off = v47 handling
   (`assist_v48` trace identical to v47); ABS off adds wheel lock. Reduced motion defaults to the OS setting. Multiplayer, in-game content updates,
   admin publishing, public hosting: BLOCKED (infrastructure, accounts, costs; `docs/MULTIPLAYER_PLAN.md`). Genuine ray tracing: not feasible in WebGL.
+- v49 (owner request 2026-10-20 "continue the code", next not-started items of the v48 brief that need no accounts): tyre temperature and brake fade
+  (the brief's own wording: "optional"; off by default, Realistic only), traffic density by time of day (a new option; High stays the default),
+  search category chips and saved destinations. Defaults = v48 (`assist_v49` trace identical to `backup/v48`).
 
 # Phase 1 – Baseline and Documentation
 

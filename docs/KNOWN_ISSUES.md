@@ -35,3 +35,11 @@
   junctions are not part of the lessons.
 - Driver assists apply only in Realistic handling (Arcade has no tyre model to assist).
 - Multiplayer, in-game content updates, admin publishing and public hosting are blocked on infrastructure (`docs/MULTIPLAYER_PLAN.md`).
+
+## Added in v49
+
+- Tyre temperature is one value for all four tyres and brake temperature one value for all brakes; the heating and cooling rates and the grip /
+  fade curves are gameplay estimates, not measured data. Both work only in Realistic handling. Full-lock circles scrub the front tyres and heat them fast.
+- "By time of day" traffic uses a generic weekday curve (no Irbid traffic counts exist in the project); it does not know weekends or Ramadan hours.
+- Saved places are stored in this browser only (localStorage); they do not follow you to another device.
+- Category chips use the OSM place kind; places tagged only as a generic `poi` (136) appear in no category.

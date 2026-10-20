@@ -39,11 +39,16 @@ The brief was cut off in Phase 10 ("MED…"); later phases were not received.
 Driving school, ABS / TC / ESC, 4 camera views, text size and reduced motion; the 100-feature checklist (`docs/FEATURES_100.md`); blocked
 infrastructure work described in `docs/MULTIPLAYER_PLAN.md`.
 
+## v49 (2026-10-20)
+
+Optional tyre temperature and brake fade, traffic by time of day, search category chips and saved destinations (`docs/FEATURES_100.md` #14, #16,
+#31, #53, #54). Defaults unchanged.
+
 ## Next steps, in order of value
 
 1. Owner decisions: car models (licence, trademark, budget) and engine recordings (Freesound account), then wire them through `assets/manifests/`.
 2. Android: install Android Studio (accept its licence yourself), run `npx cap sync` and `npx cap run android`, and test on a phone.
 3. Phone performance: measure Low quality with Low traffic on a real mid-range phone; consider a lower default on touch devices.
 4. Owner decision on hosting (GitHub Pages and a small WebSocket server) to unblock multiplayer, updates and the public site.
-5. Not-started features that need no accounts: saved destinations, category filters, tyre temperature and brake fade options, time-of-day traffic density, keyboard remapping.
+5. Not-started features that need no accounts: keyboard remapping, route alternatives and navigation preferences, Doppler on passing traffic, custom race settings, garage comparison.
 6. A Poly Haven CC0 asphalt texture (inlined) to replace the plain road colour, if the size budget allows.

@@ -1,10 +1,10 @@
-# The 100 additional features: status (v48, 2026-10-20)
+# The 100 additional features: status (v49, 2026-10-20)
 
 Status words follow the brief: **COMPLETE AND TESTED**, **IMPLEMENTED BUT UNTESTED**, **PARTIALLY IMPLEMENTED**, **BLOCKED**, **NOT STARTED**.
 "Tested" means an automated test that ran in this repository (named in the Evidence column) or a recorded browser run. Each row was checked
-against the code (`src/parts/`) on 2026-10-20, not taken from memory. v48 additions are marked **(v48)**.
+against the code (`src/parts/`) on 2026-10-20, not taken from memory. v48 additions are marked **(v48)**, v49 additions **(v49)**.
 
-**Totals (counted from the table):** COMPLETE AND TESTED 35 · IMPLEMENTED BUT UNTESTED 3 · PARTIALLY IMPLEMENTED 22 · BLOCKED 16 · NOT STARTED 24.
+**Totals (counted from the table):** COMPLETE AND TESTED 40 · IMPLEMENTED BUT UNTESTED 3 · PARTIALLY IMPLEMENTED 22 · BLOCKED 16 · NOT STARTED 19.
 
 ## Realistic world (1–10)
 
@@ -28,9 +28,9 @@ against the code (`src/parts/`) on 2026-10-20, not taken from memory. v48 additi
 | 11 | Vehicle-specific steering | COMPLETE AND TESTED | Wheelbase, tyre and mass per car (`ptSpec`/`ptDyn`); `drift_v45` (per-car checks) |
 | 12 | Suspension movement | COMPLETE AND TESTED | `ptBody` pitch/roll/heave, quarter-car on bumps; `damage_v44` bump sweep |
 | 13 | Weight transfer | COMPLETE AND TESTED | Longitudinal load transfer in `ptDyn`/`ptShare`; `drift_v45` |
-| 14 | Tyre temperature (optional) | NOT STARTED | |
+| 14 | Tyre temperature (optional) | COMPLETE AND TESTED | **(v49)** Pause menu option, Realistic only, off by default. One temperature for all four tyres (no per-wheel model); grip peaks at 90 °C. `assist_v49`, `v49_pw`. Coefficients are estimates. |
 | 15 | Tyre pressure tuning | NOT STARTED | |
-| 16 | Brake fade (optional) | NOT STARTED | |
+| 16 | Brake fade (optional) | COMPLETE AND TESTED | **(v49)** Pause menu option, Realistic only, off by default. Brake force fades above 400 °C to 60 % at 700 °C. `assist_v49` (8 stops from 140 km/h: 73.7 m → 104.7 m), `v49_pw`. Estimates. |
 | 17 | Differential configurations | PARTIALLY IMPLEMENTED | FWD / RWD / AWD drive splits per car. No limited-slip or open-differential choice. |
 | 18 | Drivetrain tuning | PARTIALLY IMPLEMENTED | Shop upgrades (speed, acceleration, handling) change the physics. No gear-ratio tuning. |
 | 19 | Configurable vehicle assistance | COMPLETE AND TESTED **(v48)** | ABS, traction control and stability control toggles (Realistic); `assist_v48` (defaults identical to v47, lock, spin, slip) and `v48_pw` |
@@ -55,7 +55,7 @@ against the code (`src/parts/`) on 2026-10-20, not taken from memory. v48 additi
 
 | # | Feature | Status | Evidence / notes |
 |---|---|---|---|
-| 31 | Time-dependent traffic density | NOT STARTED | Density is a setting (v47), not a function of the hour. |
+| 31 | Time-dependent traffic density | COMPLETE AND TESTED | **(v49)** Traffic option "By time of day": a typical weekday curve (estimate, not Irbid counts); cars are parked or returned only > 250 m from the player. `assist_v49`, `v49_pw`. |
 | 32 | AI parking behaviour | NOT STARTED | |
 | 33 | Emergency-service traffic | PARTIALLY IMPLEMENTED | Police only, during the bank heist. |
 | 34 | Configurable traffic-light phases | PARTIALLY IMPLEMENTED | 60 s cycle with 4 offset groups (`05b_decor`); `signals_test`. Not configurable in the UI. |
@@ -87,8 +87,8 @@ against the code (`src/parts/`) on 2026-10-20, not taken from memory. v48 additi
 |---|---|---|---|
 | 51 | Landmark search | COMPLETE AND TESTED | M search over 1,729 places and streets; `v46_pw` (search box), `playtest_v45_pw` |
 | 52 | Arabic and English search | IMPLEMENTED BUT UNTESTED | Names are normalised in both scripts (`normN(name+nameAr)`). No Arabic-query test yet. |
-| 53 | Place-category filters | NOT STARTED | |
-| 54 | Saved destinations | NOT STARTED | |
+| 53 | Place-category filters | COMPLETE AND TESTED | **(v49)** 11 chips above the search results (food, shops, health, schools, worship, sights, car, parks and sport, banks, civic and bus, areas). `assist_v49`, `v49_pw` (real clicks). |
+| 54 | Saved destinations | COMPLETE AND TESTED | **(v49)** ☆/★ on each result (up to 20, places or streets), listed first in the empty search box. `irbid-drive-fav-v1`. `assist_v49`, `v49_pw`. |
 | 55 | Route alternatives | NOT STARTED | One shortest route. |
 | 56 | Navigation preferences | NOT STARTED | |
 | 57 | Distance and arrival time | COMPLETE AND TESTED | Remaining metres and minutes, turn list; `playtest_v45_pw` |
