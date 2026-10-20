@@ -5,6 +5,8 @@ places come from OpenStreetMap, and the terrain comes from NASA SRTM elevation d
 rob the bank, and navigate the city. The whole game is one self-contained HTML file (Three.js r128 + WebGL, no framework,
 no backend).
 
+**Play in your browser:** https://yousefkhasawneh512-stack.github.io/car_race/ (live once GitHub Pages is switched on: Settings → Pages → Source: GitHub Actions).
+
 **Author:** Yousef Khasawneh
 
 > **AI-generated code:** the source code in this repository was written with AI assistance (Anthropic's Claude), under
