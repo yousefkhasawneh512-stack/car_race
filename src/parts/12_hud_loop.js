@@ -26,7 +26,7 @@ function loop(now){if(typeof fpsTick==='function')fpsTick(now);if(typeof PAUSE!=
  hemi.intensity=.14+.5*Math.max(0,el);if(typeof wxTick==='function')wxTick(dt,el);baseMat.emissive.setRGB(.12*night,.1*night,.04*night);winMat.emissive.setRGB(.95*night,.78*night,.35*night);if(facMat){facMat.emissive.copy(baseMat.emissive).multiplyScalar(.4);FACU.uFacNight.value=night}lampTick(night);lodTick();disc.position.set(cam.position.x+dx*900,el*900,cam.position.z+300);disc.visible=el>-.05;
  sigTick();
  traffic.forEach(c=>updTraffic(c,dt));
- const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);if(typeof schoolTick==='function')schoolTick(dt);
+ const frozen=race.s==='count';const sp=updPStep(dt,frozen);updHeist(dt);updRace(dt);poiNear();navTick(dt);navLabels();showCarsTick();fxTick(dt);if(typeof damageTick==='function')damageTick(dt);if(typeof audTick==='function')audTick(dt);if(typeof assistTick==='function')assistTick(dt);if(typeof schoolTick==='function')schoolTick(dt);if(typeof trAutoTick==='function')trAutoTick(dt);
  const fx=Math.sin(P.h),fz=Math.cos(P.h);
  if(camMode===0){cam.position.lerp(CAMV.set(P.x-fx*9,P.y+3.6,P.z-fz*9),Math.min(1,dt*6));cam.lookAt(P.x+fx*5,P.y+1.2,P.z+fz*5)}
  // v48: per-car views from the model's length / height (PORS): 1 cockpit (driver eye height ~0.8 of the roof), 2 bonnet, 3 front bumper

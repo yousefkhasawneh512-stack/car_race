@@ -1,6 +1,17 @@
 // ---- maps: place / street search + turn-by-turn directions over the real road graph ----
 const navIn=document.getElementById('navIn'),navRes=document.getElementById('navRes'),navDir=document.getElementById('navDir'),navX=document.getElementById('navX'),navBan=document.getElementById('navBan'),ndT=document.getElementById('ndT'),ndS=document.getElementById('ndS');
 const NAV={on:false,dest:null,pts:[],cum:[],total:0,steps:[],j:0,off:0,rr:0,ui:0,res:[],sel:0,si:0};
+// ---- v49: saved destinations (☆/★ on each result, irbid-drive-fav-v1, at most 20; shown first when the search box is empty) and place-category
+// filters (chips above the results; with an empty query a chip lists the nearest places of that category) ----
+const FSTORE='irbid-drive-fav-v1',NAVF={cat:'',fav:[]};
+try{const a=JSON.parse(localStorage.getItem(FSTORE)||'[]');if(Array.isArray(a))NAVF.fav=a.filter(f=>f&&typeof f.n==='string'&&(typeof f.road==='string'||isFinite(f.x)&&isFinite(f.z))).slice(0,20)}catch(e){}
+const NCAT=[['food','🍽️ Food',['cafe','food']],['shop','🛍️ Shops',['dukkan','grocery','mall','market','barber','pet','tech','cleaner']],['health','⚕️ Health',['medical','hospital']],['edu','🎓 Schools',['school','campus']],['wor','🕌 Worship',['mosque','church']],['sight','🏛️ Sights',['landmark','heritage','museum','square','culture']],['car','🔧 Car',['auto','garage','dealer','ev','drift']],['sport','🌳 Parks & sport',['park','stadium','cage','gym']],['bank','🏦 Banks',['bank']],['civic','🏤 Civic & bus',['civic','transport']],['area','🏘️ Areas',['area']]];
+const NCATK={};NCAT.forEach(c=>NCATK[c[0]]=new Set(c[2]));
+const favKey=it=>it.road?'s|'+it.n:it.n+'|'+Math.round(it.x)+','+Math.round(it.z),isFav=it=>NAVF.fav.some(f=>favKey(f)===favKey(it));
+function favSave(){try{localStorage.setItem(FSTORE,JSON.stringify(NAVF.fav))}catch(e){}}
+function favToggle(it){const k=favKey(it),i=NAVF.fav.findIndex(f=>favKey(f)===k);if(i>=0){NAVF.fav.splice(i,1);favSave();toast('Removed from saved: '+it.n);return false}
+ if(NAVF.fav.length>=20){toast('20 saved places at most: remove one first');return false}const o={n:it.n,k:it.k,sub:it.sub};if(it.road)o.road=it.road;else{o.x=it.x;o.z=it.z;if(it.ax!==undefined){o.ax=it.ax;o.az=it.az}if(it.r)o.r=it.r}
+ NAVF.fav.push(o);favSave();toast('★ Saved: '+it.n);return true}
 const NART=new Set(['al','at','el','ar','ash','as']);
 const normN=s=>s.toLowerCase().replace(/husun/g,'husn').replace(/[–—-]/g,' ').replace(/&/g,' and ').replace(/[^a-z0-9\u0600-\u06FF ]/g,' ').split(/\s+/).filter(t=>t&&!NART.has(t));
 const NKW={cleaner:['dry','cleaning','cleaners','laundry'],tech:['tech','electronics','phone','computer','shop'],grocery:['supermarket','grocery','market','hypermarket','mart','mall','groceries'],heritage:['house','heritage','historic','historical','cultural','monument','ottoman','museum'],square:['square','plaza','roundabout','monument','tower','clock'],gym:['gym','fitness','workout','club'],ev:['ev','charging','charge','station','electric'],auto:['auto','parts','garage','tire','repair','car'],dukkan:['dukkan','grocery','market','supermarket','store','shop','minimarket'],cafe:['cafe','coffee','juice','dessert'],medical:['pharmacy','clinic','laboratory','medical','lab'],cage:['football','cage','pitch','playground'],mosque:['mosque'],culture:['cultural','center','auditorium'],civic:['post','office','civic'],church:['church','tower','cathedral'],museum:['museum','fort','fortress','walls','historic'],mall:['mall','shopping','shops'],dealer:['car','cars','dealer','dealership','showroom','auto'],food:['restaurant','food','eat','dining'],school:['school','academy'],barber:['barber','hair','salon','shop'],pet:['pet','shop','store'],stadium:['stadium','sports','football'],area:['neighbourhood','neighborhood','district','village','area','town'],transport:['bus','station','stop','transport','complex'],drift:['drift','drifting','arena'],park:['park','garden'],bank:['bank','atm'],garage:['garage','tuning','mechanic'],hospital:['hospital','medical'],campus:['university','campus'],market:['market','souk','souq']};
@@ -13,7 +24,7 @@ function navIndex(){if(NIDX)return NIDX;const L=[];PLACES.forEach(p=>L.push({n:p
  CIRC.forEach(c=>c.name&&L.push({n:c.name,k:'circle',t:normN(c.name),x:c.x,z:c.z,sub:'Roundabout'}));return NIDX=L}
 function navDist(it){if(it.road){try{const[r,i]=nearestOn(it.road,P.x,P.z);return Math.hypot(r.dp[i][0]-P.x,r.dp[i][1]-P.z)}catch(e){return 1e9}}return Math.hypot(it.x-P.x,it.z-P.z)}
 function navSearch(q){const qt=normN(q),I=navIndex(),out=[];
- for(const it of I){let sc=0;if(qt.length){const joined=it.t.join(' ');if(!qt.every(w=>it.t.some(t=>t.startsWith(w))||joined.includes(w)))continue;sc=qt.every(w=>it.t.includes(w))?3:2;{const nt=normN(it.n);if(qt.every(w=>nt.some(t=>t.startsWith(w))))sc+=1.5}if(joined.startsWith(qt.join(' ')))sc+=2}else if(it.k==='street'||it.k==='circle')continue;
+ for(const it of I){if(NAVF.cat&&!NCATK[NAVF.cat].has(it.k))continue;let sc=0;if(qt.length){const joined=it.t.join(' ');if(!qt.every(w=>it.t.some(t=>t.startsWith(w))||joined.includes(w)))continue;sc=qt.every(w=>it.t.includes(w))?3:2;{const nt=normN(it.n);if(qt.every(w=>nt.some(t=>t.startsWith(w))))sc+=1.5}if(joined.startsWith(qt.join(' ')))sc+=2}else if(it.k==='street'||it.k==='circle')continue;
   if(it.k!=='street'&&it.k!=='circle')sc+=1;if(!it.g)sc+=2.5;out.push({it,sc,d:navDist(it)})}
  out.sort((a,b)=>b.sc-a.sc||a.d-b.d);const cnt={},res=[];for(const o of out){cnt[o.it.n]=(cnt[o.it.n]||0)+1;if(cnt[o.it.n]<=2)res.push(o);if(res.length>=8)break}return res}
 function navResolve(it){if(it.road){const[r,i]=nearestOn(it.road,P.x,P.z),p=r.dp[i];return{name:it.n,x:p[0],z:p[1],ax:p[0],az:p[1],r:12,street:true}}return{name:it.n,x:it.x,z:it.z,ax:it.ax!==undefined?it.ax:it.x,az:it.az!==undefined?it.az:it.z,r:it.r||20,circle:it.k==='circle'}}
@@ -85,14 +96,18 @@ function navTick(dt,force){if(!NAV.on)return;const p=NAV.pts,n=p.length;let bj=N
  navDots()}
 function navPick(r){navIn.value=r.it.n;navIn.blur();navRes.style.display='none';navStart(navResolve(r.it))}
 function navGo(q){const R=navSearch(q);if(!R.length){toast('No place called "'+q+'"');return false}return navStart(navResolve(R[0].it))}
-function navShow(q){const R=navSearch(q);NAV.res=R;NAV.sel=0;navRes.innerHTML='';navRes.style.display=R.length?'block':'none';
- R.forEach((r,i)=>{const d=document.createElement('div');d.className='nr'+(i?'':' on');d.innerHTML='<span>'+NICON[r.it.k]+' '+esc(r.it.n)+'</span><small>'+(r.it.sub?esc(r.it.sub)+' · ':'')+fmtD(r.d)+'</small>';d.onpointerdown=e=>{e.preventDefault();navPick(r)};navRes.appendChild(d)})}
+function navShow(q){const R=navSearch(q),F=!String(q).trim()&&!NAVF.cat?NAVF.fav.map(f=>({it:f,d:navDist(f),fav:1})):[],L=F.concat(F.length?R.filter(r=>!isFav(r.it)):R);NAV.res=L;NAV.sel=0;navRes.innerHTML='';navRes.style.display='block';
+ const ch=document.createElement('div');ch.className='ncat';ch.innerHTML=NCAT.map(c=>'<span class="nc'+(NAVF.cat===c[0]?' on':'')+'" data-cat="'+c[0]+'">'+c[1]+'</span>').join('');
+ ch.onpointerdown=e=>{e.preventDefault();const c=e.target&&e.target.dataset&&e.target.dataset.cat;if(!c)return;NAVF.cat=NAVF.cat===c?'':c;navShow(navIn.value)};navRes.appendChild(ch);
+ L.forEach((r,i)=>{const d=document.createElement('div'),fv=r.fav||isFav(r.it);d.className='nr'+(i?'':' on');d.innerHTML='<span>'+(NICON[r.it.k]||'📍')+' '+esc(r.it.n)+'</span><small>'+(r.fav?'saved · ':'')+(r.it.sub?esc(r.it.sub)+' · ':'')+fmtD(r.d)+'</small><b class="fv" title="Save / remove">'+(fv?'★':'☆')+'</b>';
+  d.onpointerdown=e=>{e.preventDefault();if(e.target&&e.target.className==='fv'){favToggle(r.it);navShow(navIn.value);return}navPick(r)};navRes.appendChild(d)});
+ if(!L.length){const d=document.createElement('div');d.className='nr0';d.textContent=NAVF.cat?'No '+NCAT.find(c=>c[0]===NAVF.cat)[1].replace(/^\S+ /,'').toLowerCase()+' found'+(String(q).trim()?' for "'+q+'"':''):'No match';navRes.appendChild(d)}}
 function navFocus(){navIn.focus();if(navIn.select)navIn.select()}
 navIn.addEventListener('input',()=>navShow(navIn.value));
 navIn.addEventListener('focus',()=>{for(const k in keys)keys[k]=0;navShow(navIn.value)});
 navIn.addEventListener('blur',()=>setTimeout(()=>{navRes.style.display='none'},180));
 navIn.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape'){navIn.blur();return}if(e.key==='Enter'){e.preventDefault();const r=NAV.res[NAV.sel];if(r)navPick(r);return}
- if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!NAV.res.length)return;NAV.sel=(NAV.sel+(e.key==='ArrowDown'?1:-1)+NAV.res.length)%NAV.res.length;[...navRes.children].forEach((c,i)=>{c.className='nr'+(i===NAV.sel?' on':'')})}});
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!NAV.res.length)return;NAV.sel=(NAV.sel+(e.key==='ArrowDown'?1:-1)+NAV.res.length)%NAV.res.length;[...navRes.querySelectorAll('.nr')].forEach((c,i)=>{c.className='nr'+(i===NAV.sel?' on':'')})}});
 navX.addEventListener('click',()=>{navClear();navIn.value='';toast('Navigation stopped')});
 // labels of ground-floor shops are only drawn near the car
 let LZI=0;function navLabels(){const n=LAZYL.length,B=Math.min(n,260);for(let k=0;k<B;k++){const p=LAZYL[(LZI+k)%n],L=p.lbl,d=Math.hypot(L.x-P.x,L.z-P.z);

@@ -33,7 +33,7 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
  let fx=Math.sin(P.h),fz=Math.cos(P.h),fs=P.vx*fx+P.vz*fz;
  if(!handlingMode)P.h+=st*1.8*P.hd*dfx.steering/(1+Math.abs(fs)/18)*cl(fs/4,-1,1)*(hb?1.5:1)*(P.gnd?1:.2)*dt;if(dfx.pull&&P.gnd&&!frozen)P.h+=dfx.pull*cl(fs/12,-1,1)*dt;
  fx=Math.sin(P.h);fz=Math.cos(P.h);let rx=-fz,rz=fx;fs=P.vx*fx+P.vz*fz;let ls=P.vx*rx+P.vz*rz;
- const sfc=surfK()*dfx.grip*(handlingMode?WX.mu:1),vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes,slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
+ const sfc=surfK()*dfx.grip*(handlingMode?WX.mu*SIMX.gk:1),vmEff=Math.max(2,P.vm*dfx.maxSpeed),aEff=P.a0*dfx.accel,bkEff=P.bk*dfx.brakes*(handlingMode?SIMX.bk:1),slp=(TH(P.x+fx*2,P.z+fz*2)-TH(P.x-fx*2,P.z-fz*2))/4,pfs=fs;
  const bo=P.gnd&&!frozen&&typeof burnoutState==='function'&&burnoutState(th,thA,br,brA,hb,fs);if(handlingMode){PTS.flock=0;PTS.absA=0}
  if(P.gnd&&!frozen){if(bo)fs*=Math.exp(-5*dt);else{if(handlingMode&&fs>-.5&&!(br&&fs<=.5))fs+=ptAccel(dt,th?thA:0,fs,sfc,dfx)*dt;else if(th){let ac=aEff*thA*(1-Math.pow(Math.max(fs,0)/(vmEff*1.05),2.5))*(.5+.5*sfc);if(fs<0)ac=Math.min(ac*2,bkEff*sfc);fs+=ac*dt}
   if(br){if(fs>.5){
@@ -43,7 +43,7 @@ function updP(dt,frozen){if(![P.x,P.y,P.z,P.vx,P.vz,P.vy,P.h].every(isFinite)){w
   if(!(bo||Math.abs(fs)<1&&!th&&(br||hb||Math.abs(slp)<.15)))fs-=9.81*slp/Math.sqrt(1+slp*slp)*dt;if(sfc<1&&Math.abs(fs)>.5)fs-=Math.sign(fs)*(1-sfc)*1.5*dt;
   if(dfx.roll&&Math.abs(fs)>.3)fs-=Math.sign(fs)*Math.min(Math.abs(fs)-.3,dfx.roll*dt);if(hb&&!handlingMode)fs*=1-.8*dt;if(!handlingMode){if(Math.abs(fs)>.5)fs-=Math.sign(fs)*.5*dt;fs-=fs*.012*dt}if(!handlingMode)ls*=Math.exp(-(hb?1.1:(th&&st&&fs>15?2.4:6.5*P.hd))*dfx.lat*dt)}
  if(handlingMode){const q=ptDyn(dt,st,wi.on&&st===-wi.steer,hb,fs,ls,sfc*dfx.lat,(fs-pfs)/dt,frozen,dfx);fs=q[0];ls=q[1];fx=Math.sin(P.h);fz=Math.cos(P.h);rx=-fz;rz=fx}
- P.vx=fx*fs+rx*ls;P.vz=fz*fs+rz*ls;if(frozen)P.vx=P.vz=0;P.al=(fs-pfs)/dt;slipTick(fs,ls,frozen,bo);if(typeof tyreStep==='function')tyreStep(dt,th?thA:0,br?brA:0,hb,st,fs,ls,frozen);
+ P.vx=fx*fs+rx*ls;P.vz=fz*fs+rz*ls;if(frozen)P.vx=P.vz=0;P.al=(fs-pfs)/dt;slipTick(fs,ls,frozen,bo);if(handlingMode)simxTick(dt,fs,P.gnd&&!frozen&&br&&fs>.5?Math.min(12,bkEff*brA):0);if(typeof tyreStep==='function')tyreStep(dt,th?thA:0,br?brA:0,hb,st,fs,ls,frozen);
  const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),spm=Math.hypot(P.vx,P.vz);
  if(P.gnd&&spm>8&&sa>.22-.012*P.dr&&!frozen){drift.t+=dt;drift.off=0;drift.pts+=sa*spm*8*dt*(1+Math.min(4,drift.t/3))*(1+.2*P.dr)*(P.rm||1)}
  else if(drift.pts>0){drift.off+=dt;if(drift.off>.7){if(drift.pts>40){const n=Math.round(drift.pts);drift.total+=n;save();toast('Drift +'+n+(P.rm>1?'  ('+RARN[P.rt]+' ×'+P.rm.toFixed(1)+')':''))}drift.pts=0;drift.t=0}}

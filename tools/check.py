@@ -51,7 +51,7 @@ rec('JSON files parse',not bad,'; '.join(bad))
 # 7. asset manifests (fields, licences, files, sizes, checksums)
 c,o=run([NODE,'scripts/validate-assets.js',B]);rec('asset manifests',c==0,last(o))
 # 8. Node checks: (name, run from repo root?, regex the LAST line must match; None = exit code only)
-CORE=[('off_trace',1,r'^== same|identical|same'),('val_net',0,r'widths'),('boot',0,r'meshes \d+'),('h2',0,r'true'),('h13',0,r'true'),('h20',0,r'\[\[1500,3000'),('h24',0,r'bad 6$'),('assist_v46',1,r'all passed'),('assist_v48',1,r'all passed')]
+CORE=[('off_trace',1,r'^== same|identical|same'),('val_net',0,r'widths'),('boot',0,r'meshes \d+'),('h2',0,r'true'),('h13',0,r'true'),('h20',0,r'\[\[1500,3000'),('h24',0,r'bad 6$'),('assist_v46',1,r'all passed'),('assist_v48',1,r'all passed'),('assist_v49',1,r'all passed')]
 MORE=[('realism_test',1,r'all passed'),('damage_test',1,r'all passed'),('damage_v44',1,r'all passed'),('handling_test',1,r'all passed'),('drift_v45',1,r'all passed'),
  ('audio_v45',1,r'all passed'),('save_v45',1,r'all passed'),('dyn_check',0,r'groundH'),('h16',0,r' 0$'),('tour',0,r'off-road 0'),('lmchk',0,None),('signals_test',0,r'all passed'),('vg',0,r'bad 9$'),('h14',0,r'bad 2$')]
 W=tempfile.mkdtemp(prefix='irbid-check-')
@@ -60,10 +60,10 @@ for name,root,rx in CORE+(MORE if FULL else []):
     ok=c==0 and (rx is None or re.search(rx,last(o)) is not None);rec('node '+name,ok,last(o))
 if FULL:
     c,o=run([NODE,os.path.join(ROOT,'tests/h21.js'),os.path.join(ROOT,B),os.path.join(W,'h21.json')],cwd=W);rec('node h21 (places)',c==0 and 'places 1729' in o,last(o))
-    PW=['v48_pw','v47_pw','xbrowser_pw','v46_pw','damage_pw','damage_v44_pw','world_v44_pw','audio_v45_pw','pause_v45_pw','playtest_v45_pw','dc2','disp','ios','shopt','drive_pw','place_audit']
+    PW=['v49_pw','v48_pw','v47_pw','xbrowser_pw','v46_pw','damage_pw','damage_v44_pw','world_v44_pw','audio_v45_pw','pause_v45_pw','playtest_v45_pw','dc2','disp','ios','shopt','drive_pw','place_audit']
     for name in PW:
         env=dict(os.environ);env.pop('SP',None)
-        if name in('v48_pw','v47_pw','v46_pw','pause_v45_pw','playtest_v45_pw'):env['SP']=os.path.join(W,'shots')
+        if name in('v49_pw','v48_pw','v47_pw','v46_pw','pause_v45_pw','playtest_v45_pw'):env['SP']=os.path.join(W,'shots')
         try:p=subprocess.run([PY,'tests/'+name+'.py',B],cwd=ROOT,capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=1800,env=env);c,o=p.returncode,(p.stdout+p.stderr).strip()
         except subprocess.TimeoutExpired:c,o=124,'timeout'
         ok=c==0 and not re.search(r'FAIL|Traceback',o.split('\n')[-1]);rec('browser '+name,ok,last(o))

@@ -39,6 +39,19 @@ function ptCalib(s){const x=.97/1.02,pw=T=>T*ptCurve(x,s.ev)*s.red*x*2*Math.PI/6
 const ASSTORE='irbid-drive-assist-v1',ASSIST={abs:true,tc:false,esc:false};
 try{const o=JSON.parse(localStorage.getItem(ASSTORE)||'{}');for(const k of['abs','tc','esc'])if(typeof o[k]==='boolean')ASSIST[k]=o[k]}catch(e){}
 function assistSave(){try{localStorage.setItem(ASSTORE,JSON.stringify(ASSIST))}catch(e){}}
+// ---- v49: optional tyre temperature and brake fade (Realistic only; both OFF by default = the v48 handling exactly, tests: assist_v49).
+// One temperature for all four tyres and one for the brakes (no per-wheel thermal model). Tyres heat from cornering / traction work, rolling and
+// slip, and cool toward the air with speed; grip peaks at 90 °C (up to −8 % cold, up to −15 % overheated). Brakes heat from the braking energy
+// (a full stop from 100 km/h adds ~120 °C) and cool with airflow; above 400 °C the brake force fades linearly to 60 % at 700 °C. All estimates.
+const SXSTORE='irbid-drive-sim-v1',SIMX={tt:false,bf:false,tT:24,bT:24,gk:1,bk:1};
+try{const o=JSON.parse(localStorage.getItem(SXSTORE)||'{}');for(const k of['tt','bf'])if(typeof o[k]==='boolean')SIMX[k]=o[k]}catch(e){}
+function simxSave(){try{localStorage.setItem(SXSTORE,JSON.stringify({tt:SIMX.tt,bf:SIMX.bf}))}catch(e){}}
+const simxAir=()=>24-8*(typeof WX!=='undefined'?WX.wet:0);
+function simxGrip(T){return T<90?1-.08*Math.min(1,((90-T)/65)**2):1-.15*Math.min(1,((T-90)/50)**2)}
+function simxTick(dt,fs,bd){const v=Math.abs(fs),amb=simxAir();
+ if(SIMX.tt){const ax=Math.min(12,Math.abs(P.al||0)),ay=Math.min(12,Math.abs(fs*PTS.yr)),sl=.5*TSLIP.f+TSLIP.r+2*PTS.spin;
+  SIMX.tT+=((.0145*(ax+ay)+.05)*v+.32*sl*Math.min(v,20)-(SIMX.tT-amb)*(.02+.012*Math.sqrt(v)))*dt;SIMX.tT=cl(SIMX.tT,amb-5,160);SIMX.gk=simxGrip(SIMX.tT)}else{SIMX.tT=amb;SIMX.gk=1}
+ if(SIMX.bf){SIMX.bT+=(.31*bd*v-(SIMX.bT-amb)*(.004+.0008*v))*dt;SIMX.bT=cl(SIMX.bT,amb-5,900);SIMX.bk=SIMX.bT<400?1:Math.max(.6,1-.4*(SIMX.bT-400)/300)}else{SIMX.bT=amb;SIMX.bk=1}}
 function ptAccel(dt,thA,fs,sfc,dfx){if(PTS.escA)thA*=.3;const s=ptSpec(P.idx||0),m=PORS[P.idx||0],kv=Math.max(.3,(P.vm/(m[1]/3.6*.98))*dfx.maxSpeed),ka=(P.a0/Math.min(11,27.8/m[2]*1.1))*dfx.accel,v=Math.max(0,fs);
  if(PTS.idx!==s.i){PTS.idx=s.i;PTS.gear=1;PTS.shift=0;PTS.spin=0}
  const red=s.red,idl=s.idle;let g=PTS.gear,rpm=ptGear(s,v,g)/kv;
@@ -95,6 +108,6 @@ function updPStep(dt,frozen){if(!handlingMode||dt<=1/60+1e-6)return updP(dt,froz
 // slip state for smoke / squeal in BOTH modes (Arcade has no tyre model: the body slip angle stands in). Rendering + audio only, never physics.
 function slipTick(fs,ls,frozen,bo){const sa=Math.abs(Math.atan2(ls,Math.abs(fs)+.5)),sp=Math.hypot(fs,ls);TSLIP.sa=sa;TSLIP.spin=bo?1:handlingMode?PTS.spin:0;
  if(!handlingMode){TSLIP.r=P.gnd&&!frozen&&sp>5?cl((sa-.12)/.15,0,3):0;TSLIP.f=TSLIP.r*.3;TSLIP.lock=0}}
-function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+(PTS.flock?' · <b style="color:#ff8a7a">LOCKED</b>':'')+(PTS.absA?' · ABS':'')+(PTS.tcA?' · TC':'')+(PTS.escA?' · ESC':'')+'</small>'}
+function ptHud(){if(!handlingMode)return'';const s=ptSpec(P.idx||0);return'<small>'+(s.ev?'EV':(PTS.man?'M':'G')+PTS.gear)+' · '+Math.round(PTS.rpm/100)*100+' rpm'+(PTS.spin>.25?' · wheelspin':'')+(PTS.flock?' · <b style="color:#ff8a7a">LOCKED</b>':'')+(PTS.absA?' · ABS':'')+(PTS.tcA?' · TC':'')+(PTS.escA?' · ESC':'')+(SIMX.tt?' · tyres '+Math.round(SIMX.tT)+'°C':'')+(SIMX.bf?' · brakes '+Math.round(SIMX.bT)+'°C'+(SIMX.bk<.97?' <b style="color:#ffb36b">FADE</b>':''):'')+'</small>'}
 function setHandling(mo){handlingMode=mo?1:0;try{localStorage.setItem(HSTORE,String(handlingMode))}catch(e){}PTS.idx=-1;PTS.yr=PTS.dl=0;PTS.hz=PTS.hv=PTS.pz=PTS.pv=PTS.rz=PTS.rv=0;toast(handlingMode?'Handling: Realistic (engine, gears, traction, suspension; estimates)':'Handling: Arcade')}
 addEventListener('keydown',e=>{if(e.code==='KeyH'&&!e.repeat&&!(e.target&&e.target.tagName==='INPUT')&&!ui){e.preventDefault();setHandling(!handlingMode)}});
