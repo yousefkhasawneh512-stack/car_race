@@ -11,4 +11,5 @@ return {
 	road = nil, -- the road graph (Modules/Road)
 	ai = {}, -- every AI car this frame (traffic, rivals, police): {x, z, h, v, L, W, hit}
 	mission = nil, -- "race" | "heist" | nil
+	raceMark = nil, -- {x, z} of the next race checkpoint (minimap)
 }

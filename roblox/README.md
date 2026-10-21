@@ -86,10 +86,10 @@ Roblox's own rules decide how Robux become real money (**Developer Exchange / De
 | `IrbidDrive.rbxlx` | The place file (all scripts and data). Generated, so don't edit it by hand |
 | `src/ReplicatedStorage/Config.lua` | Settings and prices (Robux IDs go here) |
 | `src/ReplicatedStorage/Modules/Road.lua` | Road graph: parsing, nearest road, routing, paths, speed caps |
-| `src/ServerScriptService/WorldBuilder.server.lua` | Builds the map, the pads and the labels |
-| `src/ServerScriptService/GameServer.server.lua` | Players, cars, money, upgrades, wheel, race and heist rewards (checked), saving, purchases, day and night |
-| `src/StarterPlayerScripts/Main.client.lua` | The device's loop and controls |
-| `src/StarterPlayerScripts/Client/*.lua` | `Drive` (car), `Traffic`, `Missions` (races, heist), `Nav` (GPS, minimap), `Menus` (garage, shop, wheel), `Hud`, `State` |
+| `src/ServerScriptService/WorldBuilder.server.lua` | Builds the map, one module per part in `World/`: `MapData`, `Sky`, `Terrain`, `Roads`, `Buildings`, `Signs`, `Sites`, `Spawn` |
+| `src/ServerScriptService/GameServer.server.lua` | Starts the server modules in `Game/`: `Remotes`, `PlayerData` (saving), `CarBuilder`, `Spawner`, `Sessions`, `Drift`, `Sites`, `Garage`, `Upgrades`, `Wheel`, `Shop`, `RaceRewards`, `HeistRewards`, `Missions`, `Purchases` (Robux), `DayNight` |
+| `src/StarterPlayerScripts/Main.client.lua` | The device's frame loop |
+| `src/StarterPlayerScripts/Client/*.lua` | One job per file. Car: `Drive`, `Ground`, `Bump`, `DriftScore`, `CarSpec`, `CarFx`, `Camera`, `Controls`. World: `Traffic`. Missions: `Race`, `Heist`, `Police`, `Missions`. Navigation: `Gps`, `Search`, `Minimap`, `StreetName`, `Nav`. Menus: `Garage`, `TuneShop`, `CarWheel`, `CarInfo`, `Menus`. Screen: `Hud`, `InfoLine`. Shared: `State` |
 | `data/`, `shared/` | Generated map data (server-only / sent to devices) |
 | `default.project.json` | For Rojo users (`rojo serve` / `rojo build`) |
 | `tests/` | Headless test: `rbxmock.luau` (engine stand-in), `scenario.luau` (play-through), `run.js` (runner) |
