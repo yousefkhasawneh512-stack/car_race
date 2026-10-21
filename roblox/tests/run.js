@@ -20,7 +20,9 @@ const longStr=s=>{let eq='';while(s.includes(']'+eq+']'))eq+='=';return'['+eq+'[
 const lua=it=>'{cls='+JSON.stringify(it.cls)+',name='+JSON.stringify(it.name)+(Object.keys(it.props).length?',props={'+Object.entries(it.props).map(([k,v])=>k+'='+v).join(',')+'}':'')+
  (it.src!==undefined?',src='+longStr(it.src):'')+',kids={'+it.kids.map(lua).join(',')+'}}';
 const mock=fs.readFileSync(path.join(__dirname,'rbxmock.luau'),'utf8'),scen=fs.readFileSync(process.env.SCEN||path.join(__dirname,'scenario.luau'),'utf8');
-const bundle='local M = (function()\n'+mock+'\nend)()\n'+root.kids.map(k=>'M.build('+lua(k)+', game)\n').join('')+'\n'+scen;
+const bundle='local M = (function()\n'+mock+'\nend)()\n'+root.kids.map(k=>'M.build('+lua(k)+', game)\n').join('')+
+ // NOTERRAIN=1: a place whose Workspace has no Terrain (the game must then build its ground from parts)
+ (process.env.NOTERRAIN?'M.workspace.Terrain:Destroy()\nprint("(test without Terrain)")\n':'')+'\n'+scen;
 const out=path.join(os.tmpdir(),'irbid_roblox_bundle.luau');fs.writeFileSync(out,bundle);
 const t0=Date.now(),r=spawnSync(LUAU,[out],{encoding:'utf8',maxBuffer:64<<20});
 process.stdout.write(r.stdout||'');process.stderr.write(r.stderr||'');

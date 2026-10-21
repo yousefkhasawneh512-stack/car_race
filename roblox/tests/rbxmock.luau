@@ -785,6 +785,12 @@ function METHODS.Raycast(ws, o, d, params)
 end
 
 -- ================= the data model =================
+M.warnings = {}
+warn = function(...)
+	local s = table.concat(table.pack(...), " ")
+	table.insert(M.warnings, s)
+	print("WARN " .. s)
+end
 typeof = function(v)
 	local mt = getmetatable(v)
 	if mt == Inst then return "Instance" elseif mt == V3 then return "Vector3" elseif mt == CF then return "CFrame" end

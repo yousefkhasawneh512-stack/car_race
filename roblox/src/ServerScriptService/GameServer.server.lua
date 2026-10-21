@@ -217,7 +217,11 @@ local function spawnCar(plr, keep)
 	local hum = char:FindFirstChildOfClass("Humanoid")
 	local root = char:FindFirstChild("HumanoidRootPart")
 	if not (hum and root) then return end
-	while not Workspace:GetAttribute("MapReady") do task.wait(0.5) end
+	local waited = 0
+	while not Workspace:GetAttribute("MapReady") and waited < 90 do
+		waited += 0.5
+		task.wait(0.5)
+	end
 	local spec = Config.CARS[d.cur]
 	local pos, f
 	local old = Workspace:FindFirstChild("Car_" .. plr.UserId)
@@ -287,7 +291,11 @@ local function setup(plr)
 		task.wait(0.5)
 		spawnCar(plr, false)
 	end)
-	while not Workspace:GetAttribute("MapReady") do task.wait(0.5) end
+	local waited = 0
+	while not Workspace:GetAttribute("MapReady") and waited < 90 do
+		waited += 0.5
+		task.wait(0.5)
+	end
 	if plr.Parent then plr:LoadCharacter() end
 end
 

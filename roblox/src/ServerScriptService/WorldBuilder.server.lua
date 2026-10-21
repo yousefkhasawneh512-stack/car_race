@@ -46,17 +46,45 @@ map.Name = "IrbidMap"
 local roadsF = Instance.new("Folder"); roadsF.Name = "Roads"; roadsF.Parent = map
 local bldF = Instance.new("Folder"); bldF.Name = "Buildings"; bldF.Parent = map
 local siteF = Instance.new("Folder"); siteF.Name = "Sites"; siteF.Parent = map
+local groundF = Instance.new("Folder"); groundF.Name = "Ground"; groundF.Parent = map
 
--- ---- terrain: 40 m tiles of ground, top 0.6 m under the road level ----
-local T = Workspace.Terrain
-local tile = 40 * S
-for _, t in ipairs(chunks("Terrain")) do
-	for i = 1, #t, 3 do
-		local x, z, y = t[i] * D, t[i + 1] * D, t[i + 2] * D
-		T:FillBlock(CFrame.new(x, y - 0.6 * S - 6, z), Vector3.new(tile, 12, tile), Enum.Material.Ground)
-	end
-	task.wait()
+-- every stage runs protected: if one fails (it is reported in Output), the rest of the map is still built and players still spawn
+local function stage(name, f)
+	local ok, err = pcall(f)
+	if not ok then warn("Irbid Drive: building the " .. name .. " failed: " .. tostring(err)) end
 end
+
+-- ---- terrain: 40 m tiles of ground, top 0.6 m under the road level. Roblox terrain when the place has it, else ground parts ----
+stage("terrain", function()
+	local T = Workspace:FindFirstChildOfClass("Terrain")
+	local tile = 40 * S
+	local useParts = T == nil
+	if T and not pcall(function() T:FillBlock(CFrame.new(0, -5000, 0), Vector3.new(4, 4, 4), Enum.Material.Ground) end) then useParts = true end
+	if useParts then warn("Irbid Drive: no usable Terrain in this place, the ground is built from parts") end
+	local k = 0
+	for _, t in ipairs(chunks("Terrain")) do
+		for i = 1, #t, 3 do
+			local x, z, y = t[i] * D, t[i + 1] * D, t[i + 2] * D
+			if useParts then
+				local p = Instance.new("Part")
+				p.Anchored = true
+				p.CanTouch = false
+				p.Material = Enum.Material.Ground
+				p.Color = Color3.fromRGB(150, 128, 96)
+				p.TopSurface = Enum.SurfaceType.Smooth
+				p.Size = Vector3.new(tile, 12, tile)
+				p.CFrame = CFrame.new(x, y - 0.6 * S - 6, z)
+				p.Name = "Ground"
+				p.Parent = groundF
+				k += 1
+				if k % 1500 == 0 then task.wait() end
+			else
+				T:FillBlock(CFrame.new(x, y - 0.6 * S - 6, z), Vector3.new(tile, 12, tile), Enum.Material.Ground)
+			end
+		end
+		task.wait()
+	end
+end)
 
 -- ---- roads: one part per OSM segment, sloped between the two terrain heights, overlapping at joints ----
 local ROADC = {
@@ -66,6 +94,7 @@ local ROADC = {
 	[3] = Color3.fromRGB(58, 60, 64), -- roundabout
 }
 local n = 0
+stage("roads", function()
 for _, r in ipairs(chunks("Roads")) do
 	for i = 1, #r, 8 do
 		local a = Vector3.new(r[i] * D, r[i + 4] * D + 0.1 * S, r[i + 1] * D)
@@ -87,6 +116,7 @@ for _, r in ipairs(chunks("Roads")) do
 		if n % 1500 == 0 then task.wait() end
 	end
 end
+end)
 
 -- ---- buildings: OSM footprint pieces (rectangles), estimated heights where OSM has none ----
 local BC = {
@@ -94,6 +124,7 @@ local BC = {
 	[3] = Color3.fromRGB(190, 186, 176), [4] = Color3.fromRGB(170, 166, 160), [5] = Color3.fromRGB(236, 230, 214),
 	[6] = Color3.fromRGB(180, 196, 205), [7] = Color3.fromRGB(160, 150, 136),
 }
+stage("buildings", function()
 for _, b in ipairs(chunks("Buildings")) do
 	for i = 1, #b, 8 do
 		local w, d, h = b[i + 2] * D, b[i + 3] * D, b[i + 5] * D + 1 * S
@@ -110,6 +141,7 @@ for _, b in ipairs(chunks("Buildings")) do
 		if n % 1500 == 0 then task.wait() end
 	end
 end
+end)
 
 -- ---- a floating name sign ----
 local function sign(parent, pos, text, color, maxDist, w)
@@ -141,9 +173,11 @@ local function sign(parent, pos, text, color, maxDist, w)
 end
 
 -- ---- landmark name labels ----
-for _, L in ipairs(Meta.labels) do
-	sign(map, Vector3.new(L.x * S, L.y * S + 18 * S, L.z * S), L.n)
-end
+stage("labels", function()
+	for _, L in ipairs(Meta.labels) do
+		sign(map, Vector3.new(L.x * S, L.y * S + 18 * S, L.z * S), L.n)
+	end
+end)
 
 -- ---- game sites (the web game's positions): the bank, Apex Drift Customs, race starts. Glowing pads, no collision ----
 local function pad(name, x, y, z, radius, color, text)
@@ -163,12 +197,14 @@ local function pad(name, x, y, z, radius, color, text)
 	sign(siteF, Vector3.new(x * S, (y + 9) * S, z * S), text, color, 1500, 320)
 	return p
 end
-pad("BankPad", Meta.bank.x, Meta.bank.y, Meta.bank.z, 7, Color3.fromRGB(255, 60, 60), "🏦 BANK · press E")
-pad("ShopPad", Meta.shop.x, Meta.shop.y, Meta.shop.z, 7, Color3.fromRGB(255, 122, 0), "🔧 APEX DRIFT CUSTOMS · press U")
-for _, c in ipairs(Circuits) do
-	local x, z, y = string.match(c.path, "^(-?%d+),(-?%d+),(-?%d+)")
-	pad("RacePad", tonumber(x) / 10, tonumber(y) / 10, tonumber(z) / 10, 5, Color3.fromRGB(51, 224, 255), "🏁 " .. c.name .. " · press R")
-end
+stage("sites", function()
+	pad("BankPad", Meta.bank.x, Meta.bank.y, Meta.bank.z, 7, Color3.fromRGB(255, 60, 60), "🏦 BANK · press E")
+	pad("ShopPad", Meta.shop.x, Meta.shop.y, Meta.shop.z, 7, Color3.fromRGB(255, 122, 0), "🔧 APEX DRIFT CUSTOMS · press U")
+	for _, c in ipairs(Circuits) do
+		local x, z, y = string.match(c.path, "^(-?%d+),(-?%d+),(-?%d+)")
+		pad("RacePad", tonumber(x) / 10, tonumber(y) / 10, tonumber(z) / 10, 5, Color3.fromRGB(51, 224, 255), "🏁 " .. c.name .. " · press R")
+	end
+end)
 
 -- spawn point at the web game's start (Baghdad Street, Al-Balad)
 local sp = Instance.new("SpawnLocation")
@@ -181,5 +217,8 @@ sp.Position = Vector3.new(0, Meta.startY * S + 6, 0)
 sp.Parent = map
 
 map.Parent = Workspace
+-- the "press Play" sign that is only meant for Studio's edit view
+local hint = Workspace:FindFirstChild("EditModeSign")
+if hint then hint:Destroy() end
 Workspace:SetAttribute("MapReady", true)
 print(("Irbid Drive map built: %d roads, %d buildings, %d labels"):format(Meta.roadCount, Meta.buildingCount, #Meta.labels))

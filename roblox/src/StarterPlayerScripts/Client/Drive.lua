@@ -23,7 +23,11 @@ local map = Workspace:WaitForChild("IrbidMap")
 -- ground = roads + terrain only; walls = buildings only (so road joints and terrain steps never stop the car)
 local groundP = RaycastParams.new()
 groundP.FilterType = Enum.RaycastFilterType.Include
-groundP.FilterDescendantsInstances = { map:WaitForChild("Roads"), Workspace.Terrain }
+-- (ground parts exist only when the place has no usable Terrain)
+local groundList = { map:WaitForChild("Roads"), map:WaitForChild("Ground") }
+local terrain = Workspace:FindFirstChildOfClass("Terrain")
+if terrain then groundList[#groundList + 1] = terrain end
+groundP.FilterDescendantsInstances = groundList
 local wallP = RaycastParams.new()
 wallP.FilterType = Enum.RaycastFilterType.Include
 wallP.FilterDescendantsInstances = { map:WaitForChild("Buildings") }

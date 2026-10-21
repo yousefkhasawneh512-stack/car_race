@@ -118,10 +118,18 @@ const item=(cls,name,kids,src,props)=>{if(src&&src.includes(']]>'))throw Error(n
 function tree(dir){return fs.readdirSync(dir).sort().map(f=>{const p=path.join(dir,f);if(fs.statSync(p).isDirectory())return item('Folder',f,tree(p));
  const src=fs.readFileSync(p,'utf8').replace(/\r\n/g,'\n');if(f.endsWith('.server.lua'))return item('Script',f.slice(0,-11),[],src);if(f.endsWith('.client.lua'))return item('LocalScript',f.slice(0,-11),[],src);
  if(f.endsWith('.lua'))return item('ModuleScript',f.slice(0,-4),[],src);throw Error('unexpected file '+p)})}
+function editSign(){const msg='IRBID DRIVE\nPress ▶ Play (F5) to build the map of Irbid and drive.\nThe streets, buildings and terrain are created when the game starts.';
+ const cf='<CoordinateFrame name="CFrame"><X>0</X><Y>25</Y><Z>-60</Z><R00>1</R00><R01>0</R01><R02>0</R02><R10>0</R10><R11>1</R11><R12>0</R12><R20>0</R20><R21>0</R21><R22>1</R22></CoordinateFrame>';
+ const gui=face=>item('SurfaceGui','Msg',[item('TextLabel','Text',[],undefined,'<UDim2 name="Size"><XS>1</XS><XO>0</XO><YS>1</YS><YO>0</YO></UDim2><float name="BackgroundTransparency">1</float>'+
+  '<bool name="TextScaled">true</bool><bool name="TextWrapped">true</bool><Color3 name="TextColor3"><R>1</R><G>1</G><B>1</B></Color3><string name="Text">'+esc(msg)+'</string>')],undefined,
+  '<token name="Face">'+face+'</token><token name="SizingMode">1</token><float name="PixelsPerStud">12</float>');
+ return item('Part','EditModeSign',[gui(2),gui(5)],undefined,'<bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool>'+cf+
+  '<Vector3 name="size"><X>120</X><Y>40</Y><Z>2</Z></Vector3><Color3uint8 name="Color3uint8">'+(0xFF000000+0x1E*65536+0x30*256+0x50)+'</Color3uint8>')}
 const modsOf=mods=>mods.map(([n,s])=>item('ModuleScript',n,[],s)),SRC=path.join(OUT,'src');
 const xml='<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">'+
- // streaming off: every player's device does its own ground / wall ray tests against the whole map
- item('Workspace','Workspace',[],undefined,'<bool name="StreamingEnabled">false</bool>')+
+ // streaming off: every player's device does its own ground / wall ray tests against the whole map. The map is built by WorldBuilder when the
+ // game runs, so Studio's edit view would show only the sky: a board in front of the default camera says so (WorldBuilder removes it)
+ item('Workspace','Workspace',[editSign()],undefined,'<bool name="StreamingEnabled">false</bool>')+
  item('ReplicatedStorage','ReplicatedStorage',[...tree(path.join(SRC,'ReplicatedStorage')),item('Folder','IrbidShared',modsOf(sharedMods))])+
  item('ServerStorage','ServerStorage',[item('Folder','IrbidData',modsOf(serverMods))])+
  item('ServerScriptService','ServerScriptService',tree(path.join(SRC,'ServerScriptService')))+
