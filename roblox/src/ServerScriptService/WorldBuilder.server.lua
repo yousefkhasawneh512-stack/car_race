@@ -5,9 +5,11 @@ local Workspace = game:GetService("Workspace")
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local Shared = ReplicatedStorage:WaitForChild("IrbidShared")
+local Meta = require(Shared:WaitForChild("Meta"))
+local Circuits = require(Shared:WaitForChild("Circuits"))
 
 local DATA = ServerStorage:WaitForChild("IrbidData")
-local Meta = require(DATA:WaitForChild("Meta"))
 local S = Config.SCALE
 local D = S / 10 -- decimetres -> studs
 
@@ -28,16 +30,22 @@ local function chunks(prefix)
 	return list
 end
 
-Lighting.ClockTime = 14
+Lighting.ClockTime = 9
 Lighting.Brightness = 2.5
 Lighting.OutdoorAmbient = Color3.fromRGB(150, 140, 125)
+local atm = Instance.new("Atmosphere")
+atm.Density = 0.28
+atm.Haze = 1.2
+atm.Color = Color3.fromRGB(214, 200, 176)
+atm.Decay = Color3.fromRGB(120, 110, 95)
+atm.Parent = Lighting
 Workspace.Gravity = 196.2
 
 local map = Instance.new("Folder")
 map.Name = "IrbidMap"
-map.Parent = Workspace
 local roadsF = Instance.new("Folder"); roadsF.Name = "Roads"; roadsF.Parent = map
 local bldF = Instance.new("Folder"); bldF.Name = "Buildings"; bldF.Parent = map
+local siteF = Instance.new("Folder"); siteF.Name = "Sites"; siteF.Parent = map
 
 -- ---- terrain: 40 m tiles of ground, top 0.6 m under the road level ----
 local T = Workspace.Terrain
@@ -52,10 +60,10 @@ end
 
 -- ---- roads: one part per OSM segment, sloped between the two terrain heights, overlapping at joints ----
 local ROADC = {
-	[0] = Color3.fromRGB(58, 60, 64),  -- major
-	[1] = Color3.fromRGB(70, 72, 76),  -- local
-	[2] = Color3.fromRGB(96, 92, 86),  -- service / alley
-	[3] = Color3.fromRGB(58, 60, 64),  -- roundabout
+	[0] = Color3.fromRGB(58, 60, 64), -- major
+	[1] = Color3.fromRGB(70, 72, 76), -- local
+	[2] = Color3.fromRGB(96, 92, 86), -- service / alley
+	[3] = Color3.fromRGB(58, 60, 64), -- roundabout
 }
 local n = 0
 for _, r in ipairs(chunks("Roads")) do
@@ -103,8 +111,8 @@ for _, b in ipairs(chunks("Buildings")) do
 	end
 end
 
--- ---- landmark name labels (visible within ~600 studs) ----
-for _, L in ipairs(Meta.labels) do
+-- ---- a floating name sign ----
+local function sign(parent, pos, text, color, maxDist, w)
 	local p = Instance.new("Part")
 	p.Anchored = true
 	p.CanCollide = false
@@ -112,23 +120,54 @@ for _, L in ipairs(Meta.labels) do
 	p.CanTouch = false
 	p.Transparency = 1
 	p.Size = Vector3.new(1, 1, 1)
-	p.Position = Vector3.new(L.x * S, L.y * S + 18 * S, L.z * S)
+	p.Position = pos
 	p.Name = "Label"
 	local g = Instance.new("BillboardGui")
-	g.Size = UDim2.fromOffset(260, 40)
-	g.MaxDistance = 700
+	g.Size = UDim2.fromOffset(w or 260, 40)
+	g.MaxDistance = maxDist or 700
 	g.AlwaysOnTop = false
 	local t = Instance.new("TextLabel")
 	t.Size = UDim2.fromScale(1, 1)
 	t.BackgroundTransparency = 1
 	t.TextScaled = true
 	t.Font = Enum.Font.GothamBold
-	t.TextColor3 = Color3.new(1, 1, 1)
+	t.TextColor3 = color or Color3.new(1, 1, 1)
 	t.TextStrokeTransparency = 0.3
-	t.Text = L.n
+	t.Text = text
 	t.Parent = g
 	g.Parent = p
-	p.Parent = map
+	p.Parent = parent
+	return p
+end
+
+-- ---- landmark name labels ----
+for _, L in ipairs(Meta.labels) do
+	sign(map, Vector3.new(L.x * S, L.y * S + 18 * S, L.z * S), L.n)
+end
+
+-- ---- game sites (the web game's positions): the bank, Apex Drift Customs, race starts. Glowing pads, no collision ----
+local function pad(name, x, y, z, radius, color, text)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.Shape = Enum.PartType.Cylinder
+	p.Material = Enum.Material.Neon
+	p.Color = color
+	p.Transparency = 0.45
+	p.Size = Vector3.new(0.3 * S, radius * 2 * S, radius * 2 * S)
+	p.CFrame = CFrame.new(x * S, (y + 0.25) * S, z * S) * CFrame.Angles(0, 0, math.pi / 2)
+	p.Parent = siteF
+	sign(siteF, Vector3.new(x * S, (y + 9) * S, z * S), text, color, 1500, 320)
+	return p
+end
+pad("BankPad", Meta.bank.x, Meta.bank.y, Meta.bank.z, 7, Color3.fromRGB(255, 60, 60), "🏦 BANK · press E")
+pad("ShopPad", Meta.shop.x, Meta.shop.y, Meta.shop.z, 7, Color3.fromRGB(255, 122, 0), "🔧 APEX DRIFT CUSTOMS · press U")
+for _, c in ipairs(Circuits) do
+	local x, z, y = string.match(c.path, "^(-?%d+),(-?%d+),(-?%d+)")
+	pad("RacePad", tonumber(x) / 10, tonumber(y) / 10, tonumber(z) / 10, 5, Color3.fromRGB(51, 224, 255), "🏁 " .. c.name .. " · press R")
 end
 
 -- spawn point at the web game's start (Baghdad Street, Al-Balad)
@@ -141,5 +180,6 @@ sp.CanQuery = false
 sp.Position = Vector3.new(0, Meta.startY * S + 6, 0)
 sp.Parent = map
 
+map.Parent = Workspace
 Workspace:SetAttribute("MapReady", true)
 print(("Irbid Drive map built: %d roads, %d buildings, %d labels"):format(Meta.roadCount, Meta.buildingCount, #Meta.labels))

@@ -2,12 +2,13 @@
   "name": "IrbidDrive",
   "tree": {
     "$className": "DataModel",
-    "ReplicatedStorage": { "Config": { "$path": "build/Config.lua" } },
-    "ServerStorage": { "IrbidData": { "$path": "data" } },
-    "ServerScriptService": {
-      "WorldBuilder": { "$path": "src/ServerScriptService/WorldBuilder.server.lua" },
-      "GameServer": { "$path": "src/ServerScriptService/GameServer.server.lua" }
+    "Workspace": { "$properties": { "StreamingEnabled": false } },
+    "ReplicatedStorage": {
+      "$path": "src/ReplicatedStorage",
+      "IrbidShared": { "$path": "shared" }
     },
-    "StarterPlayer": { "StarterPlayerScripts": { "CarClient": { "$path": "src/StarterPlayerScripts/CarClient.client.lua" } } }
+    "ServerStorage": { "IrbidData": { "$path": "data" } },
+    "ServerScriptService": { "$path": "src/ServerScriptService" },
+    "StarterPlayer": { "StarterPlayerScripts": { "$path": "src/StarterPlayerScripts" } }
   }
 }
