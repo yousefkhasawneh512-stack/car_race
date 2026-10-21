@@ -25,14 +25,14 @@ function CarWheel.open()
 	p.sub.Text = table.concat(odds, " · ")
 	local reel = Hud.label(p.list, UDim2.new(), UDim2.fromOffset(340, 70), Vector2.zero, "?", 34)
 	reel.LayoutOrder = 1
-	local res = Hud.label(p.list, UDim2.new(), UDim2.fromOffset(340, 48), Vector2.zero, "Each spin costs " .. fmt(Config.WHEEL_COST) .. " cash · a duplicate refunds " .. fmt(Config.WHEEL_REFUND), 15)
+	local res = Hud.label(p.list, UDim2.new(), UDim2.fromOffset(340, 48), Vector2.zero, "Each spin costs " .. fmt(Config.WHEEL_COST) .. " JD · a duplicate refunds " .. fmt(Config.WHEEL_REFUND), 15)
 	res.TextWrapped = true
 	res.LayoutOrder = 2
 	local go
-	go = Hud.button(p.list, "SPIN · " .. fmt(Config.WHEEL_COST) .. " cash", function()
+	go = Hud.button(p.list, "SPIN · " .. fmt(Config.WHEEL_COST) .. " JD", function()
 		if spinning then return end
 		if (plr:GetAttribute("Cash") or 0) < Config.WHEEL_COST then
-			res.Text = "Not enough cash: drift, race and rob the bank to earn more"
+			res.Text = "Not enough JD: fines, races and the bank heist pay JD"
 			return
 		end
 		spinning = true
@@ -40,7 +40,7 @@ function CarWheel.open()
 		local ok, r = Remotes.CarAction:InvokeServer("spin")
 		if not ok or type(r) ~= "table" then
 			spinning = false
-			go.Text = "SPIN · " .. fmt(Config.WHEEL_COST) .. " cash"
+			go.Text = "SPIN · " .. fmt(Config.WHEEL_COST) .. " JD"
 			res.Text = tostring(r)
 			return
 		end
@@ -53,11 +53,11 @@ function CarWheel.open()
 		end
 		local car = Config.CARS[r.car]
 		reel.Text = Config.RARITY[r.tier + 1].name .. " · " .. car.name
-		res.Text = r.dup and ("Duplicate: you already own it, " .. fmt(Config.WHEEL_REFUND) .. " cash refunded")
+		res.Text = r.dup and ("Duplicate: you already own it, " .. fmt(Config.WHEEL_REFUND) .. " JD refunded")
 			or ("Unlocked and equipped! (×" .. string.format("%.1f", Config.RARITY[r.tier + 1].mult) .. " drift points)")
 		Hud.toast("Wheel: " .. car.name .. (r.dup and " (duplicate)" or " unlocked!"), 4)
 		spinning = false
-		if go.Parent then go.Text = "SPIN AGAIN · " .. fmt(Config.WHEEL_COST) .. " cash" end
+		if go.Parent then go.Text = "SPIN AGAIN · " .. fmt(Config.WHEEL_COST) .. " JD" end
 	end, 340, 40, Color3.fromRGB(180, 120, 0))
 	go.LayoutOrder = 3
 end

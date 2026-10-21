@@ -22,6 +22,7 @@ function CarSpec.apply()
 	local c = Config.CARS[ci] or Config.CARS[1]
 	spec.vm, spec.a0, spec.hd, spec.dr, spec.bk, spec.rm = t.vm, t.a0, t.hd, t.dr, t.bk, t.rm
 	spec.tier, spec.name, spec.L, spec.W, spec.H = c.tier, c.name, c.L, c.W, c.H
+	spec.wb, spec.fn, spec.zeta = c.wb, c.fn, c.zeta
 	Hud.car.Text = c.name .. " · " .. Config.RARITY[c.tier + 1].name .. " ×" .. string.format("%.1f", t.rm)
 end
 plr:GetAttributeChangedSignal("Tune"):Connect(CarSpec.apply)

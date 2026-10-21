@@ -56,7 +56,7 @@ end
 check("road graph loaded", #State.road.edges > 5000 and #State.road.nodes > 3000, #State.road.edges .. " edges, " .. #State.road.nodes .. " nodes")
 check("HUD shows the info line", string.find(Hud.info.Text, "IRBID DRIVE", 1, true) ~= nil, Hud.info.Text)
 check("starting cash", plr:GetAttribute("Cash") == Config.START_CASH, plr:GetAttribute("Cash"))
-check("leaderstats", plr.leaderstats.Cash.Value == Config.START_CASH)
+check("leaderstats", plr.leaderstats.JD.Value == Config.START_CASH)
 local st = State.st
 check("car on the ground at the start", st.gnd == true and math.abs(st.x) < 1 and math.abs(st.z) < 1, "y " .. f1(st.y) .. " start " .. Meta.startY)
 
@@ -241,16 +241,18 @@ do
 			if side >= -0.3 then right += 1 end
 		end
 	end
-	check("traffic keeps to the right-hand lane", right >= #Traffic.agents - 2, right .. " of " .. #Traffic.agents)
+	-- (measured against the nearest road: a car crossing a junction can be nearest to the crossing street)
+	check("traffic keeps to the right-hand lane", right >= #Traffic.agents * 0.95, right .. " of " .. #Traffic.agents)
 end
 
 -- ================= races =================
 do
+	local RaceM = M.client("Race")
 	local C = Missions.circuits
 	check("race circuits loaded", #C >= 1, #C)
 	local cash0 = plr:GetAttribute("Cash")
 	-- 1) teleporting through the checkpoints is refused by the server
-	M.call(function() Missions.race() end)
+	M.call(function() RaceM.toggle() end)
 	check("race starts with a countdown", State.mission == "race" and State.frozen == true and #Missions.rivals == 3, Hud.mission.Text)
 	M.run(4.2)
 	check("countdown ends", State.frozen == false)
@@ -275,11 +277,12 @@ do
 		M.run(0.1)
 	end
 	M.run(0.5)
-	check("teleport race result refused", plr:GetAttribute("Cash") == cash0, "cash " .. cash0 .. " -> " .. plr:GetAttribute("Cash"))
+	local ft = lastToast("^Finished")
+	check("teleport race result refused", ft ~= nil and string.find(ft, "+", 1, true) == nil, ft)
 	M.run(6.5)
 	check("race ends", State.mission == nil and #Missions.rivals == 0)
 	-- 2) a race that takes a believable time pays by place
-	M.call(function() Missions.race() end)
+	M.call(function() RaceM.toggle() end)
 	M.run(4.2)
 	local minT = 3 + c.P.c[#c.P.c] / (State.spec.vm * 1.2)
 	M.run(minT + 2)
@@ -293,11 +296,14 @@ do
 	end
 	M.run(0.5)
 	local paid = plr:GetAttribute("Cash") - cash1
-	check("race pays by finishing place", paid == Config.RACE_REWARD[fin + 1], "P" .. (fin + 1) .. ", paid " .. paid)
+	-- (the balance can also move by a fine for touching traffic on the way, so read the prize from the finish message)
+	local ftx = lastToast("^Finished") or ""
+	local prize = tonumber((string.gsub(string.match(ftx, "%+([%d,]+) JD") or "0", ",", "")))
+	check("race pays by finishing place", prize == Config.RACE_REWARD[fin + 1] and paid >= prize, "P" .. (fin + 1) .. ", prize " .. tostring(prize) .. ", balance +" .. paid)
 	M.run(7)
 	-- 3) R during a race cancels it
-	M.call(function() Missions.race() end)
-	M.call(function() Missions.race() end)
+	M.call(function() RaceM.toggle() end)
+	M.call(function() RaceM.toggle() end)
 	check("R cancels a race", State.mission == nil and State.frozen == false and #Missions.rivals == 0)
 end
 
@@ -462,22 +468,275 @@ do
 	end
 	check("GPS dots on the road", dots >= 10, dots)
 	Nav.clear()
-	-- reset from off the road
-	local near = Road.nearest(State.road, 0, 0, 50)
-	Drive.place(near.x + 35, near.z + 35, 0)
+	-- F: back to the start (the web game's warp to START)
+	Drive.place(800, 600, 1)
 	M.run(0.3)
 	Drive.reset()
 	M.run(0.3)
-	local n2 = Road.nearest(State.road, st.x, st.z, 60)
-	check("reset puts the car back on a road", n2 and n2.d < n2.e.w / 2, n2 and f1(n2.d) .. " m from the centre line")
+	check("F puts the car back at the start", math.abs(st.x) < 0.5 and math.abs(st.z) < 0.5 and math.abs(st.h - Meta.startHeading) < 0.01, f1(st.x) .. ", " .. f1(st.z))
 	local h = game:GetService("Lighting").ClockTime
-	local expect = (9 + M.now / (Config.DAY_MINUTES * 60) * 24) % 24
-	check("day / night clock runs", math.abs(h - expect) < 0.1, string.format("%.2f h after %d s", h, M.now))
+	local expect = (15 + M.now / (Config.DAY_MINUTES * 60) * 24) % 24
+	check("day / night clock runs (15:00, an hour every 40 s)", math.abs(h - expect) < 0.1, string.format("%.2f h after %d s", h, M.now))
 	local beams = 0
 	for _, d in ipairs(State.car:GetDescendants()) do
 		if d.ClassName == "SpotLight" then beams += 1 end
 	end
 	check("headlights fitted", beams == 2)
+end
+
+-- ================= the web game's road rules =================
+do
+	local Rules = require(Shared.Rules)
+	local Signals, Ground, Laws, Extras, Duel, SpeedBumps = M.client("Signals"), M.client("Ground"), M.client("Laws"), M.client("Extras"), M.client("Duel"), M.client("SpeedBumps")
+	local g = State.road
+	-- terrain heights match the road data (both are the web game's TH)
+	local worst = 0
+	for k = 1, #g.nodes, 37 do
+		local nd = g.nodes[k]
+		worst = math.max(worst, math.abs(Ground.TH(nd.x, nd.z) - nd.y))
+	end
+	check("ground heights follow the web game's terrain", worst < 0.6, "worst " .. f1(worst) .. " m at the junctions")
+	-- traffic lights: the 60 s cycle (24 s green, 3 s amber), the two axes half a cycle apart
+	local gx, gz, both = 0, 0, 0
+	for k = 0, 599 do
+		local t0 = k / 10
+		local function at(ax)
+			local p = (t0 + (ax == "x" and 0 or 30)) % 60
+			return p < 24 and "g" or p < 27 and "y" or "r"
+		end
+		if at("x") == "g" then gx += 1 end
+		if at("z") == "g" then gz += 1 end
+		if at("x") == "g" and at("z") == "g" then both += 1 end
+	end
+	local lx = 0
+	for _ = 1, 600 do
+		if Signals.light("x", 0) == "g" then lx += 1 end
+		M.run(0.1)
+	end
+	check("traffic light cycle: 24 s green of 60, never both axes green", math.abs(lx - 240) <= 3 and gx == 240 and gz == 240 and both == 0, lx .. " green tenths in 60 s")
+	local lit = 0
+	for _, nd in ipairs(g.nodes) do if nd.lit then lit += 1 end end
+	check("signalised junctions on the graph", lit == #Rules.signals and lit > 10, lit)
+	local heads = WS.IrbidMap.Signals:GetChildren()
+	local on = 0
+	for _, hd in ipairs(heads) do
+		for _, c in ipairs({ "r", "y", "g" }) do
+			local p = hd:FindFirstChild("Lamp_" .. c)
+			if p and p.Color.R + p.Color.G > 0.8 then on += 1 end
+		end
+	end
+	check("signal heads built, one lamp lit on each", #heads == #Rules.heads and on == #heads, on .. " lit of " .. #heads)
+	-- traffic does not run red lights: watch every traffic car crossing a signalised junction for 90 s near the signals
+	local s1 = g.nodes[Rules.signals[1].n]
+	Drive.place(s1.x + 30, s1.z + 30, 0)
+	local Traffic = M.client("Traffic")
+	for _, a in ipairs(Traffic.agents) do a.x = 1e5 end
+	M.run(1)
+	local crossings, redRuns, inside = 0, 0, {}
+	M.run(90, function()
+		st.vx, st.vz = 0, 0
+		for _, a in ipairs(Traffic.agents) do
+			local cur = nil
+			for _, s in ipairs(Rules.signals) do
+				local nd = g.nodes[s.n]
+				if (a.x - nd.x) ^ 2 + (a.z - nd.z) ^ 2 < 9 then cur = nd end
+			end
+			if cur and inside[a] ~= cur then
+				crossings += 1
+				-- the edge it arrived on: the traversal ending at this node
+				for k = 1, #a.trs do
+					local tr = a.trs[k]
+					if (tr.d > 0 and tr.e.b or tr.e.a) == cur.id then
+						local ax = cur.lit.ph[tr.e.id]
+						local tt = WS.DistributedGameTime - 2
+						local p = (tt + cur.lit.o + (ax == "x" and 0 or 30)) % 60
+						if ax ~= "i" and ax ~= nil and p >= 27 and Signals.at(cur, tr.e) == "r" then redRuns += 1 end
+						break
+					end
+				end
+			end
+			inside[a] = cur
+		end
+	end)
+	check("traffic stops at red lights", crossings >= 5 and redRuns == 0, crossings .. " junction crossings, " .. redRuns .. " on red")
+
+	-- fines (they ADD to the JD balance, as in the web game)
+	local function fines() return plr:GetAttribute("Fines") or 0 end
+	-- speeding: a straight street with a 50 km/h limit (or less), full throttle
+	local best
+	for _, e in ipairs(g.edges) do
+		if e.n == 2 and e.len > 220 and e.lim <= 50 and not e.ow and e.fk ~= "ring" and e.fk ~= "drift" and (not best or e.len > best.len) then best = e end
+	end
+	local h0 = math.atan2(best.x[2] - best.x[1], best.z[2] - best.z[1])
+	local function onLane(e, s, dir)
+		local hx, hz = (e.x[2] - e.x[1]) / e.len, (e.z[2] - e.z[1]) / e.len
+		local x, z = e.x[1] + hx * s, e.z[1] + hz * s
+		local off = Road.lane(e) * dir
+		return x - hz * off, z + hx * off
+	end
+	local f0, c0 = fines(), plr:GetAttribute("Cash")
+	local x, z = onLane(best, 10, 1)
+	Drive.place(x, z, h0)
+	M.run(0.3)
+	M.move = Vector3.new(0, 0, -1)
+	M.run(8, function()
+		if fines() > f0 then return "stop" end
+	end)
+	M.move = Vector3.zero
+	check("speeding fined 15 JD", fines() - f0 == 15 and lastToast("^Speeding") ~= nil, (fines() - f0) .. " JD · " .. tostring(lastToast("^Speeding")))
+	check("a fine adds to the JD balance", plr:GetAttribute("Cash") >= c0 + 15, (plr:GetAttribute("Cash") - c0) .. " JD more")
+	-- driving against traffic: the left lane of the same two-way street, moving along it
+	M.run(1)
+	f0 = fines()
+	x, z = onLane(best, 30, -1)
+	Drive.place(x, z, h0)
+	M.run(0.3)
+	M.move = Vector3.new(0, 0, -1)
+	M.run(5, function()
+		if fines() > f0 then return "stop" end
+	end)
+	M.move = Vector3.zero
+	check("driving against traffic fined 20 JD", lastToast("^Driving against traffic") ~= nil and (fines() - f0) % 5 == 0 and fines() - f0 >= 20, (fines() - f0) .. " JD")
+	-- collision with traffic: a traffic car right next to the player
+	M.run(6)
+	f0 = fines()
+	local tc = Traffic.agents[1]
+	tc.x, tc.z = st.x + 2, st.z
+	M.run(0.1)
+	check("collision with traffic fined 30 JD and the car stops", fines() - f0 == 30 and tc.v == 0, (fines() - f0) .. " JD")
+	-- red light: approach a signalised junction while its light is red
+	M.run(3)
+	local done = false
+	for _, s in ipairs(Rules.signals) do
+		local nd = g.nodes[s.n]
+		for _, q in ipairs(s.ph) do
+			local e = g.edges[q[1]]
+			if q[2] ~= "i" and e and e.len > 60 and not done and not (e.ow and e.a == nd.id) then
+				-- wait until this approach is red for at least 6 more seconds
+				local waited = 0
+				while waited < 70 do
+					local p = (WS.DistributedGameTime + s.o + (q[2] == "x" and 0 or 30)) % 60
+					if p > 28 and p < 50 then break end
+					M.run(0.5)
+					waited += 0.5
+				end
+				-- 40 m back along the edge, heading for the node
+				local atB = e.b == nd.id
+				local P = Road.path({ { e = e, d = atB and 1 or -1 } }, Road.lane)
+				local s0 = math.max(0, P.c[#P.c] - 40)
+				local px, pz, _, tx, tz = Road.sample(P, s0, 1)
+				f0 = fines()
+				Drive.place(px, pz, math.atan2(tx, tz))
+				M.run(0.2)
+				-- 50 km/h straight on
+				local hh = math.atan2(tx, tz)
+				M.run(3.5, function()
+					st.h = hh
+					st.vx, st.vz = math.sin(hh) * 14, math.cos(hh) * 14
+					if fines() > f0 then return "stop" end
+				end)
+				done = true
+			end
+		end
+	end
+	check("running a red light fined 50 JD", lastToast("^Ran a red light") ~= nil and fines() - f0 >= 50, (fines() - f0) .. " JD")
+	-- drift zone: no fines inside
+	local dzz = Rules.dzones[1]
+	if dzz then
+		Drive.place(dzz.x, dzz.z, 0)
+		M.run(0.5)
+		check("drift zone: no limits, no fines", State.inDrift == true and lastToast("no speed limit") ~= nil, tostring(lastToast("Zone")))
+	end
+
+	-- speed bumps: crossing one at 60 km/h moves the suspension
+	local b = Rules.bumps[1]
+	local hb = math.atan2(b.tx, b.tz)
+	Drive.place(b.x - b.tx * 30, b.z - b.tz * 30, hb)
+	M.run(0.3)
+	local maxHeave, hop = 0, false
+	M.run(2.5, function()
+		st.h = hb
+		st.vx, st.vz = math.sin(hb) * 16.7, math.cos(hb) * 16.7
+		maxHeave = math.max(maxHeave, math.abs(SpeedBumps.SUSP.heave))
+		if st.vy > 0.05 and not st.gnd then hop = true end
+	end)
+	check("speed bump moves the suspension", maxHeave > 0.01, string.format("heave %.3f m%s", maxHeave, hop and ", short hop" or ""))
+	-- stunt ramps: J, full throttle: the car flies off the end
+	Extras.ramps()
+	M.run(0.3)
+	local flight, maxUp = 0, 0
+	M.move = Vector3.new(0, 0, -1)
+	M.run(20, function()
+		local gh = Ground.groundH(st.x, st.z)
+		if not st.gnd and st.y > gh + 0.5 then flight += 1 end
+		if flight > 30 and st.gnd then return "stop" end
+		maxUp = math.max(maxUp, st.y - Ground.TH(st.x, st.z))
+	end)
+	M.move = Vector3.zero
+	check("stunt ramp jump", flight > 20, f1(flight / 60) .. " s in the air, " .. f1(maxUp) .. " m above the ground; at " .. f1(st.x) .. "," .. f1(st.z) .. " " .. f1(st.sp) .. " m/s ui=" .. tostring(State.ui) .. " mission=" .. tostring(State.mission) .. " frozen=" .. tostring(State.frozen))
+	-- surface grip: open ground accelerates slower than a road (the web game's .5 + .5 x grip)
+	local function accel(x0, z0, h)
+		Drive.place(x0, z0, h)
+		M.run(0.3)
+		M.move = Vector3.new(0, 0, -1)
+		M.run(2)
+		M.move = Vector3.zero
+		local v = st.sp
+		M.run(0.1)
+		return v
+	end
+	x, z = onLane(best, 10, 1)
+	local vRoad = accel(x, z, h0)
+	-- 60 m to the side of the street, where there is no road
+	local ox, oz
+	for k = 1, 30 do
+		local a = k * 0.7
+		local cx, cz = best.x[1] + math.sin(a) * (60 + k * 10), best.z[1] + math.cos(a) * (60 + k * 10)
+		if not Road.at(g, cx, cz, 4) and not Road.at(g, cx + math.sin(h0) * 40, cz + math.cos(h0) * 40, 4) then
+			ox, oz = cx, cz
+			break
+		end
+	end
+	local vOff = ox and accel(ox, oz, h0) or 0
+	check("less grip off the road", ox ~= nil and vOff < vRoad * 0.95 and vOff > vRoad * 0.6, string.format("%.1f vs %.1f m/s after 2 s", vOff, vRoad))
+	-- K: the landmark tour
+	Extras.tour()
+	M.run(0.2)
+	local L = Rules.tour[1]
+	check("K jumps to the next landmark tour stop", math.abs(st.x - L.x) < 0.5 and math.abs(st.z - L.z) < 0.5 and lastToast(L.n) ~= nil, L.n)
+	-- T: +1 hour
+	local hBefore = game:GetService("Lighting").ClockTime
+	Extras.hour()
+	M.run(1.2)
+	local dh = (game:GetService("Lighting").ClockTime - hBefore) % 24
+	check("T adds an hour", dh > 0.95 and dh < 1.2, string.format("+%.2f h", dh))
+	-- N / B: next / previous owned car
+	local cur0 = plr:GetAttribute("CurCar")
+	Extras.cycleCar(1)
+	M.run(1.5)
+	local cur1 = plr:GetAttribute("CurCar")
+	Extras.cycleCar(-1)
+	M.run(1.5)
+	check("N / B switch between owned cars", cur1 ~= cur0 and plr:GetAttribute("CurCar") == cur0, cur0 .. " -> " .. cur1 .. " -> " .. plr:GetAttribute("CurCar"))
+	-- R next to a traffic car: a duel; reaching the beam first wins
+	x, z = onLane(best, 20, 1)
+	Drive.place(x, z, h0)
+	M.run(0.3)
+	tc = Traffic.agents[2]
+	tc.x, tc.z = st.x + math.sin(h0) * 4, st.z + math.cos(h0) * 4
+	M.call(function() Missions.race() end)
+	check("R next to a traffic car starts a duel", State.mission == "duel" and #Missions.duelRivals == 1, Hud.mission.Text)
+	M.run(4.2)
+	local rv = Missions.duelRivals[1]
+	local rs0 = rv and rv.s or 0
+	M.run(3)
+	check("the duel rival drives the road ahead", rv ~= nil and rv.s > rs0 + 20, rv and f1(rv.s - rs0) .. " m")
+	local dest = State.raceMark
+	Drive.place(dest[1], dest[2], st.h)
+	M.run(0.5)
+	check("reaching the beam first wins the duel", lastToast("won the duel") ~= nil)
+	M.run(7)
+	check("duel over", State.mission == nil and #Missions.duelRivals == 0)
 end
 
 -- ================= saving =================

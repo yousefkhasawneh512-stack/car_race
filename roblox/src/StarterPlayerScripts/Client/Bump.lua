@@ -1,79 +1,78 @@
--- Irbid Drive (Roblox) - bumping: the player's car as two circles (front and rear axle, radius 1 m) against each AI car's box and
--- against other players' cars. The player's car is pushed out and bounces (restitution 0.3); a hit AI car stops for a moment.
+-- Irbid Drive (Roblox) - car-to-car contact, the web game's rules (10_laws_player.js): every car is a 3.4 m circle.
+--   traffic: the player is pushed out (60 %), bounces off (restitution 0.3), loses 20 % of its speed; the traffic car stops for 1.5 s;
+--            "Collision with traffic" costs 30 JD
+--   race rivals, duel rival, police (and, in Roblox, other players' cars): the player is pushed out (50 %) and slowed (2 / s)
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
-local State = require(script.Parent:WaitForChild("State"))
-local Hud = require(script.Parent:WaitForChild("Hud"))
-local DriftScore = require(script.Parent:WaitForChild("DriftScore"))
+local Client = script.Parent
+local State = require(Client:WaitForChild("State"))
+local Ground = require(Client:WaitForChild("Ground"))
 
 local Bump = {}
 local S = Config.SCALE
 local st = State.st
+local Laws -- (required lazily: Laws needs Ground, Signals; no cycle at load)
 
--- circle (cx, cz) against a box at (ox, oz), heading oh, half length hl, half width hw, moving (ovx, ovz) -> true on contact
-local function hit(cx, cz, ox, oz, oh, hl, hw, ovx, ovz)
-	local fx, fz = math.sin(oh), math.cos(oh)
-	local rx, rz = -fz, fx
-	local dx, dz = cx - ox, cz - oz
-	local lon, lat = dx * fx + dz * fz, dx * rx + dz * rz
-	local pl, pw = hl + 1 - math.abs(lon), hw + 1 - math.abs(lat)
-	if pl <= 0 or pw <= 0 then return false end
-	local nx, nz, pen
-	if pw < pl then
-		local sg = lat >= 0 and 1 or -1
-		nx, nz, pen = rx * sg, rz * sg, pw
-	else
-		local sg = lon >= 0 and 1 or -1
-		nx, nz, pen = fx * sg, fz * sg, pl
+-- other players' car bodies (the list is refreshed twice a second, their positions every frame)
+local function others()
+	local list = {}
+	for _, m in ipairs(Workspace:GetChildren()) do
+		if m:IsA("Model") and string.sub(m.Name, 1, 4) == "Car_" and m ~= State.car and m.PrimaryPart then
+			list[#list + 1] = m.PrimaryPart
+		end
 	end
-	st.x += nx * pen
-	st.z += nz * pen
-	local rv = (st.vx - ovx) * nx + (st.vz - ovz) * nz
-	if rv < 0 then
-		st.vx -= 1.3 * rv * nx
-		st.vz -= 1.3 * rv * nz
-		if -rv > 6 then Hud.toast("Crash! " .. math.floor(-rv * 3.6) .. " km/h", 2) end
-		DriftScore.lose()
-	end
-	return true
+	return list
 end
+local otherCars, otherT = {}, 0
 
-local others, othersT = {}, 0
 function Bump.step(dt)
-	local fx, fz = math.sin(st.h), math.cos(st.h)
-	local c1x, c1z, c2x, c2z = st.x + fx * 1.2, st.z + fz * 1.2, st.x - fx * 1.2, st.z - fz * 1.2
-	for _, a in ipairs(State.ai) do
-		local dx, dz = a.x - st.x, a.z - st.z
-		if dx * dx + dz * dz < 64 then
-			local avx, avz = math.sin(a.h) * a.v, math.cos(a.h) * a.v
-			local h = hit(c1x, c1z, a.x, a.z, a.h, a.L / 2, a.W / 2, avx, avz)
-			h = hit(c2x, c2z, a.x, a.z, a.h, a.L / 2, a.W / 2, avx, avz) or h
-			if h then a.hit = a.cop and 0.6 or 2.5 end
-		end
-	end
-	-- other players' cars (moved by their own devices): the player only bounces off them; the list is refreshed every second
-	othersT -= dt
-	if othersT <= 0 then
-		othersT = 1
-		table.clear(others)
-		for _, m in ipairs(Workspace:GetChildren()) do
-			if m:IsA("Model") and string.sub(m.Name, 1, 4) == "Car_" and m ~= State.car and m.PrimaryPart then
-				others[#others + 1] = m.PrimaryPart
+	Laws = Laws or require(Client:WaitForChild("Laws"))
+	for _, c in ipairs(State.ai) do
+		local dx, dz = st.x - c.x, st.z - c.z
+		local d = math.sqrt(dx * dx + dz * dz)
+		if d < 3.4 then
+			local nx, nz = dx / math.max(d, 1e-6), dz / math.max(d, 1e-6)
+			if c.kind == "traffic" then
+				if st.y < Ground.TH(st.x, st.z) + 2 then
+					st.x += nx * (3.4 - d) * 0.6
+					st.z += nz * (3.4 - d) * 0.6
+					local vn = st.vx * nx + st.vz * nz
+					if vn < 0 then
+						st.vx -= vn * nx * 1.3
+						st.vz -= vn * nz * 1.3
+					end
+					st.vx *= 0.8
+					st.vz *= 0.8
+					c.hit = 1.5
+					c.v = 0
+					Laws.fine("hit", "Collision with traffic", 2)
+				end
+			else
+				st.x += nx * (3.4 - d) * 0.5
+				st.z += nz * (3.4 - d) * 0.5
+				st.vx *= 1 - 2 * dt
+				st.vz *= 1 - 2 * dt
+				-- (Roblox police and rivals pause briefly after contact so they do not push through the player)
+				c.hit = c.cop and 0.6 or math.max(c.hit or 0, 0.3)
 			end
 		end
 	end
-	for _, b in ipairs(others) do
-		if b.Parent then
-			local p = b.Position / S
-			local dx, dz = p.X - st.x, p.Z - st.z
-			if dx * dx + dz * dz < 64 then
-				local lv = b.CFrame.LookVector
-				local v = b.AssemblyLinearVelocity / S
-				local oh = math.atan2(lv.X, lv.Z)
-				hit(c1x, c1z, p.X, p.Z, oh, b.Size.Z / S / 2, b.Size.X / S / 2, v.X, v.Z)
-				hit(c2x, c2z, p.X, p.Z, oh, b.Size.Z / S / 2, b.Size.X / S / 2, v.X, v.Z)
-			end
+	otherT -= dt
+	if otherT <= 0 then
+		otherT = 0.5
+		otherCars = others()
+	end
+	for _, b in ipairs(otherCars) do
+		local p = b.Position / S
+		local dx, dz = st.x - p.X, st.z - p.Z
+		local d = math.sqrt(dx * dx + dz * dz)
+		if d < 3.4 then
+			local nx, nz = dx / math.max(d, 1e-6), dz / math.max(d, 1e-6)
+			st.x += nx * (3.4 - d) * 0.5
+			st.z += nz * (3.4 - d) * 0.5
+			st.vx *= 1 - 2 * dt
+			st.vz *= 1 - 2 * dt
 		end
 	end
 end

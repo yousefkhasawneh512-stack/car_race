@@ -21,7 +21,7 @@ local function setup(plr)
 	end
 	PlayerData.data[plr] = d
 	local ls = Instance.new("Folder"); ls.Name = "leaderstats"; ls.Parent = plr
-	local c = Instance.new("IntValue"); c.Name = "Cash"; c.Parent = ls
+	local c = Instance.new("IntValue"); c.Name = "JD"; c.Parent = ls
 	local dr = Instance.new("IntValue"); dr.Name = "Drift"; dr.Parent = ls
 	PlayerData.sync(plr)
 	plr.CharacterAdded:Connect(function(char)

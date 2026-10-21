@@ -20,7 +20,7 @@ end
 
 function Heist.rob()
 	if State.ui or heist or not Heist.nearBank() then return end
-	if State.mission == "race" then
+	if State.mission ~= nil then
 		Hud.toast("Finish the race first")
 		return
 	end
@@ -41,11 +41,11 @@ local function finish(escaped)
 	Hud.mission.Text = ""
 	local ok, amount = Remotes.Mission:InvokeServer("heist_end", escaped)
 	if escaped then
-		Hud.toast(ok and ("Escaped! +" .. Hud.fmt(amount) .. " cash") or "Escaped!", 5)
+		Hud.toast(ok and ("Escaped! +" .. Hud.fmt(amount) .. " JD") or "Escaped!", 5)
 	else
 		st.vx *= 0.2
 		st.vz *= 0.2
-		Hud.toast("Busted! " .. (ok and Hud.fmt(amount) or "") .. " cash", 5)
+		Hud.toast("Busted! " .. (ok and Hud.fmt(amount) or "") .. " JD", 5)
 	end
 end
 

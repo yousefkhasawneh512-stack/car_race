@@ -16,7 +16,7 @@ function Garage.buyOrUse(plr, d, i)
 		return false, "VIP car"
 	end
 	if not d.owned[i] then
-		if d.cash < spec.price then return false, "Not enough cash" end
+		if d.cash < spec.price then return false, "Not enough JD" end
 		d.cash -= spec.price
 		d.owned[i] = true
 	end

@@ -4,7 +4,7 @@
 --   Sessions      join / leave / autosave                Drift        drift points -> drift bank + cash (capped)
 --   Sites         "is the car near the bank / shop"      Garage, Upgrades, Wheel, Shop   buying cars and parts, the car wheel
 --   RaceRewards, HeistRewards, Missions   paying for races and the heist (checked)
---   Purchases     Robux (VIP pass, cash packs)           DayNight     clock and headlights
+--   Purchases     Robux (VIP pass, cash packs)           DayNight     clock and headlights     Fines   traffic fines (+JD)
 -- Each player's device runs the driving, traffic, races and the heist (StarterPlayerScripts) and asks the server for every change
 -- of money, which the server checks before it pays.
 local Workspace = game:GetService("Workspace")
@@ -16,6 +16,6 @@ Workspace:SetAttribute("StartHeading", Meta.startHeading)
 Workspace:SetAttribute("StartY", Meta.startY)
 Workspace:SetAttribute("Attribution", Meta.attribution)
 
-for _, name in ipairs({ "Remotes", "PlayerData", "CarBuilder", "Purchases", "Spawner", "Drift", "Shop", "Missions", "DayNight", "Sessions" }) do
+for _, name in ipairs({ "Remotes", "PlayerData", "CarBuilder", "Purchases", "Spawner", "Drift", "Fines", "Shop", "Missions", "DayNight", "Sessions" }) do
 	require(Game:WaitForChild(name))
 end

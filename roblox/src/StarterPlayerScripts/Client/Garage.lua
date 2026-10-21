@@ -21,11 +21,11 @@ function Garage.open()
 		for _, ch in ipairs(p.list:GetChildren()) do
 			if ch:IsA("GuiObject") then ch:Destroy() end
 		end
-		p.sub.Text = "Cash: " .. fmt(plr:GetAttribute("Cash") or 0) .. " · cars come from the shop list or the wheel"
+		p.sub.Text = "Balance: " .. fmt(plr:GetAttribute("Cash") or 0) .. " JD · cars come from this list or the wheel"
 		local o = CarInfo.owned()
 		for i, c in ipairs(Config.CARS) do
 			local km = math.floor(c.vm * 3.6 + 0.5)
-			local status = plr:GetAttribute("CurCar") == i and "driving" or o[i] and "use" or c.vip and "VIP pass" or (fmt(c.price) .. " cash")
+			local status = plr:GetAttribute("CurCar") == i and "driving" or o[i] and "use" or c.vip and "VIP pass" or (fmt(c.price) .. " JD")
 			local b = Hud.button(p.list, c.name .. " · " .. CarInfo.tierLine(c) .. " · " .. km .. " km/h · " .. status, function()
 				local ok, msg = Remotes.CarAction:InvokeServer("buy", i)
 				Hud.toast(ok and ("Now driving: " .. tostring(msg)) or tostring(msg))
@@ -41,13 +41,13 @@ function Garage.open()
 		end
 		local k = #Config.CARS
 		if Config.PRODUCT_CASH_SMALL ~= 0 then
-			Hud.button(p.list, "+" .. fmt(Config.CASH_SMALL) .. " cash (Robux)", function() Remotes.CarAction:InvokeServer("cash_small") end, 370, 32, Color3.fromRGB(0, 140, 80)).LayoutOrder = k + 1
+			Hud.button(p.list, "+" .. fmt(Config.CASH_SMALL) .. " JD (Robux)", function() Remotes.CarAction:InvokeServer("cash_small") end, 370, 32, Color3.fromRGB(0, 140, 80)).LayoutOrder = k + 1
 		end
 		if Config.PRODUCT_CASH_BIG ~= 0 then
-			Hud.button(p.list, "+" .. fmt(Config.CASH_BIG) .. " cash (Robux)", function() Remotes.CarAction:InvokeServer("cash_big") end, 370, 32, Color3.fromRGB(0, 140, 80)).LayoutOrder = k + 2
+			Hud.button(p.list, "+" .. fmt(Config.CASH_BIG) .. " JD (Robux)", function() Remotes.CarAction:InvokeServer("cash_big") end, 370, 32, Color3.fromRGB(0, 140, 80)).LayoutOrder = k + 2
 		end
 		if Config.GAMEPASS_VIP ~= 0 and not plr:GetAttribute("VIP") then
-			Hud.button(p.list, "VIP pass: double drift cash + the VIP car (Robux)", function() Remotes.CarAction:InvokeServer("vip") end, 370, 32, Color3.fromRGB(180, 140, 0)).LayoutOrder = k + 3
+			Hud.button(p.list, "VIP pass: double drift JD + the VIP car (Robux)", function() Remotes.CarAction:InvokeServer("vip") end, 370, 32, Color3.fromRGB(180, 140, 0)).LayoutOrder = k + 3
 		end
 	end
 	fill()

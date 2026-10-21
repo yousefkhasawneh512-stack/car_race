@@ -1,4 +1,4 @@
--- Irbid Drive (Roblox) - the missions in one place: races (Race), the bank heist (Heist, Police), and the context button at the
+-- Irbid Drive (Roblox) - the missions in one place: races (Race), duels (Duel), the bank heist (Heist, Police), and the context button at the
 -- bottom of the screen ("ROB THE BANK" at the bank, "TUNE CAR" at Apex Drift Customs).
 local Players = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
@@ -10,13 +10,29 @@ local Hud = require(Client:WaitForChild("Hud"))
 local Race = require(Client:WaitForChild("Race"))
 local Heist = require(Client:WaitForChild("Heist"))
 local Police = require(Client:WaitForChild("Police"))
+local Duel = require(Client:WaitForChild("Duel"))
 
 local Missions = {}
 local st = State.st
 Missions.circuits = Race.circuits
 Missions.rivals = Race.rivals
 Missions.cops = Police.cops
-Missions.race = Race.toggle
+Missions.duelRivals = Duel.rivals
+-- R (the web game): a duel when next to a traffic car and nothing is running, else start / cancel the nearest race
+function Missions.race()
+	if Duel.active() then
+		Duel.cancel("Duel cancelled")
+		return
+	end
+	if State.mission == nil then
+		local c = Duel.nearCar()
+		if c then
+			Duel.start(c)
+			return
+		end
+	end
+	Race.toggle()
+end
 Missions.rob = Heist.rob
 -- Missions.openShop is set by Main (it needs the menus)
 
@@ -31,6 +47,7 @@ end
 
 function Missions.step(dt)
 	Race.step(dt)
+	Duel.step(dt)
 	Heist.step(dt)
 	Police.lights(dt)
 	if State.ui then return end

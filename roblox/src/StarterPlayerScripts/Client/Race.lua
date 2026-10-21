@@ -163,7 +163,7 @@ function Race.step(dt)
 				local place = race.fin + 1
 				Hud.mission.Text = "Finished P" .. place .. " of 4 · " .. string.format("%.1f s", race.time)
 				local ok, reward = Remotes.Mission:InvokeServer("race_finish", place)
-				Hud.toast("Finished P" .. place .. " of 4!" .. (ok and reward and reward > 0 and ("  +" .. Hud.fmt(reward) .. " cash") or ""), 5)
+				Hud.toast("Finished P" .. place .. " of 4!" .. (ok and reward and reward > 0 and ("  +" .. Hud.fmt(reward) .. " JD") or ""), 5)
 				beam.Transparency = 1
 				State.raceMark = nil
 				return

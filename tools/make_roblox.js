@@ -17,8 +17,8 @@ global.addEventListener=()=>{};global.innerWidth=1280;global.innerHeight=720;glo
 global.performance={now:()=>0};global.requestAnimationFrame=()=>{};global.setTimeout=()=>{};
 const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{LS[k]=String(v)}};
 const cl0=console.log;console.log=()=>{};
-const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8'),R=+process.argv[3]||2500;
-(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route}');
+const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8'),R=+process.argv[3]||3500;
+(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec}');
 const S=global.__s,TH=S.TH,ST=S.START,OUT=path.resolve('roblox');
 const dm=v=>Math.round(v*10),inR=(x,z)=>Math.hypot(x-ST.x,z-ST.z)<=R;
 // ---- roads: one straight piece per polyline segment, centred on the start; class 0 major / 1 local / 2 service, roundabout 3 ----
@@ -60,14 +60,17 @@ for(const L of[S.BLDD.p,S.BLDO.p])for(let i=0;i<L.length;i+=7){let x=L[i]/10,z=L
  let y=1e9;for(const[u,v]of[[1,1],[1,-1],[-1,1],[-1,-1]])y=Math.min(y,TH(x+cs*u*w/2+sn*v*d/2,z-sn*u*w/2+cs*v*d/2));
  blds.push(dm(x-ST.x),dm(z-ST.z),dm(w),dm(d),Math.round(ry*1000),dm(Math.max(3,h)),dm(y),ty)}
 // ---- terrain: 40 m tiles, height at the tile centre ----
-const TS=40,ter=[];for(let x=-R;x<=R;x+=TS)for(let z=-R;z<=R;z+=TS)if(Math.hypot(x,z)<=R+TS)ter.push(dm(x),dm(z),dm(TH(ST.x+x,ST.z+z)));
+// 25 m tiles to 100 m past the map edge; each tile is a column deep enough to reach below its lowest neighbour, so steep ground has no holes
+const TS=25,ter=[],TR=R+100,tg=(x,z)=>TH(ST.x+x,ST.z+z);for(let x=-TR;x<=TR;x+=TS)for(let z=-TR;z<=TR;z+=TS)if(Math.hypot(x,z)<=TR){const y=tg(x,z);let lo=y;for(const[a,b]of[[TS,0],[-TS,0],[0,TS],[0,-TS]])lo=Math.min(lo,tg(x+a,z+b));ter.push(dm(x),dm(z),dm(y),dm(Math.max(4,y-lo+2)))}
 // ---- road graph for traffic, navigation, street names, the minimap: every edge that lies wholly inside the map (no tunnels) ----
 // nodes: x,z,y   edges: a,b (1-based node index), one-way, limit km/h, name index (0 = unnamed), kind (CLS), width dm, n points, then n x (x,z,y)
 const nodeIx=new Map(),nodes=[],names=[],nameIx=new Map(),edgeRows=[];
 const nodeOf=id=>{if(!nodeIx.has(id)){const n=S.NODES[id];nodes.push(dm(n.x-ST.x),dm(n.z-ST.z),dm(TH(n.x,n.z)));nodeIx.set(id,nodes.length/3)}return nodeIx.get(id)};
 const nameOf=n=>{if(!n)return 0;if(!nameIx.has(n)){names.push(n);nameIx.set(n,names.length)}return nameIx.get(n)};
-const EIN=S.EDGES.filter(e=>!e.tn&&e.len>.5&&e.pts.every(p=>inR(p[0],p[1])));
-for(const e of EIN){const row=[nodeOf(e.a),nodeOf(e.b),e.ow,e.lim||50,nameOf(e.name),CLS[e.kind]??1,dm(Math.max(3,e.w||6)),e.pts.length];
+const EIN=S.EDGES.filter(e=>!e.tn&&e.len>.5&&e.pts.every(p=>inR(p[0],p[1]))),EIX=new Map(EIN.map((e,i)=>[e,i+1]));
+// fine road kinds (the web game's e.kind; traffic weights, wrong-way rules), track = unpaved (grip .75)
+const FK=['hw','arch','petra','main','local','svc','ramp','ring','drift','campus','alley'];
+for(const e of EIN){const row=[nodeOf(e.a),nodeOf(e.b),e.ow,e.lim||50,nameOf(e.name),CLS[e.kind]??1,dm(Math.max(3,e.w||6)),Math.max(0,FK.indexOf(e.kind)),e.hw==='track'?1:0,e.pts.length];
  for(const p of e.pts)row.push(dm(p[0]-ST.x),dm(p[1]-ST.z),dm(TH(p[0],p[1])));edgeRows.push(row.join(','))}
 // ---- places (searchable in the GPS): real OSM places inside the map ----
 const places=S.PLACES.filter(p=>!p.gen&&p.name&&inR(p.x,p.z)).map(p=>({n:p.name,k:p.kind,s:p.sub||'',x:+(p.x-ST.x).toFixed(1),z:+(p.z-ST.z).toFixed(1)}));
@@ -92,21 +95,40 @@ const PICK=[['Ford Focus RS','Hot Hatch RS'],['Toyota Corolla','Family Sedan'],[
 const TIER_PRICE=[2500,12000,30000,60000,120000];
 const cars=[];for(const[n,g,vip]of PICK){const i=S.PORS.findIndex(m=>m[0]===n);if(i<0)throw Error('car not in the game: '+n);S.setPlayerCar(i);
  const m=S.PORS[i],tier=S.rarityIdx(i);
- cars.push({name:g,tier,price:cars.length===0||vip?0:TIER_PRICE[tier],vip:!!vip,vm:+S.P.vm.toFixed(2),a0:+S.P.a0.toFixed(2),bk:+S.P.bk.toFixed(2),hd:+S.P.hd.toFixed(3),body:m[6]||'c',L:m[3],W:m[4],H:m[5]})}
+ cars.push({name:g,tier,price:cars.length===0||vip?0:TIER_PRICE[tier],vip:!!vip,vm:+S.P.vm.toFixed(2),a0:+S.P.a0.toFixed(2),bk:+S.P.bk.toFixed(2),hd:+S.P.hd.toFixed(3),body:m[6]||'c',L:m[3],W:m[4],H:m[5],wb:+S.carSpec(i).wb.toFixed(2),fn:+S.ptSpec(i).fn.toFixed(2),zeta:S.ptSpec(i).zeta})}
 if(cars[0].name!=='Hot Hatch RS')throw Error('the starter car must come first');
+// ---- the web game's road furniture and rules data (positions relative to the start, metres) ----
+const rel=(x,z)=>[+(x-ST.x).toFixed(2),+(z-ST.z).toFixed(2)];
+// traffic lights: each signalised junction node inside the map: node index, cycle offset (s), axis per incoming edge ('x' / 'z', or 'i' = a
+// link inside a split junction, always green); and the signal heads (position, facing, axis, stop line) for the visuals
+const signals=[],heads=[];
+for(const nd of S.LIT){if(!nodeIx.has(nd.id))continue;const ph=[];for(const e of nd.inn){const ei=EIX.get(e);if(ei&&nd.ph[e.id])ph.push([ei,nd.ph[e.id]])}if(!ph.length)continue;
+ signals.push({n:nodeIx.get(nd.id),o:nd.sgo,ph});
+ for(const e of nd.inn){const ax=nd.ph[e.id];if(!ax||ax==='i'||(e.ow&&e.a===nd.id)||!EIX.get(e))continue;const h=S.approachOf(nd,e),rx=-h[1],rz=h[0],hw=e.w/2,[x,z]=rel(nd.x-h[0]*9+rx*(hw+1.1),nd.z-h[1]*9+rz*(hw+1.1)),[lx,lz]=rel(nd.x-h[0]*10+rx*hw/2,nd.z-h[1]*10+rz*hw/2);
+  heads.push({x,z,y:+TH(nd.x-h[0]*9,nd.z-h[1]*9).toFixed(2),f:+Math.atan2(-h[0],-h[1]).toFixed(4),a:ax,o:nd.sgo,lx,lz,w:+hw.toFixed(2)})}}
+// speed bumps (2 from OSM traffic_calming, the rest ESTIMATED near schools / clinics / parks: not surveyed)
+const bumps=S.IRBID_SPEED_BUMPS.filter(b=>inR(b.x,b.z)).map(b=>{const[x,z]=rel(b.x,b.z);return{x,z,y:+TH(b.x,b.z).toFixed(2),tx:+b.tx.toFixed(4),tz:+b.tz.toFixed(4),w:+b.width.toFixed(2),l:b.len,h:b.h,est:b.estimated}});
+const dzones=S.DZONES.filter(q=>inR(q.x,q.z)&&q.r).map(q=>{const[x,z]=rel(q.x,q.z);return{n:q.name,x,z,r:q.r,y:+TH(q.x,q.z).toFixed(2)}});
+const tour=S.LM.filter(l=>inR(l[1],l[2])).map(l=>{const[x,z]=rel(l[1],l[2]);return{n:l[0],x,z,h:+l[3].toFixed(4)}});
+const ramps=S.RAMPS.map((r,i)=>{const[x,z]=rel(r[0],r[1]);return{x,z,w:r[2],l:r[3],h:r[4],y:+S.RAMPB[i].toFixed(2),inside:inR(r[0],r[1])}}).filter(r=>r.inside).map(({inside,...r})=>r);
+// built-up ground (the web game's urbanK > 0.5: grip .9 off the road, else .65): 50 m cells over the map square, one character per cell
+const UC=50,UN=Math.ceil(2*R/UC);let urban='';for(let j=0;j<UN;j++)for(let i=0;i<UN;i++)urban+=S.urbanK(ST.x-R+(i+.5)*UC,ST.z-R+(j+.5)*UC)>.5?'1':'0';
+// terrain height TH (the web game's ground for the car physics): 25 m grid over the map square, decimetres; the device interpolates it
+const HC=25,HN=Math.ceil(2*(R+100)/HC)+1,hts=[];for(let j=0;j<HN;j++)for(let i=0;i<HN;i++)hts.push(dm(TH(ST.x-R-100+i*HC,ST.z-R-100+j*HC)));
+const rules={signals,heads,bumps,dzones,tour,ramps,urban:{cell:UC,n:UN,x0:-R,z0:-R,bits:urban}};
 // ---- write ----
 function luaVal(v){if(Array.isArray(v))return'{'+v.map(luaVal).join(',')+'}';if(v&&typeof v==='object')return'{'+Object.entries(v).map(([k,x])=>k+'='+luaVal(x)).join(',')+'}';
  if(typeof v==='string'){const s=JSON.stringify(v);if(/\\u/.test(s))throw Error('string needs a Lua escape: '+v);return s}if(typeof v==='boolean')return String(v);if(!Number.isFinite(v))throw Error('bad number');return String(v)}
 const chunk=(name,arr,per)=>{const out=[];for(let i=0,k=1;i<arr.length;i+=per,k++)out.push([name+k,'return [['+arr.slice(i,i+per).join(',')+']]\n']);return out};
 const chunkRows=(name,rows,max)=>{const out=[];let cur=[],len=0;const flush=()=>{if(cur.length){out.push([name+(out.length+1),'return [['+cur.join(';')+']]\n']);cur=[];len=0}};
  for(const r of rows){if(len+r.length>max)flush();cur.push(r);len+=r.length+1}flush();return out};
-const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000),...chunk('Terrain',ter,3*20000)];
+const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000),...chunk('Terrain',ter,4*15000)];
 const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z).toFixed(2),roadCount:roads.length/8,buildingCount:blds.length/8,
  attribution:'Map data © OpenStreetMap contributors (ODbL) · terrain NASA SRTM',
  bank:{x:+(S.BANK.x-ST.x).toFixed(1),z:+(S.BANK.z-ST.z).toFixed(1),y:+TH(S.BANK.x,S.BANK.z).toFixed(1)},
  shop:{x:+(S.SHOP.x-ST.x).toFixed(1),z:+(S.SHOP.z-ST.z).toFixed(1),y:+TH(S.SHOP.x,S.SHOP.z).toFixed(1)},
  rarity:S.RARN.map((n,k)=>({name:n,mult:S.RMULT[k]})),labels,cars};
-const sharedMods=[['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],
+const sharedMods=[['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],['Rules','return '+luaVal(rules)+'\n'],['Heights','return '+luaVal({x0:-R-100,z0:-R-100,cell:HC,n:HN})+'\n'],...chunk('HeightData',hts,40000),
  ['GraphNodes','return [['+nodes.join(',')+']]\n'],['GraphNames','return '+luaVal(names)+'\n'],...chunkRows('GraphEdges',edgeRows,240000)];
 for(const[dir,mods]of[['data',serverMods],['shared',sharedMods]]){const D=path.join(OUT,dir);fs.mkdirSync(D,{recursive:true});
  for(const f of fs.readdirSync(D))fs.unlinkSync(path.join(D,f));for(const[n,s]of mods)fs.writeFileSync(path.join(D,n+'.lua'),s)}
@@ -135,7 +157,8 @@ const xml='<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="ht
  item('ServerScriptService','ServerScriptService',tree(path.join(SRC,'ServerScriptService')))+
  item('StarterPlayer','StarterPlayer',[item('StarterPlayerScripts','StarterPlayerScripts',tree(path.join(SRC,'StarterPlayerScripts')))])+'</roblox>\n';
 fs.writeFileSync(path.join(OUT,'IrbidDrive.rbxlx'),xml);
-cl0('roads',roads.length/8,'buildings',blds.length/8,'(cut back from a road '+trim+', dropped '+drop+')','terrain tiles',ter.length/3,'labels',labels.length);
+cl0('roads',roads.length/8,'buildings',blds.length/8,'(cut back from a road '+trim+', dropped '+drop+')','terrain tiles',ter.length/4,'labels',labels.length);
 cl0('graph: nodes',nodes.length/3,'edges',edgeRows.length,'names',names.length,'| places',places.length,'| circuits',circuits.map(c=>c.name+' ('+c.cps.length+' checkpoints, '+c.path.split(',').length/3+' points)').join(', '));
+cl0('signals',signals.length,'heads',heads.length,'bumps',bumps.length,'drift zones',dzones.length,'tour',tour.length,'ramps',ramps.length);
 cl0('cars',cars.length,cars.map(c=>c.name+' T'+c.tier+' '+(c.vm*3.6).toFixed(0)+'km/h').join(', '));
 cl0('rbxlx',(xml.length/1e6).toFixed(2),'MB ->',path.join(OUT,'IrbidDrive.rbxlx'));

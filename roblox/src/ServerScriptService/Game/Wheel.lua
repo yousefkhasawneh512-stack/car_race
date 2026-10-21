@@ -31,7 +31,7 @@ end
 
 -- -> ok, {car, tier, dup} | reason
 function Wheel.spin(plr, d)
-	if d.cash < Config.WHEEL_COST then return false, "Not enough cash" end
+	if d.cash < Config.WHEEL_COST then return false, "Not enough JD" end
 	d.cash -= Config.WHEEL_COST
 	local car, tier = Wheel.roll()
 	local dup = d.owned[car] == true

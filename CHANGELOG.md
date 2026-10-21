@@ -426,3 +426,13 @@ every file of `roblox/src` by folder (Rojo naming) into `IrbidDrive.rbxlx` with 
   CFrame/Vector3, ray tests against the real parts and terrain blocks, remotes, DataStore, a 60 fps scheduler) and plays `scenario.luau`:
   75 checks (map, spawn, GPS drive of 1.1 km, 0-100 / braking, drift + server caps, traffic, races, heist both ways, shop, wheel, garage,
   search, minimap, reset, clock, save / load). 75/75 in three runs. Not run in Roblox Studio (none on this PC).
+
+## Roblox version 3 (2026-10-22)
+
+The web game's road rules ported to Luau with its numbers: Arcade physics line for line (surface grip road 1 / track .75 / built-up .9 /
+open .65, slope gravity, the web groundH height so ramps launch), traffic lights on 37 real junctions (60 s, 24 g / 3 y, 4 offset groups),
+laws and fines (speeding 15, wrong way 20, red light 50, collision 30 JD, web cool-downs; a fine ADDS JD, as in the web game; no fines in the
+drift zone), the speed-bump quarter-car, traffic as in 09_ai (80 cars, 13 m/s x limit / 50 x rarity cruise, red-light stops, roundabout 8 m/s,
+6.5 m gap, junction weights), duels, K landmark tour, J stunt ramps, T +1 hour, 16-minute day from 15:00, N/B change car, X horn, web keys.
+Map 3.5 km (17,818 roads, 14,527 buildings), terrain 25 m solid columns (no holes). Currency shown as JD. Server modules Fines, DayNight.
+Tests: 97/97 with and without Terrain. Not ported yet: Realistic handling, damage, weather, school, auto-drive, 217 cars, 3D landmarks, audio.

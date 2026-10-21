@@ -21,6 +21,8 @@ do
 	end
 	State.road = Road.build(require(Shared:WaitForChild("GraphNodes")), edges, require(Shared:WaitForChild("GraphNames")))
 end
+local Signals = require(Client:WaitForChild("Signals"))
+Signals.attach(State.road)
 while not Workspace:GetAttribute("MapReady") do task.wait(0.25) end
 
 local Hud = require(Client:WaitForChild("Hud"))
@@ -31,6 +33,7 @@ local Nav = require(Client:WaitForChild("Nav"))
 local Missions = require(Client:WaitForChild("Missions"))
 local Menus = require(Client:WaitForChild("Menus"))
 local InfoLine = require(Client:WaitForChild("InfoLine"))
+local Extras = require(Client:WaitForChild("Extras"))
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- the tuning shop opens only at Apex Drift Customs
@@ -43,12 +46,14 @@ function Missions.openShop()
 end
 
 Controls.start({
-	reset = Drive.reset, camera = Drive.cycleCam, garage = Menus.garage, gps = Nav.open,
-	race = Missions.race, rob = Missions.rob, shop = Missions.openShop, wheel = Menus.wheel,
+	reset = Drive.reset, camera = Drive.cycleCam, wheel = Menus.wheel, garage = Menus.garage, gps = Nav.open,
+	nextCar = function() Extras.cycleCar(1) end, prevCar = function() Extras.cycleCar(-1) end,
+	tour = Extras.tour, ramps = Extras.ramps, hour = Extras.hour, horn = Extras.horn,
+	race = Missions.race, rob = Missions.rob, shop = Missions.openShop,
 })
 
 Traffic.start()
-Hud.toast("Welcome to Irbid! Drift to earn points and cash. R = race, N = GPS, G = garage", 6)
+Hud.toast("Welcome to Irbid! Drift for points · R race / duel · M GPS · G wheel · K tour · F start", 6)
 
 local ai = State.ai
 RunService.RenderStepped:Connect(function(dt)
@@ -58,10 +63,12 @@ RunService.RenderStepped:Connect(function(dt)
 	for _, a in ipairs(Traffic.agents) do ai[#ai + 1] = a end
 	for _, a in ipairs(Missions.rivals) do ai[#ai + 1] = a end
 	for _, a in ipairs(Missions.cops) do ai[#ai + 1] = a end
+	for _, a in ipairs(Missions.duelRivals) do ai[#ai + 1] = a end
 	Drive.step(dt)
 	Traffic.step(dt)
 	Missions.step(dt)
 	Nav.step(dt)
+	Signals.step()
 	Drive.camera(dt)
 	InfoLine.step(dt)
 	Hud.step(dt)

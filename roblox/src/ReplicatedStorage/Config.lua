@@ -12,12 +12,13 @@ Config.CASH_BIG = 25000
 
 -- Optional engine sound: the ID of a Roblox audio asset you are allowed to use (0 = no engine sound)
 Config.ENGINE_SOUND_ID = 0
+Config.HORN_SOUND_ID = 0       -- optional horn sound (key X)
 
 Config.SCALE = 3               -- studs per metre (the map data is in metres)
 Config.START_CASH = 500
 Config.DRIFT_CASH = 0.25       -- cash per drift point (VIP: x2); drift points also go to the drift bank that pays for upgrades
-Config.TRAFFIC_CARS = 22       -- AI cars around each player (simulated on that player's device)
-Config.DAY_MINUTES = 24        -- one in-game day lasts this many real minutes
+Config.TRAFFIC_CARS = 80       -- AI cars around each player (the web game: 80 on "High"; lower it for phones), simulated on that device
+Config.DAY_MINUTES = 16       -- one in-game day lasts this many real minutes (the web game: an hour every 40 s), starting at 15:00
 
 -- Cars: speed / acceleration / brakes / handling / rarity tier come from the web game's own car data (tools/make_roblox.js); generic names.
 Config.CARS = Meta.cars

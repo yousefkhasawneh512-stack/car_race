@@ -75,7 +75,7 @@ function PlayerData.sync(plr)
 	local d = PlayerData.data[plr]
 	local ls = plr:FindFirstChild("leaderstats")
 	if not (d and ls) then return end
-	ls.Cash.Value = math.floor(d.cash)
+	ls.JD.Value = math.floor(d.cash)
 	ls.Drift.Value = math.floor(d.dt)
 	local owned = {}
 	for i in pairs(d.owned) do owned[#owned + 1] = i end
@@ -86,6 +86,7 @@ function PlayerData.sync(plr)
 	plr:SetAttribute("Cash", math.floor(d.cash))
 	plr:SetAttribute("DriftBank", math.floor(d.bank))
 	plr:SetAttribute("Tune", table.concat(PlayerData.levels(d, d.cur), ","))
+	plr:SetAttribute("Fines", d.fines or 0)
 end
 
 -- sync and save after a change of money or cars

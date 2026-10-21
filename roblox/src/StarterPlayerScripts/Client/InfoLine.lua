@@ -20,7 +20,7 @@ function InfoLine.step(dt)
 	t = 0.2
 	local street = Nav.streetName()
 	Hud.info.Text = "IRBID DRIVE · 📍 " .. (street ~= "" and street or "off-road") .. " · " .. clockText()
-		.. " · Cash " .. Hud.fmt(plr:GetAttribute("Cash") or 0) .. " · Drift bank " .. Hud.fmt(plr:GetAttribute("DriftBank") or 0)
+		.. " · Balance: " .. Hud.fmt(plr:GetAttribute("Cash") or 0) .. " JD · Drift bank " .. Hud.fmt(plr:GetAttribute("DriftBank") or 0)
 end
 
 return InfoLine

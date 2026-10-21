@@ -4,6 +4,8 @@
 local Road = {}
 
 local CELL = 50
+-- the web game's road kinds, in the exporter's order
+Road.FK = { "hw", "arch", "petra", "main", "local", "svc", "ramp", "ring", "drift", "campus", "alley" }
 local function key(i, j)
 	return (i + 500) * 1000 + (j + 500)
 end
@@ -26,11 +28,13 @@ function Road.build(nodeStr, edgeStrs, names)
 	for _, s in ipairs(edgeStrs) do
 		for row in string.gmatch(s, "[^;]+") do
 			local r = nums(row, {})
-			local n = r[8]
-			local e = { id = #g.edges + 1, a = r[1], b = r[2], ow = r[3] == 1, lim = r[4], name = names[r[5]] or "", kind = r[6], w = r[7] / 10, n = n, x = {}, z = {}, y = {}, cum = {} }
+			local n = r[10]
+			-- kind = class (0 major, 1 local, 2 service, 3 roundabout); fk = the web game's road kind (Road.FK); track = unpaved
+			local e = { id = #g.edges + 1, a = r[1], b = r[2], ow = r[3] == 1, lim = r[4], name = names[r[5]] or "", kind = r[6], w = r[7] / 10,
+				fk = Road.FK[r[8] + 1], track = r[9] == 1, n = n, x = {}, z = {}, y = {}, cum = {} }
 			local c = 0
 			for k = 1, n do
-				local o = 8 + (k - 1) * 3
+				local o = 10 + (k - 1) * 3
 				e.x[k], e.z[k], e.y[k] = r[o + 1] / 10, r[o + 2] / 10, r[o + 3] / 10
 				if k > 1 then
 					c += math.sqrt((e.x[k] - e.x[k - 1]) ^ 2 + (e.z[k] - e.z[k - 1]) ^ 2)
@@ -45,6 +49,15 @@ function Road.build(nodeStr, edgeStrs, names)
 			table.insert(na.out, { e = e, d = 1 })
 			if not e.ow then
 				table.insert(nb.out, { e = e, d = -1 })
+			end
+			na.inn = na.inn or {}
+			nb.inn = nb.inn or {}
+			table.insert(na.inn, e)
+			table.insert(nb.inn, e)
+			-- a junction on a roundabout (traffic slows to 8 m/s near it)
+			if e.fk == "ring" then
+				na.rb = true
+				nb.rb = true
 			end
 			for k = 1, n - 1 do
 				local i0, i1 = math.floor(math.min(e.x[k], e.x[k + 1]) / CELL), math.floor(math.max(e.x[k], e.x[k + 1]) / CELL)
@@ -106,6 +119,43 @@ function Road.nearest(g, x, z, maxd)
 		x = e.x[k] + dx * t, z = e.z[k] + dz * t, y = e.y[k] + (e.y[k + 1] - e.y[k]) * t,
 		s = e.cum[k] + (e.cum[k + 1] - e.cum[k]) * t, tx = dx / l, tz = dz / l,
 	}
+end
+
+-- the web game's roadAt(x, z, pad): the segment the point is deepest inside (half width + pad), with the number of segments it is
+-- inside (n), the signed distance to the right of the segment direction (side) and the distance along the edge (u)
+function Road.at(g, x, z, pad)
+	pad = pad or 0
+	local bs, be, bk, bt, bd, cnt = -1e9, nil, 0, 0, 0, 0
+	local seen = {}
+	Road.each(g, x, z, 50, function(e, k)
+		local id = e.id * 4096 + k
+		if seen[id] then return end
+		seen[id] = true
+		local hw = e.w / 2
+		local th = hw + pad
+		if th <= 0 then return end
+		local ax, az = e.x[k], e.z[k]
+		local dx, dz = e.x[k + 1] - ax, e.z[k + 1] - az
+		local l2 = math.max(dx * dx + dz * dz, 1e-9)
+		local t = math.clamp(((x - ax) * dx + (z - az) * dz) / l2, 0, 1)
+		local ex, ez = x - ax - dx * t, z - az - dz * t
+		local d2 = ex * ex + ez * ez
+		if d2 >= th * th then return end
+		local d = math.sqrt(d2)
+		local sc = hw - d
+		if sc >= 0 then cnt += 1 end
+		if sc > bs then
+			bs, be, bk, bt, bd = sc, e, k, t, d
+		end
+	end)
+	if not be then return nil end
+	local e, k, t = be, bk, bt
+	local dx, dz = e.x[k + 1] - e.x[k], e.z[k + 1] - e.z[k]
+	local l = math.max(math.sqrt(dx * dx + dz * dz), 1e-6)
+	local px, pz = e.x[k] + dx * t, e.z[k] + dz * t
+	local tx, tz = dx / l, dz / l
+	return { e = e, k = k, t = t, d = bd, x = px, z = pz, tx = tx, tz = tz, side = (x - px) * -tz + (z - pz) * tx, n = cnt,
+		u = e.cum[k] + (e.cum[k + 1] - e.cum[k]) * t }
 end
 
 -- the travel direction on an edge for a heading (fx, fz): 1 = a -> b, -1 = b -> a (one-way edges are always 1)

@@ -27,6 +27,11 @@ stage("buildings", require(World:WaitForChild("Buildings")), map)
 stage("labels", require(World:WaitForChild("Signs")).labels, map)
 stage("sites", require(World:WaitForChild("Sites")), map)
 stage("spawn point", require(World:WaitForChild("Spawn")), map)
+local Furniture = require(World:WaitForChild("Furniture"))
+stage("traffic lights", Furniture.signals, map)
+stage("speed bumps", Furniture.bumps, map)
+stage("stunt ramps", Furniture.ramps, map)
+stage("drift zones", Furniture.driftZones, map)
 
 map.Parent = Workspace
 -- the "press Play" sign that is only meant for Studio's edit view
