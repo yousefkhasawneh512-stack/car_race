@@ -404,3 +404,25 @@ OPTION or an addition to the search list: with the defaults the game plays exact
 - **Tests:** `assist_v49` (30: v48 trace with options off, tyre warm-up / cooling / overheat, brake fade over 8 stops and recovery, Arcade
   unaffected, saving, traffic by hour and the 250 m rule, chips, saved places), `v49_pw` (12: real clicks on chips, ☆ and a saved place,
   pause-menu rows and storage, HUD temperatures). Both are in `tools/check.py`.
+
+## Roblox version 2 (2026-10-21)
+
+`roblox/` becomes a complete Roblox Studio project (Luau); the web game is unchanged. `tools/make_roblox.js` now also exports the road
+graph (5,972 edges inside the 2.5 km map: one-way, limit, street name, width; 3,903 junctions), 650 OSM places, the bank and tuning-shop
+sites, the two circuits that fit the map (routed by the web game's own `route()`), rarity tiers and 22 cars with generic names; it packs
+every file of `roblox/src` by folder (Rojo naming) into `IrbidDrive.rbxlx` with `Workspace.StreamingEnabled = false`.
+- **Gameplay, rewritten in Luau with the web game's numbers:** Arcade driving + drift formula (rarity, Extra Drift upgrade), Apex Drift
+  Customs upgrades (base x 2^level, drift points, at the shop only, per car), car wheel (10,000; 50/35/10/4/1 %; duplicate refund 5,000),
+  bank heist (2:00, +500 / up to -50, 3:00 closed), street races vs 3 rivals (Roblox-only cash rewards 1,000/500/250/100), traffic on the
+  real graph (right-hand lane, limits, bends, following), GPS over the real places with one-way routing, minimap, street names, day/night
+  with headlights, saving per car. The server checks every payout (drift rate cap, race minimum time, heist distance / duration).
+- **Buildings vs roads:** roads are drawn at the web game's widths, so 2,744 real footprint pieces that reached into a carriageway are cut
+  back from the road side (77 too thin are dropped); the old rule (centre near a road -> drop 1,032) let large footprints block streets.
+- **Bugs found by the headless test before any Studio run:** ground ray only 60 m long (a teleport onto higher ground would have dropped the
+  car under the map), the car spawned unanchored before its device took it over (now anchored until `CarReady`), GPS progress measured
+  by point index (dots and distance could start 40 m behind the car; now `Road.project`), police overshooting and circling instead of
+  boxing the player in.
+- **Tests:** `roblox/tests/run.js` loads the place file into `rbxmock.luau` (an engine stand-in run by the official Luau CLI: instances,
+  CFrame/Vector3, ray tests against the real parts and terrain blocks, remotes, DataStore, a 60 fps scheduler) and plays `scenario.luau`:
+  75 checks (map, spawn, GPS drive of 1.1 km, 0-100 / braking, drift + server caps, traffic, races, heist both ways, shop, wheel, garage,
+  search, minimap, reset, clock, save / load). 75/75 in three runs. Not run in Roblox Studio (none on this PC).

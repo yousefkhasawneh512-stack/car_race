@@ -69,6 +69,10 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   `--full` adds every Node and Playwright check incl. `xbrowser_pw`; report `.check/report.md`; on success copies the build to `dist/last-good/`).
   v48: `assist_v48` (Node, repo root, 19) and `v48_pw.py` (12, screenshots `docs/screenshots/v48/`, honours `SP`); both are in `check.py`.
   v49: `assist_v49` (Node, repo root, 30; needs tag `backup/v48`) and `v49_pw.py` (12, `docs/screenshots/v49/`, honours `SP`); both in `check.py`.
+  Roblox (`roblox/`, Luau, separate from the web build): `node tools/make_roblox.js dist/irbid-drive.html` regenerates `roblox/data`, `roblox/shared`
+  and `roblox/IrbidDrive.rbxlx` from the build + `roblox/src` (rerun after ANY change in `roblox/src`; the place file embeds the sources).
+  Test: `node roblox/tests/run.js <luau.exe>` (official Luau CLI, github.com/luau-lang/luau releases; not installed on PATH) plays the place
+  file in `roblox/tests/rbxmock.luau` (no physics/rendering; 75 checks). `luau-analyze` on `roblox/src`: only Roblox globals are unknown.
   `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),
   `xbrowser_pw.py` (Chromium/Firefox/WebKit + iPhone/iPad/Pixel emulation; needs `python -m playwright install firefox webkit`; one browser per case,
   WebKit lost its software-GL context on the 4th page of one process), `perf_v47_pw.py` (preset render cost, traffic cost). Assets:
