@@ -206,14 +206,22 @@ function Damage.effects(s, car, mode, F)
 	return F
 end
 
--- ---- the obstacle (07e objectImpact, the two kinds the Roblox map has: buildings and cars) ----
--- ob = {type = "solid" | "vehicle", hw, hd (half sizes, m), r (pole radius)} -> equivalent barrier speed, speed given away, label
-local function objectImpact(ob, vn, mass)
+-- ---- the obstacle (07e objectImpact). Roadside objects (a collider of Modules/Objects, ob.id) go through Damage.objects.impact (the
+-- client and the tests set Damage.objects = Objects: this module stays free of requires); buildings and cars use the two rules below,
+-- the same as Objects.impact gives them. ob = {type = "solid" | "vehicle", hw, hd (half sizes, m), r (pole radius)}
+-- -> equivalent barrier speed, speed given away, broke, label (+ the object's action and amount for the client) ----
+Damage.objects = nil
+local function objectImpact(ob, vn, mass, nx, nz, t, rnd)
+	if ob and ob.id and Damage.objects then
+		local r = Damage.objects.impact(ob, vn, mass, nx, nz, t, rnd)
+		return r.ebs, r.gave, r.broke, r.label, r.act, r.amt
+	end
 	if ob and ob.type == "vehicle" then
 		local m2 = 1400
 		return vn * math.sqrt(m2 / (2 * (mass + m2))), 0, false, "Car"
 	end
-	return vn, 0, false, (ob and ob.r ~= nil) and "Structure" or "Wall"
+	-- a building wall: a scrape mark and dust above 6 m/s (materialImpact's rigid branch)
+	return vn, 0, false, (ob and ob.r ~= nil) and "Structure" or "Wall", vn > 6 and "mark" or nil, 0
 end
 
 -- ---- 07h dpImpact: bumpers, mirrors, lids, doors, glass cracks, rims (Cosmetic and Full). Returns the parts torn off. ----
@@ -301,7 +309,7 @@ function Damage.impact(s, car, mode, c)
 	if t - s.lastHit < 0.48 and hypot(c.x - s.lastX, c.z - s.lastZ) < 2.8 then return nil end
 	s.lastHit, s.lastX, s.lastZ = t, c.x, c.z
 	s.impacts = (s.impacts or 0) + 1
-	local ebs, gave, broke, label = objectImpact(c.ob, c.v, sp.mass)
+	local ebs, gave, broke, label, act, amt = objectImpact(c.ob, c.v, sp.mass, c.nx, c.nz, t, c.rnd)
 	local kmh = ebs * 3.6
 	-- the contact point on the car's outline, in car-local metres (+x = the car's left, +z = forward)
 	local sh, ch = math.sin(c.h), math.cos(c.h)
@@ -418,7 +426,7 @@ function Damage.impact(s, car, mode, c)
 	while #s.log > 8 do table.remove(s.log) end
 	local toast = (broke and ("💥 " .. label .. " broke · ") or gave > 0 and (label .. " shoved · ") or "Impact · ") .. jsround(c.v * 3.6) .. " km/h · "
 		.. (Damage.ZONE_NAMES[best] or face) .. " · body condition " .. jsround(s.body) .. "%" .. (mode == 2 and (" · engine " .. jsround(s.engine) .. "%") or "")
-	return { gave = gave, face = face, kmh = jsround(c.v * 3.6), ebs = kmh, crush = crush, zone = best, label = label, toast = toast, torn = torn, cx = cx, cz = cz }
+	return { gave = gave, face = face, kmh = jsround(c.v * 3.6), ebs = kmh, crush = crush, zone = best, label = label, toast = toast, torn = torn, cx = cx, cz = cz, broke = broke, act = act, amt = amt, ob = c.ob }
 end
 
 -- ---- a hard landing (ramps, crests): vy = vertical speed just before touchdown (07c registerLanding) -> toast or nil ----

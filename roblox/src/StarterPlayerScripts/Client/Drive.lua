@@ -153,6 +153,8 @@ local function sim(dt, frozen, thA, brA, steer, hb)
 	st.x += st.vx * dt
 	st.z += st.vz * dt
 	SpeedBumps.step(prevX, prevZ, dt)
+	-- the roadside objects (poles, lights, signs, trees, dumpsters, guardrails, islands: the web game's colB after the move)
+	if Drive.objects and Drive.objects(st) then DriftScore.lose() end
 	-- height: follow the ground; where it falls away faster than the car (ramp ends, crests) the car flies
 	local gh = Ground.groundH(st.x, st.z)
 	local vy0 = st.vy

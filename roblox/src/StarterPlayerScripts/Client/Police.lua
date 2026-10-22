@@ -57,6 +57,8 @@ local function chase(a, dt)
 		a.v = math.max(0, a.v + math.clamp(vt - a.v, -9 * dt, a.a0 * dt))
 		a.x += math.sin(a.h) * a.v * dt
 		a.z += math.cos(a.h) * a.v * dt
+		-- poles, trees and walls push the police car out and slow it (the web game's colB for its bots)
+		if State.objects then State.objects.collideAI(a) end
 		a.y = Drive.groundY(a.x, a.z, a.y + 4) or a.y
 		a.P = nil
 		return

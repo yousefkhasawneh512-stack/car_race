@@ -17,14 +17,18 @@ global.addEventListener=()=>{};global.innerWidth=1280;global.innerHeight=720;glo
 global.performance={now:()=>0};global.requestAnimationFrame=()=>{};global.setTimeout=()=>{};
 const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{LS[k]=String(v)}};
 const cl0=console.log;console.log=()=>{};
+// the web game draws its trees, bushes, dumpsters, manholes and some poles with Math.random (a new sample on every page load): one fixed seed
+// here, so the place file is the same on every run (only this export; the web game is unchanged)
+{let q=20250611;Math.random=()=>{q|=0;q=q+0x6D2B79F5|0;let t=Math.imul(q^q>>>15,1|q);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8'),R=+process.argv[3]||3500;
 // hooks (rendering data only, nothing in the game changes): instO calls = the instanced street furniture / trees, scene.add = the hand-built landmarks
 let JSRC=html.match(/<script>\n([\s\S]*?)<\/script>/)[1];Error.stackTraceLimit=12;global.__INST=[];global.__ADD=[];
 global.__at=()=>{const l=new Error().stack.split(String.fromCharCode(10))[3]||'';const m=l.match(/<anonymous>:(\d+):(\d+)/);return m?[+m[1],+m[2]]:null};
 global.__who=()=>new Error().stack.split(String.fromCharCode(10)).slice(3,9).map(l=>(l.match(/at (\S+)/)||[])[1]).filter(n=>n&&!/^(eval|Array|Object|new|forEach|<anonymous>)/.test(n)).slice(0,3).join('<');
+global.__CN=0;JSRC=JSRC.replace('function addCol(c){','function addCol(c){if(c.__n===undefined)c.__n=__CN++;');
 JSRC=JSRC.replace('function instO(g,mat,items,shadow,R,CS){','function instO(g,mat,items,shadow,R,CS){__INST.push({g,mat,items,R,at:__at()});');
 {const a0=THREE.Object3D.prototype.add;THREE.Scene.prototype.add=function(...a){for(const o of a)__ADD.push({o,w:__who()});return a0.apply(this,a)}}
-(0,eval)(JSRC+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec,ptGeom,TPOOL,WHEEL_OLD,TRAFFIC_SPAWN,trafficZone,TCOL,NRACE,OWNC,RCH,engProfile,dpGeo,carV}');
+(0,eval)(JSRC+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec,ptGeom,TPOOL,WHEEL_OLD,TRAFFIC_SPAWN,trafficZone,TCOL,NRACE,OWNC,RCH,engProfile,dpGeo,carV,COL,DESTRUCTIBLE_INSTANCES,SGS}');
 const S=global.__s,TH=S.TH,ST=S.START,OUT=path.resolve('roblox');
 const dm=v=>Math.round(v*10),inR=(x,z)=>Math.hypot(x-ST.x,z-ST.z)<=R;
 // ---- roads: one straight piece per polyline segment, centred on the start; class 0 major / 1 local / 2 service, roundabout 3 ----
@@ -173,14 +177,32 @@ const copCar=rosterIx.get(S.PORS.findIndex(m=>m[0]==='Ford Crown Victoria'));if(
 const SL=JSRC.split(String.fromCharCode(10)),argOf=a=>{if(!a)return'';const L=SL[a[0]-1];let i=L.indexOf('(',a[1]-1),d=0,j=i;for(;j<L.length;j++){if(L[j]==='(')d++;else if(L[j]===')'){d--;if(!d)break}}return L.slice(i+1,j)};
 const PROPK=[['stops','busStop'],['posts,false,700','busPost'],['heads,false,700','busHead'],['mGrass,isl','island'],['mRim,rim','islandRim'],['CN','cone'],
  ['pm,poles','lampPole'],['pm,arms','lampArm'],['lampMat,heads','lampHead'],['conc,poles','utilPole'],['conc,arms','utilArm'],[',xf,','transformer'],['gr,rails','railBeam'],['gr,posts','railPost'],
- [',mh,','manhole'],['bin,true','bin'],[',lid,','binLid'],['TRK','trunk'],['CANP[k]','canopy'],['CANP.olive','olive'],['CANP.cyp','cypress'],['CANP.bush','bush'],['ROCKS','rock'],['SIGNP','signPost']];
+ [',mh,','manhole'],['bin,true','bin'],[',lid,','binLid'],['TRK','trunk'],['CANP[k]','canopy'],['CANP.olive','olive'],['CANP.cyp','cypress'],['CANP.bush','bush'],['ROCKS','rock'],['signPole,false','signPost']];
+// ---- the web game's roadside colliders (05b addCol): street lights, utility poles, road signs, dumpsters, guardrail segments, trees, the
+// untyped circles (roundabout islands, columns) and solid boxes (landmark walls, kiosks). The OSM building boxes are left out: Roblox has the
+// buildings as parts and tests them with rays. In the order the web game added them. Row: type, x, z (cm), r or hw (cm), hd (cm, -1 = circle),
+// heading (1e-4 rad), break speed (cm/s, 0 = not breakable), height (cm), trunk diameter (mm), canopies, visual (1 = has instances), and the
+// base of the instance it shows (pole height cm, base y cm: the fallen pole / tree is drawn from these, as the web game does) ----
+const OTYPES=['-','solid','streetLight','utilityPole','sign','bin','guardrail','tree','busShelter','gardenWall','monument','structure'];
+const colSeen=new Set(),cols=[];for(const L of S.COL.values())for(const a of L){if(colSeen.has(a))continue;colSeen.add(a);if(!inR(a.x,a.z)||(a.type===undefined&&a.r===undefined))continue;cols.push(a)}
+cols.sort((a,b)=>a.__n-b.__n);const colId=new Map(),colRows=[],colStat={};
+cols.forEach((a,i)=>{if(a.visualKey)colId.set(a.visualKey,i+1);const t=OTYPES.indexOf(a.type===undefined?'-':a.type);if(t<0)throw new Error('collider type '+a.type);
+ const e=a.visualKey&&S.DESTRUCTIBLE_INSTANCES.get(a.visualKey),vh=e?Math.max(.3,e.item[5]||1):0,vy=e?e.item[1]+TH(e.item[0],e.item[2])-vh/2:0;
+ colRows.push(t,Math.round((a.x-ST.x)*100),Math.round((a.z-ST.z)*100),Math.round((a.r!==undefined?a.r:a.hw)*100),a.r!==undefined?-1:Math.round(a.hd*100),a.r!==undefined?0:Math.round(Math.atan2(a.s,a.c)*1e4),
+  a.breakable?Math.round((a.breakAt||0)*100):0,Math.round((a.height||0)*100),Math.round((a.trunkD||0)*1000),a.canopies||0,e?1:0,Math.round(vh*100),Math.round(vy*100),Math.round((a.wallH||0)*100));
+ colStat[OTYPES[t]]=(colStat[OTYPES[t]]||0)+1});
+const COLW=14,colOf=k=>{if(!k)return 0;return colId.get(k)||colId.get(String(k).replace(/\/(arm|head|pool|xf|lid|c\d+)$/,''))||0};
 const props=[],propStat={};
 for(const c of __INST){const a=argOf(c.at);const k=PROPK.find(q=>a.includes(q[0]));if(!k)continue;const g=c.g,t=g.type,P0=g.parameters||{};
  const shape=t==='BoxGeometry'?'box':t==='CylinderGeometry'?(P0.radiusTop<P0.radiusBottom*.3?'cone':'cyl'):t==='ConeGeometry'?'cone':t==='SphereGeometry'?'ball':t==='DodecahedronGeometry'?'ball':'box';
  const base=t==='BoxGeometry'?[P0.width,P0.height,P0.depth]:t==='CylinderGeometry'?[(P0.radiusTop+P0.radiusBottom),P0.height,(P0.radiusTop+P0.radiusBottom)]:t==='ConeGeometry'?[P0.radius*2,P0.height,P0.radius*2]:[P0.radius*2,P0.radius*2,P0.radius*2];
  const col=c.mat&&c.mat.color?c.mat.color.getHex():0xffffff,rows=[];
- for(const q of c.items){if(!inR(q[0],q[2]))continue;rows.push(dm(q[0]-ST.x),dm(q[2]-ST.z),Math.round((q[1]+TH(q[0],q[2]))*100),Math.round((q[3]||0)*1000),Math.round(base[0]*(q[4]||1)*100),Math.round(base[1]*(q[5]||1)*100),Math.round(base[2]*(q[6]||1)*100),q[7]!==undefined?q[7]:col)}
- if(!rows.length)continue;props.push({kind:k[1],shape,R:c.R||300,col,n:rows.length/8,rows});propStat[k[1]]=(propStat[k[1]]||0)+rows.length/8}
+ for(const q of c.items){if(!inR(q[0],q[2]))continue;rows.push(dm(q[0]-ST.x),dm(q[2]-ST.z),Math.round((q[1]+TH(q[0],q[2]))*100),Math.round((q[3]||0)*1000),Math.round(base[0]*(q[4]||1)*100),Math.round(base[1]*(q[5]||1)*100),Math.round(base[2]*(q[6]||1)*100),q[7]!==undefined?q[7]:col,colOf(q[8]))}
+ if(!rows.length)continue;props.push({kind:k[1],shape,R:c.R||300,col,n:rows.length/9,rows});propStat[k[1]]=(propStat[k[1]]||0)+rows.length/9}
+// ---- the road-sign plates (06i SGS: street-name plates in the web blue, speed limits, STOP), with the collider of their post ----
+const signR=(props.find(q=>q.kind==='signPost')||{R:300}).R,signRows=[],signText=[];
+for(const g of S.SGS){if(!inR(g[0],g[2]))continue;signRows.push(dm(g[0]-ST.x),dm(g[2]-ST.z),Math.round((g[1]+TH(g[0],g[2]))*100),Math.round(g[3]*1000),Math.round(g[4]*100),Math.round(g[5]*100),g[7]?1:0,colOf(g[8]));
+ signText.push(g[7]?(g[6]==='STOP'?'STOP':String(g[6]).slice(1)):String(g[6]).slice(1).toUpperCase())}
 // ---- the hand-built landmarks (06b / 06c / 06g2 / 06i groups: Al-Balad sites, the clock square, heritage houses, arches, gantries ...): every
 // mesh of the groups the landmark builders added, with its real transform (the terrain pass has lifted the groups), as a part: boxes, cylinders,
 // spheres, cones, discs; extruded shapes and planes as their bounding box. Cars and the merged road / building chunks are not landmarks. ----
@@ -209,7 +231,7 @@ const chunkRows=(name,rows,max)=>{const out=[];let cur=[],len=0;const flush=()=>
  for(const r of rows){if(len+r.length>max)flush();cur.push(r);len+=r.length+1}flush();return out};
 const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000),['Landmarks','return '+luaVal(lmParts.map(r=>r.join(',')))+'\n']];
 // the props: one module per family chunk ({kind, shape, R, n, rows = "x,z,y,h,sx,sy,sz,col,..."})
-const propMods=[];props.forEach((pr,i)=>{for(let o=0,k=1;o<pr.rows.length;o+=8*4000,k++)propMods.push(['Props_'+i+'_'+k,'return '+luaVal({kind:pr.kind,shape:pr.shape,R:pr.R,rows:pr.rows.slice(o,o+8*4000).join(',')})+'\n'])});
+const propMods=[];props.forEach((pr,i)=>{for(let o=0,k=1;o<pr.rows.length;o+=9*4000,k++)propMods.push(['Props_'+i+'_'+k,'return '+luaVal({kind:pr.kind,shape:pr.shape,R:pr.R,rows:pr.rows.slice(o,o+9*4000).join(',')})+'\n'])});
 const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z).toFixed(2),roadCount:roads.length/8,buildingCount:blds.length/8,
  attribution:'Map data © OpenStreetMap contributors (ODbL) · terrain NASA SRTM',
  bank:{x:+(S.BANK.x-ST.x).toFixed(1),z:+(S.BANK.z-ST.z).toFixed(1),y:+TH(S.BANK.x,S.BANK.z).toFixed(1)},
@@ -217,6 +239,8 @@ const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z)
  rarity:S.RARN.map((n,k)=>({name:n,mult:S.RMULT[k]})),labels,cars};
 // the sound atlas index (tools/make_roblox_audio.js writes it next to the sound file; without it the game has no sound)
 const ATL=path.join(OUT,'audio','AudioAtlas.lua'),atlas=fs.existsSync(ATL)?fs.readFileSync(ATL,'utf8').replace(/\r\n/g,'\n'):'return { sampleRate = 22050, seconds = 0 }\n';
+for(let o=0,k=1;o<colRows.length;o+=COLW*6000,k++)propMods.push(['Objects_'+k,'return '+luaVal({types:OTYPES,w:COLW,rows:colRows.slice(o,o+COLW*6000).join(',')})+'\n']);
+propMods.push(['Signs','return '+luaVal({R:signR,rows:signRows.join(','),text:signText})+'\n']);
 const sharedMods=[...propMods,['AudioAtlas',atlas],['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],['Rules','return '+luaVal(rules)+'\n'],['Heights','return '+luaVal({x0:-R-100,z0:-R-100,cell:HC,n:HN})+'\n'],...chunk('HeightData',hts,40000),
  ['GraphNodes','return [['+nodes.join(',')+']]\n'],['GraphNames','return '+luaVal(names)+'\n'],...chunkRows('GraphEdges',edgeRows,240000)];
 for(const[dir,mods]of[['data',serverMods],['shared',sharedMods]]){const D=path.join(OUT,dir);fs.mkdirSync(D,{recursive:true});
@@ -249,6 +273,7 @@ fs.writeFileSync(path.join(OUT,'IrbidDrive.rbxlx'),xml);
 cl0('roads',roads.length/8,'buildings',blds.length/8,'(cut back from a road '+trim+', dropped '+drop+')','labels',labels.length);
 cl0('graph: nodes',nodes.length/3,'edges',edgeRows.length,'names',names.length,'| places',places.length,'| circuits',circuits.map(c=>c.name+' ('+c.cps.length+' checkpoints, '+c.path.split(',').length/3+' points)').join(', '));
 cl0('props',Object.entries(propStat).map(([k,v])=>k+' '+v).join(', '),'| landmark parts',lmParts.length);
+cl0('colliders',cols.length,Object.entries(colStat).map(([k,v])=>k+' '+v).join(', '),'| sign plates',signText.length);
 cl0('signals',signals.length,'heads',heads.length,'bumps',bumps.length,'drift zones',dzones.length,'tour',tour.length,'ramps',ramps.length);
 cl0('cars',cars.length,cars.map(c=>c.name+' T'+c.tier+' '+(c.vm*3.6).toFixed(0)+'km/h').join(', '));
 cl0('rbxlx',(xml.length/1e6).toFixed(2),'MB ->',path.join(OUT,'IrbidDrive.rbxlx'));

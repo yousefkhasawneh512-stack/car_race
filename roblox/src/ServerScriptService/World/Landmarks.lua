@@ -2,8 +2,8 @@
 -- houses on their OSM footprints, arches, gantries ...), exported mesh by mesh with their real positions, rotations, sizes and colours
 -- (tools/make_roblox.js). Boxes stay boxes; cylinders, spheres (ellipsoids) and discs are Roblox cylinders / sphere meshes; cones are
 -- thinner cylinders (Roblox has no cone without an uploaded mesh); extruded shapes and planes are their bounding boxes. The web game's
--- textures (canvas-drawn detail) are not reproduced. They are scenery: cars pass through them, as before (the web game's landmark colliders
--- are not ported yet).
+-- textures (canvas-drawn detail) are not reproduced. These parts do not collide: the web game's colliders for the landmarks (its wall boxes and
+-- columns) are in Modules/Objects with the other roadside colliders.
 local ServerStorage = game:GetService("ServerStorage")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))

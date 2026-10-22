@@ -8,7 +8,7 @@ A Roblox Studio port of the Irbid Drive web game, written in Luau. It is built f
 - 37 signalised junctions
 - 40 speed bumps
 - the drift zone, the stunt ramps and 21 landmark-tour stops
-- the web game's hand-built landmarks (625 parts) and its street furniture and trees (73,091 props: street lights, utility poles, guardrails,
+- the web game's hand-built landmarks (625 parts) and its street furniture and trees (73,733 props and 835 road-sign plates: street lights, utility poles, signs, guardrails,
   bus stops, dumpsters, roundabout islands, trees, cypresses, bushes), drawn near the player as the web game does
 - **all 217 cars** of the web game, each with its own numbers
 
@@ -23,6 +23,7 @@ Roblox runs Luau, not the web game's JavaScript, so every system was rewritten. 
 | Driving: Arcade (default) | The web game's Arcade handling, line for line: steering, acceleration curve, brakes, the handbrake drift, rolling and air drag. Grip depends on the surface (road or drift zone 1, unpaved track 0.75, built-up ground 0.9, open ground 0.65). Gravity pulls along slopes. The car follows the web game's ground height (terrain plus ramps) and flies where the ground drops away |
 | Driving: Realistic (H) | The web game's Realistic model, line for line: engine torque curve, automatic or manual gearbox (Q / E), traction limit with load transfer, aero drag and rolling resistance, engine braking, a two-axle slip-angle tyre model, a sprung body. ABS, traction control, stability control, optional tyre temperature and brake fade (settings). Wet roads lower the grip. Long frames are split into 1/60 s steps. All numbers are the web game's estimates per car |
 | Vehicle damage (I) | Off (default) / Cosmetic / Full, the web game's rules: localised impacts by contact point and crush depth, dents, bumpers that crack, hang and tear off, mirrors, bonnet, boot lid, doors, glass cracks, broken lamps, bent rims, flat tyres. Full adds engine, radiator (overheating), gearbox, driveline, steering, brakes, suspension per corner, alignment (the car pulls), tyre grip. Hard landings and speed bumps taken too fast hurt the suspension. Per-wheel tyre model: load, slip, heat, wear, punctures, burnouts (strong rear-drive cars can, weak or all-wheel-drive cars can't) |
+| Roadside objects | The web game's street lights, utility poles, road signs, dumpsters, guardrails, trees, roundabout islands and landmark walls are solid. With damage Cosmetic or Full they react as in the web game: lights, poles and signs bend, then snap and fall along your path (a stump stays); trees shake and shed leaves (only slim trunks fall); dumpsters are shoved, slide, turn and may tip; guardrails deflect; walls get scrape marks; debris flies. With damage Off everything is rigid. Heavier cars break things sooner (energy based). All thresholds are the web game's estimates |
 | Diagnostics (O) | Every component with its condition and effect, body zones, every tyre (tread, carcass, temperature, grip, load, slip, wear by cause, distance) and the last impacts |
 | Repair bay | At Apex Drift Customs (U / P there; the 🔧 Repair button routes you there): each damaged part with its price in JD (the web game's prices × the car's rarity), Repair all, and a full inspection of all 42 parts. The server prices and charges every repair |
 | Speed bumps | The web game's quarter-car suspension: heave, pitch, a short hop when crossed fast. Two are mapped in OpenStreetMap; the rest are estimated positions, as in the web game |
@@ -92,12 +93,13 @@ Roblox reads **gamepads only** (sticks, triggers, buttons). It cannot open HID d
 - Every script passes the official Luau analyzer (`luau-analyze`).
 - `tests/physics_equiv.js`: the Roblox physics against the web build on 40 driving cases, every frame (Arcade and Realistic, 14 cars, assists, temperatures, wet road, manual gearbox, 60 / 30 / 20 fps): equal to 4e-13.
 - `tests/damage_equiv.js`: the Roblox damage against the web build on 92 checks (impacts, landings, speed bumps, overheating, effects, repair prices, inspection, and driving with Full damage in both handling modes): equal to 1e-13.
+- `tests/objects_equiv.js`: the exported roadside colliders against the web build's (24,883, to 1 cm), the collision test on 1,500 cars, and the object rules on 790 hits (bending, breaking, falling trees, deflecting rails, sliding dumpsters): equal to 1e-14.
 - `tests/audio_atlas.js`: the sound file (seamless loops, 27 different engine voices, tones at their frequency).
 - `tests/run.js` loads this exact place file into a headless stand-in for the Roblox engine and plays through every feature above (also as a touch device and without Terrain). The checks are listed in `tests/scenario.luau`.
 
 The stand-in has no rendering, physics engine or real input devices, so the look of the damage and the weather, the camera feel, the sound, the gamepad and speed on phones still need a real Studio test. If something fails in Studio, **View → Output** shows the error.
 
-**Not ported yet** (see `CONVERSION_PROGRESS.md`): the breakable / movable roadside objects (poles, trees, signs and dumpsters are scenery here: cars pass through them, and through the landmarks), the web game's textures (facade and car detail drawn on canvases), the generated buildings that fill streets where OpenStreetMap has none, and the rooftop details.
+**Not ported yet** (see `CONVERSION_PROGRESS.md`): the web game's textures (facade and car detail drawn on canvases), the generated buildings that fill streets where OpenStreetMap has none, and the rooftop details.
 
 ## Publish it and earn Robux
 
@@ -132,7 +134,7 @@ Roblox's own rules decide how Robux become real money (**Developer Exchange / De
 | `CAR_NAMES.md` | Generic name → web car (documentation only) |
 | `CONVERSION_PROGRESS.md` | The conversion checklist, feature inventory and test log |
 | `default.project.json` | For Rojo users (`rojo serve` / `rojo build`) |
-| `tests/` | `run.js` + `rbxmock.luau` + `scenario.luau` (headless play-through), `physics_equiv.js`, `damage_equiv.js`, `audio_atlas.js` |
+| `tests/` | `run.js` + `rbxmock.luau` + `scenario.luau` (headless play-through), `physics_equiv.js`, `damage_equiv.js`, `objects_equiv.js`, `audio_atlas.js` |
 
 Regenerate: `node tools/make_roblox.js dist/irbid-drive.html [radius_m]` from the repo root (after any change in `src/`), and `node tools/make_roblox_audio.js dist/irbid-drive.html` for the sound file.
 
@@ -140,6 +142,7 @@ Tests (from the repo root; the Luau CLI from https://github.com/luau-lang/luau/r
 ```
 node roblox/tests/physics_equiv.js <luau.exe>      # physics vs the web build (40 cases)
 node roblox/tests/damage_equiv.js <luau.exe>       # damage vs the web build (92 checks)
+node roblox/tests/objects_equiv.js <luau.exe>      # roadside colliders + object rules vs the web build
 node roblox/tests/audio_atlas.js                   # the sound file
 node roblox/tests/run.js <luau.exe>                # the play-through (~8 min); TOUCH=1, NOTERRAIN=1 variants
 ```

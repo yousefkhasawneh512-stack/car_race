@@ -486,3 +486,21 @@ The conversion continues from the web build itself (`roblox/CONVERSION_PROGRESS.
   Omar with the web skills .96 / .98 / 1.00 replace Roblox's random skills; traffic keeps the reputation gap behind the player; honks).
 - **Search chips + saved places, traffic density (High / Medium / Low / by time of day), text size.** Saved with the progress on the server
   (remotes SaveRep, SaveSchool, SaveFav).
+
+## Roblox version 4.2 (2026-10-22)
+
+- **Roadside objects** (`Modules/Objects`, pure; `Client/RoadsideObjects`): the web game's 24,883 roadside colliders inside the map (street
+  lights, utility poles, road signs, dumpsters, guardrail segments, trees, roundabout islands, landmark walls) exported in the web game's
+  order, with the web colB test (the player's car 2.2 m, the police chasing close 1.3 m) and 07e's object rules line for line: with damage
+  Off everything is rigid; with Cosmetic / Full, lights, poles and signs bend, then snap and fall along the car's path (a stump stays, also
+  when the props are built again); trees accumulate damage and shake (only slim trunks fall); dumpsters are shoved, slide with friction,
+  turn, may tip, and their collider returns where they stop; guardrails deflect; walls (and building walls) get scrape marks; 48 debris
+  pieces. `Damage.impact` takes the object's result (barrier speed, speed given away, label: "💥 Street light broke", "Dumpster shoved").
+- **Road-sign plates** with the web text (street names in the blue plates, speed limits, STOP) as a SurfaceGui; the sign posts (the export
+  missed them before).
+- `tools/make_roblox.js` seeds `Math.random` for the export only: the web game's random trees / bushes / dumpsters / manholes are now one
+  fixed sample (the same place file on every run).
+- Tests: `roblox/tests/objects_equiv.js` (new): the export against the web colliders (to 1 cm / 1e-4 rad / 1 mm), colB on 1,500 cars and AI
+  cars, objectImpact on 175 objects (790 hits) and the sliding dumpsters, against the web build: equal to 1e-14. Scenario block "roadside
+  objects" (11 checks). Limits: race / duel rivals follow their path exactly and are not pushed by objects; broken objects are per device and
+  per session (as in the web game, until reload); not seen in Studio.

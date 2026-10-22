@@ -13,7 +13,7 @@ first, then verify the state with the commands under "How to verify" (never assu
 - The zip `Downloads\irbid-drive-v46-FULL.zip` is an OLDER snapshot (v46) of this same repository. This repository is v49 + Roblox, so the
   conversion works from the repository, not from the zip (nothing in the zip is newer; it has no `roblox/` folder).
 
-## Current stage (2026-10-22, Roblox version 4)
+## Current stage (2026-10-22, Roblox version 4.2)
 
 | Stage | Status |
 |---|---|
@@ -25,7 +25,7 @@ first, then verify the state with the commands under "How to verify" (never assu
 | F. Vehicles | 217 cars with the web numbers; v4.1: the web car shapes and light lines |
 | G. Physics + controls | Arcade + Realistic + assists + gearbox: verified against the web build; gamepad / wheel input: converted (no hardware) |
 | H. UI / camera / audio / visuals | settings menu, cameras, HUD gear line, weather visuals, sound (needs the upload), damage looks: converted |
-| I. Remaining gameplay | all web gameplay systems converted (v4.1: school, auto-drive, reputation, chips / saved places, traffic density, text size). Not yet: breakable roadside objects |
+| I. Remaining gameplay | all web gameplay systems converted (v4.1: school, auto-drive, reputation, chips / saved places, traffic density, text size; v4.2: breakable / movable roadside objects) |
 | J–L | integration tests run after every stage (Test log); final Studio validation needs Blocker 1 |
 
 ## Tools on this PC (checked 2026-10-22)
@@ -80,8 +80,10 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | Places + search (03c, 06l, 11b) | `Search`, `Gps` | CV | 1,048 places |
 | Search category chips, saved places (11b v49) | `Search`, `Game/Settings` (SaveFav) | CV | scenario: Worship chip lists only mosques / churches; ☆ saved by the server, listed first |
 | Hand-built 3D landmarks (06b, 06c, 06g2, 06i groups) | `World/Landmarks` (625 parts, exported mesh by mesh) | CU | scenario: every part built; shapes approximated (cones, extrusions → boxes), no textures; not seen in Studio |
-| Street furniture + vegetation (05b, 06i, 06j instanced props) | `Client/Props` (73,091 props, web LOD radius per family) | CU | scenario: lamps / poles / trees near the car, removed behind; not seen in Studio |
-| Breakable / movable roadside objects (07e) | buildings and cars only | PC | the props exist now but do not collide (next round) |
+| Street furniture + vegetation (05b, 06i, 06j instanced props) | `Client/Props` (73,733 props + 835 sign plates, web LOD radius per family) | CU | scenario: lamps / poles / trees near the car, removed behind; not seen in Studio |
+| Roadside colliders (05b addCol / colB): street lights, poles, signs, dumpsters, guardrails, trees, islands, landmark walls | `Modules/Objects` (24,883 colliders, the web order) | CV | `objects_equiv`: the export = the web colliders to 1 cm; colB on 1,500 cars / AI cars equal to 1e-14 |
+| Breakable / movable roadside objects (07e objectImpact, materialImpact, objectsTick) | `Modules/Objects` (rules), `Client/RoadsideObjects` (what is drawn) | CV rules / CU looks | `objects_equiv`: 175 objects, 790 hits, sliding dumpsters, equal to 1e-14; scenario: Off rigid, a light snaps and falls (stump stays, also after the cell is rebuilt), a sign bends, a dumpster slides and stops, a rail deflects, a tree shakes, wall scrape, debris; not seen in Studio |
+| Road-sign plates with their text (06i SGS) | `Client/Props` (SurfaceGui: street names, limits, STOP) | CU | scenario: a plate with its text; not seen in Studio |
 | Arcade physics (`updP`) | `Modules/CarPhysics` | CV | `physics_equiv` (equal to 4e-13) + scenario |
 | Realistic handling (07g) | `Modules/CarPhysics` | CV | `physics_equiv` 28 Realistic cases; scenario 0-100 4.8 s vs listed 4.7 s |
 | Automatic / manual gearbox, Q / E, refused downshift (07g, 11c) | `Handling` | CV | `physics_equiv` manual cases; scenario E / Q |
@@ -138,6 +140,7 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | 2026-10-22 | `damage_equiv` | 92 / 92, largest difference 1.3e-13 (first run: driving cases off by 1e-8 → the web game's Float32Array wheel loads, reproduced) |
 | 2026-10-22 | `audio_atlas` | 11 / 11 |
 | 2026-10-22 | + car shapes, landmarks, props, reputation, auto-drive, school, chips, density, text size (v4.1): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 174/174, touch 175/176 (the slide check failed once: a random traffic car blocked the test road, 1,763 rpm instead of 4,590; the test now clears the road first, then the sound block passed 24/24 on touch and on desktop; the full touch run was not repeated), no Terrain 174/174; physics_equiv 40/40, damage_equiv 92/92, audio_atlas 11/11 |
+| 2026-10-22 | + roadside objects, sign plates (v4.2): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 185/185, touch 186/187 (the right-hand-lane check: 75 of 80; 16 earlier runs gave 75-80, the misses are cars inside junctions measured against the crossing street; the check now leaves out cars within 15 m of a 3+ way node and keeps 95 %: 3 touch runs of the traffic block 40-43 of 40-43; the full touch run was not repeated), no Terrain 185/185; objects_equiv 10/10 (1e-14), physics_equiv 40/40, damage_equiv 92/92 |
 | 2026-10-22 | + damage, diagnostics, repair bay (Roblox v4): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 152 / 152 · 154 / 154 · 152 / 152 (401 s, 384 s, 387 s; three runs in parallel) |
 
 ## Known problems / limits
@@ -148,6 +151,12 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
   oscillators are two sounds summed after the soft clip (the web game sums before it); the load / rpm low-pass is an equaliser approximation.
 - Rain streaks use the built-in square particle texture stretched along the fall direction (no uploaded texture).
 - The web game's own rain bug (rain never starts) is fixed only in the port.
+- Roadside objects: the player's car and the police chasing close (the web game's bots) collide with them; race and duel rivals follow their
+  path exactly in this port, so objects do not push them (the web game's colB nudges its racers). Buildings are still tested with rays, before
+  the move (the web game tests its building boxes in the same colB pass, so a car touching a building and a pole at once may differ).
+  Objects broken or moved stay so for the session on that device only (as in the web game: until the page reloads); other players do not see them.
+- The web game draws its trees, bushes, dumpsters, manholes and some poles with `Math.random`, a new sample on each page load; the export
+  uses one fixed seed (`tools/make_roblox.js`), so the Roblox map is one such sample, the same on every export.
 
 ## Blockers (need the owner)
 
@@ -160,10 +169,8 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 
 ## Next round (in this order)
 
-1. Collisions for the landmarks and the props, then the web game's breakable / movable objects (07e: street lights, utility poles, signs,
-   trees, dumpsters, guardrails), with the damage system's object rules (Damage.impact takes the obstacle class already).
-2. The generated buildings (06a / 06d / 06h) where OpenStreetMap has none, and the rooftop details (tanks, solar panels, antennas).
-3. A Studio pass (Blocker 1): the look of the cars, landmarks, props, damage, weather; the sound after the upload; performance on a phone.
+1. The generated buildings (06a / 06d / 06h) where OpenStreetMap has none (with their colliders), and the rooftop details (tanks, solar panels, antennas).
+2. A Studio pass (Blocker 1): the look of the cars, landmarks, props, damage, weather; the sound after the upload; performance on a phone.
 
 ## How to verify (resume here)
 
@@ -172,6 +179,7 @@ node tools/make_roblox.js dist/irbid-drive.html          # regenerate (after ANY
 node tools/make_roblox_audio.js dist/irbid-drive.html    # the sound file (only when the web audio or the tool changes)
 node roblox/tests/physics_equiv.js <luau.exe>             # physics vs the web build
 node roblox/tests/damage_equiv.js <luau.exe>              # damage vs the web build
+node roblox/tests/objects_equiv.js <luau.exe>             # roadside colliders + object rules vs the web build
 node roblox/tests/audio_atlas.js                          # the sound file
 node roblox/tests/run.js <luau.exe>                       # headless play-through (~8 min); also TOUCH=1, NOTERRAIN=1
 <luau-analyze.exe> roblox/src                             # static analysis (only Roblox globals unknown)

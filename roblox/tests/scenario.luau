@@ -822,17 +822,37 @@ do
 	check("traffic cars exist", #Traffic.agents == Config.TRAFFIC_CARS, #Traffic.agents)
 	check("traffic drives", moved >= #Traffic.agents * 0.6, moved .. " of " .. #Traffic.agents .. " moved > 20 m in 15 s")
 	check("traffic stays on the roads", off == 0 and bad == 0, off .. " off the road, " .. bad .. " NaN")
-	local right = 0
+	-- measured against the nearest road, so cars inside a junction (within 15 m of a node where 3+ roads meet) are left out: there the
+	-- nearest road can be the crossing street (16 runs before this rule: 75-80 of 80, the misses at junctions)
+	local right, counted = 0, 0
+	local junc = {}
+	for _, nd in pairs(State.road.nodes) do
+		if nd.deg >= 3 then
+			local k = math.floor(nd.x / 50) * 100000 + math.floor(nd.z / 50)
+			junc[k] = junc[k] or {}
+			table.insert(junc[k], nd)
+		end
+	end
+	local function inJunction(x, z)
+		for i = -1, 1 do
+			for j = -1, 1 do
+				for _, nd in ipairs(junc[(math.floor(x / 50) + i) * 100000 + math.floor(z / 50) + j] or {}) do
+					if (nd.x - x) ^ 2 + (nd.z - z) ^ 2 < 225 then return true end
+				end
+			end
+		end
+		return false
+	end
 	for _, a in ipairs(Traffic.agents) do
 		local near = Road.nearest(State.road, a.x, a.z, 60)
-		if near then
+		if near and not inJunction(a.x, a.z) then
+			counted += 1
 			local d = Road.dirFor(near, math.sin(a.h), math.cos(a.h))
 			local side = (a.x - near.x) * (-near.tz * d) + (a.z - near.z) * (near.tx * d)
 			if side >= -0.3 then right += 1 end
 		end
 	end
-	-- (measured against the nearest road: a car crossing a junction can be nearest to the crossing street)
-	check("traffic keeps to the right-hand lane", right >= #Traffic.agents * 0.95, right .. " of " .. #Traffic.agents)
+	check("traffic keeps to the right-hand lane", counted >= #Traffic.agents * 0.5 and right >= counted * 0.95, right .. " of " .. counted .. " away from junctions (" .. #Traffic.agents .. " cars)")
 end
 
 -- ================= races =================
@@ -1140,6 +1160,186 @@ do
 	check("props behind the car are removed", near0 == 0 and Props.live < 6000 and #Props.folder:GetChildren() == Props.live, Props.live .. " live, " .. near0 .. " left at the start")
 	Drive.reset()
 	M.run(1.2)
+end
+
+-- ================= the web game's roadside objects (07e: breakable / movable, colliders) =================
+do
+	local RO, CarDamage, Ground, Props = M.client("RoadsideObjects"), M.client("CarDamage"), M.client("Ground"), M.client("Props")
+	local Objects = RO.Objects
+	local n, types = 0, {}
+	for _, d in ipairs(RS.IrbidShared:GetChildren()) do
+		if string.match(d.Name, "^Objects_%d+$") then
+			local m = require(d)
+			local k = 0
+			for _ in string.gmatch(m.rows, "-?%d+") do k += 1 end
+			n += k / m.w
+		end
+	end
+	for _, o in ipairs(Objects.list) do types[o.type or "-"] = (types[o.type or "-"] or 0) + 1 end
+	check("the web game's roadside colliders loaded", RO.count == n and n > 20000 and (types.streetLight or 0) > 1000 and (types.tree or 0) > 5000 and (types.bin or 0) > 100 and (types.guardrail or 0) > 1000,
+		string.format("%d: %d street lights, %d utility poles, %d signs, %d trees, %d dumpsters, %d guardrail segments, %d other", n, types.streetLight or 0, types.utilityPole or 0,
+			types.sign or 0, types.tree or 0, types.bin or 0, types.guardrail or 0, (types["-"] or 0) + (types.solid or 0)))
+	local function setMode(m)
+		local k = 0
+		while CarDamage.mode() ~= m and k < 4 do
+			M.call(function() CarDamage.cycle() end)
+			M.run(0.1)
+			k += 1
+		end
+	end
+	-- an object of a type with a clear 9 m run-up: no other collider and no building wall on the way (seen from the object)
+	local used = {}
+	local function find(t, test)
+		for _, o in ipairs(Objects.list) do
+			if o.type == t and not o.broken and not used[o] and math.sqrt(o.x * o.x + o.z * o.z) < 2500 and (not test or test(o)) then
+				for k = 0, 7 do
+					local a = k * math.pi / 4
+					local dx, dz = math.sin(a), math.cos(a)
+					local clear = true
+					local sz = o.r or math.max(o.hw, o.hd)
+					for s = 0, 14 do
+						local px, pz = o.x + dx * (sz + 1 + s), o.z + dz * (sz + 1 + s)
+						for _, c in ipairs(Objects.near(px, pz) or {}) do
+							if c ~= o and not c.broken and math.sqrt((c.x - px) ^ 2 + (c.z - pz) ^ 2) < (c.r or math.max(c.hw, c.hd)) + 3.4 then clear = false end
+						end
+					end
+					if clear and not Ground.wall(o.x + dx * (sz + 1), Ground.TH(o.x, o.z) + 0.5, o.z + dz * (sz + 1), dx, dz, 16) then
+						used[o] = true
+						return o, dx, dz
+					end
+				end
+			end
+		end
+	end
+	-- drive at v (m/s) into the object from (dx, dz), the contact after ~0.3 s; returns the car's speed along the run after it
+	local function hit(o, dx, dz, v, secs)
+		local sz = o.r or math.max(o.hw, o.hd)
+		local d = sz + 2.2 + v * 0.3 + 0.3
+		Drive.place(o.x + dx * d, o.z + dz * d, math.atan2(-dx, -dz))
+		M.run(0.7)
+		Drive.place(o.x + dx * d, o.z + dz * d, math.atan2(-dx, -dz))
+		st.vx, st.vz = -dx * v, -dz * v
+		M.run(secs or 0.6)
+		return -(st.vx * dx + st.vz * dz)
+	end
+	local function parts(o)
+		local L = {}
+		for p, b in pairs(RO.reg[o.id] or {}) do L[#L + 1] = { p, b } end
+		return L
+	end
+	-- damage Off: every object is rigid (the car bounces, nothing breaks)
+	setMode(0)
+	local o1, dx, dz = find("streetLight")
+	local played0 = (M.played.crash1 or 0) + (M.played.crash2 or 0) + (M.played.crash3 or 0)
+	local vAfter = hit(o1, dx, dz, 20)
+	local played1 = (M.played.crash1 or 0) + (M.played.crash2 or 0) + (M.played.crash3 or 0)
+	check("damage Off: a street light at 72 km/h is rigid, the car bounces", not o1.broken and vAfter < 0 and played1 > played0 and #parts(o1) >= 2,
+		string.format("speed along the run %.1f m/s, %d crash sounds, %d parts drawn", vAfter, played1 - played0, #parts(o1)))
+	-- Full: a street light snaps at 90 km/h and falls along the car's path; a stump stays, the lamp and arm are gone; the car keeps going
+	setMode(2)
+	local o2
+	o2, dx, dz = find("streetLight")
+	local fallen0 = #RO.falling
+	vAfter = hit(o2, dx, dz, 25, 0.35)
+	local f = nil
+	for _, c in ipairs(RO.folder:GetChildren()) do
+		if c.Name == "Fallen_streetLight" then f = c end
+	end
+	M.run(1)
+	local stump, hidden, attached = nil, 0, 0
+	for _, q in ipairs(parts(o2)) do
+		if q[2].base then stump = q[1] else
+			attached += 1
+			if q[1].Transparency == 1 then hidden += 1 end
+		end
+	end
+	local pole = f and f:FindFirstChild("Pole")
+	local sh = stump and (stump.Shape == Enum.PartType.Cylinder and stump.Size.X or stump.Size.Y) / S
+	check("Full: a street light at 90 km/h snaps and falls, a stump stays, the car keeps going", o2.broken and o2.down and pole ~= nil and math.abs(pole.Position.Y / S - (o2.vy + 0.2)) < 0.4
+		and sh ~= nil and math.abs(sh - 0.09) < 1e-6 and attached >= 2 and hidden == attached and vAfter > 10 and lastToast("Street light broke") ~= nil,
+		string.format("fallen pole at %.2f m above its base, stump %.2f m, %d / %d attached parts hidden, %.1f m/s after · %s", pole and pole.Position.Y / S - o2.vy or -1, sh or -1,
+			hidden, attached, vAfter, tostring(lastToast("Street light broke"))))
+	local deb = 0
+	for _, q in ipairs(RO.debris) do if q.age < q.life or q.p.Transparency < 1 then deb += 1 end end
+	-- a road sign at 13 km/h bends (above 35 % of its break energy) without breaking; its plate leans with the post
+	local o3
+	o3, dx, dz = find("sign")
+	hit(o3, dx, dz, 3.6, 0.5)
+	local plate, post
+	for _, q in ipairs(parts(o3)) do
+		if q[1].Name == "signPlate" then plate = q[1] end
+		if q[1].Name == "signPost" then post = q[1] end
+	end
+	check("Full: a road sign at 13 km/h bends and stays (its plate leans with it)", not o3.broken and (o3.bent or 0) > 0 and post ~= nil and plate ~= nil
+		and post.CFrame.UpVector.Y < math.cos((o3.bent or 0) * 0.9) and plate.CFrame.UpVector.Y < 0.9999,
+		string.format("bent %.3f rad, post up %.4f, plate %s", o3.bent or 0, post and post.CFrame.UpVector.Y or -1, plate and string.format("%.4f", plate.CFrame.UpVector.Y) or "missing"))
+	check("the sign plate shows the web game's text", plate ~= nil and plate:FindFirstChildOfClass("SurfaceGui") ~= nil and plate:FindFirstChildOfClass("SurfaceGui"):FindFirstChildOfClass("TextLabel").Text ~= "",
+		plate and plate:FindFirstChildOfClass("SurfaceGui") and plate:FindFirstChildOfClass("SurfaceGui"):FindFirstChildOfClass("TextLabel").Text or "no plate")
+	-- a dumpster at 36 km/h is shoved, slides, turns, stops; its collider comes back where it stopped and the bin is drawn there
+	local o4
+	o4, dx, dz = find("bin")
+	local x0, z0 = o4.x, o4.z
+	hit(o4, dx, dz, 10, 0.5)
+	local moving = o4.moving == true
+	M.run(4)
+	local bin
+	for _, q in ipairs(parts(o4)) do if q[1].Name == "bin" then bin = q[1] end end
+	local moved = math.sqrt((o4.x - x0) ^ 2 + (o4.z - z0) ^ 2)
+	local back = false
+	for _, c in ipairs(Objects.near(o4.x, o4.z) or {}) do if c == o4 then back = true end end
+	check("Full: a dumpster at 36 km/h slides away and stops; its collider is where it stopped", moving and not o4.moving and not o4.broken and back and moved > 1 and bin ~= nil
+		and math.abs(bin.Position.X / S - o4.x) < 0.01 and math.abs(bin.Position.Z / S - o4.z) < 0.01 and lastToast("Dumpster shoved") ~= nil,
+		string.format("slid %.1f m, bin drawn %.2f m from its collider · %s", moved, bin and math.sqrt((bin.Position.X / S - o4.x) ^ 2 + (bin.Position.Z / S - o4.z) ^ 2) or -1, tostring(lastToast("Dumpster shoved"))))
+	-- a guardrail segment at 54 km/h deflects away from the car (and down)
+	local o5
+	o5, dx, dz = find("guardrail", function(o) return o.hw > 1.5 end)
+	hit(o5, dx, dz, 15, 0.5)
+	local rail0
+	for _, q in ipairs(parts(o5)) do rail0 = q end
+	local shift = rail0 and (rail0[2].cf.Position - rail0[1].Position).Magnitude / S or 0
+	check("Full: a guardrail segment at 54 km/h deflects (the car is redirected, the rail moves)", (o5.defl or 0) > 0 and not o5.broken and rail0 ~= nil and math.abs(shift - o5.defl * math.sqrt(1 + 0.0625)) < 0.01,
+		string.format("deflection %.3f m, rail moved %.3f m", o5.defl or 0, shift))
+	-- a tree at 54 km/h: wood is rigid for a normal trunk; the canopy shakes and sheds leaves
+	local o6
+	o6, dx, dz = find("tree", function(o) return (o.trunkD or 0.5) > 0.4 end)
+	vAfter = hit(o6, dx, dz, 15, 0.4)
+	local canopy
+	for _, q in ipairs(parts(o6)) do if not q[2].base then canopy = q[1] end end
+	check("Full: a tree at 54 km/h stands (the car bounces), its canopy shakes", not o6.broken and vAfter < 0 and (o6.bent or 0) > 0 and canopy ~= nil and (canopy.Position - RO.reg[o6.id][canopy].cf.Position).Magnitude > 0.01,
+		string.format("trunk %.2f m (breaks at %.0f m/s), shaken %.3f rad, %.1f m/s after", o6.trunkD or 0, Objects.treeBreakV(o6), o6.bent or 0, vAfter))
+	check("debris flies when objects break", deb >= 6, deb .. " pieces")
+	-- a building wall at 43 km/h: a scrape mark at the contact
+	local marked0 = 0
+	for _, m in ipairs(RO.marks) do if m.Transparency < 1 then marked0 += 1 end end
+	local b
+	for _, p in ipairs(map.Buildings:GetChildren()) do
+		local q = p.Position / S
+		if math.sqrt(q.X * q.X + q.Z * q.Z) < 900 and p.Size.X > 15 and p.Size.Z > 15 then
+			b = p
+			break
+		end
+	end
+	local lv = b.CFrame.LookVector
+	Drive.place(b.Position.X / S - lv.X * (b.Size.Z / S / 2 + 6), b.Position.Z / S - lv.Z * (b.Size.Z / S / 2 + 6), math.atan2(lv.X, lv.Z))
+	st.vx, st.vz = lv.X * 12, lv.Z * 12
+	M.run(1)
+	local marked1 = 0
+	for _, m in ipairs(RO.marks) do if m.Transparency < 1 then marked1 += 1 end end
+	check("Full: a building wall at 43 km/h gets a scrape mark", marked1 > marked0, (marked1 - marked0) .. " new marks")
+	-- the broken light stays broken when its cell is built again (drive away and back)
+	Drive.place(o2.x + 900, o2.z, 0)
+	M.run(1.2)
+	Drive.place(o2.x + dx * 30, o2.z + dz * 30, 0)
+	M.run(1.2)
+	local again, hid2 = 0, 0
+	for _, q in ipairs(parts(o2)) do
+		again += 1
+		if not q[2].base and q[1].Transparency == 1 then hid2 += 1 end
+	end
+	check("a broken street light stays broken when its props are built again", again >= 1 and hid2 == again - 1, again .. " parts again, " .. hid2 .. " hidden")
+	setMode(0)
+	Drive.reset()
+	M.run(0.5)
 end
 
 -- ================= the web game's whole car list =================

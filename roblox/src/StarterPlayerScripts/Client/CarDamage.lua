@@ -125,13 +125,17 @@ function CarDamage.wall(v, nx, nz, part)
 	local hd = part and part.Size.Z / Config.SCALE / 2 or 6
 	return CarDamage.impact(v, { type = "solid", hw = hw, hd = hd }, nx, nz)
 end
+-- a roadside object (RoadsideObjects: a collider of Modules/Objects)
+function CarDamage.object(v, ob, nx, nz)
+	return CarDamage.impact(v, ob, nx, nz)
+end
 -- another car (Bump.onImpact)
 function CarDamage.vehicle(v, nx, nz)
 	return CarDamage.impact(v, { type = "vehicle" }, nx, nz)
 end
 function CarDamage.impact(v, ob, nx, nz)
 	if mode == 0 or not rec then return nil end
-	local r = Damage.impact(rec, car(), mode, { v = v, ob = ob, nx = nx, nz = nz, x = st.x, z = st.z, h = st.h, vx = st.vx, vz = st.vz, t = now() })
+	local r = Damage.impact(rec, car(), mode, { v = v, ob = ob, nx = nx, nz = nz, x = st.x, z = st.z, h = st.h, vx = st.vx, vz = st.vz, t = now(), rnd = math.random })
 	if not r then return nil end
 	toast(r.toast)
 	for _, k in ipairs(r.torn) do Hud.toast("💥 " .. Damage.DP_NAMES[k] .. " torn off") end

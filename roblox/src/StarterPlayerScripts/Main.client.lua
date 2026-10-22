@@ -52,6 +52,7 @@ local School = require(Client:WaitForChild("School"))
 local TrafficDensity = require(Client:WaitForChild("TrafficDensity"))
 require(Client:WaitForChild("Accessibility"))
 local Props = require(Client:WaitForChild("Props"))
+local RoadsideObjects = require(Client:WaitForChild("RoadsideObjects"))
 local Race = require(Client:WaitForChild("Race"))
 local Laws = require(Client:WaitForChild("Laws"))
 -- the weather line in the settings menu (the web game's pause menu shows it under the weather row)
@@ -92,7 +93,14 @@ table.insert(CarDamage.changed, CarDamageFx.refresh)
 CarDamage.onImpact = function(r, v) CarDamageFx.sparks(r, v) end
 Drive.onWall = function(v, nx, nz, part)
 	CarAudio.hit(v)
-	CarDamage.wall(v, nx, nz, part)
+	local r = CarDamage.wall(v, nx, nz, part)
+	if r then RoadsideObjects.apply(r, State.st, nx, nz, v) end
+end
+-- the roadside objects: the crash sound on every hit (as the web game's audio wrapper), damage and the object's reaction with damage on
+Drive.objects = RoadsideObjects.collide
+RoadsideObjects.impact = function(v, ob, nx, nz)
+	CarAudio.hit(v)
+	return CarDamage.object(v, ob, nx, nz)
 end
 Bump.onImpact = function(v, _, nx, nz)
 	CarAudio.hit(v)
@@ -135,7 +143,8 @@ RunService.RenderStepped:Connect(function(dt)
 	Reputation.step(dt)
 	School.step(dt)
 	TrafficDensity.step(dt)
-	Props.step(dt)
+	Props.step(dt, State.st)
+	RoadsideObjects.step(dt)
 	CarDamage.step(dt)
 	State.damageSmoke = CarDamage.smoking
 	CarDamageFx.step(dt, CarDamage.mode(), CarDamage.tyres)

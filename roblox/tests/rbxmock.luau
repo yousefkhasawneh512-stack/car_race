@@ -231,6 +231,18 @@ function CFrame.Angles(x, y, z)
 	return cf(v3(), mulR(mulR(rotX(x), rotY(y)), rotZ(z)))
 end
 CFrame.fromEulerAnglesXYZ = CFrame.Angles
+-- Roblox: Y, then X, then Z applied to the vector last-first (R = Ry * Rx * Rz)
+function CFrame.fromEulerAnglesYXZ(x, y, z)
+	return cf(v3(), mulR(mulR(rotY(y), rotX(x)), rotZ(z)))
+end
+-- a rotation by `a` about the unit axis (Rodrigues)
+function CFrame.fromAxisAngle(ax, a)
+	local u = ax.Unit
+	local x, y, z = u.x, u.y, u.z
+	local c, s = math.cos(a), math.sin(a)
+	local t = 1 - c
+	return cf(v3(), { t * x * x + c, t * x * y - s * z, t * x * z + s * y, t * x * y + s * z, t * y * y + c, t * y * z - s * x, t * x * z - s * y, t * y * z + s * x, t * z * z + c })
+end
 CFrame.identity = cf(v3(), I3)
 
 Color3 = {}
