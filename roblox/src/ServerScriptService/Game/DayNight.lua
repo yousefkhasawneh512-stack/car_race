@@ -19,6 +19,9 @@ end)
 
 Workspace:SetAttribute("Night", false)
 task.spawn(function()
+	-- the clock starts when the map is ready (building it in Studio can take minutes; the web game starts at 15:00 when you can drive)
+	Lighting.ClockTime = hour
+	while not Workspace:GetAttribute("MapReady") do task.wait(0.25) end
 	local last = os.clock()
 	while true do
 		local now = os.clock()

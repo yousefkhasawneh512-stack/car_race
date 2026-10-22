@@ -25,6 +25,10 @@ local function setup(plr)
 	local dr = Instance.new("IntValue"); dr.Name = "Drift"; dr.Parent = ls
 	PlayerData.sync(plr)
 	plr.CharacterAdded:Connect(function(char)
+		-- hats and clothes that load late stay hidden too (Spawner hides the avatar: the web game shows no driver)
+		char.DescendantAdded:Connect(function(p)
+			if p:IsA("BasePart") or p:IsA("Decal") then p.Transparency = 1 end
+		end)
 		local hum = char:WaitForChild("Humanoid")
 		hum.Died:Connect(function()
 			task.wait(2)

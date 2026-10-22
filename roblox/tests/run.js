@@ -22,7 +22,9 @@ const lua=it=>'{cls='+JSON.stringify(it.cls)+',name='+JSON.stringify(it.name)+(O
 const mock=fs.readFileSync(path.join(__dirname,'rbxmock.luau'),'utf8'),scen=fs.readFileSync(process.env.SCEN||path.join(__dirname,'scenario.luau'),'utf8');
 const bundle='local M = (function()\n'+mock+'\nend)()\n'+root.kids.map(k=>'M.build('+lua(k)+', game)\n').join('')+
  // NOTERRAIN=1: a place whose Workspace has no Terrain (the game must then build its ground from parts)
- (process.env.NOTERRAIN?'M.workspace.Terrain:Destroy()\nprint("(test without Terrain)")\n':'')+'\n'+scen;
+ (process.env.NOTERRAIN?'M.workspace.Terrain:Destroy()\nprint("(test without Terrain)")\n':'')+
+ // TOUCH=1: a phone / tablet (the on-screen pads instead of the keyboard)
+ (process.env.TOUCH?'game:GetService("UserInputService").TouchEnabled = true\nprint("(test on a touch device)")\n':'')+'\n'+scen;
 const out=path.join(os.tmpdir(),'irbid_roblox_bundle.luau');fs.writeFileSync(out,bundle);
 const t0=Date.now(),r=spawnSync(LUAU,[out],{encoding:'utf8',maxBuffer:64<<20});
 process.stdout.write(r.stdout||'');process.stderr.write(r.stderr||'');

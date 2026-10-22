@@ -15,7 +15,7 @@ local Spawner = {}
 -- wait for WorldBuilder, but never for ever (a failed map must not keep players out)
 function Spawner.waitForMap()
 	local waited = 0
-	while not Workspace:GetAttribute("MapReady") and waited < 90 do
+	while not Workspace:GetAttribute("MapReady") and waited < 900 do
 		waited += 0.5
 		task.wait(0.5)
 	end
@@ -63,6 +63,10 @@ function Spawner.spawn(plr, keep)
 	hum.JumpPower = 0
 	root.CFrame = car.DriverSeat.CFrame + Vector3.new(0, 2, 0)
 	car.DriverSeat:Sit(hum)
+	-- the web game shows no driver (the avatar is taller than the cabin and stuck out through the roof)
+	for _, p in ipairs(char:GetDescendants()) do
+		if p:IsA("BasePart") or p:IsA("Decal") then p.Transparency = 1 end
+	end
 	plr:SetAttribute("CarReady", os.clock())
 end
 

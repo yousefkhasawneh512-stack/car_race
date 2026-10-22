@@ -59,6 +59,30 @@ check("starting cash", plr:GetAttribute("Cash") == Config.START_CASH, plr:GetAtt
 check("leaderstats", plr.leaderstats.JD.Value == Config.START_CASH)
 local st = State.st
 check("car on the ground at the start", st.gnd == true and math.abs(st.x) < 1 and math.abs(st.z) < 1, "y " .. f1(st.y) .. " start " .. Meta.startY)
+-- phones and tablets: the web game's touch pads drive the car
+if game:GetService("UserInputService").TouchEnabled then
+	local pads = Hud.gui:FindFirstChild("TouchPads")
+	check("touch pads on a touch device", pads ~= nil and pads:FindFirstChild("gas") ~= nil and pads:FindFirstChild("brake") ~= nil and pads:FindFirstChild("l") ~= nil and pads:FindFirstChild("r") ~= nil and pads:FindFirstChild("drift") ~= nil)
+	local touch = { UserInputType = Enum.UserInputType.Touch }
+	pads.gas.InputBegan:Fire(touch)
+	pads.l.InputBegan:Fire(touch)
+	local h0 = st.h
+	M.run(2)
+	local sp, turned = st.sp, math.abs(st.h - h0)
+	pads.gas.InputEnded:Fire(touch)
+	pads.l.InputEnded:Fire(touch)
+	-- BRAKE as the web game's S: brakes to a stop, then reverses; the lowest speed shows the stop
+	pads.brake.InputBegan:Fire(touch)
+	local low = math.huge
+	for _ = 1, 30 do
+		M.run(0.1)
+		low = math.min(low, math.abs(st.sp))
+	end
+	pads.brake.InputEnded:Fire(touch)
+	check("touch GAS + steer drive the car, BRAKE stops it", sp > 5 and turned > 0.05 and low < 1, f1(sp) .. " m/s, turned " .. f1(turned) .. " rad, lowest while braking " .. f1(low) .. " m/s")
+	Drive.reset()
+	M.run(0.5)
+end
 
 -- ================= routing matches the web game's rules =================
 do
@@ -476,6 +500,12 @@ do
 	check("F puts the car back at the start", math.abs(st.x) < 0.5 and math.abs(st.z) < 0.5 and math.abs(st.h - Meta.startHeading) < 0.01, f1(st.x) .. ", " .. f1(st.z))
 	local h = game:GetService("Lighting").ClockTime
 	local expect = (15 + M.now / (Config.DAY_MINUTES * 60) * 24) % 24
+	-- the avatar is hidden (the web game shows no driver; it stuck out through the roof)
+	local shown = 0
+	for _, p in ipairs(plr.Character:GetDescendants()) do
+		if p:IsA("BasePart") and p.Transparency < 1 then shown += 1 end
+	end
+	check("no avatar sticking out of the car", shown == 0, shown .. " visible avatar parts")
 	check("day / night clock runs (15:00, an hour every 40 s)", math.abs(h - expect) < 0.1, string.format("%.2f h after %d s", h, M.now))
 	local beams = 0
 	for _, d in ipairs(State.car:GetDescendants()) do
@@ -496,6 +526,32 @@ do
 		worst = math.max(worst, math.abs(Ground.TH(nd.x, nd.z) - nd.y))
 	end
 	check("ground heights follow the web game's terrain", worst < 0.6, "worst " .. f1(worst) .. " m at the junctions")
+	-- the ground stays just under the web game's terrain height (it buried the roads on slopes when it was flat tiles)
+	local blocks = #M.terrainList > 0 and M.terrainList or map.Ground:GetChildren()
+	local above, deep, nb = 0, 0, 0
+	for k = 1, #blocks, 5 do
+		local b = blocks[k]
+		local cf, sz = b.CFrame, b.Size
+		for _, q in ipairs({ { 0, 0 }, { 0.5, 0.5 }, { -0.5, 0.5 }, { 0.5, -0.5 }, { -0.5, -0.5 } }) do
+			local w = cf:PointToWorldSpace(Vector3.new(q[1] * sz.X, sz.Y / 2, q[2] * sz.Z)) / S
+			local d = w.Y - Ground.TH(w.X, w.Z)
+			above = math.max(above, d)
+			deep = math.min(deep, d)
+		end
+		nb += 1
+	end
+	check("ground top just under the terrain height", above < 0.05 and deep > -1.6, nb .. " blocks: from " .. f1(deep) .. " to " .. string.format("%.2f", above) .. " m")
+	-- every road piece is drawn above the ground along its whole length
+	local buried, samples = 0, 0
+	for _, r in ipairs(map.Roads:GetChildren()) do
+		local cf, sz = r.CFrame, r.Size
+		for t = -0.5, 0.5, 0.25 do
+			local w = cf:PointToWorldSpace(Vector3.new(0, sz.Y / 2, t * (sz.Z - sz.X * 0.5))) / S
+			samples += 1
+			if w.Y < Ground.TH(w.X, w.Z) - 0.3 then buried += 1 end
+		end
+	end
+	check("roads not buried by the ground", buried / samples < 0.002, buried .. " of " .. samples .. " road points under the ground")
 	-- traffic lights: the 60 s cycle (24 s green, 3 s amber), the two axes half a cycle apart
 	local gx, gz, both = 0, 0, 0
 	for k = 0, 599 do

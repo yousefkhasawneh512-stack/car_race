@@ -72,7 +72,7 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   Roblox (`roblox/`, Luau, separate from the web build): `node tools/make_roblox.js dist/irbid-drive.html` regenerates `roblox/data`, `roblox/shared`
   and `roblox/IrbidDrive.rbxlx` from the build + `roblox/src` (rerun after ANY change in `roblox/src`; the place file embeds the sources).
   Test: `node roblox/tests/run.js <luau.exe>` (official Luau CLI, github.com/luau-lang/luau releases; not installed on PATH) plays the place
-  file in `roblox/tests/rbxmock.luau` (no physics/rendering; 75 checks). `luau-analyze` on `roblox/src`: only Roblox globals are unknown.
+  file in `roblox/tests/rbxmock.luau` (no physics/rendering; 101 checks; env `TOUCH=1` = a touch device, `NOTERRAIN=1` = no Terrain object). `luau-analyze` on `roblox/src`: only Roblox globals are unknown.
   `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),
   `xbrowser_pw.py` (Chromium/Firefox/WebKit + iPhone/iPad/Pixel emulation; needs `python -m playwright install firefox webkit`; one browser per case,
   WebKit lost its software-GL context on the 4th page of one process), `perf_v47_pw.py` (preset render cost, traffic cost). Assets:

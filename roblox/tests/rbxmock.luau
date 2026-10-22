@@ -268,7 +268,7 @@ local SUPER = {
 local EVENTS = { ChildAdded = true, ChildRemoved = true, Changed = true, Activated = true, MouseButton1Click = true, FocusLost = true,
 	CharacterAdded = true, CharacterRemoving = true, Died = true, OnServerEvent = true, OnClientEvent = true, PlayerAdded = true,
 	PlayerRemoving = true, RenderStepped = true, Heartbeat = true, Stepped = true, InputBegan = true, InputEnded = true,
-	PromptGamePassPurchaseFinished = true, PromptProductPurchaseFinished = true, Touched = true, AncestryChanged = true, DescendantAdded = true }
+	PromptGamePassPurchaseFinished = true, PromptProductPurchaseFinished = true, Touched = true, AncestryChanged = true, DescendantAdded = true, MouseLeave = true }
 local DEFAULTS = {
 	Transparency = 0, Anchored = false, CanCollide = true, CanQuery = true, CanTouch = true, Massless = false, Visible = true,
 	Size = function(o) return BASEPART[o.ClassName] and v3(4, 1, 2) or UDim2.new() end,
@@ -621,6 +621,7 @@ function METHODS.InvokeServer(o, ...)
 end
 -- terrain
 M.terrainBlocks = 0
+M.terrainList = {}
 function METHODS.FillBlock(o, c, size)
 	local b = newInstance("TerrainBlock")
 	rawget(b, "__p").CFrame = c
@@ -628,6 +629,7 @@ function METHODS.FillBlock(o, c, size)
 	rawset(b, "__terrain", o)
 	register(b)
 	M.terrainBlocks += 1
+	M.terrainList[#M.terrainList + 1] = b
 end
 -- players
 function METHODS.GetPlayers(o)

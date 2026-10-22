@@ -427,6 +427,14 @@ every file of `roblox/src` by folder (Rojo naming) into `IrbidDrive.rbxlx` with 
   75 checks (map, spawn, GPS drive of 1.1 km, 0-100 / braking, drift + server caps, traffic, races, heist both ways, shop, wheel, garage,
   search, minimap, reset, clock, save / load). 75/75 in three runs. Not run in Roblox Studio (none on this PC).
 
+## Roblox version 3.1 (2026-10-22)
+
+Fixes from the first Studio playtest (screenshot: roads invisible, night at the start, avatar through the roof, no pedals on iPad):
+ground is one tilted PART per 25 m cell of the web height grid, 0.3 m under TH everywhere in the cell (flat tiles buried sloped roads, and Roblox voxel terrain, rounded to 4-stud voxels, still covered them in Studio, so Terrain is no longer used;
+the place file no longer carries separate terrain tiles, 2.7 MB); the clock starts at 15:00 when the map is ready (it ran while Studio built
+the map); the avatar is hidden (no driver in the web game); touch pads ◀ ▶ GAS BRAKE DRIFT on touch devices; spawn waits up to 15 min for the
+map; race signs raised above the shop sign. New checks: ground under TH, roads not buried (83 of 89,090 points slightly under), no avatar, touch pads (run.js `TOUCH=1`). Tests: 100/100; TOUCH=1 101/102 (the duel rival check, random traffic: 19.5 m of 20 in 3 s; 33-52 m in other runs).
+
 ## Roblox version 3 (2026-10-22)
 
 The web game's road rules ported to Luau with its numbers: Arcade physics line for line (surface grip road 1 / track .75 / built-up .9 /

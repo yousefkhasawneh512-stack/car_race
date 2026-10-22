@@ -59,9 +59,6 @@ for(const L of[S.BLDD.p,S.BLDO.p])for(let i=0;i<L.length;i+=7){let x=L[i]/10,z=L
  if(cut)trim++;
  let y=1e9;for(const[u,v]of[[1,1],[1,-1],[-1,1],[-1,-1]])y=Math.min(y,TH(x+cs*u*w/2+sn*v*d/2,z-sn*u*w/2+cs*v*d/2));
  blds.push(dm(x-ST.x),dm(z-ST.z),dm(w),dm(d),Math.round(ry*1000),dm(Math.max(3,h)),dm(y),ty)}
-// ---- terrain: 40 m tiles, height at the tile centre ----
-// 25 m tiles to 100 m past the map edge; each tile is a column deep enough to reach below its lowest neighbour, so steep ground has no holes
-const TS=25,ter=[],TR=R+100,tg=(x,z)=>TH(ST.x+x,ST.z+z);for(let x=-TR;x<=TR;x+=TS)for(let z=-TR;z<=TR;z+=TS)if(Math.hypot(x,z)<=TR){const y=tg(x,z);let lo=y;for(const[a,b]of[[TS,0],[-TS,0],[0,TS],[0,-TS]])lo=Math.min(lo,tg(x+a,z+b));ter.push(dm(x),dm(z),dm(y),dm(Math.max(4,y-lo+2)))}
 // ---- road graph for traffic, navigation, street names, the minimap: every edge that lies wholly inside the map (no tunnels) ----
 // nodes: x,z,y   edges: a,b (1-based node index), one-way, limit km/h, name index (0 = unnamed), kind (CLS), width dm, n points, then n x (x,z,y)
 const nodeIx=new Map(),nodes=[],names=[],nameIx=new Map(),edgeRows=[];
@@ -122,7 +119,7 @@ function luaVal(v){if(Array.isArray(v))return'{'+v.map(luaVal).join(',')+'}';if(
 const chunk=(name,arr,per)=>{const out=[];for(let i=0,k=1;i<arr.length;i+=per,k++)out.push([name+k,'return [['+arr.slice(i,i+per).join(',')+']]\n']);return out};
 const chunkRows=(name,rows,max)=>{const out=[];let cur=[],len=0;const flush=()=>{if(cur.length){out.push([name+(out.length+1),'return [['+cur.join(';')+']]\n']);cur=[];len=0}};
  for(const r of rows){if(len+r.length>max)flush();cur.push(r);len+=r.length+1}flush();return out};
-const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000),...chunk('Terrain',ter,4*15000)];
+const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000)];
 const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z).toFixed(2),roadCount:roads.length/8,buildingCount:blds.length/8,
  attribution:'Map data © OpenStreetMap contributors (ODbL) · terrain NASA SRTM',
  bank:{x:+(S.BANK.x-ST.x).toFixed(1),z:+(S.BANK.z-ST.z).toFixed(1),y:+TH(S.BANK.x,S.BANK.z).toFixed(1)},
@@ -157,7 +154,7 @@ const xml='<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="ht
  item('ServerScriptService','ServerScriptService',tree(path.join(SRC,'ServerScriptService')))+
  item('StarterPlayer','StarterPlayer',[item('StarterPlayerScripts','StarterPlayerScripts',tree(path.join(SRC,'StarterPlayerScripts')))])+'</roblox>\n';
 fs.writeFileSync(path.join(OUT,'IrbidDrive.rbxlx'),xml);
-cl0('roads',roads.length/8,'buildings',blds.length/8,'(cut back from a road '+trim+', dropped '+drop+')','terrain tiles',ter.length/4,'labels',labels.length);
+cl0('roads',roads.length/8,'buildings',blds.length/8,'(cut back from a road '+trim+', dropped '+drop+')','labels',labels.length);
 cl0('graph: nodes',nodes.length/3,'edges',edgeRows.length,'names',names.length,'| places',places.length,'| circuits',circuits.map(c=>c.name+' ('+c.cps.length+' checkpoints, '+c.path.split(',').length/3+' points)').join(', '));
 cl0('signals',signals.length,'heads',heads.length,'bumps',bumps.length,'drift zones',dzones.length,'tour',tour.length,'ramps',ramps.length);
 cl0('cars',cars.length,cars.map(c=>c.name+' T'+c.tier+' '+(c.vm*3.6).toFixed(0)+'km/h').join(', '));

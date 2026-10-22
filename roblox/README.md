@@ -3,7 +3,7 @@
 A Roblox Studio port of the Irbid Drive web game, written in Luau. It is built from the **same real map data** and covers 3.5 km around the web game's start point in Al-Balad:
 - 17,818 OpenStreetMap road pieces (with their widths, one-way streets, speed limits and street names)
 - 14,527 OpenStreetMap buildings
-- NASA SRTM terrain (25 m tiles, solid down to the lowest neighbour, so there are no holes)
+- NASA SRTM terrain: one block per 25 m cell of the web game's height grid, tilted to the slope and kept 0.3 m under the road surface (so the roads are never buried)
 - 1,048 real places
 - 37 signalised junctions
 - 40 speed bumps
@@ -37,7 +37,8 @@ Roblox runs Luau, not the web game's JavaScript, so every system was rewritten. 
 Controls:
 - **W/S** or the thumbstick: gas and brake/reverse
 - **A/D**: steer
-- **Space** or the **DRIFT** button: handbrake
+- **Space**: handbrake
+- Phones and tablets: the web game's touch pads (◀ ▶ steer, GAS, BRAKE, DRIFT) plus the menu buttons
 - **F**: back to the start
 - **C**: camera
 - **G**: car wheel
@@ -72,7 +73,7 @@ Each device simulates its own traffic, race rivals and police, so other players 
 
 1. Install Roblox Studio (free) and sign in.
 2. **File → Open from File →** `IrbidDrive.rbxlx`.
-3. Press **▶ Play**. The server builds the map first (about 18,000 road pieces, 14,500 buildings and 65,000 terrain tiles), which takes a while. Then you spawn in your car.
+3. Press **▶ Play**. The server builds the map first (about 18,000 road pieces, 14,500 buildings and about 65,000 terrain blocks), which takes a while. Then you spawn in your car and the clock starts at 15:00.
 4. To test saving in Studio, open **Game Settings → Security → Enable Studio Access to API Services**.
 
 **Status:** this version has not been run in Roblox Studio yet. What has been checked:
