@@ -4,6 +4,7 @@
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
 local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Road"))
 local Circuits = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Circuits"))
 local Client = script.Parent
@@ -16,7 +17,7 @@ local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local Race = { rivals = {} }
 local S = Config.SCALE
-local st, spec = State.st, State.spec
+local st = State.st
 
 -- circuits: racing line, checkpoint distances along it, a safe speed per point (for the rivals)
 local C = {}
@@ -93,13 +94,11 @@ function Race.toggle()
 	end
 	Gps.clear()
 	Traffic.clear(best.P.x[1], best.P.z[1], 120)
-	local pool = {}
-	for i, car in ipairs(Config.CARS) do
-		if math.abs(car.tier - spec.tier) <= 1 and not car.vip then pool[#pool + 1] = i end
-	end
+	-- three different cars of the web game's sports catalogue (11_race: a shuffle of the indices below NRACE), as in the web game
+	local pool = table.clone(Rules.racers)
 	local names = {}
 	for k, s0 in ipairs({ 20, 34, 48 }) do
-		local car = Config.CARS[pool[math.random(#pool)]]
+		local car = Config.CARS[table.remove(pool, math.random(#pool))]
 		local a = Traffic.agent("rival", car)
 		a.P, a.s, a.pi = best.P, s0, 1
 		a.skill = 0.9 + math.random() * 0.1

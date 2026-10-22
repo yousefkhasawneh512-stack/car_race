@@ -25,9 +25,11 @@ const bundle='local M = (function()\n'+mock+'\nend)()\n'+root.kids.map(k=>'M.bui
  (process.env.NOTERRAIN?'M.workspace.Terrain:Destroy()\nprint("(test without Terrain)")\n':'')+
  // TOUCH=1: a phone / tablet (the on-screen pads instead of the keyboard)
  (process.env.TOUCH?'game:GetService("UserInputService").TouchEnabled = true\nprint("(test on a touch device)")\n':'')+'\n'+scen;
-const out=path.join(os.tmpdir(),'irbid_roblox_bundle.luau');fs.writeFileSync(out,bundle);
+// one bundle file per run (several runs can go at the same time)
+const out=path.join(os.tmpdir(),'irbid_roblox_bundle_'+process.pid+'.luau');fs.writeFileSync(out,bundle);
 const t0=Date.now(),r=spawnSync(LUAU,[out],{encoding:'utf8',maxBuffer:64<<20});
 process.stdout.write(r.stdout||'');process.stderr.write(r.stderr||'');
 const fails=((r.stdout||'').match(/^FAIL /gm)||[]).length,passes=((r.stdout||'').match(/^PASS /gm)||[]).length;
 console.log(`\n${passes} passed, ${fails} failed, luau exit ${r.status} (${((Date.now()-t0)/1000).toFixed(1)} s real time)`);
+try{fs.unlinkSync(out)}catch(e){}
 process.exit(fails||r.status||!passes?1:0);

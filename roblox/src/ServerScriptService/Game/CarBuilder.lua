@@ -48,12 +48,16 @@ function CarBuilder.build(spec, color, carIndex)
 	local bt = spec.body
 	local ch = (bt == "s" or bt == "p") and 0.55 or (bt == "o" or bt == "q") and 0.22 or 0.42
 	add("Cabin", Vector3.new(W * 0.86, H * ch, L * 0.48), CFrame.new(0, H * (0.27 + ch / 2), L * 0.05), Color3.fromRGB(30, 36, 44), Enum.Material.Glass)
+	-- the model faces -Z and its +X is the car's right (the web game's mesh: +x left, +z forward); wheels and lamps carry the web game's
+	-- numbering (Corner: 0 FL, 1 FR, 2 RL, 3 RR; Light: 0 / 1 left / right headlight, 2 / 3 left / right tail light) for the damage looks
 	local wr = H * 0.22
-	for _, q in ipairs({ { 1, -1 }, { -1, -1 }, { 1, 1 }, { -1, 1 } }) do
-		add("Wheel", Vector3.new(W * 0.12, wr * 2, wr * 2), CFrame.new(q[1] * W * 0.47, -H * 0.12, q[2] * L * 0.32), Color3.fromRGB(20, 20, 20), Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
+	for _, q in ipairs({ { 1, -1, 1 }, { -1, -1, 0 }, { 1, 1, 3 }, { -1, 1, 2 } }) do
+		local w = add("Wheel", Vector3.new(W * 0.12, wr * 2, wr * 2), CFrame.new(q[1] * W * 0.47, -H * 0.12, q[2] * L * 0.32), Color3.fromRGB(20, 20, 20), Enum.Material.SmoothPlastic, Enum.PartType.Cylinder)
+		w:SetAttribute("Corner", q[3])
 	end
 	for _, x in ipairs({ -1, 1 }) do
 		local hl = add("Headlight", Vector3.new(W * 0.18, H * 0.08, 0.2), CFrame.new(x * W * 0.32, H * 0.05, -L * 0.5), Color3.fromRGB(255, 250, 220), Enum.Material.Neon)
+		hl:SetAttribute("Light", x < 0 and 0 or 1)
 		local sl = Instance.new("SpotLight")
 		sl.Name = "Beam"
 		sl.Face = Enum.NormalId.Front
@@ -62,7 +66,8 @@ function CarBuilder.build(spec, color, carIndex)
 		sl.Brightness = 3
 		sl.Enabled = Workspace:GetAttribute("Night") == true
 		sl.Parent = hl
-		add("Taillight", Vector3.new(W * 0.18, H * 0.08, 0.2), CFrame.new(x * W * 0.32, H * 0.05, L * 0.5), Color3.fromRGB(140, 10, 10), Enum.Material.Neon)
+		local tl = add("Taillight", Vector3.new(W * 0.18, H * 0.08, 0.2), CFrame.new(x * W * 0.32, H * 0.05, L * 0.5), Color3.fromRGB(140, 10, 10), Enum.Material.Neon)
+		tl:SetAttribute("Light", x < 0 and 2 or 3)
 	end
 	local seat = Instance.new("Seat")
 	seat.Name = "DriverSeat"

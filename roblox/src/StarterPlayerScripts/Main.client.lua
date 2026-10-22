@@ -9,6 +9,7 @@ local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Roa
 local Shared = ReplicatedStorage:WaitForChild("IrbidShared")
 local Client = script.Parent:WaitForChild("Client")
 local State = require(Client:WaitForChild("State"))
+local Meta = require(Shared:WaitForChild("Meta"))
 
 local plr = Players.LocalPlayer
 
@@ -34,6 +35,19 @@ local Missions = require(Client:WaitForChild("Missions"))
 local Menus = require(Client:WaitForChild("Menus"))
 local InfoLine = require(Client:WaitForChild("InfoLine"))
 local Extras = require(Client:WaitForChild("Extras"))
+local Handling = require(Client:WaitForChild("Handling"))
+local SettingsMenu = require(Client:WaitForChild("SettingsMenu"))
+local Weather = require(Client:WaitForChild("Weather"))
+local Gamepad = require(Client:WaitForChild("Gamepad"))
+local CarAudio = require(Client:WaitForChild("CarAudio"))
+local Camera = require(Client:WaitForChild("Camera"))
+local Bump = require(Client:WaitForChild("Bump"))
+local CarDamage = require(Client:WaitForChild("CarDamage"))
+local CarDamageFx = require(Client:WaitForChild("CarDamageFx"))
+local Diagnostics = require(Client:WaitForChild("Diagnostics"))
+local SpeedBumps = require(Client:WaitForChild("SpeedBumps"))
+-- the weather line in the settings menu (the web game's pause menu shows it under the weather row)
+table.insert(SettingsMenu.extra, { name = "weather", text = Weather.line, click = function() end, color = Color3.fromRGB(40, 60, 80) })
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- the tuning shop opens only at Apex Drift Customs
@@ -48,16 +62,43 @@ end
 Controls.start({
 	reset = Drive.reset, camera = Drive.cycleCam, wheel = Menus.wheel, garage = Menus.garage, gps = Nav.open,
 	nextCar = function() Extras.cycleCar(1) end, prevCar = function() Extras.cycleCar(-1) end,
-	tour = Extras.tour, ramps = Extras.ramps, hour = Extras.hour, horn = Extras.horn,
-	race = Missions.race, rob = Missions.rob, shop = Missions.openShop,
+	tour = Extras.tour, ramps = Extras.ramps, hour = function()
+		Weather.onHourKey()
+		Extras.hour()
+	end, horn = Extras.horn,
+	race = Missions.race, shop = Missions.openShop,
+	eKey = function() Handling.eKey(Missions.rob) end, gearDown = function() Handling.shift(-1) end,
+	handling = Handling.toggle, settings = SettingsMenu.open, mute = CarAudio.toggleMute,
+	damage = CarDamage.cycle, diag = Diagnostics.toggle,
 })
 
 Traffic.start()
 Hud.toast("Welcome to Irbid! Drift for points · R race / duel · M GPS · G wheel · K tour · F start", 6)
 
 local ai = State.ai
+-- vehicle damage: the physics hooks, impacts with walls (Drive) and cars (Bump) -> sound + damage, hard landings, speed bumps (the
+-- thump is heard whenever the suspension bottoms out, as in the web game), the looks, the Damage / Repair buttons
+Drive.damage = CarDamage
+table.insert(CarDamage.changed, CarDamageFx.refresh)
+CarDamage.onImpact = function(r, v) CarDamageFx.sparks(r, v) end
+Drive.onWall = function(v, nx, nz, part)
+	CarAudio.hit(v)
+	CarDamage.wall(v, nx, nz, part)
+end
+Bump.onImpact = function(v, _, nx, nz)
+	CarAudio.hit(v)
+	CarDamage.vehicle(v, nx, nz)
+end
+Drive.onLand = CarDamage.landing
+SpeedBumps.onImpact = function(speed, sev, axle)
+	CarAudio.bump(sev)
+	CarDamage.speedBump(speed, sev, axle)
+end
+Diagnostics.buttons(Missions.openShop, Missions.nearShop, function()
+	Nav.go({ n = "Apex Drift Customs", x = Meta.shop.x, z = Meta.shop.z })
+end)
 RunService.RenderStepped:Connect(function(dt)
-	Controls.read()
+	Controls.read(dt)
 	-- every AI car of this frame, for bumping, following and the minimap
 	table.clear(ai)
 	for _, a in ipairs(Traffic.agents) do ai[#ai + 1] = a end
@@ -65,6 +106,13 @@ RunService.RenderStepped:Connect(function(dt)
 	for _, a in ipairs(Missions.cops) do ai[#ai + 1] = a end
 	for _, a in ipairs(Missions.duelRivals) do ai[#ai + 1] = a end
 	Drive.step(dt)
+	Handling.step()
+	Gamepad.rumble(dt)
+	Weather.step(dt)
+	CarDamage.step(dt)
+	State.damageSmoke = CarDamage.smoking
+	CarDamageFx.step(dt, CarDamage.mode(), CarDamage.tyres)
+	CarAudio.step(dt, Drive.paved(), Camera.mode())
 	Traffic.step(dt)
 	Missions.step(dt)
 	Nav.step(dt)

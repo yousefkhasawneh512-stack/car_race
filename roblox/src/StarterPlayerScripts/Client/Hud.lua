@@ -79,6 +79,9 @@ local credit = Hud.label(gui, UDim2.new(0.5, 0, 1, -4), UDim2.fromOffset(520, 16
 	Workspace:GetAttribute("Attribution") or "Map data © OpenStreetMap contributors (ODbL)", 13)
 credit.TextStrokeTransparency = 0.6
 Hud.car = Hud.label(gui, UDim2.new(1, -20, 1, -128), UDim2.fromOffset(330, 20), Vector2.new(1, 1), "", 16)
+-- Realistic handling: gear, rpm, assists acting, temperatures (the web game's line under the speed)
+Hud.gear = Hud.label(gui, UDim2.new(1, -20, 1, -150), UDim2.fromOffset(420, 18), Vector2.new(1, 1), "", 15)
+Hud.gear.TextXAlignment = Enum.TextXAlignment.Right
 Hud.car.TextXAlignment = Enum.TextXAlignment.Right
 
 local toastT = 0

@@ -7,9 +7,11 @@ no backend).
 
 **Play in your browser:** https://yousefkhasawneh512-stack.github.io/car_race/ (live once GitHub Pages is switched on: Settings → Pages → Source: GitHub Actions).
 
-**Roblox version:** `roblox/IrbidDrive.rbxlx`, a complete Roblox Studio project in Luau (driving, drifting, 22 cars, upgrades, car wheel,
-traffic, races, bank heist, GPS, minimap, saving, optional Robux items), generated from the same map data by `tools/make_roblox.js`.
-It passes a headless play-through test but has not been run in Roblox Studio yet (see `roblox/README.md`).
+**Roblox version:** `roblox/IrbidDrive.rbxlx`, a Roblox Studio project in Luau generated from the same map data by `tools/make_roblox.js`:
+Arcade and Realistic driving (checked against the web game's physics frame by frame), vehicle damage, tyres and the repair bay, all 217 cars
+(generic names), upgrades, car wheel, traffic, laws, races, duels, bank heist, weather, cameras, the web game's sounds (one file to upload),
+gamepad / racing-wheel input, GPS, minimap, settings and saving. It passes a headless play-through test; see `roblox/README.md` and
+`roblox/CONVERSION_PROGRESS.md` for what is verified, what is still missing, and the steps that need Roblox Studio.
 
 **Author:** Yousef Khasawneh
 

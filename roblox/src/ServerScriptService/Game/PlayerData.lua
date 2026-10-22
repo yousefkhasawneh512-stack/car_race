@@ -4,6 +4,8 @@
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local Schema = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("SettingsSchema"))
+local Damage = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Damage"))
 
 local PlayerData = {}
 local store
@@ -41,11 +43,22 @@ function PlayerData.load(plr)
 		end
 	end
 	local cur = (type(d.cur) == "number" and owned[d.cur]) and d.cur or 1
+	-- the vehicle damage per car (version 4; checked field by field)
+	local damage = {}
+	if type(d.dmg) == "table" then
+		for k, r in pairs(d.dmg) do
+			local i = tonumber(k)
+			if i and Config.CARS[i] then damage[i] = Damage.clean(r, Config.CARS[i]) end
+		end
+	end
 	-- version 1 saves (the first Roblox build) had only a lifetime "drift" total
 	local dt = tonumber(d.dt) or tonumber(d.drift) or 0
 	return {
 		cash = math.max(0, tonumber(d.cash) or Config.START_CASH), bank = math.max(0, tonumber(d.bank) or 0), dt = math.max(0, dt),
 		owned = owned, cur = cur, tune = tune, last = os.clock(), heistCool = 0,
+		-- the settings (version 4; older records have none: the defaults)
+		settings = Schema.encode(Schema.parse(d.set)),
+		damage = damage,
 	}
 end
 
@@ -55,8 +68,13 @@ function PlayerData.save(plr)
 	local owned, tune = {}, {}
 	for i in pairs(d.owned) do owned[#owned + 1] = i end
 	for i, t in pairs(d.tune) do tune[tostring(i)] = t end
+	-- only damaged cars are stored
+	local dmg = {}
+	for i, r in pairs(d.damage or {}) do
+		if Damage.hurt(r) then dmg[tostring(i)] = r end
+	end
 	pcall(function()
-		store:SetAsync("u" .. plr.UserId, { v = 2, cash = math.floor(d.cash), bank = math.floor(d.bank), dt = math.floor(d.dt), owned = owned, cur = d.cur, tune = tune })
+		store:SetAsync("u" .. plr.UserId, { v = 2, cash = math.floor(d.cash), bank = math.floor(d.bank), dt = math.floor(d.dt), owned = owned, cur = d.cur, tune = tune, set = d.settings, dmg = dmg })
 	end)
 end
 
@@ -87,6 +105,7 @@ function PlayerData.sync(plr)
 	plr:SetAttribute("DriftBank", math.floor(d.bank))
 	plr:SetAttribute("Tune", table.concat(PlayerData.levels(d, d.cur), ","))
 	plr:SetAttribute("Fines", d.fines or 0)
+	plr:SetAttribute("Settings", d.settings)
 end
 
 -- sync and save after a change of money or cars

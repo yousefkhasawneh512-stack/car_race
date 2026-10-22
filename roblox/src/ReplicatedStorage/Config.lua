@@ -10,9 +10,10 @@ Config.PRODUCT_CASH_BIG = 0    -- Developer Product: +25,000 cash
 Config.CASH_SMALL = 5000
 Config.CASH_BIG = 25000
 
--- Optional engine sound: the ID of a Roblox audio asset you are allowed to use (0 = no engine sound)
-Config.ENGINE_SOUND_ID = 0
-Config.HORN_SOUND_ID = 0       -- optional horn sound (key X)
+-- SOUND: the web game's synthesised sounds, rendered into one file by tools/make_roblox_audio.js: roblox/audio/IrbidDriveSounds.wav.
+-- Upload it once (Creator Dashboard -> Development Items -> Audio, or Studio's Asset Manager -> Bulk Import) and paste its numeric ID
+-- here (0 = no sound: everything else works without it).
+Config.AUDIO_ATLAS_ID = 0
 
 Config.SCALE = 3               -- studs per metre (the map data is in metres)
 Config.START_CASH = 500

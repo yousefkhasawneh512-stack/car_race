@@ -18,7 +18,7 @@ global.performance={now:()=>0};global.requestAnimationFrame=()=>{};global.setTim
 const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{LS[k]=String(v)}};
 const cl0=console.log;console.log=()=>{};
 const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8'),R=+process.argv[3]||3500;
-(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec}');
+(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec,ptGeom,TPOOL,WHEEL_OLD,TRAFFIC_SPAWN,trafficZone,TCOL,NRACE,OWNC,RCH,engProfile,dpGeo}');
 const S=global.__s,TH=S.TH,ST=S.START,OUT=path.resolve('roblox');
 const dm=v=>Math.round(v*10),inR=(x,z)=>Math.hypot(x-ST.x,z-ST.z)<=R;
 // ---- roads: one straight piece per polyline segment, centred on the start; class 0 major / 1 local / 2 service, roundabout 3 ----
@@ -83,17 +83,52 @@ for(const C of S.CIRCUITS){if(!C.nodes.every(n=>inR(S.NODES[n].x,S.NODES[n].z)))
  if(!ok||!pts.every(p=>inR(p[0],p[1])))continue;
  circuits.push({name:C.n,laps:C.laps,loop:C.loop===1,cps:seq.map(id=>({x:+(S.NODES[id].x-ST.x).toFixed(1),z:+(S.NODES[id].z-ST.z).toFixed(1)})),
   path:pts.map(p=>dm(p[0]-ST.x)+','+dm(p[1]-ST.z)+','+dm(TH(p[0],p[1]))).join(',')})}
-// ---- cars: stats taken from the game's own cars (the same tune base) and rarity tiers, shown with generic names (no brands or trademarks) ----
+// ---- cars: ALL 217 of the web game's cars (PORS), with their own numbers: the applyTune base values (vm, a0, bk, hd), size, body type,
+// paint, and the Realistic-handling data the web game derives for each car (ptSpec + ptGeom: mass, engine torque, drag, gearbox, tyres,
+// suspension, axle geometry; all of them the web game's own ESTIMATES). Names are generic (no brands, models or trademarks: Roblox removes
+// experiences that use them without permission); roblox/CAR_NAMES.md maps every generic name to its web car. The first 22 keep the order
+// and names of Roblox versions 1-3 (saved games store these indices); the rest follow in the web game's order. ----
 const PICK=[['Ford Focus RS','Hot Hatch RS'],['Toyota Corolla','Family Sedan'],['Kia Picanto','City Mini'],['Toyota Hilux','Work Pickup'],['Mazda MX-5 Miata NA','Pop-Up Roadster'],['BMW E36 M3 (Drift Spec)','Drift Sedan 36'],
  ['Toyota AE86 Trueno','Classic 86'],['Nissan 350Z (Z33)','Z Coupe 33'],['Volkswagen Golf Mk7','Euro Hatch'],['Range Rover Sport','Sport SUV'],
  ['Nissan Silvia S15 Spec-R','Drift Coupe S'],['Dodge Challenger','Muscle V8'],['Nissan Skyline GT-R R34 (RWD)','Street Legend 34'],['Porsche Cayman','Mid Coupe'],
  ['Mazda RX-7 FD3S','Rotary Coupe'],['Toyota Supra JZA80','Turbo Six 80'],['Ferrari 458 Italia','Italian V8'],['Ford GT','Endurance GT'],
  ['Nissan GT-R R35','AWD Rocket'],['Porsche 911','Rear-Engine Six'],['Ferrari F40','Twin-Turbo Icon'],['Lamborghini Huracán','Super V10',true]];
 const TIER_PRICE=[2500,12000,30000,60000,120000];
-const cars=[];for(const[n,g,vip]of PICK){const i=S.PORS.findIndex(m=>m[0]===n);if(i<0)throw Error('car not in the game: '+n);S.setPlayerCar(i);
- const m=S.PORS[i],tier=S.rarityIdx(i);
- cars.push({name:g,tier,price:cars.length===0||vip?0:TIER_PRICE[tier],vip:!!vip,vm:+S.P.vm.toFixed(2),a0:+S.P.a0.toFixed(2),bk:+S.P.bk.toFixed(2),hd:+S.P.hd.toFixed(3),body:m[6]||'c',L:m[3],W:m[4],H:m[5],wb:+S.carSpec(i).wb.toFixed(2),fn:+S.ptSpec(i).fn.toFixed(2),zeta:S.ptSpec(i).zeta})}
+// generic name: where the make comes from + the body type (+ EV) + the listed top speed; a repeat gets a letter
+const ORIGIN={Porsche:'German',Volkswagen:'German','Mercedes-Benz':'German','Mercedes-AMG':'German',BMW:'German',Audi:'German',Opel:'German',Classic:'German',
+ Lamborghini:'Italian',Ferrari:'Italian',Fiat:'Italian',Maserati:'Italian',Alfa:'Italian',Ford:'American',Chevrolet:'American',GMC:'American',Dodge:'American',Jeep:'American',Tesla:'American',
+ Toyota:'Japanese',Nissan:'Japanese',Mitsubishi:'Japanese',Honda:'Japanese',Lexus:'Japanese',Mazda:'Japanese',Subaru:'Japanese',Suzuki:'Japanese',Hyundai:'Korean',Kia:'Korean',
+ BYD:'Chinese',Changan:'Chinese',Geely:'Chinese',Hongqi:'Chinese',GAC:'Chinese',Zeekr:'Chinese',MG:'British',Range:'British',Land:'British',Aston:'British',Bentley:'British','Rolls-Royce':'British',Lotus:'British',
+ Peugeot:'French',Renault:'French',Skoda:'Czech',Seat:'Spanish'};
+const BODYW={c:'Coupe',o:'Roadster',s:'SUV',p:'Pickup',h:'Hatch',m:'Supercar',q:'Spider',r:'Racer',v:'Vintage'};
+const genName=(m,ev)=>{const o=ORIGIN[m[0].split(' ')[0]];if(!o)throw Error('no origin for '+m[0]);const b=m[6]==='c'&&m[5]>=1.38?'Sedan':BODYW[m[6]]||'Car';return o+' '+b+(ev?' EV':'')+' '+m[1]};
+const order=PICK.map(([n])=>{const i=S.PORS.findIndex(m=>m[0]===n);if(i<0)throw Error('car not in the game: '+n);return i});
+S.PORS.forEach((m,i)=>{if(!order.includes(i))order.push(i)});
+const used=new Set(PICK.map(p=>p[1])),cars=[],nameRows=[],r5=v=>+v;   // full precision (JS String() round-trips exactly): the Roblox physics must get the web numbers bit for bit
+for(const[k,i]of order.entries()){S.setPlayerCar(i);const m=S.PORS[i],tier=S.rarityIdx(i),cs=S.carSpec(i),pt=S.ptGeom(S.ptSpec(i)),vip=!!(PICK[k]&&PICK[k][2]);
+ let name=PICK[k]?PICK[k][1]:genName(m,cs.ev);if(!PICK[k]&&used.has(name)){let c=66;while(used.has(name+' '+String.fromCharCode(c)))c++;name+=' '+String.fromCharCode(c)}used.add(name);
+ nameRows.push([k+1,name,m[0],tier]);
+ cars.push({name,tier,price:k===0||vip?0:TIER_PRICE[tier],vip,vm:r5(S.P.vm),a0:r5(S.P.a0),bk:r5(S.P.bk),hd:r5(S.P.hd),body:m[6]||'c',L:m[3],W:m[4],H:m[5],col:m[7],
+  wb:r5(cs.wb),fn:r5(pt.fn),zeta:pt.zeta,
+  // Realistic handling (07g): reference values that scale the tuned car (kv, ka) and the per-car model
+  pt:{vref:r5(m[1]/3.6*.98),aref:r5(Math.min(11,27.8/m[2]*1.1)),t100:m[2],ev:!!pt.ev,red:pt.red,idle:pt.idle,ng:pt.ng,ratio:pt.ratio.map(r5),rw:r5(pt.rw),m:r5(pt.m),mu:r5(pt.mu),crr:pt.crr,eff:pt.eff,
+   drive:pt.drive,fw:r5(pt.fw),hcg:r5(pt.hcg),wb:r5(pt.wb),shiftT:pt.shiftT,fn:r5(pt.fn),zeta:pt.zeta,T:r5(pt.T),CdA:r5(pt.CdA),gov:r5(pt.gov||0),a:r5(pt.a),b:r5(pt.b),Iz:r5(pt.Iz),pk:pt.pk,cl:pt.cl,B:r5(pt.B)},
+  // damage / tyres (07c carSpec): mass, layout, strength (estimates in the web game too)
+  mass:r5(cs.mass),drive:cs.drive,eng:cs.eng,ev:!!cs.ev,fw:r5(cs.fw),hcg:r5(cs.hcg),tr:r5(cs.tr),dur:r5(cs.durability),
+  // the damage profile (07c carSpec: crush stiffness, thresholds, component strength, tyre wear / heat) and the body outline (07h dpGeo)
+  dmg:{mass:cs.mass,drive:cs.drive,eng:cs.eng,ev:!!cs.ev,air:!!cs.air,fw:cs.fw,hcg:cs.hcg,wb:cs.wb,tr:cs.tr,L:cs.L,W:cs.W,H:cs.H,durability:cs.durability,kind:cs.kind,
+   b0:cs.b0,b1:cs.b1,maxC:cs.maxC,thr:cs.thr,comp:cs.comp,tyre:cs.tyre},
+  geo:(g=>{const o={L:g.L,W:g.W,H:g.H,k:g.k,y0:g.y0,ny:g.ny,ty:g.ty,hz:g.hz,rz:g.rz,ws:g.ws,four:g.four};if(g.rs)o.rs=g.rs;return o})(S.dpGeo(i)),
+  // engine sound (12d engProfile): the layout's voice in the sound atlas, level, low-pass, aspiration, hybrid / electric, luxury damping
+  snd:(e=>({code:e.ev?'E':e.lay+e.cyl+e.asp,lvl:r5(e.lvl),lpf:r5(e.lpf),asp:e.asp,ev:!!e.ev,hyb:!!e.hyb,lux:!!e.lux,kind:e.kind,idle:e.idle,red:e.red,src:e.src}))(S.engProfile(i))})}
 if(cars[0].name!=='Hot Hatch RS')throw Error('the starter car must come first');
+const rosterIx=new Map(order.map((i,k)=>[i,k+1]));
+// the web wheel's tier pools (08a TIERS: the traffic pool names + WHEEL_OLD, de-duplicated) and the traffic pools (TPOOL), as Roblox car indices
+const wheelPools=[0,1,2,3,4].map(t=>[...new Set(S.TPOOL[t].map(i=>S.PORS[i][0]).concat(S.WHEEL_OLD[t]))].map(n=>{const i=S.PORS.findIndex(m=>m[0]===n);if(i<0)throw Error('wheel car missing '+n);return rosterIx.get(i)}));
+const trafficPools=S.TPOOL.map(pool=>pool.map(i=>rosterIx.get(i)));
+fs.writeFileSync(path.join(OUT,'CAR_NAMES.md'),'# Roblox car names → web game cars\n\nGenerated by `tools/make_roblox.js` (do not edit). The Roblox game shows only the generic name (no brands or trademarks).\n'+
+ 'The numbers of each car (top speed, acceleration, brakes, handling, size, Realistic-handling data) are the web car\'s.\n\n| # | Roblox name | Web game car | Tier |\n|---|---|---|---|\n'+
+ nameRows.map(r=>'| '+r[0]+' | '+r[1]+' | '+r[2]+' | '+S.RARN[r[3]]+' |').join('\n')+'\n');
 // ---- the web game's road furniture and rules data (positions relative to the start, metres) ----
 const rel=(x,z)=>[+(x-ST.x).toFixed(2),+(z-ST.z).toFixed(2)];
 // traffic lights: each signalised junction node inside the map: node index, cycle offset (s), axis per incoming edge ('x' / 'z', or 'i' = a
@@ -112,7 +147,14 @@ const ramps=S.RAMPS.map((r,i)=>{const[x,z]=rel(r[0],r[1]);return{x,z,w:r[2],l:r[
 const UC=50,UN=Math.ceil(2*R/UC);let urban='';for(let j=0;j<UN;j++)for(let i=0;i<UN;i++)urban+=S.urbanK(ST.x-R+(i+.5)*UC,ST.z-R+(j+.5)*UC)>.5?'1':'0';
 // terrain height TH (the web game's ground for the car physics): 25 m grid over the map square, decimetres; the device interpolates it
 const HC=25,HN=Math.ceil(2*(R+100)/HC)+1,hts=[];for(let j=0;j<HN;j++)for(let i=0;i<HN;i++)hts.push(dm(TH(ST.x-R-100+i*HC,ST.z-R-100+j*HC)));
-const rules={signals,heads,bumps,dzones,tour,ramps,urban:{cell:UC,n:UN,x0:-R,z0:-R,bits:urban}};
+// traffic: the web game's spawn odds per traffic zone (07a2 spawn_rules: rarity odds weighted by the zone's wealth) and the zone of every
+// graph edge (trafficZone at the edge's middle point, street first), so traffic cars appear in the same mix as on the web game's streets
+const ZN=Object.keys(S.TRAFFIC_SPAWN.spawn_rules),ezone=EIN.map(e=>{const p=e.pts[e.pts.length>>1];return ZN.indexOf(S.trafficZone(p[0],p[1],e))}).map(z=>String(z<0?ZN.indexOf('Irbid_Default'):z)).join('');
+const traffic={zones:ZN,odds:ZN.map(z=>S.TRAFFIC_SPAWN.spawn_rules[z].map(r5)),ezone,pools:trafficPools,tcol:S.TCOL,
+ own:cars.map((c,k)=>order[k]<S.NRACE||S.OWNC.has(S.PORS[order[k]][0])?1:0).join('')};
+// race rivals and duel drivers come from the web game's sports catalogue only (11_race: PORS indices below NRACE)
+const racers=order.map((i,k)=>i<S.NRACE?k+1:0).filter(Boolean);
+const rules={signals,heads,bumps,dzones,tour,ramps,urban:{cell:UC,n:UN,x0:-R,z0:-R,bits:urban},wheelPools,traffic,racers};
 // ---- write ----
 function luaVal(v){if(Array.isArray(v))return'{'+v.map(luaVal).join(',')+'}';if(v&&typeof v==='object')return'{'+Object.entries(v).map(([k,x])=>k+'='+luaVal(x)).join(',')+'}';
  if(typeof v==='string'){const s=JSON.stringify(v);if(/\\u/.test(s))throw Error('string needs a Lua escape: '+v);return s}if(typeof v==='boolean')return String(v);if(!Number.isFinite(v))throw Error('bad number');return String(v)}
@@ -125,7 +167,9 @@ const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z)
  bank:{x:+(S.BANK.x-ST.x).toFixed(1),z:+(S.BANK.z-ST.z).toFixed(1),y:+TH(S.BANK.x,S.BANK.z).toFixed(1)},
  shop:{x:+(S.SHOP.x-ST.x).toFixed(1),z:+(S.SHOP.z-ST.z).toFixed(1),y:+TH(S.SHOP.x,S.SHOP.z).toFixed(1)},
  rarity:S.RARN.map((n,k)=>({name:n,mult:S.RMULT[k]})),labels,cars};
-const sharedMods=[['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],['Rules','return '+luaVal(rules)+'\n'],['Heights','return '+luaVal({x0:-R-100,z0:-R-100,cell:HC,n:HN})+'\n'],...chunk('HeightData',hts,40000),
+// the sound atlas index (tools/make_roblox_audio.js writes it next to the sound file; without it the game has no sound)
+const ATL=path.join(OUT,'audio','AudioAtlas.lua'),atlas=fs.existsSync(ATL)?fs.readFileSync(ATL,'utf8').replace(/\r\n/g,'\n'):'return { sampleRate = 22050, seconds = 0 }\n';
+const sharedMods=[['AudioAtlas',atlas],['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],['Rules','return '+luaVal(rules)+'\n'],['Heights','return '+luaVal({x0:-R-100,z0:-R-100,cell:HC,n:HN})+'\n'],...chunk('HeightData',hts,40000),
  ['GraphNodes','return [['+nodes.join(',')+']]\n'],['GraphNames','return '+luaVal(names)+'\n'],...chunkRows('GraphEdges',edgeRows,240000)];
 for(const[dir,mods]of[['data',serverMods],['shared',sharedMods]]){const D=path.join(OUT,dir);fs.mkdirSync(D,{recursive:true});
  for(const f of fs.readdirSync(D))fs.unlinkSync(path.join(D,f));for(const[n,s]of mods)fs.writeFileSync(path.join(D,n+'.lua'),s)}

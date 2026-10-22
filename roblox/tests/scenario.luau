@@ -18,6 +18,8 @@ local S = 3
 
 -- ================= boot =================
 M.startServer()
+-- the sound atlas as if it had been uploaded (Config.AUDIO_ATLAS_ID; 0 in the shipped place = silent)
+require(RS.Config).AUDIO_ATLAS_ID = 1
 local plr = M.addPlayer(1001, "Tester")
 M.run(8)
 check("no script errors while starting", #M.errors == 0, #M.errors .. " errors")
@@ -58,6 +60,13 @@ check("HUD shows the info line", string.find(Hud.info.Text, "IRBID DRIVE", 1, tr
 check("starting cash", plr:GetAttribute("Cash") == Config.START_CASH, plr:GetAttribute("Cash"))
 check("leaderstats", plr.leaderstats.JD.Value == Config.START_CASH)
 local st = State.st
+-- deterministic conditions for the checks: Clear weather, a dry road (the shared Auto weather is random and can bring rain, which lowers
+-- the Realistic grip); the weather block below tests Rain, Clear and the drying on purpose
+do
+	local Wx = M.client("Weather").state
+	M.client("Settings").set("wx", 1)
+	Wx.cov, Wx.rain, Wx.wet, Wx.tc, Wx.tr = 0, 0, 0, 0, 0
+end
 check("car on the ground at the start", st.gnd == true and math.abs(st.x) < 1 and math.abs(st.z) < 1, "y " .. f1(st.y) .. " start " .. Meta.startY)
 -- phones and tablets: the web game's touch pads drive the car
 if game:GetService("UserInputService").TouchEnabled then
@@ -207,6 +216,412 @@ do
 	M.move = Vector3.zero
 	local d = math.sqrt((st.x - x0) ^ 2 + (st.z - z0) ^ 2)
 	check("braking from 100 km/h", d > 25 and d < 60, f1(d) .. " m (v^2/2a = " .. f1((100 / 3.6) ^ 2 / 2 / spec.bk) .. " m)")
+end
+
+-- ================= Realistic handling (H), gearbox (Q / E), assists, the settings menu (Y) =================
+do
+	local Settings = M.client("Settings")
+	local phys = State.phys
+	local best
+	for _, e in ipairs(State.road.edges) do
+		if e.n == 2 and e.len > 160 and e.kind ~= 2 and (not best or e.len > best.len) and math.sqrt(e.x[1] ^ 2 + e.z[1] ^ 2) < 2000 then best = e end
+	end
+	local h = math.atan2(best.x[2] - best.x[1], best.z[2] - best.z[1])
+	M.key(Enum.KeyCode.H, true)
+	M.run(0.2)
+	check("H switches to Realistic handling", phys.mode == 1 and Settings.get("hm") == 1 and lastToast("^Handling: Realistic") ~= nil, lastToast("^Handling"))
+	Drive.place(best.x[1] + math.sin(h) * 5, best.z[1] + math.cos(h) * 5, h)
+	M.run(0.5)
+	M.move = Vector3.new(0, 0, -1)
+	local t, top, hudOk = 0, 1, false
+	M.run(12, function()
+		t += 1 / 60
+		top = math.max(top, phys.pts.gear)
+		if string.find(Hud.gear.Text, "^G%d · %d+ rpm") then hudOk = true end
+		if st.sp >= 100 / 3.6 then return "stop" end
+	end)
+	local c = Config.CARS[plr:GetAttribute("CurCar")]
+	check("Realistic 0-100 km/h close to the car's listed time", st.sp >= 100 / 3.6 - 0.5 and math.abs(t - c.pt.t100) < 1.2,
+		f1(t) .. " s for " .. c.name .. " (listed " .. c.pt.t100 .. " s), up to gear " .. top)
+	check("automatic gearbox shifts up, gear and rpm on the HUD", top >= 3 and hudOk, "gear " .. top .. " · " .. Hud.gear.Text)
+	M.move = Vector3.new(0, 0, 1)
+	M.run(8, function()
+		if st.sp < 0.3 then return "stop" end
+	end)
+	M.move = Vector3.zero
+	M.run(0.5)
+	-- E (away from the bank) = shift up: selects the manual gearbox; Q = shift down
+	M.key(Enum.KeyCode.E, true)
+	M.run(0.3)
+	local g2 = phys.pts.gear
+	M.key(Enum.KeyCode.Q, true)
+	M.run(0.3)
+	check("E / Q shift up and down (manual gearbox selected)", Settings.get("gb") == 1 and phys.pts.man == 1 and g2 == 2 and phys.pts.gear == 1 and string.find(Hud.gear.Text, "^M1") ~= nil,
+		"gear " .. g2 .. " -> " .. phys.pts.gear .. " · " .. Hud.gear.Text)
+	-- the settings menu: one row per handling setting; a click changes it
+	M.key(Enum.KeyCode.Y, true)
+	M.run(0.2)
+	local rows = {}
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if string.sub(d.Name, 1, 4) == "Row_" then rows[string.sub(d.Name, 5)] = d end
+	end
+	local all = rows.hm and rows.gb and rows.abs and rows.tc and rows.esc and rows.tt and rows.bf
+	check("Y opens the settings menu with the handling rows", State.ui == "Settings" and all ~= nil)
+	if rows.abs then rows.abs.Activated:Fire() end
+	if rows.tc then rows.tc.Activated:Fire() end
+	if rows.gb then rows.gb.Activated:Fire() end
+	check("menu rows change the settings (ABS off, traction control on, gearbox back to automatic)",
+		phys.assist.abs == false and phys.assist.tc == true and phys.pts.man == 0 and rows.abs and string.find(rows.abs.Text, "Off") ~= nil, rows.abs and rows.abs.Text)
+	if rows.abs then rows.abs.Activated:Fire() end
+	if rows.tc then rows.tc.Activated:Fire() end
+	Hud.closePanel()
+	M.run(1.6)
+	local saved = plr:GetAttribute("Settings") or ""
+	check("settings saved by the server", string.find(saved, "hm=1", 1, true) ~= nil and string.find(saved, "abs=1", 1, true) ~= nil and string.find(saved, "gb=0", 1, true) ~= nil, saved)
+	-- the rest of the play-through drives in Arcade (the default)
+	M.key(Enum.KeyCode.H, true)
+	M.run(0.2)
+	check("H back to Arcade", phys.mode == 0 and lastToast("^Handling: Arcade") ~= nil)
+end
+
+-- ================= gamepad / racing wheel (Roblox sees a wheel only as a gamepad) =================
+do
+	local Gamepad, Settings = M.client("Gamepad"), M.client("Settings")
+	local K = Enum.KeyCode
+	local best
+	for _, e in ipairs(State.road.edges) do
+		if e.n == 2 and e.len > 160 and e.kind ~= 2 and (not best or e.len > best.len) and math.sqrt(e.x[1] ^ 2 + e.z[1] ^ 2) < 2000 then best = e end
+	end
+	local h = math.atan2(best.x[2] - best.x[1], best.z[2] - best.z[1])
+	Drive.place(best.x[1] + math.sin(h) * 5, best.z[1] + math.cos(h) * 5, h)
+	M.run(0.3)
+	M.padInput(K.ButtonR2, 0, 0, 1)
+	M.run(3)
+	local sp1 = st.sp
+	check("gamepad RT (gas pedal) accelerates", Gamepad.state.on and sp1 > 12 and State.input.th == 1, f1(sp1 * 3.6) .. " km/h after 3 s")
+	-- steering: stick right turns right (heading down), left turns left, as the keys D / A
+	local h0 = st.h
+	M.padInput(K.Thumbstick1, 0.6, 0)
+	M.run(0.6)
+	local dR = st.h - h0
+	M.padInput(K.Thumbstick1, -0.6, 0)
+	M.run(1.2)
+	local dL = st.h - (h0 + dR)
+	M.padInput(K.Thumbstick1, 0, 0)
+	check("gamepad steering: right turns right, left turns left", dR < -0.05 and dL > 0.05 and State.input.an == true, string.format("%+.2f / %+.2f rad", dR, dL))
+	M.padInput(K.ButtonR2, 0, 0, 0)
+	M.padInput(K.ButtonL2, 0, 0, 1)
+	local sp2 = st.sp
+	M.run(1.5)
+	check("gamepad LT (brake pedal) brakes", st.sp < sp2 - 5 and State.input.br == 1, f1(sp2 * 3.6) .. " -> " .. f1(st.sp * 3.6) .. " km/h")
+	M.padInput(K.ButtonL2, 0, 0, 0)
+	-- the web game's steering processing: dead zone, sensitivity (range / lock), response curve, invert, centre offset
+	local function steerFor(x)
+		M.padInput(K.Thumbstick1, x, 0)
+		Gamepad.poll(1 / 60)
+		return Gamepad.state.steer
+	end
+	local dz = steerFor(0.05)
+	local lin = steerFor(0.5)
+	Settings.set("gsens", 20)
+	local sens = steerFor(0.5)
+	Settings.set("gsens", 10)
+	Settings.set("gcurve", 20)
+	local curve = steerFor(0.5)
+	Settings.set("gcurve", 10)
+	Settings.set("ginv", 1)
+	local inv = steerFor(0.5)
+	Settings.set("ginv", 0)
+	Settings.set("gcen", 10)
+	local cen = steerFor(0.1)
+	Settings.set("gcen", 0)
+	steerFor(0)
+	local want = (0.5 - 0.08) / 0.92
+	check("steering dead zone, sensitivity, curve, invert, centre offset (web formulas)", dz == 0 and math.abs(lin - want) < 1e-9 and sens == 1 and math.abs(curve - want * want) < 1e-9
+		and math.abs(inv + want) < 1e-9 and cen == 0, string.format("dz %.3f lin %.4f sens %.3f curve %.4f inv %.4f cen %.3f", dz, lin, sens, curve, inv, cen))
+	-- buttons call the same actions as the keys: Y = camera, RB = shift up (Arcade: the web game's hint), A = handbrake (held)
+	M.padInput(K.ButtonY, true)
+	M.padInput(K.ButtonY, false)
+	M.run(0.1)
+	local camT = lastToast("^Camera") ~= nil
+	M.padInput(K.ButtonR1, true)
+	M.padInput(K.ButtonR1, false)
+	M.run(0.1)
+	local gearT = lastToast("Realistic handling") ~= nil
+	M.padInput(K.ButtonA, true)
+	M.run(0.1)
+	local hbOn = State.input.hb
+	M.padInput(K.ButtonA, false)
+	M.run(0.1)
+	check("gamepad buttons: Y camera, RB shift up, A handbrake (held)", camT and gearT and hbOn == true and State.input.hb == false, tostring(lastToast("^Camera")))
+	M.client("Camera").set(0)
+	-- rumble on a hard impact (the web game's fallback when a pad has no force feedback); back on the straight first
+	Drive.place(best.x[1] + math.sin(h) * 5, best.z[1] + math.cos(h) * 5, h)
+	M.run(0.3)
+	M.padInput(K.ButtonR2, 0, 0, 1)
+	M.run(2)
+	local r0 = M.rumbles or 0
+	st.vx, st.vz = 0, 0
+	M.run(0.3)
+	M.padInput(K.ButtonR2, 0, 0, 0)
+	check("rumble on a hard impact", (M.rumbles or 0) > r0, (M.rumbles or 0) - r0 .. " pulses")
+	-- the setup panel (from the settings menu): live readings and the rows
+	M.call(function() M.client("SettingsMenu").openPad() end)
+	M.padInput(K.Thumbstick1, 0.4, 0)
+	M.run(0.2)
+	local live, rowGs, rowHb
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "Live" then live = d end
+		if d.Name == "Row_gs" then rowGs = d end
+		if d.Name == "Row_bhb" then rowHb = d end
+	end
+	check("gamepad setup panel: live readings and the binding rows", live ~= nil and string.find(live.Text, "Gamepad connected", 1, true) ~= nil and rowGs ~= nil and rowHb ~= nil,
+		live and live.Text)
+	if rowHb then rowHb.Activated:Fire() end
+	check("a binding row changes the button", Settings.get("bhb") == 1 and string.find(rowHb.Text, "B", 1, true) ~= nil, rowHb and rowHb.Text)
+	Settings.set("bhb", 0)
+	Hud.closePanel()
+	M.padInput(K.Thumbstick1, 0, 0)
+	-- unplugged: back to the keyboard / touch input
+	M.gamepad = false
+	game:GetService("UserInputService").GamepadDisconnected:Fire(Enum.UserInputType.Gamepad1)
+	M.run(0.2)
+	check("gamepad unplugged: keyboard driving again", Gamepad.state.on == false and State.input.an == false)
+	M.run(2)
+end
+
+-- ================= weather (simulated, Irbid climate table) and the Irbid local clock =================
+do
+	local Settings, Weather = M.client("Settings"), M.client("Weather")
+	local Lighting = game:GetService("Lighting")
+	local WX = Weather.state
+	local d = os.date("!*t", os.time() + 3 * 3600)
+	check("server rolls the Auto weather for the month in Irbid", WS:GetAttribute("WxSt") ~= nil and WS:GetAttribute("WxTc") ~= nil and WS:GetAttribute("WxMon") == d.month - 1,
+		tostring(WS:GetAttribute("WxSt")) .. ", month " .. tostring(WS:GetAttribute("WxMon")))
+	local br0 = Lighting.Brightness
+	local road = map.Roads:GetChildren()[1]
+	local c0 = road.Color
+	Settings.set("wx", 3)
+	M.run(45)
+	local rate = WS.CurrentCamera:FindFirstChild("RainBox") and WS.CurrentCamera.RainBox.Rain.Rate or 0
+	local cl = WS.Terrain and WS.Terrain:FindFirstChildOfClass("Clouds")
+	check("Rain: it rains, the road gets wet, the sky darkens", WX.rain > 0.5 and WX.wet > 0.25 and rate > 500 and Lighting.Brightness < br0 * 0.6 and (cl == nil or cl.Cover > 0.6),
+		string.format("rain %.2f, wet %.2f, %d drops/s, brightness %.2f -> %.2f", WX.rain, WX.wet, rate, br0, Lighting.Brightness))
+	check("wet road: darker road surface, Realistic grip lower", road.Color.R < c0.R * 0.97 and State.phys.wx.mu < 0.95 and State.phys.wx.mu > 0.72,
+		string.format("road R %.3f -> %.3f, grip x%.3f", c0.R, road.Color.R, State.phys.wx.mu))
+	local line = Weather.line()
+	check("weather line: simulated, with the Irbid rain days of the month", string.find(line, "simulated, not live", 1, true) ~= nil and string.find(line, "rain days in Irbid", 1, true) ~= nil, line)
+	-- Clear: the shower eases out over ~12 s (the web game's easing), the road keeps wetting until the rain is light, then dries (~4 min)
+	Settings.set("wx", 1)
+	local peak = WX.wet
+	M.run(60, function() peak = math.max(peak, WX.wet) end)
+	check("Clear: the rain stops and the road dries", WX.rain < 0.02 and WX.wet < peak - 0.02 and rate > 0 and WS.CurrentCamera.RainBox.Rain.Rate == 0,
+		string.format("rain %.3f, wet peak %.2f -> %.2f", WX.rain, peak, WX.wet))
+	-- back to Clear and a dry road for the rest of the checks
+	Settings.set("wx", 1)
+	WX.wet, WX.rain = 0, 0
+	-- Irbid local time on this device; T goes back to the game clock
+	Settings.set("clk", 1)
+	M.run(1.2)
+	local h, _ = Weather.ammanNow()
+	check("Irbid local clock (UTC+3)", math.abs(((Lighting.ClockTime - h + 12) % 24) - 12) < 0.05, string.format("%.2f h, Irbid %.2f h", Lighting.ClockTime, h))
+	-- (the T key's first step; its +1 hour is checked later with the other keys)
+	M.call(function() Weather.onHourKey() end)
+	M.run(1)
+	check("T switches back to the game clock", Settings.get("clk") == 0 and lastToast("^Clock: game time") ~= nil)
+	M.run(25)
+end
+
+-- ================= sound (the web game's synthesised sounds, from the sound atlas) =================
+do
+	local CarAudio, Settings, Atlas = M.client("CarAudio"), M.client("Settings"), require(Shared.AudioAtlas)
+	local SS = game:GetService("SoundService")
+	local G = CarAudio.groups
+	local eng = G.Engine:FindFirstChild("engOn")
+	local loops = 0
+	for _, g in ipairs({ G.Engine, G.Effects, G.Ambient }) do
+		for _, c in ipairs(g:GetChildren()) do
+			if c.ClassName == "Sound" and c.Looped and c.IsPlaying then loops += 1 end
+		end
+	end
+	check("sound groups and looping sounds from the atlas", G.Engine.Parent == SS and eng ~= nil and loops >= 18 and string.find(eng.SoundId, "rbxassetid://", 1, true) ~= nil, loops .. " loops playing")
+	local car = Config.CARS[State.spec.ci]
+	local a = Atlas["eng_" .. car.snd.code .. "_on"]
+	check("engine voice of the car's layout", eng.PlaybackRegion.Min == a.start and eng.LoopRegion.Max == a.start + a.len, car.name .. ": " .. car.snd.code .. " (" .. car.snd.src .. ")")
+	-- full throttle on the straight: pitch follows the rpm, the full-load voice takes over
+	local best
+	for _, e in ipairs(State.road.edges) do
+		if e.n == 2 and e.len > 160 and e.kind ~= 2 and (not best or e.len > best.len) and math.sqrt(e.x[1] ^ 2 + e.z[1] ^ 2) < 2000 then best = e end
+	end
+	local h = math.atan2(best.x[2] - best.x[1], best.z[2] - best.z[1])
+	Drive.place(best.x[1] + math.sin(h) * 5, best.z[1] + math.cos(h) * 5, h)
+	M.run(2)
+	local idle = eng.PlaybackSpeed
+	M.move = Vector3.new(0, 0, -1)
+	M.run(2.5)
+	local on, off = G.Engine.engOn.Volume, G.Engine.engOff.Volume
+	check("engine pitch rises with rpm, full-load voice under throttle", eng.PlaybackSpeed > idle * 1.5 and on > off and math.abs(eng.PlaybackSpeed - CarAudio.rpm / 3000) < 1e-6,
+		string.format("speed %.2f -> %.2f (%.0f rpm), on %.3f / off %.3f", idle, eng.PlaybackSpeed, CarAudio.rpm, on, off))
+	-- a handbrake slide squeals (paved road)
+	local maxSq = 0
+	M.key(Enum.KeyCode.Space, true)
+	M.move = Vector3.new(-1, 0, -1)
+	M.run(1.2, function() maxSq = math.max(maxSq, G.Effects.squeal.Volume) end)
+	M.key(Enum.KeyCode.Space, false)
+	M.move = Vector3.zero
+	check("tyres squeal in a slide", maxSq > 0.01, string.format("squeal volume %.3f", maxSq))
+	-- the horn (X)
+	M.key(Enum.KeyCode.X, true)
+	M.run(0.1)
+	local hv = G.Effects.horn.Volume
+	game:GetService("UserInputService").InputEnded:Fire({ KeyCode = Enum.KeyCode.X, UserInputType = Enum.UserInputType.Keyboard }, false)
+	M.run(0.1)
+	check("horn on X", hv > 0.05 and G.Effects.horn.Volume == 0, string.format("%.3f while held", hv))
+	-- a wall: the crash sound (a real building in front of the car)
+	local b
+	for _, p in ipairs(map.Buildings:GetChildren()) do
+		local q = p.Position / S
+		if math.sqrt(q.X * q.X + q.Z * q.Z) < 600 and p.Size.X > 15 and p.Size.Z > 15 then
+			b = p
+			break
+		end
+	end
+	local lv = b.CFrame.LookVector
+	local bx, bz = b.Position.X / S - lv.X * (b.Size.Z / S / 2 + 6), b.Position.Z / S - lv.Z * (b.Size.Z / S / 2 + 6)
+	Drive.place(bx, bz, math.atan2(lv.X, lv.Z))
+	local played0 = (M.played.crash1 or 0) + (M.played.crash2 or 0) + (M.played.crash3 or 0)
+	st.vx, st.vz = lv.X * 15, lv.Z * 15
+	M.run(1)
+	local played1 = (M.played.crash1 or 0) + (M.played.crash2 or 0) + (M.played.crash3 or 0)
+	check("hitting a wall plays the crash", played1 > played0, (played1 - played0) .. " crash sounds")
+	-- the cockpit view muffles the outside, L mutes
+	M.client("Camera").set(1)
+	M.run(0.2)
+	local muff = G.Effects.Muffle.HighGain
+	M.client("Camera").set(0)
+	M.key(Enum.KeyCode.L, true)
+	M.run(0.2)
+	local muted = G.Engine.Volume == 0 and G.Effects.Volume == 0 and G.Ambient.Volume == 0 and lastToast("^Sound muted") ~= nil
+	M.key(Enum.KeyCode.L, true)
+	M.run(0.2)
+	check("cockpit view muffles the sound, L mutes and unmutes", muff <= -15 and muted and G.Engine.Volume > 0, string.format("muffle %.0f dB", muff))
+	-- the volume settings set the groups
+	Settings.set("veng", 4)
+	M.run(0.1)
+	check("engine volume setting", math.abs(G.Engine.Volume - 0.8 * 0.8 * 0.4) < 1e-6, string.format("%.3f", G.Engine.Volume))
+	Settings.set("veng", 8)
+end
+
+-- ================= vehicle damage (I), diagnostics (O), the repair bay =================
+do
+	local CarDamage, Settings, Diagnostics = M.client("CarDamage"), M.client("Settings"), M.client("Diagnostics")
+	local Damage = require(RS.Modules.Damage)
+	local PD = require(game:GetService("ServerScriptService").Game.PlayerData)
+	M.key(Enum.KeyCode.I, true)
+	M.run(0.1)
+	local m1 = CarDamage.mode()
+	M.key(Enum.KeyCode.I, true)
+	M.run(0.3)
+	check("I: damage Off -> Cosmetic -> Full", m1 == 1 and CarDamage.mode() == 2 and lastToast("^Vehicle damage: Full") ~= nil and Settings.get("dm") == 2, lastToast("^Vehicle damage"))
+	check("the car's damage record (from the server)", CarDamage.record() ~= nil and CarDamage.record().body == 100)
+	-- a real building in front of the car, 15 m/s into it
+	local b
+	for _, p in ipairs(map.Buildings:GetChildren()) do
+		local q = p.Position / S
+		if math.sqrt(q.X * q.X + q.Z * q.Z) < 600 and p.Size.X > 15 and p.Size.Z > 15 then
+			b = p
+			break
+		end
+	end
+	local lv = b.CFrame.LookVector
+	local function toWall()
+		Drive.place(b.Position.X / S - lv.X * (b.Size.Z / S / 2 + 6), b.Position.Z / S - lv.Z * (b.Size.Z / S / 2 + 6), math.atan2(lv.X, lv.Z))
+		st.vx, st.vz = lv.X * 15, lv.Z * 15
+		M.run(1)
+	end
+	toWall()
+	local r = CarDamage.record()
+	check("a wall at 54 km/h: dents, body and front damage recorded", r.impacts >= 1 and r.body < 100 and #r.dents >= 1 and lastToast("^Impact") ~= nil,
+		string.format("%d impacts, body %.0f %%, %d dents · %s", r.impacts, r.body, #r.dents, tostring(lastToast("^Impact"))))
+	check("Full: mechanical damage and its effect on driving", (r.cooling < 100 or r.engine < 100) and (CarDamage.fx.maxSpeed < 1 or CarDamage.fx.accel < 1),
+		string.format("engine %.0f, cooling %.0f · top speed x%.2f, accel x%.2f", r.engine, r.cooling, CarDamage.fx.maxSpeed, CarDamage.fx.accel))
+	local ov = State.car:FindFirstChild("DamageOverlay")
+	local dents = 0
+	for _, c in ipairs(ov and ov:GetChildren() or {}) do
+		if c.Name == "Dent" then dents += 1 end
+	end
+	local bf = State.car.DamageParts:FindFirstChild("bf")
+	check("the damage shows on the car (dents, bumper)", dents == #r.dents and bf ~= nil and (r.parts.bf < 0.15 or bf.Color ~= State.car.Body.Color), dents .. " dent patches, bumper " .. string.format("%.2f", r.parts.bf))
+	M.run(1)
+	local ci = State.spec.ci
+	local stored = PD.data[plr].damage and PD.data[plr].damage[ci]
+	check("the server keeps the record", stored ~= nil and stored.impacts == r.impacts and math.abs(stored.body - r.body) < 1e-9, stored and stored.impacts)
+	-- a device cannot repair its car by sending a clean record
+	M.call(function() RS.Remotes.Damage:InvokeServer("save", ci, Damage.newRecord(Config.CARS[ci])) end)
+	M.run(0.6)
+	stored = PD.data[plr].damage[ci]
+	check("the server refuses a record that got better", stored.body < 100 and #stored.dents >= 1, string.format("body %.0f %%", stored.body))
+	-- O: the diagnostics
+	M.key(Enum.KeyCode.O, true)
+	M.run(0.6)
+	local L = Diagnostics.lines()
+	local has = { engine = false, tyre = false }
+	for _, q in ipairs(L) do
+		if string.find(q[1], "^Engine") then has.engine = true end
+		if string.find(q[1], "^Tyre FL") then has.tyre = true end
+	end
+	check("O: diagnostics with every component and the tyres", State.ui == "Diagnostics" and has.engine and has.tyre, #L .. " lines")
+	Hud.closePanel()
+	-- the repair bay: drive to Apex Drift Customs, Repair all
+	PD.data[plr].cash += 20000
+	PD.sync(plr)
+	Drive.place(Meta.shop.x, Meta.shop.z, 0)
+	M.run(1)
+	M.call(function() Missions.openShop() end)
+	M.run(0.2)
+	local items = Damage.repairItems(CarDamage.record(), Config.CARS[ci])
+	local total = 0
+	for _, q in ipairs(items) do total += q.price end
+	local all, rows = nil, 0
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "RepairAll" then all = d end
+		if string.sub(d.Name, 1, 7) == "Repair_" then rows += 1 end
+	end
+	check("repair bay lists every damaged part with a price", all ~= nil and rows == #items and total > 0, rows .. " items, " .. total .. " JD")
+	local cash0 = plr:GetAttribute("Cash")
+	if all then all.Activated:Fire() end
+	M.run(1)
+	check("Repair all: paid in JD, the car is like new", cash0 - plr:GetAttribute("Cash") == total and not Damage.hurt(CarDamage.record()) and lastToast("^🔧 Repaired") ~= nil,
+		(cash0 - plr:GetAttribute("Cash")) .. " JD · " .. tostring(lastToast("^🔧")))
+	Hud.closePanel()
+	-- a handbrake slide wears the rear tyres
+	local best
+	for _, e in ipairs(State.road.edges) do
+		if e.n == 2 and e.len > 160 and e.kind ~= 2 and (not best or e.len > best.len) and math.sqrt(e.x[1] ^ 2 + e.z[1] ^ 2) < 2000 then best = e end
+	end
+	local h = math.atan2(best.x[2] - best.x[1], best.z[2] - best.z[1])
+	Drive.place(best.x[1] + math.sin(h) * 5, best.z[1] + math.cos(h) * 5, h)
+	M.move = Vector3.new(0, 0, -1)
+	M.run(3)
+	M.key(Enum.KeyCode.Space, true)
+	M.move = Vector3.new(-1, 0, -1)
+	M.run(1.5)
+	M.key(Enum.KeyCode.Space, false)
+	M.move = Vector3.zero
+	M.run(1)
+	local W = CarDamage.record().wheels
+	check("a handbrake slide heats and wears the rear tyres", W[3].tread < 100 and W[3].tmax > 30, string.format("RL tread %.4f %%, %d °C max", W[3].tread, W[3].tmax))
+	-- Off: nothing is recorded
+	Settings.set("dm", 0)
+	M.run(0.1)
+	local n0 = CarDamage.record().impacts
+	toWall()
+	check("damage Off: a hit records nothing", CarDamage.record().impacts == n0)
+	Settings.set("dm", 2)
+	toWall()
+	M.run(1)
+	Settings.set("dm", 0)
+	M.run(0.5)
 end
 
 -- ================= drifting -> drift bank and cash (server) =================
@@ -429,6 +844,7 @@ end
 
 -- ================= car wheel and garage =================
 do
+	local Rules = require(Shared.Rules)
 	M.run(30)
 	RS.Remotes.BankDrift:FireServer(40000)
 	M.run(0.2)
@@ -436,7 +852,12 @@ do
 	local x0, z0 = st.x, st.z
 	local ok, r = M.call(function() return RS.Remotes.CarAction:InvokeServer("spin") end)
 	M.run(1.5)
-	check("wheel spin", ok == true and type(r) == "table" and Config.CARS[r.car] ~= nil and Config.CARS[r.car].tier == r.tier, type(r) == "table" and (Config.CARS[r.car].name .. " tier " .. r.tier .. (r.dup and " duplicate" or "")) or tostring(r))
+	-- the won car is one of the web wheel's cars for that slice (08a: a slice's list can hold a car of another rarity, e.g. WHEEL_OLD)
+	local inPool = false
+	for _, i in ipairs(type(r) == "table" and Rules.wheelPools[r.tier + 1] or {}) do
+		if i == r.car then inPool = true end
+	end
+	check("wheel spin", ok == true and type(r) == "table" and Config.CARS[r.car] ~= nil and inPool, type(r) == "table" and (Config.CARS[r.car].name .. " tier " .. r.tier .. (r.dup and " duplicate" or "")) or tostring(r))
 	local cost = cash0 - plr:GetAttribute("Cash")
 	check("wheel costs 10,000 (5,000 back on a duplicate)", cost == (r.dup and 5000 or 10000), cost)
 	if not r.dup then
@@ -448,7 +869,11 @@ do
 	M.run(1)
 	check("garage buys a car", ok and plr:GetAttribute("CurCar") == 2 and (cash0 - plr:GetAttribute("Cash") == 2500 or (r.car == 2)), (cash0 - plr:GetAttribute("Cash")) .. " cash")
 	check("each car has its own upgrades", plr:GetAttribute("Tune") == "0,0,0,0" and State.spec.name == Config.CARS[2].name)
-	local vipOk, vipMsg = M.call(function() return RS.Remotes.CarAction:InvokeServer("buy", #Config.CARS) end)
+	local vipIx = 0
+	for i, c in ipairs(Config.CARS) do
+		if c.vip then vipIx = i end
+	end
+	local vipOk, vipMsg = M.call(function() return RS.Remotes.CarAction:InvokeServer("buy", vipIx) end)
 	check("VIP car needs the pass", vipOk == false, tostring(vipMsg))
 	M.call(function() Menus.garage() end)
 	local rows = 0
@@ -458,6 +883,106 @@ do
 	check("garage lists every car", rows == #Config.CARS, rows)
 	Hud.closePanel()
 	check("menu closes", State.ui == nil)
+end
+
+-- ================= the web game's whole car list =================
+do
+	local Rules = require(Shared.Rules)
+	-- the first 22 keep the names and order of Roblox versions 1-3 (saved games store these indices)
+	local FIRST = { "Hot Hatch RS", "Family Sedan", "City Mini", "Work Pickup", "Pop-Up Roadster", "Drift Sedan 36", "Classic 86", "Z Coupe 33", "Euro Hatch",
+		"Sport SUV", "Drift Coupe S", "Muscle V8", "Street Legend 34", "Mid Coupe", "Rotary Coupe", "Turbo Six 80", "Italian V8", "Endurance GT", "AWD Rocket",
+		"Rear-Engine Six", "Twin-Turbo Icon", "Super V10" }
+	local same = 0
+	for i, n in ipairs(FIRST) do
+		if Config.CARS[i] and Config.CARS[i].name == n then same += 1 end
+	end
+	check("all 217 web cars, the first 22 unchanged (saved games)", #Config.CARS == 217 and same == 22, #Config.CARS .. " cars, " .. same .. " of the first 22 unchanged")
+	-- no brand or model names (Roblox removes experiences that use trademarks without permission)
+	local BRANDS = { "porsche", "ferrari", "lamborghini", "ford", "toyota", "nissan", "bmw", "mercedes", "audi", "mazda", "honda", "hyundai", "kia", "chevrolet",
+		"dodge", "jeep", "tesla", "lexus", "subaru", "suzuki", "mitsubishi", "volkswagen", "opel", "peugeot", "renault", "skoda", "seat ", "fiat", "maserati", "alfa",
+		"aston", "bentley", "rolls", "lotus", "byd", "geely", "changan", "hongqi", "gac", "zeekr", "mg ", "range rover", "land rover", "gmc", "mustang", "skyline",
+		"supra", "corvette", "huracán", "huracan", "f40", "911", "gt-r", "miata", "golf", "corolla", "hilux", "picanto", "camry", "prius" }
+	local seen, dup, brand, worst = {}, 0, 0, ""
+	for _, c in ipairs(Config.CARS) do
+		if seen[c.name] then dup += 1 end
+		seen[c.name] = true
+		local low = string.lower(c.name) .. " "
+		for _, b in ipairs(BRANDS) do
+			if string.find(low, b, 1, true) then
+				brand += 1
+				worst = c.name
+			end
+		end
+	end
+	check("car names unique, no brands or model names", dup == 0 and brand == 0, dup .. " repeated, " .. brand .. " with a brand " .. worst)
+	-- every car keeps its own numbers (the web car's top speed, acceleration, size, engine torque)
+	local sig, n = {}, 0
+	for _, c in ipairs(Config.CARS) do
+		local k = string.format("%.5f/%.5f/%.2f/%.2f/%.3f/%s", c.vm, c.a0, c.L, c.W, c.pt.T, c.body)
+		if not sig[k] then
+			sig[k] = true
+			n += 1
+		end
+	end
+	check("each car keeps its own performance and size", n >= 210, n .. " different of " .. #Config.CARS)
+	local okPt = 0
+	for _, c in ipairs(Config.CARS) do
+		local p = c.pt
+		if p and p.m > 300 and p.T > 0 and #p.ratio == p.ng and p.red > 0 and p.Iz > 0 and p.mu > 0 then okPt += 1 end
+	end
+	check("Realistic-handling data for every car", okPt == #Config.CARS, okPt)
+	-- the wheel: tier odds 50 / 35 / 10 / 4 / 1 % and only the web wheel's cars of the slice
+	local Wheel = require(game:GetService("ServerScriptService").Game.Wheel)
+	local cnt, outside, N = { 0, 0, 0, 0, 0 }, 0, 20000
+	for _ = 1, N do
+		local i, t = Wheel.roll()
+		cnt[t + 1] += 1
+		local hit = false
+		for _, j in ipairs(Rules.wheelPools[t + 1]) do
+			if j == i then hit = true end
+		end
+		if not hit or Config.CARS[i].vip then outside += 1 end
+	end
+	local dev = 0
+	for t = 1, 5 do
+		dev = math.max(dev, math.abs(cnt[t] / N - Config.WHEEL_ODDS[t]))
+	end
+	check("wheel odds 50 / 35 / 10 / 4 / 1 % from the web wheel's lists", dev < 0.012 and outside == 0,
+		string.format("%.1f / %.1f / %.1f / %.1f / %.1f %%, %d outside", cnt[1] / N * 100, cnt[2] / N * 100, cnt[3] / N * 100, cnt[4] / N * 100, cnt[5] / N * 100, outside))
+	-- traffic: the street's traffic zone sets the tier odds (old Al-Balad mostly common cars)
+	local TR = Rules.traffic
+	local zb = 0
+	for k, z in ipairs(TR.zones) do
+		if z == "Al_Balad_Old_Core" then zb = k - 1 end
+	end
+	local eB
+	for _, e in ipairs(State.road.edges) do
+		if tonumber(string.sub(TR.ezone, e.id, e.id)) == zb then
+			eB = e
+			break
+		end
+	end
+	local common, inPools, paintOk = 0, 0, 0
+	for _ = 1, 4000 do
+		local c, _, col = Traffic.rollCar(eB)
+		local ix = table.find(Config.CARS, c)
+		if c.tier == 0 then common += 1 end
+		for _, pool in ipairs(TR.pools) do
+			if table.find(pool, ix) then
+				inPools += 1
+				break
+			end
+		end
+		local own = Traffic.hex(c.col)
+		local isT = false
+		for _, h in ipairs(TR.tcol) do
+			if Traffic.hex(h) == col then isT = true end
+		end
+		if isT or col == own then paintOk += 1 end
+	end
+	local want = TR.odds[zb + 1][1]
+	check("traffic cars by the street's zone (Al-Balad: mostly common)", eB ~= nil and math.abs(common / 4000 - want) < 0.03 and inPools == 4000 and paintOk == 4000,
+		string.format("%.0f %% common (web odds %.0f %%), %d of 4000 from the traffic lists, %d with a web paint", common / 40, want * 100, inPools, paintOk))
 end
 
 -- ================= GPS search, minimap, reset, clock =================
@@ -786,7 +1311,9 @@ do
 	local rv = Missions.duelRivals[1]
 	local rs0 = rv and rv.s or 0
 	M.run(3)
-	check("the duel rival drives the road ahead", rv ~= nil and rv.s > rs0 + 20, rv and f1(rv.s - rs0) .. " m")
+	-- the rival is a random car of the web game's sports catalogue (some are slow classics): at least 70 % of its own a0 t^2 / 2
+	local want = rv and 0.7 * 0.5 * rv.a0 * 9 or 1e9
+	check("the duel rival drives the road ahead", rv ~= nil and rv.s > rs0 + want, rv and (f1(rv.s - rs0) .. " m in 3 s (" .. rv.name .. ", a0 " .. f1(rv.a0) .. ", wanted > " .. f1(want) .. " m)"))
 	local dest = State.raceMark
 	Drive.place(dest[1], dest[2], st.h)
 	M.run(0.5)
@@ -803,6 +1330,8 @@ do
 	M.run(0.5)
 	local rec = M.store.IrbidDrive_v1 and M.store.IrbidDrive_v1.u1001
 	check("progress saved on leaving", rec ~= nil and rec.v == 2 and rec.cash == cash and rec.cur == 2, rec and ("cash " .. tostring(rec.cash)))
+	check("vehicle damage saved with the progress", rec ~= nil and type(rec.dmg) == "table" and next(rec.dmg) ~= nil, rec and rec.dmg and next(rec.dmg))
+	check("settings saved with the progress", rec ~= nil and type(rec.set) == "string" and string.find(rec.set, "hm=0", 1, true) ~= nil and string.find(rec.set, "abs=1", 1, true) ~= nil, rec and tostring(rec.set))
 	check("car removed with the player", WS:FindFirstChild("Car_1001") == nil)
 	local p2 = M.addPlayer(1001, "Tester")
 	M.run(6)

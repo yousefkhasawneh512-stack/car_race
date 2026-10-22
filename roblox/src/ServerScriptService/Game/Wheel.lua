@@ -1,7 +1,8 @@
 -- Irbid Drive (Roblox) - the car wheel (the web game's): 10,000 cash a spin, tier by the odds 50 / 35 / 10 / 4 / 1 %, then one of
--- that tier's (non-VIP) cars. A new car is equipped; a car already owned refunds 5,000.
+-- the web wheel's cars of that tier (not the VIP-pass car). A new car is equipped; a car already owned refunds 5,000.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
 local PlayerData = require(script.Parent:WaitForChild("PlayerData"))
 local Spawner = require(script.Parent:WaitForChild("Spawner"))
 
@@ -18,9 +19,10 @@ function Wheel.roll()
 		end
 	end
 	for t = tier, 0, -1 do
+		-- the web wheel's list for this tier (08a TIERS: that tier's traffic models + the older wheel cars), without the VIP-pass car
 		local pool = {}
-		for i, c in ipairs(Config.CARS) do
-			if c.tier == t and not c.vip then pool[#pool + 1] = i end
+		for _, i in ipairs(Rules.wheelPools[t + 1]) do
+			if not Config.CARS[i].vip then pool[#pool + 1] = i end
 		end
 		if #pool > 0 then
 			return pool[math.random(#pool)], t

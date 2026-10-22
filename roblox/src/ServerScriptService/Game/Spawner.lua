@@ -48,7 +48,9 @@ function Spawner.spawn(plr, keep)
 		f = Vector3.new(math.sin(h), 0, math.cos(h))
 		pos = Vector3.new(0, Meta.startY * S + spec.H * S * 0.6, 0) - f * off * 8 * S
 	end
-	local car = CarBuilder.build(spec, CarBuilder.COLORS[(plr.UserId % #CarBuilder.COLORS) + 1], d.cur)
+	-- the car's own paint, as in the web game (its PORS colour)
+	local col = spec.col or 0x1f6fe0
+	local car = CarBuilder.build(spec, Color3.fromRGB(math.floor(col / 65536) % 256, math.floor(col / 256) % 256, col % 256), d.cur)
 	car.Name = "Car_" .. plr.UserId
 	car:SetAttribute("Owner", plr.UserId)
 	car:PivotTo(CFrame.lookAt(pos, pos + f))

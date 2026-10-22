@@ -4,27 +4,29 @@ This file is the persistent checklist for the Roblox conversion. It is updated a
 first, then verify the state with the commands under "How to verify" (never assume planned work is done).**
 
 - Original game: `src/parts/*.js` → `dist/irbid-drive.html` (web, three.js r128). **Never modified by the Roblox work.**
-- Roblox project: `roblox/` (Luau sources in `roblox/src`, generated data in `roblox/data` + `roblox/shared`, place file `roblox/IrbidDrive.rbxlx`).
-- Generator: `node tools/make_roblox.js dist/irbid-drive.html` (reads the REAL web build headless and exports its data and per-car numbers).
-- Backups: git tag `backup/roblox-3.1` (= commit `bd98d91`, the state before this conversion round) and a verified full-history bundle
+- Roblox project: `roblox/` (Luau sources in `roblox/src`, generated data in `roblox/data` + `roblox/shared`, sound in `roblox/audio`, place file
+  `roblox/IrbidDrive.rbxlx`).
+- Generators: `node tools/make_roblox.js dist/irbid-drive.html` (reads the REAL web build headless and exports its data and per-car numbers),
+  `node tools/make_roblox_audio.js dist/irbid-drive.html` (renders the web game's synthesised sounds into one file).
+- Backups: git tag `backup/roblox-3.1` (= commit `bd98d91`, the state before this conversion round, pushed) and a verified full-history bundle
   `C:\Users\youse\IrbidDrive-backups\car_race-bd98d91-2026-10-22.bundle` (`git bundle verify` OK). Web rollback tags `backup/v41`…`backup/v49`.
-- The zip `Downloads\irbid-drive-v46-FULL.zip` is an OLDER snapshot (v46) of this same repository. This repository is v49 + Roblox 3.1,
-  so the conversion works from the repository, not from the zip (nothing in the zip is newer; it has no `roblox/` folder).
+- The zip `Downloads\irbid-drive-v46-FULL.zip` is an OLDER snapshot (v46) of this same repository. This repository is v49 + Roblox, so the
+  conversion works from the repository, not from the zip (nothing in the zip is newer; it has no `roblox/` folder).
 
-## Current stage
+## Current stage (2026-10-22, Roblox version 4)
 
 | Stage | Status |
 |---|---|
-| A. Inspect + feature inventory | done (2026-10-22): this file, section "Feature inventory" |
-| B. Backup + separate workspace | done: tag + bundle above; all Roblox work stays in `roblox/` and `tools/make_roblox.js` |
+| A. Inspect + feature inventory | done: section "Feature inventory" |
+| B. Backup + separate workspace | done: tag + bundle above; all Roblox work stays in `roblox/`, `tools/make_roblox*.js` |
 | C. Architecture + compatibility problems | done: sections "Architecture" and "Compatibility problems" |
-| D. Foundation opens | partly verified: the place file loads in the headless engine stand-in; the owner's Studio run (v3.1 fixes) found and fixed visual bugs. **No Studio run by Claude** (see Blockers) |
-| E. Map | converted in v1–v3.1 (3.5 km around the start) |
-| F. Vehicles | in progress (this round): full 217-car roster |
-| G. Physics + controls | in progress (this round): pure physics module, Realistic handling, gearbox, assists, gamepad / wheel |
-| H. UI / camera / audio / visuals | in progress (this round) |
-| I. Remaining gameplay | in progress (this round) |
-| J–L | after I |
+| D. Foundation opens | the place file loads in the headless engine stand-in; the owner's Studio run (v3.1) found visual bugs that were fixed. **No Studio run by Claude** (Blockers 1) |
+| E. Map | converted in v1–v3.1 (3.5 km around the start). 3D landmarks, trees, lamps: not yet |
+| F. Vehicles | 217 cars with the web numbers; shapes are still blocks sized to each car |
+| G. Physics + controls | Arcade + Realistic + assists + gearbox: verified against the web build; gamepad / wheel input: converted (no hardware) |
+| H. UI / camera / audio / visuals | settings menu, cameras, HUD gear line, weather visuals, sound (needs the upload), damage looks: converted |
+| I. Remaining gameplay | damage, tyres, repairs, diagnostics, weather, clock: converted. Not yet: driving school, auto-drive, road reputation, search chips / saved places, traffic by time of day |
+| J–L | integration tests run after every stage (Test log); final Studio validation needs Blocker 1 |
 
 ## Tools on this PC (checked 2026-10-22)
 
@@ -33,85 +35,93 @@ first, then verify the state with the commands under "How to verify" (never assu
 | Node 24, Python 3.15 + Playwright | installed |
 | Luau CLI (`luau.exe`, `luau-analyze.exe`) | not on PATH; a copy downloaded from github.com/luau-lang/luau releases is used from the session scratch dir |
 | Roblox Studio | **installed** (`%LOCALAPPDATA%\Roblox\Versions\version-d5b31acfb7154957`), includes `StudioMCP.exe` (Studio's MCP bridge) |
-| Studio automation | `StudioMCP.exe --stdio` answers MCP `initialize`, but lists **0 tools** unless a signed-in Studio with its MCP server enabled is running. A Studio started from Claude's sandboxed shell cannot sign in (`TlsVerificationFail`: the sandbox's network proxy), so it must be started by the owner (see Blockers) |
+| Studio automation | `StudioMCP.exe --stdio` answers MCP `initialize`, but lists **0 tools** unless a signed-in Studio with its MCP server enabled is running. A Studio started from Claude's sandboxed shell cannot sign in (`TlsVerificationFail`: the sandbox's network proxy), so it must be started by the owner (Blockers 1) |
 | Rojo | not installed (not needed: the generator writes the place file; `default.project.json` is there for Rojo users) |
 | Logitech G29 | **not connected** (only the G HUB virtual devices are present), so wheel input cannot be verified on this PC today |
 
 ## Architecture (Roblox)
 
-- **Server** (`ServerScriptService`): `WorldBuilder` builds the map from `ServerStorage.IrbidData` (roads, buildings, ground parts, signs,
-  sites); `GameServer` starts `Game/*` (saving in a DataStore, car building / spawning, payouts with server-side checks, garage, upgrades,
-  wheel, fines, day/night, Robux items).
-- **Client** (`StarterPlayerScripts`): `Main.client` runs one frame loop; `Client/*` modules (one job each). The player's car is a
-  kinematic body moved by the device every frame with the web game's own physics (exactly like the web game: there is no physics engine
-  in the web game either). Traffic, rivals and police are simulated on each device (the web game's AI code).
-- **Shared** (`ReplicatedStorage`): `Config`, `Modules/Road` (graph, routing), `IrbidShared/*` (generated data: graph, places, rules,
-  heights, cars).
+- **Server** (`ServerScriptService`): `WorldBuilder` builds the map from `ServerStorage.IrbidData`; `GameServer` starts `Game/*` (saving in a
+  DataStore, car building / spawning, payouts with server-side checks, garage, upgrades, wheel, fines, settings, day/night, shared Auto weather,
+  damage records + paid repairs, Robux items).
+- **Client** (`StarterPlayerScripts`): `Main.client` runs one frame loop; `Client/*` modules (one job each). The player's car is a kinematic body
+  moved by the device every frame with the web game's own physics (the web game has no physics engine either). Traffic, rivals and police are
+  simulated on each device (the web game's AI code).
+- **Shared** (`ReplicatedStorage`): `Config`; PURE modules (no Roblox services, testable with the Luau CLI next to the web build): `Modules/CarPhysics`,
+  `Modules/Damage`, `Modules/Road`, `Modules/SettingsSchema`; generated data in `IrbidShared/*` (graph, places, rules, heights, cars, sound index).
 - Coordinates: the web game's metres (x east, z south, heading `h` with forward (sin h, cos h)), relative to the start point; 3 studs per metre.
+  Car models face -Z with +X = the car's right (web mesh: +x left, +z forward).
 
-## Compatibility problems (web → Roblox)
+## Compatibility problems (web → Roblox) and decisions
 
 | Problem | Decision |
 |---|---|
-| JavaScript / three.js do not run in Roblox | every system rewritten in Luau; numbers and formulas taken from the web source; generated data from the real build |
-| Web map is 29 × 24 km (one HTML file); a Roblox place this big is too heavy | 3.5 km radius around the start (17,818 road pieces, 14,527 buildings) |
-| Web cars carry real brand / model names | Roblox removes experiences that use trademarks without permission → generic names (`Config.CARS[i].name`); `roblox/CAR_NAMES.md` maps each to the web car (documentation only, not shown in game) |
-| Web audio is synthesised with Web Audio oscillators | Roblox has no oscillator / sample-generation API for game scripts → see the audio row in the inventory |
-| G29 in the web game: Gamepad API + WebHID (force feedback) | Roblox exposes only gamepads (XInput-style) through `UserInputService`; no HID access, no force feedback for wheels → see the G29 row |
-| `localStorage` settings | DataStore (progress, server-side) + per-player settings saved with the progress |
-| Single player (web) | Roblox servers are multiplayer: each player has their own car; payouts are checked on the server |
+| JavaScript / three.js do not run in Roblox | every system rewritten in Luau; numbers and formulas from the web source; data from the real build; physics and damage proven equal by equivalence tests |
+| Web map is 29 × 24 km | 3.5 km radius around the start |
+| Web cars carry real brand / model names | Roblox removes experiences that use trademarks without permission → generic names (origin + body + top speed, first 22 kept); `roblox/CAR_NAMES.md` maps them |
+| Web audio is synthesised with Web Audio oscillators | Roblox has no oscillator / sample API (checked in Studio's API docs: no generator class, no editable audio) and limits uploads per month → the web sounds rendered offline into ONE file, played by regions; the owner uploads it once |
+| G29 in the web game: Gamepad API + WebHID (force feedback) | Roblox exposes only gamepads; no HID, no force feedback → Steam Input / x360ce mapping + the web game's processing + rumble |
+| Esc = the web game's pause menu | Roblox reserves Esc → settings on Y and a ⚙ button |
+| `localStorage` settings and damage | saved with the progress on the server (settings checked against a schema; damage records only get worse from a device) |
+| Single player (web) | multiplayer servers: shared clock and Auto weather; each player's settings, camera, damage looks and AI are on their own device |
+| Mesh deformation (dents), canvas textures (cracks, scratches) | Roblox cannot deform meshes or draw textures at run time → parts (shaded dent patches, crack lines, scratch strips) |
 
-## Feature inventory (web v49 → Roblox)
+## Feature inventory (web v49 → Roblox v4)
 
 Status words: **CV** converted and verified (an automated check ran) · **CU** converted, not fully verified · **PC** partially converted ·
-**NC** not converted (reason given) · **BL** blocked by a technical / external limit. "Verified" here means the headless engine stand-in
-(`roblox/tests`) or a pure-Luau equivalence test against the web build, never a Studio run (none was possible for Claude).
+**NC** not converted (reason given) · **BL** blocked by a technical / external limit. "Verified" means the headless engine stand-in
+(`roblox/tests/run.js`) or a pure-Luau equivalence test against the web build, never a Studio run (none was possible for Claude).
 
 | Feature (web source) | Roblox | Status | Evidence / notes |
 |---|---|---|---|
-| Real OSM roads, widths, one-ways, limits, names (03a, 04) | `World/Roads`, `Modules/Road` | CV | scenario: all road pieces, graph loaded, routing |
-| Real OSM buildings (03b, 03e) | `World/Buildings` | CV | scenario: all buildings; 2,744 pieces trimmed from carriageways |
+| Real OSM roads, widths, one-ways, limits, names (03a, 04) | `World/Roads`, `Modules/Road` | CV | scenario: all road pieces, graph, routing |
+| Real OSM buildings (03b, 03e) | `World/Buildings` | CV | scenario: all buildings |
 | SRTM terrain (03d, 12c) | `World/Terrain` (tilted parts) | CV | scenario: ground under TH, roads not buried |
-| Places + search (03c, 06l, 11b) | `Search`, `Gps` | CV | 1,048 places in 3.5 km |
-| Hand-built 3D landmarks, campuses, trees, lamps, signs (06b–06j) | labels + signs only | PC | see stage H/E work below |
-| Arcade physics (`updP`) | `Drive` | CV | scenario (0-100, braking, grip, slope, ramps) |
-| Realistic handling (07g `ptDyn`, `ptAccel`, `ptBody`) | — | NC → this round | |
-| Automatic / manual gearbox (07g, 11c) | — | NC → this round | |
-| ABS / TC / ESC (07g) | — | NC → this round | |
-| Tyre temperature / brake fade (07g SIMX) | — | NC → this round | |
-| Speed bumps quarter-car (07c) | `SpeedBumps` | CV | |
+| Places + search (03c, 06l, 11b) | `Search`, `Gps` | CV | 1,048 places |
+| Search category chips, saved places (11b v49) | — | NC | next round |
+| Hand-built 3D landmarks, campuses, trees, lamps, signs (06b–06j) | labels + signs only | PC | next round (an exporter of the web game's meshes) |
+| Breakable / movable roadside objects (07e) | buildings and cars only | PC | needs the props above |
+| Arcade physics (`updP`) | `Modules/CarPhysics` | CV | `physics_equiv` (equal to 4e-13) + scenario |
+| Realistic handling (07g) | `Modules/CarPhysics` | CV | `physics_equiv` 28 Realistic cases; scenario 0-100 4.8 s vs listed 4.7 s |
+| Automatic / manual gearbox, Q / E, refused downshift (07g, 11c) | `Handling` | CV | `physics_equiv` manual cases; scenario E / Q |
+| ABS / TC / ESC (07g v48) | `Modules/CarPhysics` | CV | `physics_equiv` |
+| Tyre temperature / brake fade (07g v49) | `Modules/CarPhysics` | CV | `physics_equiv` (tyres 146 °C, brakes 700 °C) |
+| Wet-road grip (12f, Realistic only) | `Weather` → physics | CV | `physics_equiv` wet case; scenario grip x0.81 |
+| Speed bumps quarter-car (07c) | `SpeedBumps` | CV | + the bump-stop severity for damage |
 | Traffic lights (05b) | `Signals` | CV | |
-| Traffic AI (09_ai) | `Traffic` | CV | |
+| Traffic AI (09_ai) | `Traffic` | CV | models per traffic zone and web paints: scenario (84 % common in Al-Balad, web 84 %) |
+| Traffic density by time of day (12e v49) | — | NC | next round |
 | Laws + fines (10) | `Laws`, `Game/Fines` | CV | |
 | Drift points (10) | `DriftScore`, `Game/Drift` | CV | |
 | Upgrades (07b, 08c) | `TuneShop`, `Game/Upgrades` | CV | |
-| Car-unlock wheel (08a) | `CarWheel`, `Game/Wheel` | CV | |
-| 217 cars, 5 rarity tiers (07a, 07a0) | 22 cars | PC → this round | |
-| Car visuals (07a4 `mkPorsche`) | box body + cabin | PC → this round | |
-| Races (11) | `Race` | CV | |
-| Duels (11) | `Duel` | CV (flaky check) | random traffic: 19.5 m of 20 m in one run |
+| Car-unlock wheel (08a) | `CarWheel`, `Game/Wheel` | CV | web lists per slice; odds 49.8 / 35.1 / 10.2 / 3.9 / 0.9 % in 20,000 rolls |
+| 217 cars, 5 rarity tiers (07a, 07a0) | `Config.CARS` (generated) | CV | scenario: 217, names unique without brands, numbers per car |
+| Car shapes (07a4 `mkPorsche`) | blocks sized to each car, the web paint | PC | next round (the web body profiles) |
+| Races (11) | `Race` | CV | rivals from the sports catalogue |
+| Duels (11) | `Duel` | CV | check now relative to the rival's own acceleration |
 | Bank heist + police (08b) | `Heist`, `Police` | CV | |
 | Landmark tour (K), ramps (J), clock (T), reset (F) | `Extras` | CV | |
 | GPS + minimap + street names (11b, 12) | `Nav`, `Gps`, `Minimap`, `StreetName` | CV | |
-| Search category chips, saved places (11b v49) | — | NC → this round | |
-| Day/night + headlights (02b) | `Game/DayNight` | CV | |
-| Weather + Irbid local clock (12f) | — | NC → this round | |
-| Damage Off/Cosmetic/Full, dents, parts (07c, 07h) | — | NC → this round | |
-| Tyre wear, burnouts (07d) | — | NC → this round | |
-| Breakable world objects (07e) | — | NC | needs the props first (stage H/E) |
-| Diagnostics panel (07f) | — | NC → this round | |
-| Repair bay (08d) | — | NC → this round | |
-| Driving school (11d) | — | NC → this round | |
-| Auto-drive (11c) | — | NC → this round | |
-| Road reputation + rival memory (11c) | — | NC → this round | |
-| Pause / settings menu (12e) | — | NC → this round | |
-| Cameras chase / cockpit / bonnet / bumper (12) | chase / far / free | PC → this round | |
-| Engine / tyre / world audio, synthesised (12d) | optional sound ID | PC → this round | |
-| Keyboard controls | `Controls` | CV | web keys |
+| Day/night + headlights (02b) | `Game/DayNight`, `Weather` | CV | |
+| Weather Auto / Clear / Cloudy / Rain (12f) | `Game/Weather`, `Weather` | CV | scenario (rain, wet road, drying, line); visuals not seen in Studio. Web bug fixed in the port (rain never starts in the web build) |
+| Irbid local clock (12f) | `Weather` | CV | scenario |
+| Damage Off / Cosmetic / Full: impacts, zones, dents, parts, glass, lamps, rims, mechanical (07c, 07h) | `Modules/Damage`, `CarDamage` | CV | `damage_equiv` 92 checks (equal to 1e-13); scenario: wall hit, effects, server store |
+| Tyre model, wear, punctures, burnouts (07d) | `Modules/Damage`, `CarDamage` | CV | `damage_equiv` driving cases; scenario slide wear |
+| Damage looks (07c, 07h visuals) | `CarDamageFx` | CU | built from parts; scenario checks dents / bumper; not seen in Studio |
+| Diagnostics panel (07f) | `Diagnostics` | CV | scenario |
+| Repair bay, prices, inspection (08d) | `TuneShop`, `Game/DamageStore` | CV | scenario: 12 items, paid exactly; `damage_equiv` prices |
+| Driving school (11d) | — | NC | next round |
+| Auto-drive (11c) | — | NC | next round |
+| Road reputation + rival memory (11c) | — | NC | next round |
+| Pause / settings menu (12e) | `SettingsMenu`, `Settings`, `Game/Settings` | CV | scenario: rows, saved by the server and with the progress |
+| Cameras chase / cockpit / bonnet / bumper (12, v48) | `Camera` | CU | the web numbers; camera feel not seen in Studio |
+| Accessibility: text size, reduced motion (12e v48) | reduced motion (FOV) | PC | text size: next round |
+| Engine / tyre / world audio (12d) | `CarAudio` + the sound atlas | CU | `audio_atlas` (11 checks), scenario (pitch, voices, squeal, horn, crash, mute, muffle); **BL** until the owner uploads the file; not heard in Studio |
+| Keyboard controls | `Controls` | CV | web keys (+ Y settings, Esc kept by Roblox) |
 | Touch pads (10b) | `Controls` | CV | `TOUCH=1` run |
-| G29 / gamepad (10c) | thumbstick only | PC → this round | |
-| Save / load (07b) | `Game/PlayerData` (DataStore) | CV | stand-in DataStore |
-| Multiplayer | Roblox servers | CU | players see each other's cars; AI is per device; payouts server-checked |
+| G29 / gamepad (10c) | `Gamepad`, setup panel | CU | scenario with simulated gamepad input (gas, brake, both steering directions, dead zone, sensitivity, curve, invert, centre, buttons, rumble, unplug); **BL** for a real G29 (no hardware; Roblox needs Steam Input / x360ce; no force feedback) |
+| Save / load (07b) | `Game/PlayerData` (DataStore) | CV | stand-in DataStore: progress, settings, damage |
+| Multiplayer | Roblox servers | CU | players see each other's cars; payouts, settings, damage and repairs checked on the server; not tested with two real clients |
 | Robux items | `Game/Purchases` | CU | IDs empty until the owner creates them |
 | OSM attribution | `InfoLine` | CV | |
 
@@ -119,21 +129,48 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 
 | Date | Run | Result |
 |---|---|---|
-| 2026-10-22 | baseline `node roblox/tests/run.js luau.exe` on `bd98d91` | 99 / 100 (FAIL: the duel rival drives the road ahead, 19.5 m of 20; random traffic, known flaky) — 457 s |
+| 2026-10-22 | baseline `run.js` on `bd98d91` | 99 / 100 (the duel distance check, random traffic) |
+| 2026-10-22 | physics refactor (`ba1b7be`): `run.js` | 99 / 100 (same flaky check) · `physics_equiv` 12 / 12 (4e-13); a 1 % change in one constant fails all 12 |
+| 2026-10-22 | roster + Realistic + settings: `run.js` | 115 / 115 |
+| 2026-10-22 | + gamepad, cameras, weather, sound: `run.js` | 139 / 139 · `TOUCH=1` 141 / 141 · `NOTERRAIN=1` 137 / 139 (Auto weather rained during the run: the checks now start in Clear weather) |
+| 2026-10-22 | `physics_equiv` (Arcade + Realistic, 40 cases) | 40 / 40 + 6 / 6 web-trace sanity checks, largest difference 3.8e-13 |
+| 2026-10-22 | `damage_equiv` | 92 / 92, largest difference 1.3e-13 (first run: driving cases off by 1e-8 → the web game's Float32Array wheel loads, reproduced) |
+| 2026-10-22 | `audio_atlas` | 11 / 11 |
+| 2026-10-22 | + damage, diagnostics, repair bay (Roblox v4): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 152 / 152 · 154 / 154 · 152 / 152 (401 s, 384 s, 387 s; three runs in parallel) |
+
+## Known problems / limits
+
+- Damage looks, weather visuals, cameras, sound, gamepad: converted and checked headless only; their look / feel needs a Studio run.
+- Damage is drawn on the owner's device only (other players see the car undamaged).
+- The web game's per-car engine-sound variation inside a layout (a hash of the car name) is one variation per layout here; the two detuned
+  oscillators are two sounds summed after the soft clip (the web game sums before it); the load / rpm low-pass is an equaliser approximation.
+- Rain streaks use the built-in square particle texture stretched along the fall direction (no uploaded texture).
+- The web game's own rain bug (rain never starts) is fixed only in the port.
 
 ## Blockers (need the owner)
 
 1. **Studio run.** Claude cannot sign in to Studio from its sandbox. To let Claude test in Studio: open Roblox Studio yourself, open
-   `roblox/IrbidDrive.rbxlx`, and turn on the Studio MCP server (Studio: *Assistant* → settings (⋯) → *MCP servers* / "Enable Studio as MCP
-   server"; the wording changes between Studio versions). Then tell Claude; it talks to Studio through `StudioMCP.exe`.
-2. **G29.** Not connected to this PC; Roblox reads only gamepads. See the G29 notes in `roblox/README.md`.
-3. **Audio assets.** Roblox plays only uploaded audio assets; uploading needs the owner's account.
+   `roblox/IrbidDrive.rbxlx`, turn on Studio's MCP server (Studio: *Assistant* → ⋯ → *MCP servers* / "Enable Studio as MCP server"; the wording
+   changes between Studio versions), press Play, and tell Claude. Claude then talks to Studio through `StudioMCP.exe` (checked: it answers).
+2. **Sound.** Upload `roblox/audio/IrbidDriveSounds.wav` once and put its ID in `Config.AUDIO_ATLAS_ID` (`roblox/README.md`, "Sound").
+3. **G29.** Not connected to this PC; Roblox reads only gamepads (Steam Input / x360ce). See `roblox/README.md`, "Logitech G29".
 4. **Robux IDs, publishing.** Owner's account only.
+
+## Next round (in this order)
+
+1. The web game's car shapes (body profiles per type) instead of blocks, and the hand-built landmarks / trees / lamps (an exporter of the web
+   game's meshes into parts), then the breakable roadside objects.
+2. Driving school (11d), auto-drive (Z) and road reputation + rival memory (11c).
+3. Search category chips and saved places (11b), traffic density by time of day (12e), text size (12e).
 
 ## How to verify (resume here)
 
 ```
 node tools/make_roblox.js dist/irbid-drive.html          # regenerate (after ANY change in roblox/src)
-node roblox/tests/run.js <luau.exe>                       # headless play-through (~8 min)
+node tools/make_roblox_audio.js dist/irbid-drive.html    # the sound file (only when the web audio or the tool changes)
+node roblox/tests/physics_equiv.js <luau.exe>             # physics vs the web build
+node roblox/tests/damage_equiv.js <luau.exe>              # damage vs the web build
+node roblox/tests/audio_atlas.js                          # the sound file
+node roblox/tests/run.js <luau.exe>                       # headless play-through (~8 min); also TOUCH=1, NOTERRAIN=1
 <luau-analyze.exe> roblox/src                             # static analysis (only Roblox globals unknown)
 ```

@@ -1,13 +1,15 @@
 -- Irbid Drive (Roblox) - controls, the web game's keys: W/S or the thumbstick = gas / brake-reverse, A/D steer (Roblox's movement input),
 -- Space or DRIFT = handbrake, F reset to the start, C camera, G car wheel, N / B next / previous car, M GPS search, K landmark tour,
--- J stunt ramps, T +1 hour, R race (or a duel next to a traffic car), E rob the bank, U tuning shop, X horn, Esc closes a menu.
--- Roblox only: V garage. Phones and tablets get the web game's touch pads (steer left / right, GAS, BRAKE, DRIFT) and the menu buttons.
+-- J stunt ramps, T +1 hour, R race (or a duel next to a traffic car), E rob the bank (elsewhere: shift up), Q shift down, H handling
+-- Arcade / Realistic, U or P tuning shop, X horn, L mute, I damage Off / Cosmetic / Full, O diagnostics, Esc closes a menu. Roblox only: V garage, Y settings (the web game's Esc pause menu:
+-- Roblox keeps Esc for its own menu). Phones and tablets get the web game's touch pads (steer left / right, GAS, BRAKE, DRIFT) and the menu buttons.
 local Players = game:GetService("Players")
 local ContextActionService = game:GetService("ContextActionService")
 local UserInputService = game:GetService("UserInputService")
 local Client = script.Parent
 local State = require(Client:WaitForChild("State"))
 local Hud = require(Client:WaitForChild("Hud"))
+local Gamepad = require(Client:WaitForChild("Gamepad"))
 
 local Controls = {}
 local plr = Players.LocalPlayer
@@ -60,8 +62,9 @@ local function touchPads()
 	mk("drift", "DRIFT", UDim2.new(1, -350, 1, -260), UDim2.fromOffset(210, 60), ORANGE)
 end
 
--- actions = {reset, camera, wheel, nextCar, prevCar, gps, tour, ramps, hour, race, rob, shop, horn(on), garage}
+-- actions = {reset, camera, wheel, nextCar, prevCar, gps, tour, ramps, hour, race, eKey, gearDown, handling, settings, shop, horn(on), garage}
 function Controls.start(a)
+	Hud.sideButton("⚙ Settings (Y)", a.settings)
 	Hud.sideButton("🎡 Wheel (G)", a.wheel)
 	Hud.sideButton("🚗 Garage (V)", a.garage)
 	Hud.sideButton("📍 GPS (M)", a.gps)
@@ -72,7 +75,10 @@ function Controls.start(a)
 	ContextActionService:BindAction("Handbrake", function(_, state)
 		hb = state == Enum.UserInputState.Begin
 		return Enum.ContextActionResult.Sink
-	end, false, Enum.KeyCode.Space, Enum.KeyCode.ButtonR1)
+	end, false, Enum.KeyCode.Space)
+	-- gamepad / wheel buttons call the same actions as the keys (bindings in the gamepad setup)
+	Gamepad.bind({ up = a.eKey, down = a.gearDown, camera = a.camera, horn = a.horn, race = a.race, reset = a.reset, tour = a.tour,
+		gps = a.gps, settings = a.settings, nextCar = a.nextCar, prevCar = a.prevCar })
 	if UserInputService.TouchEnabled then touchPads() end
 	local KEYS = {
 		[Enum.KeyCode.F] = a.reset,
@@ -85,8 +91,15 @@ function Controls.start(a)
 		[Enum.KeyCode.J] = a.ramps,
 		[Enum.KeyCode.T] = a.hour,
 		[Enum.KeyCode.R] = a.race,
-		[Enum.KeyCode.E] = a.rob,
+		[Enum.KeyCode.E] = a.eKey,
+		[Enum.KeyCode.Q] = a.gearDown,
+		[Enum.KeyCode.H] = a.handling,
+		[Enum.KeyCode.Y] = a.settings,
+		[Enum.KeyCode.L] = a.mute,
+		[Enum.KeyCode.I] = a.damage,
+		[Enum.KeyCode.O] = a.diag,
 		[Enum.KeyCode.U] = a.shop,
+		[Enum.KeyCode.P] = a.shop,
 		[Enum.KeyCode.V] = a.garage,
 		[Enum.KeyCode.Escape] = Hud.closePanel,
 	}
@@ -105,14 +118,35 @@ function Controls.start(a)
 	end)
 end
 
--- every frame: the movement input into State.input
-function Controls.read()
-	local mv = move:GetMoveVector()
+-- every frame: the driving input into State.input. With a gamepad / wheel in use: the keys first, then its analog values (the web
+-- game's order: keyboard, then the wheel; analog steering goes straight to the steering angle in Realistic). Otherwise Roblox's move
+-- input (keyboard, touch thumbstick) and the touch pads.
+local K = Enum.KeyCode
+local function down(a, b)
+	return UserInputService:IsKeyDown(a) or UserInputService:IsKeyDown(b)
+end
+function Controls.read(dt)
 	local inp = State.input
+	local gp = Gamepad.poll(dt or 1 / 60)
 	local st = (pad.l and 1 or 0) - (pad.r and 1 or 0)
+	if gp.on then
+		local kW, kS = down(K.W, K.Up), down(K.S, K.Down)
+		local ks = ((pad.l or down(K.A, K.Left)) and 1 or 0) - ((pad.r or down(K.D, K.Right)) and 1 or 0)
+		inp.th = (kW or pad.gas) and 1 or gp.thr
+		inp.br = (kS or pad.brake) and 1 or gp.brk
+		if ks ~= 0 then
+			inp.steer, inp.an = ks, false
+		else
+			inp.steer, inp.an = -gp.steer, true
+		end
+		inp.hb = hb or pad.drift or gp.hb
+		return
+	end
+	local mv = move:GetMoveVector()
 	inp.th = math.max(0, -mv.Z, pad.gas and 1 or 0)
 	inp.br = math.max(0, mv.Z, pad.brake and 1 or 0)
 	inp.steer = st ~= 0 and st or -mv.X
+	inp.an = false
 	inp.hb = hb or pad.drift
 end
 

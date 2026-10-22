@@ -7,6 +7,7 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
 local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Road"))
+local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
 local State = require(script.Parent:WaitForChild("State"))
 
 local Traffic = {}
@@ -18,8 +19,13 @@ Traffic.folder = folder
 local agents = {}
 Traffic.agents = agents
 
-local PAINT = { Color3.fromRGB(235, 235, 235), Color3.fromRGB(30, 30, 34), Color3.fromRGB(150, 155, 160), Color3.fromRGB(170, 30, 30),
-	Color3.fromRGB(25, 70, 150), Color3.fromRGB(240, 200, 40), Color3.fromRGB(60, 120, 70), Color3.fromRGB(120, 90, 60) }
+-- a web colour (0xRRGGBB) as a Color3
+function Traffic.hex(c)
+	return Color3.fromRGB(math.floor(c / 65536) % 256, math.floor(c / 256) % 256, c % 256)
+end
+-- the web game's traffic paints (07a2 TCOL: mostly white, silver, grey, black)
+local PAINT = {}
+for i, c in ipairs(Rules.traffic.tcol) do PAINT[i] = Traffic.hex(c) end
 
 -- a simple car model (anchored, no collision, ignored by ray tests); pivot = body centre
 function Traffic.model(L, W, H, color, cop)
@@ -67,7 +73,18 @@ function Traffic.agent(kind, car, color)
 		x = 0, z = 0, y = 0, h = 0, v = 0, s = 0, pi = 1, hit = 0, active = true, skill = 1,
 	}
 	a.model = Traffic.model(c.L, c.W, c.H, color or PAINT[math.random(#PAINT)], a.cop)
+	a.car, a.col = c, color
 	return a
+end
+
+-- give an AI car another model (the web game's setTrafficModel): a new model only when the car or the paint changes
+function Traffic.setCar(a, c, color)
+	if a.car == c and a.col == color then return end
+	local cf = a.model and a.model:GetPivot()
+	if a.model then a.model:Destroy() end
+	a.model = Traffic.model(c.L, c.W, c.H, color, a.cop)
+	if cf then a.model:PivotTo(cf) end
+	a.car, a.col, a.name, a.L, a.W, a.H, a.vm, a.a0 = c, color, c.name, c.L, c.W, c.H, c.vm, c.a0
 end
 
 function Traffic.draw(a)
@@ -197,25 +214,27 @@ local function extend(a)
 	end
 end
 
--- the web game's traffic cars come in the rarity tiers' spawn odds; faster tiers cruise faster (cru)
-local ODDS = Config.WHEEL_ODDS
-local function rollCar()
-	local r, acc, tier = math.random(), 0, 0
-	for i, p in ipairs(ODDS) do
-		acc += p
-		if r < acc then
-			tier = i - 1
-			break
-		end
+-- the web game's traffic cars (07a2 rollTraffic / setTrafficModel): the rarity tier by the spawn odds of the street's traffic zone (old
+-- Al-Balad mostly common cars, Petra Street and the mall area more expensive ones), then one of that tier's traffic models; tiers from
+-- Rare up keep their own paint when they are sports / named models, every other car gets a traffic paint. Faster tiers cruise faster (cru).
+local TR = Rules.traffic
+local function rollCar(e)
+	local zi = e and tonumber(string.sub(TR.ezone, e.id, e.id)) or 0
+	local w = TR.odds[zi + 1] or TR.odds[1]
+	local r, tier = math.random(), 0
+	while tier < 4 and r >= w[tier + 1] do
+		r -= w[tier + 1]
+		tier += 1
 	end
-	local pool = {}
-	for _, c in ipairs(Config.CARS) do
-		if c.tier == tier then pool[#pool + 1] = c end
-	end
+	local pool = TR.pools[tier + 1]
+	local ix = pool[math.random(#pool)]
+	local c = Config.CARS[ix]
+	local col = (tier >= 2 and string.sub(TR.own, ix, ix) == "1") and Traffic.hex(c.col) or PAINT[math.random(#PAINT)]
 	local function R(a, b) return a + math.random() * (b - a) end
 	local cru = tier >= 3 and R(1, 1.3) or tier == 2 and R(0.98, 1.25) or tier == 1 and R(0.9, 1.15) or R(0.85, 1.1)
-	return pool[math.random(#pool)], cru
+	return c, cru, col
 end
+Traffic.rollCar = rollCar
 
 -- (re)place a traffic car on a road rmin-640 m from the player (the web game's respawn / pickSeg)
 local function spawn(a, rmin)
@@ -225,6 +244,10 @@ local function spawn(a, rmin)
 		local near = Road.nearest(State.road, st.x + math.cos(ang) * r, st.z + math.sin(ang) * r, 50)
 		if near and not near.e.track and math.random() < (TRW[near.e.fk] or 0.4) then
 			local d = near.e.ow and 1 or (math.random() < 0.5 and 1 or -1)
+			-- a new car for the new street (the web game re-rolls the model at every respawn)
+			local c, cru, col = rollCar(near.e)
+			Traffic.setCar(a, c, col)
+			a.cru = cru
 			a.trs = { { e = near.e, d = d } }
 			a.dead = false
 			rebuild(a)
@@ -242,8 +265,8 @@ end
 
 function Traffic.start()
 	for _ = 1, Config.TRAFFIC_CARS do
-		local car, cru = rollCar()
-		local a = Traffic.agent("traffic", car)
+		local car, cru, col = rollCar(nil)
+		local a = Traffic.agent("traffic", car, col)
 		a.cru = cru
 		agents[#agents + 1] = a
 		spawn(a, 40)

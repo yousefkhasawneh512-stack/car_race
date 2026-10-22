@@ -4,6 +4,7 @@
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
 local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Road"))
 local Client = script.Parent
 local State = require(Client:WaitForChild("State"))
@@ -116,11 +117,8 @@ function Duel.start(c)
 	-- the player on the line facing along it, the rival 3.6 m to the left
 	st.h = math.atan2(tx, tz)
 	st.vx, st.vz, st.vy = 0, 0, 0
-	local cars = {}
-	for _, car in ipairs(Config.CARS) do
-		if not car.vip then cars[#cars + 1] = car end
-	end
-	local rv = Traffic.agent("rival", cars[math.random(#cars)])
+	-- the rival's car: one of the web game's sports catalogue (11_race: a random index below NRACE)
+	local rv = Traffic.agent("rival", Config.CARS[Rules.racers[math.random(#Rules.racers)]])
 	rv.P, rv.s, rv.pi, rv.skill, rv.lane = P, s0, 1, 1, 0
 	rv.endS = endS
 	local fx, fz = math.sin(st.h), math.cos(st.h)

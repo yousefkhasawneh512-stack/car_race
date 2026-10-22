@@ -1,14 +1,14 @@
 -- Irbid Drive (Roblox) - the web game's other keys: K landmark tour (the next of its tour stops, when no heist is on), J the stunt
--- ramps, T +1 hour, N / B next / previous owned car, X horn (a sound only if Config.HORN_SOUND_ID is set; the web game synthesises it).
+-- ramps, T +1 hour, N / B next / previous owned car, X horn (CarAudio; a traffic car still sitting after a knock moves off, as in the web game).
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Config = require(ReplicatedStorage:WaitForChild("Config"))
 local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
 local Client = script.Parent
 local State = require(Client:WaitForChild("State"))
 local Hud = require(Client:WaitForChild("Hud"))
 local Drive = require(Client:WaitForChild("Drive"))
 local CarInfo = require(Client:WaitForChild("CarInfo"))
+local CarAudio = require(Client:WaitForChild("CarAudio"))
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 local Extras = {}
@@ -59,17 +59,19 @@ function Extras.cycleCar(dir)
 	end)
 end
 
-local horn
 function Extras.horn(on)
-	if (Config.HORN_SOUND_ID or 0) == 0 or not State.body then return end
-	if not horn or horn.Parent ~= State.body then
-		horn = Instance.new("Sound")
-		horn.SoundId = "rbxassetid://" .. Config.HORN_SOUND_ID
-		horn.Looped = true
-		horn.Volume = 0.6
-		horn.Parent = State.body
+	CarAudio.horn(on)
+	if not on then return end
+	-- the web game's hornSet: a traffic car up to 22 m ahead in the lane, still held after a knock, moves off
+	local st = State.st
+	local fx, fz = math.sin(st.h), math.cos(st.h)
+	for _, a in ipairs(State.ai) do
+		if a.kind == "traffic" and (a.hit or 0) > 0.4 then
+			local dx, dz = a.x - st.x, a.z - st.z
+			local f = dx * fx + dz * fz
+			if f > 0 and f < 22 and math.abs(dx * fz - dz * fx) < 3 then a.hit = 0.4 end
+		end
 	end
-	if on then horn:Play() else horn:Stop() end
 end
 
 return Extras

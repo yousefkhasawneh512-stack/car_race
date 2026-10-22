@@ -444,3 +444,31 @@ drift zone), the speed-bump quarter-car, traffic as in 09_ai (80 cars, 13 m/s x 
 6.5 m gap, junction weights), duels, K landmark tour, J stunt ramps, T +1 hour, 16-minute day from 15:00, N/B change car, X horn, web keys.
 Map 3.5 km (17,818 roads, 14,527 buildings), terrain 25 m solid columns (no holes). Currency shown as JD. Server modules Fines, DayNight.
 Tests: 97/97 with and without Terrain. Not ported yet: Realistic handling, damage, weather, school, auto-drive, 217 cars, 3D landmarks, audio.
+
+## Roblox version 4 (2026-10-22)
+
+The conversion continues from the web build itself (`roblox/CONVERSION_PROGRESS.md` is the checklist; backup tag `backup/roblox-3.1`).
+- **Physics as a pure module** (`Modules/CarPhysics`), checked against the web build every frame by `roblox/tests/physics_equiv.js`
+  (40 cases, 14 cars, keys + analog, 60 / 30 / 20 fps: largest difference 4e-13).
+- **Realistic handling (H)**: the web game's 07g line for line (torque curve, automatic / manual gearbox with Q / E, traction limit, drag,
+  engine braking, two-axle tyre model, sprung body, ABS / TC / ESC, tyre temperature, brake fade, wet grip, 1/60 s steps). HUD gear / rpm line.
+- **217 cars** (was 22): every web car with its own numbers (full precision), generic names (`roblox/CAR_NAMES.md`); the first 22 keep their
+  indices (saves). The web wheel's tier lists, traffic models and paints per traffic zone, race rivals and duel drivers from the sports catalogue.
+- **Settings (Y)**: the web pause-menu options, checked and saved by the server with the progress (`Modules/SettingsSchema`, `Game/Settings`).
+- **Gamepad / racing wheel**: triggers or a stick for the pedals, the web game's steering processing, rebindable buttons, rumble on impacts,
+  a setup panel with live readings. A G29 needs Steam Input or x360ce (Roblox reads gamepads only; no force feedback). Not verified on hardware.
+- **Cameras**: the web game's chase / cockpit / bonnet / bumper views per car and the speed FOV; plus Roblox's free camera.
+- **Weather + Irbid local clock**: the shared Auto weather (JMD rain days for Irbid, rolled once per server), Clear / Cloudy / Rain per player,
+  clouds, sky, fog, rain streaks, wet roads (Realistic grip only). **Web game bug found:** in `12f_weather.js` a starting shower is snapped back
+  to 0 every frame (`if(WX.rain<.003)WX.rain=0` also catches the first step from 0), so in the web build rain never starts (checked headless: 45 s
+  of "Rain" at 60 / 30 / 20 fps -> rain 0.000). The Roblox port snaps only a fading shower. The web game is unchanged.
+- **Sound**: the web game's synthesised sounds rendered offline into one file (`tools/make_roblox_audio.js` -> `roblox/audio/IrbidDriveSounds.wav`:
+  27 engine layouts with full-load and no-load voices, the noise beds, tones, horn and impacts, from the web game's own formulas and engine cycles),
+  played with the web game's per-frame rules (`Client/CarAudio`). Needs one upload by the owner (`Config.AUDIO_ATLAS_ID`). `roblox/tests/audio_atlas.js`.
+- **Vehicle damage (I), diagnostics (O), repair bay**: the web game's 07c / 07d / 07h / 08d / 07f as a pure module (`Modules/Damage`), checked
+  against the web build by `roblox/tests/damage_equiv.js` (92 checks: records after 45 events on 8 cars in both modes, effects, repair prices,
+  inspection, and Full-damage driving in both handling modes; the web game keeps the wheel loads in a Float32Array, reproduced). The server keeps
+  the records and only lets them get worse; repairs are priced and charged on the server at Apex Drift Customs. Looks built from parts on the player's
+  device (bumpers, mirrors, lids, doors, cracks, lamps, dents, scratches, flat tyres, rims, debris, smoke, sparks, tyre smoke).
+- **Fixed against the web game**: the wall bounce factor (1.4, was 1.3), the wall impact is reported before the bounce (colB order).
+- **Tests**: `roblox/tests/run.js` (now also deterministic weather) plus the three new checks. See `CONVERSION_PROGRESS.md` for the counts.

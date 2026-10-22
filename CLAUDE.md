@@ -72,7 +72,14 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   Roblox (`roblox/`, Luau, separate from the web build): `node tools/make_roblox.js dist/irbid-drive.html` regenerates `roblox/data`, `roblox/shared`
   and `roblox/IrbidDrive.rbxlx` from the build + `roblox/src` (rerun after ANY change in `roblox/src`; the place file embeds the sources).
   Test: `node roblox/tests/run.js <luau.exe>` (official Luau CLI, github.com/luau-lang/luau releases; not installed on PATH) plays the place
-  file in `roblox/tests/rbxmock.luau` (no physics/rendering; 101 checks; env `TOUCH=1` = a touch device, `NOTERRAIN=1` = no Terrain object). `luau-analyze` on `roblox/src`: only Roblox globals are unknown.
+  file in `roblox/tests/rbxmock.luau` (no physics/rendering; ~150 checks; env `TOUCH=1` = a touch device, `NOTERRAIN=1` = no Terrain object, `SCEN=<file>`
+  = another scenario, e.g. the boot section plus one block for a quick run). `luau-analyze` on `roblox/src`: only Roblox globals are unknown.
+  Roblox v4: `roblox/CONVERSION_PROGRESS.md` is the conversion checklist (read it first). The physics (`Modules/CarPhysics`) and damage
+  (`Modules/Damage`) are PURE Luau, checked against the web build number for number: `node roblox/tests/physics_equiv.js <luau.exe>` (40 cases)
+  and `node roblox/tests/damage_equiv.js <luau.exe>` (92 checks), both from the repo root after `make_roblox.js` (they read `roblox/shared/Meta.lua`
+  and `roblox/CAR_NAMES.md`). Sound: `node tools/make_roblox_audio.js dist/irbid-drive.html` renders the web game's synthesised sounds into
+  `roblox/audio/IrbidDriveSounds.wav` + `AudioAtlas.lua` (make_roblox packs the index); `node roblox/tests/audio_atlas.js` checks it. `make_roblox.js`
+  EMPTIES `roblox/shared/` and `roblox/data/` on every run: files kept elsewhere (`roblox/audio/`) are packed from there.
   `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),
   `xbrowser_pw.py` (Chromium/Firefox/WebKit + iPhone/iPad/Pixel emulation; needs `python -m playwright install firefox webkit`; one browser per case,
   WebKit lost its software-GL context on the 4th page of one process), `perf_v47_pw.py` (preset render cost, traffic cost). Assets:

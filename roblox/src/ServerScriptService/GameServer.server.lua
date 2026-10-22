@@ -5,6 +5,8 @@
 --   Sites         "is the car near the bank / shop"      Garage, Upgrades, Wheel, Shop   buying cars and parts, the car wheel
 --   RaceRewards, HeistRewards, Missions   paying for races and the heist (checked)
 --   Purchases     Robux (VIP pass, cash packs)           DayNight     clock and headlights     Fines   traffic fines (+JD)
+--   Settings      the player's settings (checked, saved with the progress)   Weather   the shared Auto weather (Irbid climate table)
+--   DamageStore   vehicle damage per car (only gets worse from a device) and the paid repairs at Apex Drift Customs
 -- Each player's device runs the driving, traffic, races and the heist (StarterPlayerScripts) and asks the server for every change
 -- of money, which the server checks before it pays.
 local Workspace = game:GetService("Workspace")
@@ -16,6 +18,6 @@ Workspace:SetAttribute("StartHeading", Meta.startHeading)
 Workspace:SetAttribute("StartY", Meta.startY)
 Workspace:SetAttribute("Attribution", Meta.attribution)
 
-for _, name in ipairs({ "Remotes", "PlayerData", "CarBuilder", "Purchases", "Spawner", "Drift", "Fines", "Shop", "Missions", "DayNight", "Sessions" }) do
+for _, name in ipairs({ "Remotes", "PlayerData", "CarBuilder", "Purchases", "Spawner", "Drift", "Fines", "Settings", "Shop", "Missions", "DayNight", "Weather", "DamageStore", "Sessions" }) do
 	require(Game:WaitForChild(name))
 end

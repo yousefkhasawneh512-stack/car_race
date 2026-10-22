@@ -197,6 +197,8 @@ function CFm.Inverse(c)
 	return cf(-mulRv(t, c.p), t)
 end
 function CFm.PointToObjectSpace(c, v) return mulRv(transpose(c.r), v - c.p) end
+function CFm.ToObjectSpace(a, b) return a:Inverse() * b end
+function CFm.ToWorldSpace(a, b) return a * b end
 function CFm.PointToWorldSpace(c, v) return mulRv(c.r, v) + c.p end
 function CFm.VectorToObjectSpace(c, v) return mulRv(transpose(c.r), v) end
 function CFm.VectorToWorldSpace(c, v) return mulRv(c.r, v) end
@@ -232,9 +234,19 @@ CFrame.fromEulerAnglesXYZ = CFrame.Angles
 CFrame.identity = cf(v3(), I3)
 
 Color3 = {}
-local C3 = { __tostring = function(c) return string.format("C3(%g,%g,%g)", c.R, c.G, c.B) end }
+local C3 = { __tostring = function(c) return string.format("C3(%g,%g,%g)", c.R, c.G, c.B) end,
+	-- Roblox compares Color3 values by value
+	__eq = function(a, b) return a.R == b.R and a.G == b.G and a.B == b.B end }
 function Color3.new(r, g, b) return setmetatable({ R = r or 0, G = g or 0, B = b or 0 }, C3) end
 function Color3.fromRGB(r, g, b) return Color3.new((r or 0) / 255, (g or 0) / 255, (b or 0) / 255) end
+function Color3.fromHex(h)
+	h = string.gsub(h, "#", "")
+	return Color3.fromRGB(tonumber(string.sub(h, 1, 2), 16), tonumber(string.sub(h, 3, 4), 16), tonumber(string.sub(h, 5, 6), 16))
+end
+C3.__index = { Lerp = function(a, b, t) return Color3.new(a.R + (b.R - a.R) * t, a.G + (b.G - a.G) * t, a.B + (b.B - a.B) * t) end }
+ColorSequence = { new = function(a, b) return { kind = "ColorSequence", a = a, b = b or a } end }
+NumberSequence = { new = function(a, b) return { kind = "NumberSequence", a = a, b = b or a } end }
+NumberRange = { new = function(a, b) return { Min = a, Max = b or a } end }
 UDim = { new = function(s, o) return { Scale = s or 0, Offset = o or 0 } end }
 UDim2 = {}
 function UDim2.new(xs, xo, ys, yo) return { X = UDim.new(xs, xo), Y = UDim.new(ys, yo) } end
@@ -268,6 +280,7 @@ local SUPER = {
 local EVENTS = { ChildAdded = true, ChildRemoved = true, Changed = true, Activated = true, MouseButton1Click = true, FocusLost = true,
 	CharacterAdded = true, CharacterRemoving = true, Died = true, OnServerEvent = true, OnClientEvent = true, PlayerAdded = true,
 	PlayerRemoving = true, RenderStepped = true, Heartbeat = true, Stepped = true, InputBegan = true, InputEnded = true,
+	InputChanged = true, GamepadConnected = true, GamepadDisconnected = true,
 	PromptGamePassPurchaseFinished = true, PromptProductPurchaseFinished = true, Touched = true, AncestryChanged = true, DescendantAdded = true, MouseLeave = true }
 local DEFAULTS = {
 	Transparency = 0, Anchored = false, CanCollide = true, CanQuery = true, CanTouch = true, Massless = false, Visible = true,
@@ -608,8 +621,19 @@ function METHODS.Sit(seat, hum)
 end
 function METHODS.SetStateEnabled() end
 function METHODS.ChangeState() end
-function METHODS.Play() end
-function METHODS.Stop() end
+-- sounds: playing state and a count of plays per sound name (tests read M.played)
+M.played = {}
+function METHODS.Play(o)
+	rawget(o, "__p").IsPlaying = true
+	M.played[o.Name] = (M.played[o.Name] or 0) + 1
+end
+function METHODS.Stop(o) rawget(o, "__p").IsPlaying = false end
+-- particle emitters: a count of emitted particles per emitter's parent name (tests read M.emitted)
+M.emitted = {}
+function METHODS.Emit(o, n)
+	local k = o.Parent and o.Parent.Name or o.Name
+	M.emitted[k] = (M.emitted[k] or 0) + (n or 1)
+end
 -- remotes (client and server in one process; the player is always M.player)
 function METHODS.FireServer(o, ...) o.OnServerEvent:Fire(M.player, ...) end
 function METHODS.FireClient(o, _, ...) o.OnClientEvent:Fire(...) end
@@ -678,6 +702,21 @@ function METHODS.GetService(o, name)
 	return s
 end
 function METHODS.BindToClose(o, f) M.onClose = f end
+-- Lighting: the sun from the clock (up at noon, under the horizon at night)
+function METHODS.GetSunDirection(o)
+	local a = ((o.ClockTime or 14) - 6) / 12 * math.pi
+	return v3(math.cos(a), math.sin(a), 0)
+end
+-- input: keys held (M.key), one gamepad (M.padInput), rumble motors (M.motors)
+M.keysDown, M.motors = {}, {}
+function METHODS.IsKeyDown(o, code) return M.keysDown[code] == true end
+function METHODS.GetGamepadConnected(o, pad) return M.gamepad == true end
+function METHODS.IsVibrationSupported(o, pad) return M.gamepad == true end
+function METHODS.IsMotorSupported(o, pad, motor) return M.gamepad == true end
+function METHODS.SetMotor(o, pad, motor, v)
+	M.motors[tostring(motor)] = v
+	if v > 0 then M.rumbles = (M.rumbles or 0) + 1 end
+end
 function METHODS.IsStudio() return true end
 function METHODS.IsServer() return true end
 function METHODS.IsClient() return true end
@@ -959,6 +998,7 @@ end
 
 -- press / release a key through ContextActionService bindings and UserInputService.InputBegan
 function M.key(code, down)
+	M.keysDown[code] = down and true or nil
 	for _, a in pairs(M.actions) do
 		for _, k in ipairs(a.keys) do
 			if k == code then
@@ -968,6 +1008,21 @@ function M.key(code, down)
 		end
 	end
 	if down then game:GetService("UserInputService").InputBegan:Fire({ KeyCode = code, UserInputType = Enum.UserInputType.Keyboard }, false) end
+end
+
+-- gamepad 1: an axis (Thumbstick1 / Thumbstick2 with x, y; ButtonL2 / ButtonR2 with z) or a button (down = true / false)
+function M.padInput(code, a, b, c)
+	M.gamepad = true
+	local uis = game:GetService("UserInputService")
+	local axis = code == Enum.KeyCode.Thumbstick1 or code == Enum.KeyCode.Thumbstick2 or code == Enum.KeyCode.ButtonL2 or code == Enum.KeyCode.ButtonR2
+	local io = { KeyCode = code, UserInputType = Enum.UserInputType.Gamepad1, Position = axis and v3(a or 0, b or 0, c or 0) or v3() }
+	if axis then
+		uis.InputChanged:Fire(io, false)
+	elseif a then
+		uis.InputBegan:Fire(io, false)
+	else
+		uis.InputEnded:Fire(io, false)
+	end
 end
 
 -- the module instance of a client module (to inspect its state in tests)

@@ -13,6 +13,15 @@ local Bump = {}
 local S = Config.SCALE
 local st = State.st
 local Laws -- (required lazily: Laws needs Ground, Signals; no cycle at load)
+-- Bump.onImpact(v, car): a contact closing faster than 1.8 m/s along the contact normal (the web game's registerPlayerImpact: sound, damage)
+Bump.onImpact = nil
+
+-- the closing speed along n with the other car moving at c.v along its heading
+local function closing(c, nx, nz)
+	local rvx = st.vx - math.sin(c.h or 0) * (c.v or 0)
+	local rvz = st.vz - math.cos(c.h or 0) * (c.v or 0)
+	return rvx * nx + rvz * nz
+end
 
 -- other players' car bodies (the list is refreshed twice a second, their positions every frame)
 local function others()
@@ -37,6 +46,8 @@ function Bump.step(dt)
 				if st.y < Ground.TH(st.x, st.z) + 2 then
 					st.x += nx * (3.4 - d) * 0.6
 					st.z += nz * (3.4 - d) * 0.6
+					local rvn = closing(c, nx, nz)
+					if rvn < -1.8 and Bump.onImpact then Bump.onImpact(-rvn, c, nx, nz) end
 					local vn = st.vx * nx + st.vz * nz
 					if vn < 0 then
 						st.vx -= vn * nx * 1.3
@@ -49,6 +60,8 @@ function Bump.step(dt)
 					Laws.fine("hit", "Collision with traffic", 2)
 				end
 			else
+				local rvn = closing(c, nx, nz)
+				if rvn < -1.8 and Bump.onImpact then Bump.onImpact(-rvn, c, nx, nz) end
 				st.x += nx * (3.4 - d) * 0.5
 				st.z += nz * (3.4 - d) * 0.5
 				st.vx *= 1 - 2 * dt

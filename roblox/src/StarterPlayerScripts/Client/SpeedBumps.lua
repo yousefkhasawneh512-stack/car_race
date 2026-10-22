@@ -2,7 +2,9 @@
 -- tyre follows the bump profile (or falls back to it no faster than WDROP), the body is a spring-damper on it (natural frequency and
 -- damping from the car's handling profile, wheelbase from its spec). The car only gets a short hop when the body rises past full
 -- suspension droop (fast crossings), never a launch. Also the body heave / pitch and a short vibration for the car's looks.
--- (The web game's suspension damage from bottoming out is part of its damage system, which is not in the Roblox version.)
+-- Taken too fast (the bump stop reached, or the damper compressed faster than ~4 m/s) the crossing is reported to the damage system
+-- (SpeedBumps.onImpact(speed, severity, axle 0 front / 1 rear), at most every 0.6 s, as in the web game).
+local Workspace = game:GetService("Workspace")
 local Client = script.Parent
 local State = require(Client:WaitForChild("State"))
 local Ground = require(Client:WaitForChild("Ground"))
@@ -10,7 +12,11 @@ local Ground = require(Client:WaitForChild("Ground"))
 local SpeedBumps = {}
 local st, spec = State.st, State.spec
 local WDROP = 110
-local SUSP = { zb = { 0, 0 }, vb = { 0, 0 }, zh = { 0, 0 }, vh = { 0, 0 }, heave = 0, pitch = 0, jolt = 0, active = false }
+local SUSP = { zb = { 0, 0 }, vb = { 0, 0 }, zh = { 0, 0 }, vh = { 0, 0 }, vrel = { 0, 0 }, comp = { 0, 0 }, heave = 0, pitch = 0, jolt = 0, active = false, last = -9 }
+-- the suspension travel before the bump stop, by body type (the web game's suspTravel)
+local function travel(k)
+	return (k == "r" or k == "m" or k == "q") and 0.05 or (k == "s" or k == "p" or k == "v") and 0.11 or 0.075
+end
 SpeedBumps.SUSP = SUSP
 
 -- prevX, prevZ = the car's position before this frame's move
@@ -50,9 +56,18 @@ function SpeedBumps.step(prevX, prevZ, dt)
 				local acc = -w * w * (SUSP.zb[a] - zh) + 2 * ze * w * vrel
 				SUSP.vb[a] += acc * h
 				SUSP.zb[a] += SUSP.vb[a] * h
+				SUSP.vrel[a] = vrel
 				SUSP.jolt = math.max(SUSP.jolt, math.abs(vrel))
 			end
 			SUSP.zb[a] = math.clamp(SUSP.zb[a], -0.15, 0.3)
+			SUSP.comp[a] = SUSP.zh[a] - SUSP.zb[a]
+			-- harshness: hitting the bump stop (main term), or compressing faster than the damper can soak up
+			local sev = math.max((SUSP.comp[a] - travel(spec.body)) / 0.02, (SUSP.vrel[a] - 4) / 2)
+			local now = Workspace.DistributedGameTime
+			if sev > 0 and now - SUSP.last > 0.6 then
+				SUSP.last = now
+				if SpeedBumps.onImpact then SpeedBumps.onImpact(math.sqrt(st.vx * st.vx + st.vz * st.vz), sev, a - 1) end
+			end
 			-- the axle leaves the ground only when the body rises past full suspension droop (~6 cm): a short hop
 			if st.gnd and SUSP.vb[a] > 0 and SUSP.zb[a] - SUSP.zh[a] > 0.06 then st.vy = math.max(st.vy, math.min(1.2, SUSP.vb[a] * 0.5)) end
 		end
