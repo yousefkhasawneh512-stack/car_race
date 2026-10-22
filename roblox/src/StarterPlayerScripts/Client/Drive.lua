@@ -9,6 +9,7 @@ local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
 local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Road"))
+local CarPhysics = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("CarPhysics"))
 local Meta = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Meta"))
 local Client = script.Parent
 local State = require(Client:WaitForChild("State"))
@@ -27,15 +28,15 @@ local Drive = {}
 local S = Config.SCALE
 local plr = Players.LocalPlayer
 local st, spec, inp = State.st, State.spec, State.input
+-- the physics input and environment, reused every frame (no allocation per frame)
+local pin, penv = { th = 0, br = 0, steer = 0, hb = false }, { sfc = 1, frozen = false, TH = Ground.TH }
 Drive.drift = DriftScore.state
 Drive.applySpec = CarSpec.apply
 Drive.cycleCam = Camera.cycle
 Drive.camera = Camera.step
 st.pgh, st.pitch, st.bp, st.br, st.h0, st.al = 0, 0, 0, 0, 0, 0
 
-local function clamp(v, a, b)
-	return v < a and a or v > b and b or v
-end
+local clamp = CarPhysics.clamp
 local function wrap(a)
 	return (a + math.pi) % (2 * math.pi) - math.pi
 end
@@ -123,43 +124,11 @@ function Drive.step(dtr)
 	local thA, brA, steer, hb = inp.th, inp.br, inp.steer, inp.hb
 	-- a menu open = no input, brakes on (the web game: ui -> brake)
 	if State.ui then thA, brA, steer, hb = 0, 1, 0, false end
-	local th, br = thA > 0, brA > 0
+	pin.th, pin.br, pin.steer, pin.hb = thA, brA, steer, hb
+	penv.frozen = frozen
+	penv.sfc = surfK()
+	local fs, ls = CarPhysics.step(st, spec, pin, penv, dt)
 	local fx, fz = math.sin(st.h), math.cos(st.h)
-	local fs = st.vx * fx + st.vz * fz
-	st.h += steer * 1.8 * spec.hd / (1 + math.abs(fs) / 18) * clamp(fs / 4, -1, 1) * (hb and 1.5 or 1) * (st.gnd and 1 or 0.2) * dt
-	fx, fz = math.sin(st.h), math.cos(st.h)
-	local rx, rz = -fz, fx
-	fs = st.vx * fx + st.vz * fz
-	local ls = st.vx * rx + st.vz * rz
-	local sfc = surfK()
-	local vmEff, aEff, bkEff = math.max(2, spec.vm), spec.a0, spec.bk
-	local slp = (Ground.TH(st.x + fx * 2, st.z + fz * 2) - Ground.TH(st.x - fx * 2, st.z - fz * 2)) / 4
-	local pfs = fs
-	if st.gnd and not frozen then
-		if th then
-			local ac = aEff * thA * (1 - math.pow(math.max(fs, 0) / (vmEff * 1.05), 2.5)) * (0.5 + 0.5 * sfc)
-			if fs < 0 then ac = math.min(ac * 2, bkEff * sfc) end
-			fs += ac * dt
-		end
-		if br then
-			if fs > 0.5 then
-				fs = math.max(0, fs - bkEff * sfc * dt * brA)
-			else
-				fs = math.max(-10, fs - 3.5 * dt * brA)
-			end
-		end
-		if not (math.abs(fs) < 1 and not th and (br or hb or math.abs(slp) < 0.15)) then
-			fs -= 9.81 * slp / math.sqrt(1 + slp * slp) * dt
-		end
-		if sfc < 1 and math.abs(fs) > 0.5 then fs -= math.sign(fs) * (1 - sfc) * 1.5 * dt end
-		if hb then fs *= 1 - 0.8 * dt end
-		if math.abs(fs) > 0.5 then fs -= math.sign(fs) * 0.5 * dt end
-		fs -= fs * 0.012 * dt
-		ls *= math.exp(-(hb and 1.1 or ((th and steer ~= 0 and fs > 15) and 2.4 or 6.5 * spec.hd)) * dt)
-	end
-	st.vx, st.vz = fx * fs + rx * ls, fz * fs + rz * ls
-	if frozen then st.vx, st.vz = 0, 0 end
-	st.al = (fs - pfs) / dt
 	DriftScore.step(dt, math.abs(math.atan2(ls, math.abs(fs) + 0.5)), math.sqrt(st.vx * st.vx + st.vz * st.vz), st.gnd)
 	-- move; buildings stop the car (the web game's static colliders): it stops against the wall and bounces back a little, the drift is lost
 	local prevX, prevZ = st.x, st.z
