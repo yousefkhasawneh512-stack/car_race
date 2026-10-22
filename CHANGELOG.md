@@ -487,6 +487,22 @@ The conversion continues from the web build itself (`roblox/CONVERSION_PROGRESS.
 - **Search chips + saved places, traffic density (High / Medium / Low / by time of day), text size.** Saved with the progress on the server
   (remotes SaveRep, SaveSchool, SaveFav).
 
+## Roblox version 4.3 (2026-10-23)
+
+- **Car encyclopedia** (owner's data brief; Settings → 📖, and ℹ next to every car in the garage): 30,511 real-world car versions (134 makes)
+  from the open vehicle-makes-models database (ODbL; facts from autoevolution.com), built with the owner-supplied
+  `tools/vehicle_catalog/build_car_database.py` and packed by the new `tools/vehicle_catalog/make_roblox_catalog.py` into `roblox/catalog/`
+  (ReplicatedStorage.IrbidCatalog). Search by name, chips for brand, fuel, drivetrain, gearbox, era, power, top speed, 0–100, six sorts,
+  25 per page; every figure the source gives, "Unknown" where it gives none (never 0), "(suspect source value)" on the 334 rows with an
+  implausible value, and the builder's handling / grip / braking / drift numbers labelled as game estimates. Browse only: no 3D models, the
+  game cars drive as before. ℹ links 171 of the 217 game cars to their nearest real version (same make and model, generation years from
+  the name, nearest top speed and 0–100; `roblox/catalog/CAR_LINKS.md`). Real makes on this screen are the owner's decision.
+- **Credits & licences** (Settings): OpenStreetMap, SRTM, the vehicle database; the vehicle credit is also under every encyclopedia page;
+  `roblox/catalog/LICENSE-DATA.md` (the changed database is published under the ODbL with the source).
+- Roads and shops (the brief's other two parts): Irbid's are already the OpenStreetMap data; other regions were not built.
+- Tests: `roblox/tests/catalog_test.js` (new; 28 checks, among them all 640,731 values against the source JSON); scenario block "car
+  encyclopedia" (13). The right-hand-lane traffic check's sample floor went from 50 % to 30 % of the cars (it failed on samples, not on lanes).
+
 ## Roblox version 4.2 (2026-10-22)
 
 - **Roadside objects** (`Modules/Objects`, pure; `Client/RoadsideObjects`): the web game's 24,883 roadside colliders inside the map (street

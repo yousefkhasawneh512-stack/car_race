@@ -5,7 +5,8 @@
     "Workspace": { "$properties": { "StreamingEnabled": false } },
     "ReplicatedStorage": {
       "$path": "src/ReplicatedStorage",
-      "IrbidShared": { "$path": "shared" }
+      "IrbidShared": { "$path": "shared" },
+      "IrbidCatalog": { "$path": "catalog" }
     },
     "ServerStorage": { "IrbidData": { "$path": "data" } },
     "ServerScriptService": { "$path": "src/ServerScriptService" },

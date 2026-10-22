@@ -24,6 +24,7 @@ Roblox runs Luau, not the web game's JavaScript, so every system was rewritten. 
 | Driving: Realistic (H) | The web game's Realistic model, line for line: engine torque curve, automatic or manual gearbox (Q / E), traction limit with load transfer, aero drag and rolling resistance, engine braking, a two-axle slip-angle tyre model, a sprung body. ABS, traction control, stability control, optional tyre temperature and brake fade (settings). Wet roads lower the grip. Long frames are split into 1/60 s steps. All numbers are the web game's estimates per car |
 | Vehicle damage (I) | Off (default) / Cosmetic / Full, the web game's rules: localised impacts by contact point and crush depth, dents, bumpers that crack, hang and tear off, mirrors, bonnet, boot lid, doors, glass cracks, broken lamps, bent rims, flat tyres. Full adds engine, radiator (overheating), gearbox, driveline, steering, brakes, suspension per corner, alignment (the car pulls), tyre grip. Hard landings and speed bumps taken too fast hurt the suspension. Per-wheel tyre model: load, slip, heat, wear, punctures, burnouts (strong rear-drive cars can, weak or all-wheel-drive cars can't) |
 | Roadside objects | The web game's street lights, utility poles, road signs, dumpsters, guardrails, trees, roundabout islands and landmark walls are solid. With damage Cosmetic or Full they react as in the web game: lights, poles and signs bend, then snap and fall along your path (a stump stays); trees shake and shed leaves (only slim trunks fall); dumpsters are shoved, slide, turn and may tip; guardrails deflect; walls get scrape marks; debris flies. With damage Off everything is rigid. Heavier cars break things sooner (energy based). All thresholds are the web game's estimates |
+| Car encyclopedia (Settings → 📖, ℹ in the garage) | 30,511 real-world car versions (134 makes) from the open vehicle-makes-models database (ODbL): search by name, filter by brand, fuel, drivetrain, gearbox, era, power, top speed and 0–100, sort, 25 per page; each version's source figures ("Unknown" when the source has none, "suspect source value" when implausible) and labelled game estimates. ℹ next to a garage car shows the linked real-world version (171 of 217 cars; same make and model, nearest top speed and 0–100). Browse only: no 3D models, not drivable, the game cars keep their own numbers. See `catalog/README.md` |
 | Diagnostics (O) | Every component with its condition and effect, body zones, every tyre (tread, carcass, temperature, grip, load, slip, wear by cause, distance) and the last impacts |
 | Repair bay | At Apex Drift Customs (U / P there; the 🔧 Repair button routes you there): each damaged part with its price in JD (the web game's prices × the car's rarity), Repair all, and a full inspection of all 42 parts. The server prices and charges every repair |
 | Speed bumps | The web game's quarter-car suspension: heave, pitch, a short hop when crossed fast. Two are mapped in OpenStreetMap; the rest are estimated positions, as in the web game |
@@ -94,6 +95,7 @@ Roblox reads **gamepads only** (sticks, triggers, buttons). It cannot open HID d
 - `tests/physics_equiv.js`: the Roblox physics against the web build on 40 driving cases, every frame (Arcade and Realistic, 14 cars, assists, temperatures, wet road, manual gearbox, 60 / 30 / 20 fps): equal to 4e-13.
 - `tests/damage_equiv.js`: the Roblox damage against the web build on 92 checks (impacts, landings, speed bumps, overheating, effects, repair prices, inspection, and driving with Full damage in both handling modes): equal to 1e-13.
 - `tests/objects_equiv.js`: the exported roadside colliders against the web build's (24,883, to 1 cm), the collision test on 1,500 cars, and the object rules on 790 hits (bending, breaking, falling trees, deflecting rails, sliding dumpsters): equal to 1e-14.
+- `tests/catalog_test.js`: the car encyclopedia's data against the source database (all 30,511 versions, 640,731 values: equal, no missing value shown as 0), plus search, filters, sorting, paging limits, a sedan / sports car / pickup / EV / pre-1930 car / car with missing figures, a suspect value, and the 217 garage links.
 - `tests/audio_atlas.js`: the sound file (seamless loops, 27 different engine voices, tones at their frequency).
 - `tests/run.js` loads this exact place file into a headless stand-in for the Roblox engine and plays through every feature above (also as a touch device and without Terrain). The checks are listed in `tests/scenario.luau`.
 
@@ -115,7 +117,8 @@ Roblox's own rules decide how Robux become real money (**Developer Exchange / De
 ## Rules to keep
 
 - **Keep the OpenStreetMap credit** at the bottom of the screen ("Map data © OpenStreetMap contributors (ODbL)"). The ODbL licence requires it.
-- **Car names stay generic** ("Hot Hatch RS", "German Coupe 300"), not the brand. Real car brands are trademarks, and Roblox removes experiences that use them without permission. `CAR_NAMES.md` (documentation only) maps each generic name to the web car.
+- **Car names stay generic** ("Hot Hatch RS", "German Coupe 300"), not the brand. Real car brands are trademarks, and Roblox removes experiences that use them without permission. `CAR_NAMES.md` (documentation only) maps each generic name to the web car. **Exception (owner's decision, 2026-10-23):** the browse-only car encyclopedia shows real makes and models, and ℹ in the garage names the real car a game car is linked to. That carries the same moderation risk; to remove it, delete `catalog/*.lua` and regenerate (the game then says the catalogue is not installed).
+- **Keep the vehicle data credit** (Settings → © Credits & licences, and the line under every encyclopedia page). The vehicle database is ODbL: the changed copy in `catalog/` stays published with the source (`catalog/LICENSE-DATA.md`).
 - The map is real data. Where a real building footprint reached into a road (the roads use the web game's widths), the exporter cut it back from the road side: 3,200 pieces were trimmed and 82 too thin to keep were dropped.
 - Weather is simulated, not live; car masses, damage, prices and Realistic-handling numbers are the web game's gameplay estimates.
 
@@ -125,16 +128,17 @@ Roblox's own rules decide how Robux become real money (**Developer Exchange / De
 |---|---|
 | `IrbidDrive.rbxlx` | The place file (all scripts and data). Generated, so don't edit it by hand |
 | `src/ReplicatedStorage/Config.lua` | Settings and prices (the sound and Robux IDs go here) |
-| `src/ReplicatedStorage/Modules/` | Shared and pure (no Roblox services, so the plain Luau CLI can test them): `CarPhysics` (Arcade + Realistic), `Damage` (damage, tyres, repairs), `Road` (graph, routing), `SettingsSchema` |
+| `src/ReplicatedStorage/Modules/` | Shared and pure (no Roblox services, so the plain Luau CLI can test them): `CarPhysics` (Arcade + Realistic), `Damage` (damage, tyres, repairs), `Objects` (roadside objects), `Catalog` (the car encyclopedia's search), `Road` (graph, routing), `SettingsSchema` |
 | `src/ServerScriptService/WorldBuilder.server.lua` | Builds the map, one module per part in `World/` |
 | `src/ServerScriptService/GameServer.server.lua` | Starts the server modules in `Game/` (saving, cars, payouts, settings, weather, damage store and repairs, ...) |
 | `src/StarterPlayerScripts/Main.client.lua` + `Client/*.lua` | The device's frame loop; one job per file (driving, handling, gamepad, camera, sound, damage and its looks, diagnostics, weather, traffic, missions, navigation, menus) |
 | `data/`, `shared/` | Generated map and car data (server-only / sent to devices) |
 | `audio/` | The sound file to upload and its index (`tools/make_roblox_audio.js`) |
 | `CAR_NAMES.md` | Generic name → web car (documentation only) |
+| `catalog/` | The vehicle catalogue (generated by `tools/vehicle_catalog/make_roblox_catalog.py`; `README.md` = source, counts, rebuild; `LICENSE-DATA.md` = ODbL notice; `CAR_LINKS.md` = garage car → catalogue version) |
 | `CONVERSION_PROGRESS.md` | The conversion checklist, feature inventory and test log |
 | `default.project.json` | For Rojo users (`rojo serve` / `rojo build`) |
-| `tests/` | `run.js` + `rbxmock.luau` + `scenario.luau` (headless play-through), `physics_equiv.js`, `damage_equiv.js`, `objects_equiv.js`, `audio_atlas.js` |
+| `tests/` | `run.js` + `rbxmock.luau` + `scenario.luau` (headless play-through), `physics_equiv.js`, `damage_equiv.js`, `objects_equiv.js`, `catalog_test.js`, `audio_atlas.js` |
 
 Regenerate: `node tools/make_roblox.js dist/irbid-drive.html [radius_m]` from the repo root (after any change in `src/`), and `node tools/make_roblox_audio.js dist/irbid-drive.html` for the sound file.
 
@@ -143,6 +147,7 @@ Tests (from the repo root; the Luau CLI from https://github.com/luau-lang/luau/r
 node roblox/tests/physics_equiv.js <luau.exe>      # physics vs the web build (40 cases)
 node roblox/tests/damage_equiv.js <luau.exe>       # damage vs the web build (92 checks)
 node roblox/tests/objects_equiv.js <luau.exe>      # roadside colliders + object rules vs the web build
+node roblox/tests/catalog_test.js <luau.exe> [db.json]   # the car encyclopedia (and its data vs the source database)
 node roblox/tests/audio_atlas.js                   # the sound file
 node roblox/tests/run.js <luau.exe>                # the play-through (~8 min); TOUCH=1, NOTERRAIN=1 variants
 ```

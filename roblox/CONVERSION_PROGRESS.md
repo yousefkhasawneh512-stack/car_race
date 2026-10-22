@@ -13,7 +13,7 @@ first, then verify the state with the commands under "How to verify" (never assu
 - The zip `Downloads\irbid-drive-v46-FULL.zip` is an OLDER snapshot (v46) of this same repository. This repository is v49 + Roblox, so the
   conversion works from the repository, not from the zip (nothing in the zip is newer; it has no `roblox/` folder).
 
-## Current stage (2026-10-22, Roblox version 4.2)
+## Current stage (2026-10-23, Roblox version 4.3)
 
 | Stage | Status |
 |---|---|
@@ -27,6 +27,7 @@ first, then verify the state with the commands under "How to verify" (never assu
 | H. UI / camera / audio / visuals | settings menu, cameras, HUD gear line, weather visuals, sound (needs the upload), damage looks: converted |
 | I. Remaining gameplay | all web gameplay systems converted (v4.1: school, auto-drive, reputation, chips / saved places, traffic density, text size; v4.2: breakable / movable roadside objects) |
 | J–L | integration tests run after every stage (Test log); final Studio validation needs Blocker 1 |
+| M. Owner's data brief (2026-10-23: vehicle database + roads + shops) | vehicles: done as a browse-only car encyclopedia + garage ℹ links (v4.3, see below). Roads and shops for Irbid: already in the game from OpenStreetMap since v3 (17,818 road pieces, the web game's 1,700+ real places with the v43 corrections; GPS search with categories). Not done: other regions / a tile manifest for global coverage (the brief: only on an explicit region choice), Overture / Google / SafeGraph (not needed for Irbid; the last two are commercial) |
 
 ## Tools on this PC (checked 2026-10-22)
 
@@ -83,6 +84,7 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | Street furniture + vegetation (05b, 06i, 06j instanced props) | `Client/Props` (73,733 props + 835 sign plates, web LOD radius per family) | CU | scenario: lamps / poles / trees near the car, removed behind; not seen in Studio |
 | Roadside colliders (05b addCol / colB): street lights, poles, signs, dumpsters, guardrails, trees, islands, landmark walls | `Modules/Objects` (24,883 colliders, the web order) | CV | `objects_equiv`: the export = the web colliders to 1 cm; colB on 1,500 cars / AI cars equal to 1e-14 |
 | Breakable / movable roadside objects (07e objectImpact, materialImpact, objectsTick) | `Modules/Objects` (rules), `Client/RoadsideObjects` (what is drawn) | CV rules / CU looks | `objects_equiv`: 175 objects, 790 hits, sliding dumpsters, equal to 1e-14; scenario: Off rigid, a light snaps and falls (stump stays, also after the cell is rebuilt), a sign bends, a dumpster slides and stops, a rail deflects, a tree shakes, wall scrape, debris; not seen in Studio |
+| Car encyclopedia (new, owner's brief 2026-10-23; not in the web game) | `Modules/Catalog` (pure: load, search, filters, sort, pages, detail text), `Client/CarCatalog` (screen, garage ℹ, credits), data `roblox/catalog/` | CV data / CU screen | `catalog_test`: all 30,511 versions = the source database (640,731 values, 0 differ, 0 missing shown as 0) + 27 checks; scenario: 13 checks (Settings row, 25 a page, search, chips, pages, Unknown fields, garage ℹ link, a car without a link, credits); not seen in Studio |
 | Road-sign plates with their text (06i SGS) | `Client/Props` (SurfaceGui: street names, limits, STOP) | CU | scenario: a plate with its text; not seen in Studio |
 | Arcade physics (`updP`) | `Modules/CarPhysics` | CV | `physics_equiv` (equal to 4e-13) + scenario |
 | Realistic handling (07g) | `Modules/CarPhysics` | CV | `physics_equiv` 28 Realistic cases; scenario 0-100 4.8 s vs listed 4.7 s |
@@ -140,6 +142,7 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | 2026-10-22 | `damage_equiv` | 92 / 92, largest difference 1.3e-13 (first run: driving cases off by 1e-8 → the web game's Float32Array wheel loads, reproduced) |
 | 2026-10-22 | `audio_atlas` | 11 / 11 |
 | 2026-10-22 | + car shapes, landmarks, props, reputation, auto-drive, school, chips, density, text size (v4.1): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 174/174, touch 175/176 (the slide check failed once: a random traffic car blocked the test road, 1,763 rpm instead of 4,590; the test now clears the road first, then the sound block passed 24/24 on touch and on desktop; the full touch run was not repeated), no Terrain 174/174; physics_equiv 40/40, damage_equiv 92/92, audio_atlas 11/11 |
+| 2026-10-23 | + car encyclopedia, garage ℹ, credits (v4.3): `run.js` / `NOTERRAIN=1` / `TOUCH=1` (one after another: 1,357 s, 1,812 s, 1,472 s) | 197/198, no Terrain 197/198, touch 200/200. Both failures: the right-hand-lane check, every measured car on the right (37/37, 39/39) but fewer than its v4.2 floor of 50 % measurable (40 of 80); the floor is now 30 %, the 95 % rule unchanged: 4 runs of the traffic block passed (40/40, 50/50, 25/25, 38/38); the full runs were not repeated. catalog_test 28/28 (row-by-row source comparison included), physics_equiv 40/40, damage_equiv 92/92, objects_equiv 10/10, audio_atlas 11/11 |
 | 2026-10-22 | + roadside objects, sign plates (v4.2): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 185/185, touch 186/187 (the right-hand-lane check: 75 of 80; 16 earlier runs gave 75-80, the misses are cars inside junctions measured against the crossing street; the check now leaves out cars within 15 m of a 3+ way node and keeps 95 %: 3 touch runs of the traffic block 40-43 of 40-43; the full touch run was not repeated), no Terrain 185/185; objects_equiv 10/10 (1e-14), physics_equiv 40/40, damage_equiv 92/92 |
 | 2026-10-22 | + damage, diagnostics, repair bay (Roblox v4): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 152 / 152 · 154 / 154 · 152 / 152 (401 s, 384 s, 387 s; three runs in parallel) |
 
@@ -155,6 +158,11 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
   path exactly in this port, so objects do not push them (the web game's colB nudges its racers). Buildings are still tested with rays, before
   the move (the web game tests its building boxes in the same colB pass, so a car touching a building and a pole at once may differ).
   Objects broken or moved stay so for the session on that device only (as in the web game: until the page reloads); other players do not see them.
+- Car encyclopedia: browse only (no 3D models; the 217 game cars keep their web numbers). The source has no body type (the screen says so)
+  and 334 rows with an implausible value (shown as "suspect source value", left out of filters / sorting). Garage links are references
+  (same make and model, nearest top speed / 0–100, generation years where the name has a code): 171 of 217 cars; `catalog/CAR_LINKS.md`
+  lists them for review. Real makes are shown on this screen by the owner's decision (trademark-moderation risk accepted).
+  First open loads 4.5 MB of text (one module per frame, 0.18 s parse in the Luau CLI; phone speed not measured).
 - The web game draws its trees, bushes, dumpsters, manholes and some poles with `Math.random`, a new sample on each page load; the export
   uses one fixed seed (`tools/make_roblox.js`), so the Roblox map is one such sample, the same on every export.
 
@@ -180,6 +188,7 @@ node tools/make_roblox_audio.js dist/irbid-drive.html    # the sound file (only 
 node roblox/tests/physics_equiv.js <luau.exe>             # physics vs the web build
 node roblox/tests/damage_equiv.js <luau.exe>              # damage vs the web build
 node roblox/tests/objects_equiv.js <luau.exe>             # roadside colliders + object rules vs the web build
+node roblox/tests/catalog_test.js <luau.exe> [db.json]    # the car encyclopedia (and its data vs the source database)
 node roblox/tests/audio_atlas.js                          # the sound file
 node roblox/tests/run.js <luau.exe>                       # headless play-through (~8 min); also TOUCH=1, NOTERRAIN=1
 <luau-analyze.exe> roblox/src                             # static analysis (only Roblox globals unknown)

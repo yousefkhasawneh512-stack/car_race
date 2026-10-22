@@ -117,6 +117,10 @@ Laws.onFine = function(k)
 	School.onFine(k)
 end
 table.insert(SettingsMenu.extra, { name = "school", text = function() return "🎓 Driving school (5 lessons on real streets)" end, click = School.menu, color = Color3.fromRGB(30, 90, 60) })
+-- the car encyclopedia (the real-world vehicle catalogue, browse only) and the data credits
+local CarCatalog = require(Client:WaitForChild("CarCatalog"))
+table.insert(SettingsMenu.extra, { name = "catalog", text = function() return "📖 Car encyclopedia (real-world specs)" end, click = CarCatalog.open, color = Color3.fromRGB(40, 70, 110) })
+table.insert(SettingsMenu.extra, { name = "credits", text = function() return "© Credits & licences" end, click = CarCatalog.credits, color = Color3.fromRGB(70, 70, 80) })
 Race.onStart = Reputation.raceStart
 Race.onFinish = Reputation.raceEnd
 Reputation.onHonk = CarAudio.honkAt

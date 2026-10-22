@@ -14,6 +14,8 @@ osm/official/*.xlsx
 osm/overpass/out/
 !osm/manual/verified_places.json
 dist/irbid-drive-offline.html
+# the vehicle database builder's download + full JSON / CSV (55 MB; regenerate with tools/vehicle_catalog/build_car_database.py)
+tools/vehicle_catalog/generated/
 .check/
 dist/last-good/
 app/www/

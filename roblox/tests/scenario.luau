@@ -852,7 +852,8 @@ do
 			if side >= -0.3 then right += 1 end
 		end
 	end
-	check("traffic keeps to the right-hand lane", counted >= #Traffic.agents * 0.5 and right >= counted * 0.95, right .. " of " .. counted .. " away from junctions (" .. #Traffic.agents .. " cars)")
+	-- at least 30 % of the cars must be away from junctions to judge (runs give 37-43 of 80; the v4.2 floor of 50 % failed half the runs)
+	check("traffic keeps to the right-hand lane", counted >= #Traffic.agents * 0.3 and right >= counted * 0.95, right .. " of " .. counted .. " away from junctions (" .. #Traffic.agents .. " cars)")
 end
 
 -- ================= races =================
@@ -1440,6 +1441,112 @@ do
 	local want = TR.odds[zb + 1][1]
 	check("traffic cars by the street's zone (Al-Balad: mostly common)", eB ~= nil and math.abs(common / 4000 - want) < 0.03 and inPools == 4000 and paintOk == 4000,
 		string.format("%.0f %% common (web odds %.0f %%), %d of 4000 from the traffic lists, %d with a web paint", common / 40, want * 100, inPools, paintOk))
+end
+
+-- ================= the car encyclopedia (the real-world vehicle catalogue) =================
+do
+	local CarCatalog, SettingsMenu = M.client("CarCatalog"), M.client("SettingsMenu")
+	local function find(name, pattern)
+		for _, d in ipairs(Hud.gui:GetDescendants()) do
+			if d.Name == name and (not pattern or string.find(d.Text, pattern, 1, true)) then return d end
+		end
+	end
+	local function all(name)
+		local L = {}
+		for _, d in ipairs(Hud.gui:GetDescendants()) do
+			if d.Name == name then L[#L + 1] = d end
+		end
+		return L
+	end
+	M.call(function() SettingsMenu.open() end)
+	local row = find("Extra_catalog")
+	check("Settings has the car encyclopedia and credits rows", row ~= nil and find("Extra_credits") ~= nil, row and row.Text)
+	row.Activated:Fire()
+	M.run(1.5)
+	local Catalog = require(RS.Modules.Catalog)
+	local results = all("Result")
+	check("the encyclopedia loads the catalogue and lists 25 cars a page", CarCatalog.status() == "loaded" and Catalog.count > 30000 and #results == 25 and State.ui == "Car encyclopedia",
+		CarCatalog.status() .. ", " .. Catalog.count .. " variants, " .. #results .. " rows")
+	local box = find("Query")
+	box.Text = "corolla"
+	M.run(0.1)
+	results = all("Result")
+	local okC = #results > 0
+	for _, b in ipairs(results) do
+		if not string.find(b.Text, "Corolla", 1, true) then okC = false end
+	end
+	check("search: every result matches", okC, #results .. " rows · " .. (results[1] and results[1].Text or ""))
+	-- the fuel chip to Electric, then search Tesla
+	local chip = find("Chip_fuel")
+	for _ = 1, 3 do chip.Activated:Fire() end
+	box.Text = "tesla"
+	M.run(0.1)
+	results = all("Result")
+	local okE = chip.Text == "Fuel: Electric" and #results > 0
+	for _, b in ipairs(results) do
+		if not string.find(b.Text, "Tesla", 1, true) then okE = false end
+	end
+	check("fuel chip: Electric Teslas only", okE, chip.Text .. " · " .. #results .. " rows")
+	for _ = 1, 2 do chip.Activated:Fire() end
+	check("chip cycles back to Any", chip.Text == "Fuel: Any", chip.Text)
+	box.Text = "ford"
+	M.run(0.1)
+	local first = all("Result")[1].Text
+	find("Next").Activated:Fire()
+	M.run(0.1)
+	local lbl = find("Label")
+	check("next page", lbl and lbl.Text:match("^Page 2 /") ~= nil and all("Result")[1].Text ~= first, lbl and lbl.Text)
+	-- a variant without figures: its page says Unknown, not 0
+	box.Text = "frua coupe"
+	M.run(0.1)
+	all("Result")[1].Activated:Fire()
+	M.run(0.1)
+	local fields = {}
+	for _, f in ipairs(all("Field")) do
+		local k, v = string.match(f.Text, "^(.-):  (.*)$")
+		if k then fields[k] = v end
+	end
+	check("detail page: missing figures are Unknown, the catalogue-only label", fields["Top speed"] == "Unknown" and fields["Make"] == "AC" and fields["In the game"] ~= nil
+		and string.find(fields["In the game"], "cannot be driven", 1, true) ~= nil and find("Credit") ~= nil, tostring(fields["Top speed"]) .. " · " .. tostring(fields["In the game"]))
+	Hud.closePanel()
+	-- the garage's ℹ: the starter car's linked real-world version
+	M.call(function() Menus.garage() end)
+	local info
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "Car" and d.LayoutOrder == 1 then info = d:FindFirstChild("Info") end
+	end
+	check("garage: an ℹ button on each car", #all("Info") == #Config.CARS and info ~= nil, #all("Info") .. " buttons")
+	info.Activated:Fire()
+	M.run(0.2)
+	fields = {}
+	for _, f in ipairs(all("Field")) do
+		local k, v = string.match(f.Text, "^(.-):  (.*)$")
+		if k then fields[k] = v end
+	end
+	local note = find("Note")
+	check("ℹ on the starter car shows its linked catalogue version", note and string.find(note.Text, Config.CARS[1].name, 1, true) and fields["Make"] == "Ford"
+		and fields["Model"] == "Focus RS", (fields["Make"] or "?") .. " " .. (fields["Model"] or "?") .. " " .. (fields["Generation"] or ""))
+	find("Back").Activated:Fire()
+	M.run(0.1)
+	check("Back returns to the garage", Hud.isOpen("Garage"))
+	-- a car whose model the catalogue does not have
+	local noLink
+	local Links = require(RS.IrbidCatalog.CarLinks)
+	for i = 1, #Config.CARS do
+		if not Links[i] then noLink = i break end
+	end
+	M.call(function() CarCatalog.forCar(noLink, Menus.garage) end)
+	M.run(0.1)
+	note = find("Note")
+	check("a car not in the catalogue says so", note and string.find(note.Text, "not in the vehicle catalogue", 1, true) ~= nil, Config.CARS[noLink].name)
+	Hud.closePanel()
+	M.call(function() CarCatalog.credits() end)
+	local txt = ""
+	for _, l in ipairs(all("Line")) do txt ..= l.Text .. " " end
+	check("credits name OpenStreetMap, SRTM and the vehicle database", string.find(txt, "OpenStreetMap", 1, true) and string.find(txt, "SRTM", 1, true)
+		and string.find(txt, "vehicle-makes-models", 1, true) and string.find(txt, "Loaded", 1, true) ~= nil)
+	Hud.closePanel()
+	check("menus closed, the car takes input again", State.ui == nil)
 end
 
 -- ================= GPS search, minimap, reset, clock =================

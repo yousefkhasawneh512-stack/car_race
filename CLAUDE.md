@@ -78,7 +78,10 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   (`Modules/Damage`) are PURE Luau, checked against the web build number for number: `node roblox/tests/physics_equiv.js <luau.exe>` (40 cases)
   and `node roblox/tests/damage_equiv.js <luau.exe>` (92 checks), both from the repo root after `make_roblox.js` (they read `roblox/shared/Meta.lua`
   and `roblox/CAR_NAMES.md`). `node roblox/tests/objects_equiv.js <luau.exe>` (v4.2): the exported roadside colliders, colB and 07e's object rules
-  (`Modules/Objects`) against the web build; `make_roblox.js` seeds `Math.random` (export only) so the random trees / bins match. Sound: `node tools/make_roblox_audio.js dist/irbid-drive.html` renders the web game's synthesised sounds into
+  (`Modules/Objects`) against the web build; `make_roblox.js` seeds `Math.random` (export only) so the random trees / bins match. Car encyclopedia (v4.3, browse-only real-world catalogue, ODbL):
+  `python tools/vehicle_catalog/build_car_database.py --out-dir tools/vehicle_catalog/generated` (downloads; output git-ignored) then
+  `python tools/vehicle_catalog/make_roblox_catalog.py <that json>` -> `roblox/catalog/` (tracked; packed into ReplicatedStorage.IrbidCatalog); test
+  `node roblox/tests/catalog_test.js <luau.exe> [json]` (28 + the row-by-row source comparison). Missing source values stay nil ("Unknown"), never 0. Sound: `node tools/make_roblox_audio.js dist/irbid-drive.html` renders the web game's synthesised sounds into
   `roblox/audio/IrbidDriveSounds.wav` + `AudioAtlas.lua` (make_roblox packs the index); `node roblox/tests/audio_atlas.js` checks it. `make_roblox.js`
   EMPTIES `roblox/shared/` and `roblox/data/` on every run: files kept elsewhere (`roblox/audio/`) are packed from there.
   `v47_pw.py` (15: presets, traffic density, pause rows, context loss/restore, error banner, no-WebGL; screenshots `docs/screenshots/v47/`, honours `SP`),

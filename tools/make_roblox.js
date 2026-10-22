@@ -261,11 +261,14 @@ function editSign(){const msg='IRBID DRIVE\nPress ▶ Play (F5) to build the map
  return item('Part','EditModeSign',[gui(2),gui(5)],undefined,'<bool name="Anchored">true</bool><bool name="CanCollide">false</bool><bool name="CanQuery">false</bool><bool name="CanTouch">false</bool>'+cf+
   '<Vector3 name="size"><X>120</X><Y>40</Y><Z>2</Z></Vector3><Color3uint8 name="Color3uint8">'+(0xFF000000+0x1E*65536+0x30*256+0x50)+'</Color3uint8>')}
 const modsOf=mods=>mods.map(([n,s])=>item('ModuleScript',n,[],s)),SRC=path.join(OUT,'src');
+// the real-world vehicle catalogue (tools/vehicle_catalog/make_roblox_catalog.py writes roblox/catalog/; browse-only data, packed as it is)
+const CATD=path.join(OUT,'catalog'),catalogMods=fs.existsSync(CATD)?fs.readdirSync(CATD).filter(f=>f.endsWith('.lua')).sort().map(f=>[f.slice(0,-4),fs.readFileSync(path.join(CATD,f),'utf8').replace(/\r\n/g,'\n')]):[];
+if(!catalogMods.some(m=>m[0]==='CatalogDict'))cl0('warning: no roblox/catalog/CatalogDict.lua: the car encyclopedia will say the catalogue is not installed');
 const xml='<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">'+
  // streaming off: every player's device does its own ground / wall ray tests against the whole map. The map is built by WorldBuilder when the
  // game runs, so Studio's edit view would show only the sky: a board in front of the default camera says so (WorldBuilder removes it)
  item('Workspace','Workspace',[editSign()],undefined,'<bool name="StreamingEnabled">false</bool>')+
- item('ReplicatedStorage','ReplicatedStorage',[...tree(path.join(SRC,'ReplicatedStorage')),item('Folder','IrbidShared',modsOf(sharedMods))])+
+ item('ReplicatedStorage','ReplicatedStorage',[...tree(path.join(SRC,'ReplicatedStorage')),item('Folder','IrbidShared',modsOf(sharedMods)),item('Folder','IrbidCatalog',modsOf(catalogMods))])+
  item('ServerStorage','ServerStorage',[item('Folder','IrbidData',modsOf(serverMods))])+
  item('ServerScriptService','ServerScriptService',tree(path.join(SRC,'ServerScriptService')))+
  item('StarterPlayer','StarterPlayer',[item('StarterPlayerScripts','StarterPlayerScripts',tree(path.join(SRC,'StarterPlayerScripts')))])+'</roblox>\n';
