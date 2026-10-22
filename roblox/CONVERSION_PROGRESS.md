@@ -21,11 +21,11 @@ first, then verify the state with the commands under "How to verify" (never assu
 | B. Backup + separate workspace | done: tag + bundle above; all Roblox work stays in `roblox/`, `tools/make_roblox*.js` |
 | C. Architecture + compatibility problems | done: sections "Architecture" and "Compatibility problems" |
 | D. Foundation opens | the place file loads in the headless engine stand-in; the owner's Studio run (v3.1) found visual bugs that were fixed. **No Studio run by Claude** (Blockers 1) |
-| E. Map | converted in v1–v3.1 (3.5 km around the start). 3D landmarks, trees, lamps: not yet |
-| F. Vehicles | 217 cars with the web numbers; shapes are still blocks sized to each car |
+| E. Map | converted (3.5 km around the start); v4.1: the hand-built landmarks and the street furniture / trees. Not yet: generated fill buildings, rooftop details |
+| F. Vehicles | 217 cars with the web numbers; v4.1: the web car shapes and light lines |
 | G. Physics + controls | Arcade + Realistic + assists + gearbox: verified against the web build; gamepad / wheel input: converted (no hardware) |
 | H. UI / camera / audio / visuals | settings menu, cameras, HUD gear line, weather visuals, sound (needs the upload), damage looks: converted |
-| I. Remaining gameplay | damage, tyres, repairs, diagnostics, weather, clock: converted. Not yet: driving school, auto-drive, road reputation, search chips / saved places, traffic by time of day |
+| I. Remaining gameplay | all web gameplay systems converted (v4.1: school, auto-drive, reputation, chips / saved places, traffic density, text size). Not yet: breakable roadside objects |
 | J–L | integration tests run after every stage (Test log); final Studio validation needs Blocker 1 |
 
 ## Tools on this PC (checked 2026-10-22)
@@ -78,9 +78,10 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | Real OSM buildings (03b, 03e) | `World/Buildings` | CV | scenario: all buildings |
 | SRTM terrain (03d, 12c) | `World/Terrain` (tilted parts) | CV | scenario: ground under TH, roads not buried |
 | Places + search (03c, 06l, 11b) | `Search`, `Gps` | CV | 1,048 places |
-| Search category chips, saved places (11b v49) | — | NC | next round |
-| Hand-built 3D landmarks, campuses, trees, lamps, signs (06b–06j) | labels + signs only | PC | next round (an exporter of the web game's meshes) |
-| Breakable / movable roadside objects (07e) | buildings and cars only | PC | needs the props above |
+| Search category chips, saved places (11b v49) | `Search`, `Game/Settings` (SaveFav) | CV | scenario: Worship chip lists only mosques / churches; ☆ saved by the server, listed first |
+| Hand-built 3D landmarks (06b, 06c, 06g2, 06i groups) | `World/Landmarks` (625 parts, exported mesh by mesh) | CU | scenario: every part built; shapes approximated (cones, extrusions → boxes), no textures; not seen in Studio |
+| Street furniture + vegetation (05b, 06i, 06j instanced props) | `Client/Props` (73,091 props, web LOD radius per family) | CU | scenario: lamps / poles / trees near the car, removed behind; not seen in Studio |
+| Breakable / movable roadside objects (07e) | buildings and cars only | PC | the props exist now but do not collide (next round) |
 | Arcade physics (`updP`) | `Modules/CarPhysics` | CV | `physics_equiv` (equal to 4e-13) + scenario |
 | Realistic handling (07g) | `Modules/CarPhysics` | CV | `physics_equiv` 28 Realistic cases; scenario 0-100 4.8 s vs listed 4.7 s |
 | Automatic / manual gearbox, Q / E, refused downshift (07g, 11c) | `Handling` | CV | `physics_equiv` manual cases; scenario E / Q |
@@ -90,13 +91,13 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | Speed bumps quarter-car (07c) | `SpeedBumps` | CV | + the bump-stop severity for damage |
 | Traffic lights (05b) | `Signals` | CV | |
 | Traffic AI (09_ai) | `Traffic` | CV | models per traffic zone and web paints: scenario (84 % common in Al-Balad, web 84 %) |
-| Traffic density by time of day (12e v49) | — | NC | next round |
+| Traffic density High / Medium / Low / by time of day (12e v47, v49) | `TrafficDensity`, `Traffic.density` | CV | scenario: Low 35 %, by the hour, 250 m rule |
 | Laws + fines (10) | `Laws`, `Game/Fines` | CV | |
 | Drift points (10) | `DriftScore`, `Game/Drift` | CV | |
 | Upgrades (07b, 08c) | `TuneShop`, `Game/Upgrades` | CV | |
 | Car-unlock wheel (08a) | `CarWheel`, `Game/Wheel` | CV | web lists per slice; odds 49.8 / 35.1 / 10.2 / 3.9 / 0.9 % in 20,000 rolls |
 | 217 cars, 5 rarity tiers (07a, 07a0) | `Config.CARS` (generated) | CV | scenario: 217, names unique without brands, numbers per car |
-| Car shapes (07a4 `mkPorsche`) | blocks sized to each car, the web paint | PC | next round (the web body profiles) |
+| Car shapes (07a `mkPorsche`, 07a4 light lines) | `Modules/CarBody` | CU | scenario: profile pieces, every wedge corner on the web profile, the web size, light lines by tier; Roblox's wedge geometry assumed (Studio look needed); no detail texture |
 | Races (11) | `Race` | CV | rivals from the sports catalogue |
 | Duels (11) | `Duel` | CV | check now relative to the rival's own acceleration |
 | Bank heist + police (08b) | `Heist`, `Police` | CV | |
@@ -110,12 +111,12 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | Damage looks (07c, 07h visuals) | `CarDamageFx` | CU | built from parts; scenario checks dents / bumper; not seen in Studio |
 | Diagnostics panel (07f) | `Diagnostics` | CV | scenario |
 | Repair bay, prices, inspection (08d) | `TuneShop`, `Game/DamageStore` | CV | scenario: 12 items, paid exactly; `damage_equiv` prices |
-| Driving school (11d) | — | NC | next round |
-| Auto-drive (11c) | — | NC | next round |
-| Road reputation + rival memory (11c) | — | NC | next round |
+| Driving school (11d) | `School`, `Game/Settings` (SaveSchool) | CV | scenario: lessons 1 and 2 driven and passed, result card, best scores saved |
+| Auto-drive (11c) | `AutoDrive` | CV | scenario: 355 m route driven to "arrived"; takeover by input |
+| Road reputation + rival memory (11c) | `Reputation`, `Game/Settings` (SaveRep) | CV | scenario: fines, gap, saved; named racers with the web skills |
 | Pause / settings menu (12e) | `SettingsMenu`, `Settings`, `Game/Settings` | CV | scenario: rows, saved by the server and with the progress |
 | Cameras chase / cockpit / bonnet / bumper (12, v48) | `Camera` | CU | the web numbers; camera feel not seen in Studio |
-| Accessibility: text size, reduced motion (12e v48) | reduced motion (FOV) | PC | text size: next round |
+| Accessibility: text size, reduced motion (12e v48) | `Accessibility`, `Camera` | CV | scenario: text size 140 % |
 | Engine / tyre / world audio (12d) | `CarAudio` + the sound atlas | CU | `audio_atlas` (11 checks), scenario (pitch, voices, squeal, horn, crash, mute, muffle); **BL** until the owner uploads the file; not heard in Studio |
 | Keyboard controls | `Controls` | CV | web keys (+ Y settings, Esc kept by Roblox) |
 | Touch pads (10b) | `Controls` | CV | `TOUCH=1` run |
@@ -136,6 +137,7 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | 2026-10-22 | `physics_equiv` (Arcade + Realistic, 40 cases) | 40 / 40 + 6 / 6 web-trace sanity checks, largest difference 3.8e-13 |
 | 2026-10-22 | `damage_equiv` | 92 / 92, largest difference 1.3e-13 (first run: driving cases off by 1e-8 → the web game's Float32Array wheel loads, reproduced) |
 | 2026-10-22 | `audio_atlas` | 11 / 11 |
+| 2026-10-22 | + car shapes, landmarks, props, reputation, auto-drive, school, chips, density, text size (v4.1): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 174/174, touch 175/176 (the slide check failed once: a random traffic car blocked the test road, 1,763 rpm instead of 4,590; the test now clears the road first, then the sound block passed 24/24 on touch and on desktop; the full touch run was not repeated), no Terrain 174/174; physics_equiv 40/40, damage_equiv 92/92, audio_atlas 11/11 |
 | 2026-10-22 | + damage, diagnostics, repair bay (Roblox v4): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 152 / 152 · 154 / 154 · 152 / 152 (401 s, 384 s, 387 s; three runs in parallel) |
 
 ## Known problems / limits
@@ -158,10 +160,10 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 
 ## Next round (in this order)
 
-1. The web game's car shapes (body profiles per type) instead of blocks, and the hand-built landmarks / trees / lamps (an exporter of the web
-   game's meshes into parts), then the breakable roadside objects.
-2. Driving school (11d), auto-drive (Z) and road reputation + rival memory (11c).
-3. Search category chips and saved places (11b), traffic density by time of day (12e), text size (12e).
+1. Collisions for the landmarks and the props, then the web game's breakable / movable objects (07e: street lights, utility poles, signs,
+   trees, dumpsters, guardrails), with the damage system's object rules (Damage.impact takes the obstacle class already).
+2. The generated buildings (06a / 06d / 06h) where OpenStreetMap has none, and the rooftop details (tanks, solar panels, antennas).
+3. A Studio pass (Blocker 1): the look of the cars, landmarks, props, damage, weather; the sound after the upload; performance on a phone.
 
 ## How to verify (resume here)
 

@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Config = require(ReplicatedStorage:WaitForChild("Config"))
 local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Road"))
 local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
+local CarBody = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("CarBody"))
 local State = require(script.Parent:WaitForChild("State"))
 
 local Traffic = {}
@@ -27,40 +28,10 @@ end
 local PAINT = {}
 for i, c in ipairs(Rules.traffic.tcol) do PAINT[i] = Traffic.hex(c) end
 
--- a simple car model (anchored, no collision, ignored by ray tests); pivot = body centre
-function Traffic.model(L, W, H, color, cop)
-	local m = Instance.new("Model")
-	local function part(name, size, cf, col, mat, shape)
-		local p = Instance.new("Part")
-		p.Name = name
-		p.Anchored = true
-		p.CanCollide = false
-		p.CanQuery = false
-		p.CanTouch = false
-		p.Size = size
-		p.CFrame = cf
-		p.Color = col
-		p.Material = mat or Enum.Material.SmoothPlastic
-		if shape then p.Shape = shape end
-		p.Parent = m
-		return p
-	end
-	L, W, H = L * S, W * S, H * S
-	local body = part("Body", Vector3.new(W, H * 0.55, L), CFrame.new(), color)
-	m.PrimaryPart = body
-	part("Cabin", Vector3.new(W * 0.86, H * 0.42, L * 0.48), CFrame.new(0, H * 0.48, L * 0.05), cop and Color3.fromRGB(240, 240, 240) or Color3.fromRGB(30, 36, 44), Enum.Material.Glass)
-	local wr = H * 0.22
-	for _, q in ipairs({ { 1, -1 }, { -1, -1 }, { 1, 1 }, { -1, 1 } }) do
-		part("Wheel", Vector3.new(W * 0.12, wr * 2, wr * 2), CFrame.new(q[1] * W * 0.47, -H * 0.12, q[2] * L * 0.32), Color3.fromRGB(20, 20, 20), nil, Enum.PartType.Cylinder)
-	end
-	for _, x in ipairs({ -1, 1 }) do
-		part("Headlight", Vector3.new(W * 0.18, H * 0.08, 0.2), CFrame.new(x * W * 0.32, H * 0.05, -L * 0.5), Color3.fromRGB(255, 250, 220), Enum.Material.Neon)
-		part("Taillight", Vector3.new(W * 0.18, H * 0.08, 0.2), CFrame.new(x * W * 0.32, H * 0.05, L * 0.5), Color3.fromRGB(150, 10, 10), Enum.Material.Neon)
-	end
-	if cop then
-		part("LightR", Vector3.new(W * 0.3, 0.4, 0.8), CFrame.new(-W * 0.18, H * 0.72, L * 0.05), Color3.fromRGB(255, 30, 30), Enum.Material.Neon)
-		part("LightB", Vector3.new(W * 0.3, 0.4, 0.8), CFrame.new(W * 0.18, H * 0.72, L * 0.05), Color3.fromRGB(30, 80, 255), Enum.Material.Neon)
-	end
+-- an AI car's model: the web game's shape for that car (Modules/CarBody), anchored, no collision, ignored by ray tests; pivot = its root
+-- part at H * 0.34 - 0.12 above the car's ground point. opt = {neon (the light lines), cop (the light bar)}
+function Traffic.model(c, color, opt)
+	local m = CarBody.build(c, color, { S = S, anchored = true, neon = opt and opt.neon, cop = opt and opt.cop })
 	m.Parent = folder
 	return m
 end
@@ -72,9 +43,16 @@ function Traffic.agent(kind, car, color)
 		kind = kind, cop = kind == "cop", name = c.name or "Police", L = c.L, W = c.W, H = c.H, vm = c.vm, a0 = c.a0,
 		x = 0, z = 0, y = 0, h = 0, v = 0, s = 0, pi = 1, hit = 0, active = true, skill = 1,
 	}
-	a.model = Traffic.model(c.L, c.W, c.H, color or PAINT[math.random(#PAINT)], a.cop)
+	a.model = Traffic.model(c, color or PAINT[math.random(#PAINT)], Traffic.look(kind, c))
 	a.car, a.col = c, color
 	return a
+end
+
+-- the web game's looks: traffic cars from Uncommon up carry their light lines (carMesh), race and duel rivals the full set (mkPorsche),
+-- police a light bar and no lines (mkCop)
+function Traffic.look(kind, c)
+	if kind == "cop" then return { cop = true } end
+	return { neon = kind == "rival" or (kind == "traffic" and (c.tier or 0) >= 1) }
 end
 
 -- give an AI car another model (the web game's setTrafficModel): a new model only when the car or the paint changes
@@ -82,13 +60,14 @@ function Traffic.setCar(a, c, color)
 	if a.car == c and a.col == color then return end
 	local cf = a.model and a.model:GetPivot()
 	if a.model then a.model:Destroy() end
-	a.model = Traffic.model(c.L, c.W, c.H, color, a.cop)
+	a.model = Traffic.model(c, color, Traffic.look(a.kind, c))
 	if cf then a.model:PivotTo(cf) end
 	a.car, a.col, a.name, a.L, a.W, a.H, a.vm, a.a0 = c, color, c.name, c.L, c.W, c.H, c.vm, c.a0
 end
 
 function Traffic.draw(a)
-	local pos = Vector3.new(a.x, a.y + 0.1 + a.H * 0.34, a.z) * S
+	-- the root part at the web game's car height (terrain + 0.12 m) + its lift
+	local pos = Vector3.new(a.x, a.y + 0.12 + CarBody.lift(a.H), a.z) * S
 	a.model:PivotTo(CFrame.lookAt(pos, pos + Vector3.new(math.sin(a.h), 0, math.cos(a.h))))
 end
 
@@ -274,6 +253,32 @@ function Traffic.start()
 	end
 end
 
+-- the traffic density (the web game's trApply): the first round(N x den) cars drive, the others are parked far away; soft = a car
+-- within 250 m of the player is never parked (By time of day changes)
+function Traffic.density(den, soft)
+	local n = math.floor(#agents * den + 0.5)
+	local st = State.st
+	for i, a in ipairs(agents) do
+		local pk = i > n
+		if pk ~= (a.park == true) and not (soft and pk and math.sqrt((a.x - st.x) ^ 2 + (a.z - st.z) ^ 2) < 250) then
+			a.park = pk
+			if pk then
+				a.x, a.z, a.v = 2e5, 2e5, 0
+				Traffic.draw(a)
+			else
+				a.x, a.z = 1e5, 1e5
+			end
+		end
+	end
+end
+function Traffic.driving()
+	local n = 0
+	for _, a in ipairs(agents) do
+		if not a.park then n += 1 end
+	end
+	return n
+end
+
 -- move traffic cars out of a circle (race starts)
 function Traffic.clear(x, z, r)
 	for _, a in ipairs(agents) do
@@ -286,6 +291,10 @@ function Traffic.step(dt)
 	Signals = Signals or State.signals
 	local st = State.st
 	for _, a in ipairs(agents) do
+		if a.park then
+			-- a parked car (traffic density): not simulated
+			continue
+		end
 		if a.x > 9e4 then
 			spawn(a, 60)
 		else
@@ -309,17 +318,17 @@ function Traffic.step(dt)
 					tgt = math.min(tgt, 8)
 				end
 			end
-			-- the car ahead (and the player): keep 6.5 m
+			-- the car ahead: keep 6.5 m; behind the player the gap of the road reputation (6.5 m, up to 12 m when it is low)
 			local sh, ch = math.sin(a.h), math.cos(a.h)
-			local function gap(x, z)
+			local function gap(x, z, g)
 				local dx, dz = x - a.x, z - a.z
 				local f = dx * sh + dz * ch
-				if f > 0 and f < 26 and math.abs(dx * ch - dz * sh) < 2.6 then tgt = math.min(tgt, math.max(0, (f - 6.5) * 0.9)) end
+				if f > 0 and f < 26 and math.abs(dx * ch - dz * sh) < 2.6 then tgt = math.min(tgt, math.max(0, (f - g) * 0.9)) end
 			end
 			for _, o in ipairs(State.ai) do
-				if o ~= a then gap(o.x, o.z) end
+				if o ~= a then gap(o.x, o.z, 6.5) end
 			end
-			gap(st.x, st.z)
+			gap(st.x, st.z, State.repGap or 6.5)
 			if a.hit > 0 then
 				a.hit -= dt
 				tgt = 0

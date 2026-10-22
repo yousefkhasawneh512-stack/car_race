@@ -24,6 +24,7 @@ end
 stage("terrain", require(World:WaitForChild("Terrain")), map)
 stage("roads", require(World:WaitForChild("Roads")), map)
 stage("buildings", require(World:WaitForChild("Buildings")), map)
+stage("landmarks", require(World:WaitForChild("Landmarks")), map)
 stage("labels", require(World:WaitForChild("Signs")).labels, map)
 stage("sites", require(World:WaitForChild("Sites")), map)
 stage("spawn point", require(World:WaitForChild("Spawn")), map)

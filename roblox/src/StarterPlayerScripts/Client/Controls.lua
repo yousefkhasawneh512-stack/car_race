@@ -1,7 +1,7 @@
 -- Irbid Drive (Roblox) - controls, the web game's keys: W/S or the thumbstick = gas / brake-reverse, A/D steer (Roblox's movement input),
 -- Space or DRIFT = handbrake, F reset to the start, C camera, G car wheel, N / B next / previous car, M GPS search, K landmark tour,
 -- J stunt ramps, T +1 hour, R race (or a duel next to a traffic car), E rob the bank (elsewhere: shift up), Q shift down, H handling
--- Arcade / Realistic, U or P tuning shop, X horn, L mute, I damage Off / Cosmetic / Full, O diagnostics, Esc closes a menu. Roblox only: V garage, Y settings (the web game's Esc pause menu:
+-- Arcade / Realistic, U or P tuning shop, X horn, L mute, I damage Off / Cosmetic / Full, O diagnostics, Z auto-drive, Esc closes a menu. Roblox only: V garage, Y settings (the web game's Esc pause menu:
 -- Roblox keeps Esc for its own menu). Phones and tablets get the web game's touch pads (steer left / right, GAS, BRAKE, DRIFT) and the menu buttons.
 local Players = game:GetService("Players")
 local ContextActionService = game:GetService("ContextActionService")
@@ -98,6 +98,7 @@ function Controls.start(a)
 		[Enum.KeyCode.L] = a.mute,
 		[Enum.KeyCode.I] = a.damage,
 		[Enum.KeyCode.O] = a.diag,
+		[Enum.KeyCode.Z] = a.autodrive,
 		[Enum.KeyCode.U] = a.shop,
 		[Enum.KeyCode.P] = a.shop,
 		[Enum.KeyCode.V] = a.garage,
@@ -140,6 +141,7 @@ function Controls.read(dt)
 			inp.steer, inp.an = -gp.steer, true
 		end
 		inp.hb = hb or pad.drift or gp.hb
+		if Controls.after then Controls.after(inp, dt or 1 / 60) end
 		return
 	end
 	local mv = move:GetMoveVector()
@@ -148,6 +150,7 @@ function Controls.read(dt)
 	inp.steer = st ~= 0 and st or -mv.X
 	inp.an = false
 	inp.hb = hb or pad.drift
+	if Controls.after then Controls.after(inp, dt or 1 / 60) end
 end
 
 return Controls

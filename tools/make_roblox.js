@@ -18,7 +18,13 @@ global.performance={now:()=>0};global.requestAnimationFrame=()=>{};global.setTim
 const LS={};global.localStorage={getItem:k=>k in LS?LS[k]:null,setItem:(k,v)=>{LS[k]=String(v)}};
 const cl0=console.log;console.log=()=>{};
 const html=fs.readFileSync(process.argv[2]||'dist/irbid-drive.html','utf8'),R=+process.argv[3]||3500;
-(0,eval)(html.match(/<script>\n([\s\S]*?)<\/script>/)[1]+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec,ptGeom,TPOOL,WHEEL_OLD,TRAFFIC_SPAWN,trafficZone,TCOL,NRACE,OWNC,RCH,engProfile,dpGeo}');
+// hooks (rendering data only, nothing in the game changes): instO calls = the instanced street furniture / trees, scene.add = the hand-built landmarks
+let JSRC=html.match(/<script>\n([\s\S]*?)<\/script>/)[1];Error.stackTraceLimit=12;global.__INST=[];global.__ADD=[];
+global.__at=()=>{const l=new Error().stack.split(String.fromCharCode(10))[3]||'';const m=l.match(/<anonymous>:(\d+):(\d+)/);return m?[+m[1],+m[2]]:null};
+global.__who=()=>new Error().stack.split(String.fromCharCode(10)).slice(3,9).map(l=>(l.match(/at (\S+)/)||[])[1]).filter(n=>n&&!/^(eval|Array|Object|new|forEach|<anonymous>)/.test(n)).slice(0,3).join('<');
+JSRC=JSRC.replace('function instO(g,mat,items,shadow,R,CS){','function instO(g,mat,items,shadow,R,CS){__INST.push({g,mat,items,R,at:__at()});');
+{const a0=THREE.Object3D.prototype.add;THREE.Scene.prototype.add=function(...a){for(const o of a)__ADD.push({o,w:__who()});return a0.apply(this,a)}}
+(0,eval)(JSRC+';global.__s={EDGES,NODES,TH,START,BLDD,BLDO,PLACES,PORS,setPlayerCar,P,rarityIdx,RARN,RMULT,CIRCUITS,BANK,SHOP,route,LIT,approachOf,IRBID_SPEED_BUMPS,DZONES,LM,RAMPS,RAMPB,urbanK,carSpec,ptSpec,ptGeom,TPOOL,WHEEL_OLD,TRAFFIC_SPAWN,trafficZone,TCOL,NRACE,OWNC,RCH,engProfile,dpGeo,carV}');
 const S=global.__s,TH=S.TH,ST=S.START,OUT=path.resolve('roblox');
 const dm=v=>Math.round(v*10),inR=(x,z)=>Math.hypot(x-ST.x,z-ST.z)<=R;
 // ---- roads: one straight piece per polyline segment, centred on the start; class 0 major / 1 local / 2 service, roundabout 3 ----
@@ -119,6 +125,9 @@ for(const[k,i]of order.entries()){S.setPlayerCar(i);const m=S.PORS[i],tier=S.rar
   dmg:{mass:cs.mass,drive:cs.drive,eng:cs.eng,ev:!!cs.ev,air:!!cs.air,fw:cs.fw,hcg:cs.hcg,wb:cs.wb,tr:cs.tr,L:cs.L,W:cs.W,H:cs.H,durability:cs.durability,kind:cs.kind,
    b0:cs.b0,b1:cs.b1,maxC:cs.maxC,thr:cs.thr,comp:cs.comp,tyre:cs.tyre},
   geo:(g=>{const o={L:g.L,W:g.W,H:g.H,k:g.k,y0:g.y0,ny:g.ny,ty:g.ty,hz:g.hz,rz:g.rz,ws:g.ws,four:g.four};if(g.rs)o.rs=g.rs;return o})(S.dpGeo(i)),
+  // the car's own look (07a4 carV): its two name-hashed neon colours, their pulse, and its light-line layout
+  vis:(v=>({c1:new THREE.Color(v.graphics.primaryColor).getHex(),c2:new THREE.Color(v.graphics.accentGlowColor).getHex(),f:v.graphics.pulsingSpeedHz,ph:(Math.abs(v.hash)%628)/100,
+   ln:{side:v.graphics.lines.side,sideLen:v.graphics.lines.sideLen,front:v.graphics.lines.front,rear:v.graphics.lines.rear,rearSplit:v.graphics.lines.rearSplit,corners:v.graphics.lines.corners,swap:v.graphics.lines.swap}}))(S.carV(i)),
   // engine sound (12d engProfile): the layout's voice in the sound atlas, level, low-pass, aspiration, hybrid / electric, luxury damping
   snd:(e=>({code:e.ev?'E':e.lay+e.cyl+e.asp,lvl:r5(e.lvl),lpf:r5(e.lpf),asp:e.asp,ev:!!e.ev,hyb:!!e.hyb,lux:!!e.lux,kind:e.kind,idle:e.idle,red:e.red,src:e.src}))(S.engProfile(i))})}
 if(cars[0].name!=='Hot Hatch RS')throw Error('the starter car must come first');
@@ -154,14 +163,53 @@ const traffic={zones:ZN,odds:ZN.map(z=>S.TRAFFIC_SPAWN.spawn_rules[z].map(r5)),e
  own:cars.map((c,k)=>order[k]<S.NRACE||S.OWNC.has(S.PORS[order[k]][0])?1:0).join('')};
 // race rivals and duel drivers come from the web game's sports catalogue only (11_race: PORS indices below NRACE)
 const racers=order.map((i,k)=>i<S.NRACE?k+1:0).filter(Boolean);
-const rules={signals,heads,bumps,dzones,tour,ramps,urban:{cell:UC,n:UN,x0:-R,z0:-R,bits:urban},wheelPools,traffic,racers};
+// the police car (08b mkCop: a white Ford Crown Victoria with a light bar)
+const copCar=rosterIx.get(S.PORS.findIndex(m=>m[0]==='Ford Crown Victoria'));if(!copCar)throw Error('no police car');
+// ---- street furniture and vegetation (the web game's instanced props), by their instO call: lamps, utility poles, transformers, guardrails,
+// bus stops, roundabout islands, dumpsters, traffic cones, manhole covers, trees (trunks, round / pine / palm / olive canopies, cypresses,
+// bushes), rocks. Not exported: the generated building detail (windows, facades, rooftop tanks / solar / antennas: Roblox has the OSM buildings
+// as blocks) and the night light pools. Each item: x, z, y (lifted by TH, as the web terrain pass does), heading, size; the colour of the item
+// (instance colour) or of its material. The device builds them only near the player (the web game's LOD radius per family). ----
+const SL=JSRC.split(String.fromCharCode(10)),argOf=a=>{if(!a)return'';const L=SL[a[0]-1];let i=L.indexOf('(',a[1]-1),d=0,j=i;for(;j<L.length;j++){if(L[j]==='(')d++;else if(L[j]===')'){d--;if(!d)break}}return L.slice(i+1,j)};
+const PROPK=[['stops','busStop'],['posts,false,700','busPost'],['heads,false,700','busHead'],['mGrass,isl','island'],['mRim,rim','islandRim'],['CN','cone'],
+ ['pm,poles','lampPole'],['pm,arms','lampArm'],['lampMat,heads','lampHead'],['conc,poles','utilPole'],['conc,arms','utilArm'],[',xf,','transformer'],['gr,rails','railBeam'],['gr,posts','railPost'],
+ [',mh,','manhole'],['bin,true','bin'],[',lid,','binLid'],['TRK','trunk'],['CANP[k]','canopy'],['CANP.olive','olive'],['CANP.cyp','cypress'],['CANP.bush','bush'],['ROCKS','rock'],['SIGNP','signPost']];
+const props=[],propStat={};
+for(const c of __INST){const a=argOf(c.at);const k=PROPK.find(q=>a.includes(q[0]));if(!k)continue;const g=c.g,t=g.type,P0=g.parameters||{};
+ const shape=t==='BoxGeometry'?'box':t==='CylinderGeometry'?(P0.radiusTop<P0.radiusBottom*.3?'cone':'cyl'):t==='ConeGeometry'?'cone':t==='SphereGeometry'?'ball':t==='DodecahedronGeometry'?'ball':'box';
+ const base=t==='BoxGeometry'?[P0.width,P0.height,P0.depth]:t==='CylinderGeometry'?[(P0.radiusTop+P0.radiusBottom),P0.height,(P0.radiusTop+P0.radiusBottom)]:t==='ConeGeometry'?[P0.radius*2,P0.height,P0.radius*2]:[P0.radius*2,P0.radius*2,P0.radius*2];
+ const col=c.mat&&c.mat.color?c.mat.color.getHex():0xffffff,rows=[];
+ for(const q of c.items){if(!inR(q[0],q[2]))continue;rows.push(dm(q[0]-ST.x),dm(q[2]-ST.z),Math.round((q[1]+TH(q[0],q[2]))*100),Math.round((q[3]||0)*1000),Math.round(base[0]*(q[4]||1)*100),Math.round(base[1]*(q[5]||1)*100),Math.round(base[2]*(q[6]||1)*100),q[7]!==undefined?q[7]:col)}
+ if(!rows.length)continue;props.push({kind:k[1],shape,R:c.R||300,col,n:rows.length/8,rows});propStat[k[1]]=(propStat[k[1]]||0)+rows.length/8}
+// ---- the hand-built landmarks (06b / 06c / 06g2 / 06i groups: Al-Balad sites, the clock square, heritage houses, arches, gantries ...): every
+// mesh of the groups the landmark builders added, with its real transform (the terrain pass has lifted the groups), as a part: boxes, cylinders,
+// spheres, cones, discs; extruded shapes and planes as their bounding box. Cars and the merged road / building chunks are not landmarks. ----
+const LMW=/^grp<|^padAt</,lmParts=[],q4=new THREE.Quaternion(),p4=new THREE.Vector3(),s4=new THREE.Vector3(),m4=new THREE.Matrix4(),bb=new THREE.Box3();
+scene0().updateMatrixWorld(true);
+function scene0(){return __ADD.length?__ADD[0].o.parent||__ADD[0].o:null}
+for(const a of __ADD){if(a.o.isInstancedMesh||!LMW.test(a.w)||/mkPorsche|carMesh/.test(a.w))continue;const o=a.o;if(!inR(o.position.x,o.position.z))continue;o.updateMatrixWorld(true);
+ o.traverse(m=>{if(!m.isMesh||m.isInstancedMesh||!m.visible)return;const g=m.geometry,t=g.type,P0=g.parameters||{};m.matrixWorld.decompose(p4,q4,s4);
+  let shape='box',size;let off=new THREE.Vector3();
+  if(t==='BoxGeometry')size=[P0.width*s4.x,P0.height*s4.y,P0.depth*s4.z];
+  else if(t==='CylinderGeometry'){shape=P0.radiusTop<P0.radiusBottom*.3?'cone':'cyl';const r=P0.radiusTop+P0.radiusBottom;size=[r*s4.x,P0.height*s4.y,r*s4.z]}
+  else if(t==='ConeGeometry'){shape='cone';size=[P0.radius*2*s4.x,P0.height*s4.y,P0.radius*2*s4.z]}
+  else if(t==='SphereGeometry'){shape='ball';size=[P0.radius*2*s4.x,P0.radius*2*s4.y,P0.radius*2*s4.z]}
+  else if(t==='CircleGeometry'||t==='RingGeometry'){shape='disc';const r=(P0.radius||P0.outerRadius||1)*2;size=[r*s4.x,r*s4.y,.02]}
+  else{if(!g.boundingBox)g.computeBoundingBox();bb.copy(g.boundingBox);const c=bb.getCenter(new THREE.Vector3()),z=bb.getSize(new THREE.Vector3());size=[Math.max(.02,z.x*s4.x),Math.max(.02,z.y*s4.y),Math.max(.02,z.z*s4.z)];off=c.multiply(s4).applyQuaternion(q4)}
+  const mt=Array.isArray(m.material)?m.material[0]:m.material,col=mt&&mt.color?mt.color.getHex():0xcccccc,tr=mt&&mt.transparent?Math.round((1-(mt.opacity??1))*100):0;
+  if(tr>=98)return;
+  m4.makeRotationFromQuaternion(q4);const e=m4.elements;
+  lmParts.push([shape,+(p4.x+off.x-ST.x).toFixed(3),+(p4.y+off.y).toFixed(3),+(p4.z+off.z-ST.z).toFixed(3),...size.map(v=>+v.toFixed(3)),...[e[0],e[1],e[2],e[4],e[5],e[6],e[8],e[9],e[10]].map(v=>+v.toFixed(4)),col,tr,mt&&mt.type==='MeshBasicMaterial'?1:0])})}
+const rules={signals,heads,bumps,dzones,tour,ramps,urban:{cell:UC,n:UN,x0:-R,z0:-R,bits:urban},wheelPools,traffic,racers,copCar};
 // ---- write ----
 function luaVal(v){if(Array.isArray(v))return'{'+v.map(luaVal).join(',')+'}';if(v&&typeof v==='object')return'{'+Object.entries(v).map(([k,x])=>k+'='+luaVal(x)).join(',')+'}';
  if(typeof v==='string'){const s=JSON.stringify(v);if(/\\u/.test(s))throw Error('string needs a Lua escape: '+v);return s}if(typeof v==='boolean')return String(v);if(!Number.isFinite(v))throw Error('bad number');return String(v)}
 const chunk=(name,arr,per)=>{const out=[];for(let i=0,k=1;i<arr.length;i+=per,k++)out.push([name+k,'return [['+arr.slice(i,i+per).join(',')+']]\n']);return out};
 const chunkRows=(name,rows,max)=>{const out=[];let cur=[],len=0;const flush=()=>{if(cur.length){out.push([name+(out.length+1),'return [['+cur.join(';')+']]\n']);cur=[];len=0}};
  for(const r of rows){if(len+r.length>max)flush();cur.push(r);len+=r.length+1}flush();return out};
-const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000)];
+const serverMods=[...chunk('Roads',roads,8*6000),...chunk('Buildings',blds,8*6000),['Landmarks','return '+luaVal(lmParts.map(r=>r.join(',')))+'\n']];
+// the props: one module per family chunk ({kind, shape, R, n, rows = "x,z,y,h,sx,sy,sz,col,..."})
+const propMods=[];props.forEach((pr,i)=>{for(let o=0,k=1;o<pr.rows.length;o+=8*4000,k++)propMods.push(['Props_'+i+'_'+k,'return '+luaVal({kind:pr.kind,shape:pr.shape,R:pr.R,rows:pr.rows.slice(o,o+8*4000).join(',')})+'\n'])});
 const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z).toFixed(2),roadCount:roads.length/8,buildingCount:blds.length/8,
  attribution:'Map data © OpenStreetMap contributors (ODbL) · terrain NASA SRTM',
  bank:{x:+(S.BANK.x-ST.x).toFixed(1),z:+(S.BANK.z-ST.z).toFixed(1),y:+TH(S.BANK.x,S.BANK.z).toFixed(1)},
@@ -169,7 +217,7 @@ const meta={scale:3,radius:R,startHeading:+ST.h.toFixed(4),startY:+TH(ST.x,ST.z)
  rarity:S.RARN.map((n,k)=>({name:n,mult:S.RMULT[k]})),labels,cars};
 // the sound atlas index (tools/make_roblox_audio.js writes it next to the sound file; without it the game has no sound)
 const ATL=path.join(OUT,'audio','AudioAtlas.lua'),atlas=fs.existsSync(ATL)?fs.readFileSync(ATL,'utf8').replace(/\r\n/g,'\n'):'return { sampleRate = 22050, seconds = 0 }\n';
-const sharedMods=[['AudioAtlas',atlas],['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],['Rules','return '+luaVal(rules)+'\n'],['Heights','return '+luaVal({x0:-R-100,z0:-R-100,cell:HC,n:HN})+'\n'],...chunk('HeightData',hts,40000),
+const sharedMods=[...propMods,['AudioAtlas',atlas],['Meta','return '+luaVal(meta)+'\n'],['Places','return '+luaVal(places)+'\n'],['Circuits','return '+luaVal(circuits)+'\n'],['Rules','return '+luaVal(rules)+'\n'],['Heights','return '+luaVal({x0:-R-100,z0:-R-100,cell:HC,n:HN})+'\n'],...chunk('HeightData',hts,40000),
  ['GraphNodes','return [['+nodes.join(',')+']]\n'],['GraphNames','return '+luaVal(names)+'\n'],...chunkRows('GraphEdges',edgeRows,240000)];
 for(const[dir,mods]of[['data',serverMods],['shared',sharedMods]]){const D=path.join(OUT,dir);fs.mkdirSync(D,{recursive:true});
  for(const f of fs.readdirSync(D))fs.unlinkSync(path.join(D,f));for(const[n,s]of mods)fs.writeFileSync(path.join(D,n+'.lua'),s)}
@@ -200,6 +248,7 @@ const xml='<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="ht
 fs.writeFileSync(path.join(OUT,'IrbidDrive.rbxlx'),xml);
 cl0('roads',roads.length/8,'buildings',blds.length/8,'(cut back from a road '+trim+', dropped '+drop+')','labels',labels.length);
 cl0('graph: nodes',nodes.length/3,'edges',edgeRows.length,'names',names.length,'| places',places.length,'| circuits',circuits.map(c=>c.name+' ('+c.cps.length+' checkpoints, '+c.path.split(',').length/3+' points)').join(', '));
+cl0('props',Object.entries(propStat).map(([k,v])=>k+' '+v).join(', '),'| landmark parts',lmParts.length);
 cl0('signals',signals.length,'heads',heads.length,'bumps',bumps.length,'drift zones',dzones.length,'tour',tour.length,'ramps',ramps.length);
 cl0('cars',cars.length,cars.map(c=>c.name+' T'+c.tier+' '+(c.vm*3.6).toFixed(0)+'km/h').join(', '));
 cl0('rbxlx',(xml.length/1e6).toFixed(2),'MB ->',path.join(OUT,'IrbidDrive.rbxlx'));

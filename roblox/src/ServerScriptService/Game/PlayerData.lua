@@ -59,6 +59,10 @@ function PlayerData.load(plr)
 		-- the settings (version 4; older records have none: the defaults)
 		settings = Schema.encode(Schema.parse(d.set)),
 		damage = damage,
+		-- road reputation and rival memory (Client/Reputation)
+		rep = type(d.rep) == "string" and #d.rep <= 200 and d.rep or "70",
+		school = type(d.school) == "string" and #d.school <= 120 and d.school or "runs=0",
+		fav = type(d.fav) == "string" and #d.fav <= 2400 and d.fav or "",
 	}
 end
 
@@ -74,7 +78,7 @@ function PlayerData.save(plr)
 		if Damage.hurt(r) then dmg[tostring(i)] = r end
 	end
 	pcall(function()
-		store:SetAsync("u" .. plr.UserId, { v = 2, cash = math.floor(d.cash), bank = math.floor(d.bank), dt = math.floor(d.dt), owned = owned, cur = d.cur, tune = tune, set = d.settings, dmg = dmg })
+		store:SetAsync("u" .. plr.UserId, { v = 2, cash = math.floor(d.cash), bank = math.floor(d.bank), dt = math.floor(d.dt), owned = owned, cur = d.cur, tune = tune, set = d.settings, dmg = dmg, rep = d.rep, school = d.school, fav = d.fav })
 	end)
 end
 
@@ -106,6 +110,9 @@ function PlayerData.sync(plr)
 	plr:SetAttribute("Tune", table.concat(PlayerData.levels(d, d.cur), ","))
 	plr:SetAttribute("Fines", d.fines or 0)
 	plr:SetAttribute("Settings", d.settings)
+	plr:SetAttribute("Rep", d.rep)
+	plr:SetAttribute("School", d.school)
+	plr:SetAttribute("Fav", d.fav)
 end
 
 -- sync and save after a change of money or cars

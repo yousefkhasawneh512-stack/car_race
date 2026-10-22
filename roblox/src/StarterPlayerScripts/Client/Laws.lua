@@ -32,6 +32,8 @@ function Laws.fine(k, msg, cd)
 	if now() - (last[k] or -99) < cd then return end
 	last[k] = now()
 	Remotes.Fine:FireServer(k)
+	-- road reputation (Reputation.event) hears every fine given
+	if Laws.onFine then Laws.onFine(k) end
 	Hud.toast(msg .. " — fine " .. AMOUNT[k] .. " JD")
 end
 

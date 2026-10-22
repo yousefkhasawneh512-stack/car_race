@@ -43,18 +43,19 @@ local function plan(target)
 	if not trs then return nil end
 	local P = Road.path(trs, Road.lane)
 	local _, _, i = Road.project(P, st.x, st.z, 1, #P.x)
-	return P, i, s0
+	return P, i, s0, trs
 end
 
 -- target = a place {n, x, z} -> true when a route was found
 function Gps.go(target)
-	local P, i = plan(target)
+	local P, i, _, trs = plan(target)
 	if not P then
 		Hud.toast("No route found to " .. target.n)
 		return false
 	end
 	dotPool()
-	nav = { name = target.n, x = target.x, z = target.z, P = P, i = i, checkT = 1 }
+	-- trs: the route's traversals (auto-drive follows their centre line)
+	nav = { name = target.n, x = target.x, z = target.z, P = P, i = i, trs = trs, checkT = 1 }
 	Hud.toast("GPS: route to " .. target.n, 2.5)
 	return true
 end
@@ -79,9 +80,9 @@ function Gps.step(dt)
 	nav.checkT -= dt
 	if d > 35 and nav.checkT <= 0 then
 		nav.checkT = 1
-		local P2, i2 = plan(nav)
+		local P2, i2, _, trs2 = plan(nav)
 		if P2 then
-			nav.P, nav.i, P, i = P2, i2, P2, i2
+			nav.P, nav.i, nav.trs, P, i = P2, i2, trs2, P2, i2
 			s = Road.project(P, st.x, st.z, i, i + 1)
 			nav.s = s
 		end

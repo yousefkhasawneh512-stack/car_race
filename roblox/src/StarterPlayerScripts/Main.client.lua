@@ -46,6 +46,14 @@ local CarDamage = require(Client:WaitForChild("CarDamage"))
 local CarDamageFx = require(Client:WaitForChild("CarDamageFx"))
 local Diagnostics = require(Client:WaitForChild("Diagnostics"))
 local SpeedBumps = require(Client:WaitForChild("SpeedBumps"))
+local Reputation = require(Client:WaitForChild("Reputation"))
+local AutoDrive = require(Client:WaitForChild("AutoDrive"))
+local School = require(Client:WaitForChild("School"))
+local TrafficDensity = require(Client:WaitForChild("TrafficDensity"))
+require(Client:WaitForChild("Accessibility"))
+local Props = require(Client:WaitForChild("Props"))
+local Race = require(Client:WaitForChild("Race"))
+local Laws = require(Client:WaitForChild("Laws"))
 -- the weather line in the settings menu (the web game's pause menu shows it under the weather row)
 table.insert(SettingsMenu.extra, { name = "weather", text = Weather.line, click = function() end, color = Color3.fromRGB(40, 60, 80) })
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
@@ -69,10 +77,11 @@ Controls.start({
 	race = Missions.race, shop = Missions.openShop,
 	eKey = function() Handling.eKey(Missions.rob) end, gearDown = function() Handling.shift(-1) end,
 	handling = Handling.toggle, settings = SettingsMenu.open, mute = CarAudio.toggleMute,
-	damage = CarDamage.cycle, diag = Diagnostics.toggle,
+	damage = CarDamage.cycle, diag = Diagnostics.toggle, autodrive = AutoDrive.toggle,
 })
 
 Traffic.start()
+Traffic.density(TrafficDensity.den(), false)
 Hud.toast("Welcome to Irbid! Drift for points · R race / duel · M GPS · G wheel · K tour · F start", 6)
 
 local ai = State.ai
@@ -94,6 +103,20 @@ SpeedBumps.onImpact = function(speed, sev, axle)
 	CarAudio.bump(sev)
 	CarDamage.speedBump(speed, sev, axle)
 end
+-- road reputation and rival memory; auto-drive takes the controls unless the player gives any input (the web game: above 0.15)
+Laws.onFine = function(k)
+	Reputation.event(k)
+	School.onFine(k)
+end
+table.insert(SettingsMenu.extra, { name = "school", text = function() return "🎓 Driving school (5 lessons on real streets)" end, click = School.menu, color = Color3.fromRGB(30, 90, 60) })
+Race.onStart = Reputation.raceStart
+Race.onFinish = Reputation.raceEnd
+Reputation.onHonk = CarAudio.honkAt
+table.insert(SettingsMenu.extra, { name = "reputation", text = Reputation.line, click = function() end, color = Color3.fromRGB(40, 60, 80) })
+Controls.after = function(inp, dt)
+	local user = inp.th > 0.15 or inp.br > 0.15 or math.abs(inp.steer) > 0.15 or inp.hb
+	AutoDrive.apply(inp, user, dt)
+end
 Diagnostics.buttons(Missions.openShop, Missions.nearShop, function()
 	Nav.go({ n = "Apex Drift Customs", x = Meta.shop.x, z = Meta.shop.z })
 end)
@@ -109,6 +132,10 @@ RunService.RenderStepped:Connect(function(dt)
 	Handling.step()
 	Gamepad.rumble(dt)
 	Weather.step(dt)
+	Reputation.step(dt)
+	School.step(dt)
+	TrafficDensity.step(dt)
+	Props.step(dt)
 	CarDamage.step(dt)
 	State.damageSmoke = CarDamage.smoking
 	CarDamageFx.step(dt, CarDamage.mode(), CarDamage.tyres)

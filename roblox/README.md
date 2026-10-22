@@ -8,6 +8,8 @@ A Roblox Studio port of the Irbid Drive web game, written in Luau. It is built f
 - 37 signalised junctions
 - 40 speed bumps
 - the drift zone, the stunt ramps and 21 landmark-tour stops
+- the web game's hand-built landmarks (625 parts) and its street furniture and trees (73,091 props: street lights, utility poles, guardrails,
+  bus stops, dumpsters, roundabout islands, trees, cypresses, bushes), drawn near the player as the web game does
 - **all 217 cars** of the web game, each with its own numbers
 
 **The file to open:** `IrbidDrive.rbxlx` (one file holds every script and all the data). Progress, the feature list and the test log: `CONVERSION_PROGRESS.md`.
@@ -30,8 +32,9 @@ Roblox runs Luau, not the web game's JavaScript, so every system was rewritten. 
 | Drifting | The web formula: angle × speed × combo × rarity × the Extra Drift Points upgrade. Points go to the drift bank. Roblox only: each point also pays 0.25 JD (VIP ×2) |
 | Apex Drift Customs (U) | Speed / Acceleration / Handling / Extra Drift Points, priced base × 2^level (1,500 / 1,200 / 800 / 3,000), 5 levels each, paid with drift points, saved per car |
 | Car wheel (G) | 10,000 JD per spin. Tier odds 50 / 35 / 10 / 4 / 1 %, then one car of the web wheel's list for that slice. A duplicate refunds 5,000 |
+| Car shapes | The web game's shape for each car: its body type's side profile (blocks and wedges), glass house, roof, wing on race cars, lamps, wheels with rims, and the car's own neon light lines in its two colours (traffic from Uncommon up, rivals and your car). Police drive the white Crown-Victoria-type car with a light bar |
 | 217 cars, 5 rarity tiers | Every web car with its own top speed, acceleration, brakes, handling, size, body type, paint, engine layout and Realistic / damage data. Names are generic (no brands; `CAR_NAMES.md` lists the web car behind each). N / B switch between your cars. Roblox only: the garage (V) sells them |
-| Street races (R) | The web game's circuits (Al-Balad Circuit, Thalatheen Run) against 3 rivals from the web game's sports catalogue. Countdown, checkpoint beam, live position. Roblox only: pays 1,000 / 500 / 250 / 100 |
+| Street races (R) | The web game's circuits (Al-Balad Circuit, Thalatheen Run) against its three named racers (Samer, Layth, Omar) in cars of the sports catalogue. Countdown, checkpoint beam, live position. Roblox only: pays 1,000 / 500 / 250 / 100 |
 | Duels (R next to a traffic car) | A driver from the sports catalogue lines up on your left and you both race 720 m up the road to a beam. First there wins (no money, as in the web game) |
 | Bank heist (E at the bank) | Survive the police for 2:00. Police route through the real streets and box you in. Escaping pays +500; being caught (2.5 s next to a police car) costs up to 50. The bank then closes for 3:00 |
 | Landmark tour (K), stunt ramps (J) | The web game's tour stops and its three ramps |
@@ -41,7 +44,12 @@ Roblox runs Luau, not the web game's JavaScript, so every system was rewritten. 
 | Sound | The web game's synthesised sounds (27 engine layouts, turbo, supercharger, EV motor, tyre squeal, gravel, wind, road, rain, horn, crashes), rendered into one sound file that you upload once (see below). Pitch and volume follow the web game's rules every frame. Volumes and mute (L) in the settings |
 | Settings (Y or ⚙) | The web game's pause-menu options: handling, gearbox, ABS, TC, ESC, tyre temperature, brake fade, damage, weather, clock, camera, volumes, mute, and the gamepad / racing-wheel setup. Saved with your progress on the server |
 | Gamepad / racing wheel | Triggers or a stick for the pedals, a stick for steering, with the web game's processing (invert, centre offset, sensitivity, dead zone, response curve, smoothing), pedal dead zone, rebindable buttons, rumble on impacts. See "Logitech G29" |
-| GPS (M), minimap | Search the real places. Routes respect one-way streets. The minimap shows roads, sites, the route, traffic and police |
+| GPS (M), minimap | Search the real places, filter by 11 categories (food, shops, health, schools, worship, sights, car, parks and sport, banks, civic and bus, areas), save up to 20 places (☆). Routes respect one-way streets. The minimap shows roads, sites, the route, traffic and police |
+| Auto-drive (Z) | Follows the GPS route with the same car physics: keeps right, keeps to each street's limit, stops at red lights and for cars ahead, slows for curves, stops at the destination. Any input takes control back; it gives up when blocked for 6 s. A simple rule-based driver |
+| Road reputation | 0–100, starts at 70: hitting traffic −6, red light −4, wrong way −2, speeding −1; +1 per 45 s of clean driving. Low reputation: traffic keeps a longer gap behind you and honks sooner. The three racers remember wins, losses and hits and get a little faster or slower |
+| Driving school | Five lessons on real streets near the start (start and stop, emergency stop, speed limit, traffic light, reverse parking), scored 0–100 with the real fine rules; best scores saved. In the settings menu |
+| Traffic density | High / Medium / Low, or by time of day (a weekday curve, an estimate; never parks a car near you) |
+| Text size | 90 / 100 / 120 / 140 % |
 | Saving, Robux | JD, drift bank, cars, upgrades per car, settings and the damage of every car are saved. The VIP pass and JD packs are off until you add your own IDs |
 
 Controls:
@@ -49,7 +57,7 @@ Controls:
 - Gamepad: **RT / LT** gas / brake, left stick steer, **A** handbrake, **RB / LB** shift up / down, **Y** camera, **X** horn, **B** race, **R3** start, **L3** tour, d-pad: up GPS, down settings, right / left next / previous car (all rebindable)
 - Phones and tablets: the web game's touch pads (◀ ▶ steer, GAS, BRAKE, DRIFT) plus the menu buttons
 - **F**: back to the start · **C**: camera · **G**: car wheel · **N / B**: next / previous car · **M**: GPS · **K**: landmark tour · **J**: stunt ramps · **T**: +1 hour · **R**: race or duel
-- **E**: rob the bank (next to it); elsewhere shift up · **Q**: shift down · **H**: Arcade / Realistic · **I**: damage mode · **O**: diagnostics
+- **E**: rob the bank (next to it); elsewhere shift up · **Q**: shift down · **H**: Arcade / Realistic · **I**: damage mode · **O**: diagnostics · **Z**: auto-drive
 - **U** or **P**: tuning shop and repair bay · **X**: horn · **L**: mute · **V**: garage · **Y**: settings (Roblox keeps Esc for its own menu)
 
 Each device simulates its own traffic, race rivals and police, so other players don't see the same AI cars. Players do see each other's cars (damage is shown on your own device only). On phones, lower `Config.TRAFFIC_CARS` if the game is slow.
@@ -89,7 +97,7 @@ Roblox reads **gamepads only** (sticks, triggers, buttons). It cannot open HID d
 
 The stand-in has no rendering, physics engine or real input devices, so the look of the damage and the weather, the camera feel, the sound, the gamepad and speed on phones still need a real Studio test. If something fails in Studio, **View → Output** shows the error.
 
-**Not ported yet** (see `CONVERSION_PROGRESS.md`): the driving school, auto-drive (Z) and road reputation, the hand-built 3D landmarks, trees and street lamps (and the breakable roadside objects that need them), the web game's car shapes (the cars are simple blocks sized to each car), search category chips and saved places, traffic density by time of day.
+**Not ported yet** (see `CONVERSION_PROGRESS.md`): the breakable / movable roadside objects (poles, trees, signs and dumpsters are scenery here: cars pass through them, and through the landmarks), the web game's textures (facade and car detail drawn on canvases), the generated buildings that fill streets where OpenStreetMap has none, and the rooftop details.
 
 ## Publish it and earn Robux
 
@@ -106,7 +114,7 @@ Roblox's own rules decide how Robux become real money (**Developer Exchange / De
 
 - **Keep the OpenStreetMap credit** at the bottom of the screen ("Map data © OpenStreetMap contributors (ODbL)"). The ODbL licence requires it.
 - **Car names stay generic** ("Hot Hatch RS", "German Coupe 300"), not the brand. Real car brands are trademarks, and Roblox removes experiences that use them without permission. `CAR_NAMES.md` (documentation only) maps each generic name to the web car.
-- The map is real data. Where a real building footprint reached into a road (the roads use the web game's widths), the exporter cut it back from the road side: 2,744 pieces were trimmed and 77 too thin to keep were dropped.
+- The map is real data. Where a real building footprint reached into a road (the roads use the web game's widths), the exporter cut it back from the road side: 3,200 pieces were trimmed and 82 too thin to keep were dropped.
 - Weather is simulated, not live; car masses, damage, prices and Realistic-handling numbers are the web game's gameplay estimates.
 
 ## Files

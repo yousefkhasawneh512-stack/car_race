@@ -455,6 +455,8 @@ do
 	end
 	local h = math.atan2(best.x[2] - best.x[1], best.z[2] - best.z[1])
 	Drive.place(best.x[1] + math.sin(h) * 5, best.z[1] + math.cos(h) * 5, h)
+	-- a random traffic car on this road once stopped the run (1,763 rpm, no slide): clear the road as a race start does
+	Traffic.clear(st.x, st.z, 200)
 	M.run(2)
 	local idle = eng.PlaybackSpeed
 	M.move = Vector3.new(0, 0, -1)
@@ -469,7 +471,7 @@ do
 	M.run(1.2, function() maxSq = math.max(maxSq, G.Effects.squeal.Volume) end)
 	M.key(Enum.KeyCode.Space, false)
 	M.move = Vector3.zero
-	check("tyres squeal in a slide", maxSq > 0.01, string.format("squeal volume %.3f", maxSq))
+	check("tyres squeal in a slide", maxSq > 0.01, string.format("squeal volume %.3f at %.0f km/h", maxSq, math.sqrt(st.vx ^ 2 + st.vz ^ 2) * 3.6))
 	-- the horn (X)
 	M.key(Enum.KeyCode.X, true)
 	M.run(0.1)
@@ -624,6 +626,155 @@ do
 	M.run(0.5)
 end
 
+-- ================= road reputation, auto-drive (Z), the driving school =================
+do
+	local Rep, AutoDrive, School, Gps = M.client("Reputation"), M.client("AutoDrive"), M.client("School"), M.client("Gps")
+	local Laws = M.client("Laws")
+	-- a fine lowers the reputation (red light -4) and a low reputation widens the gap the traffic keeps behind you
+	local r0 = Rep.state.road
+	M.call(function() Laws.fine("red", "Ran a red light", 3) end)
+	check("road reputation: a red-light fine costs 4", Rep.state.road == math.max(0, r0 - 4), r0 .. " -> " .. Rep.state.road)
+	Rep.state.road = 20
+	M.call(function() Rep.event("spd") end)
+	check("low reputation: traffic keeps a longer gap behind you", math.abs(State.repGap - (6.5 + (50 - 19) * 0.11)) < 1e-9, string.format("%.2f m", State.repGap))
+	M.run(3.5)
+	check("reputation saved by the server", string.match(plr:GetAttribute("Rep") or "", "^19") ~= nil, plr:GetAttribute("Rep"))
+	Rep.state.road = 70
+	-- auto-drive: a destination 300-700 m away on the road graph, Z, the car drives itself there
+	local target
+	for _, pl in ipairs(Places) do
+		local d = math.sqrt((pl.x - st.x) ^ 2 + (pl.z - st.z) ^ 2)
+		if d > 300 and d < 700 then
+			target = pl
+			break
+		end
+	end
+	Drive.reset()
+	M.run(1)
+	M.call(function() Gps.go({ n = target.n, x = target.x, z = target.z }) end)
+	M.key(Enum.KeyCode.Z, true)
+	M.run(0.2)
+	check("Z: auto-drive on with a route", AutoDrive.state.on == true and lastToast("^🤖 Auto%-drive on") ~= nil, lastToast("Auto"))
+	local d0 = math.sqrt((target.x - st.x) ^ 2 + (target.z - st.z) ^ 2)
+	local maxSp, t = 0, 0
+	M.run(150, function()
+		t += 1 / 60
+		maxSp = math.max(maxSp, st.sp)
+		if not AutoDrive.state.on then return "stop" end
+	end)
+	local d1 = math.sqrt((target.x - st.x) ^ 2 + (target.z - st.z) ^ 2)
+	check("auto-drive follows the route to the destination and stops", lastToast("arrived") ~= nil and d1 < 60 and st.sp < 0.5,
+		string.format("%s: %.0f m -> %.0f m in %.0f s, top %.0f km/h · %s", target.n, d0, d1, t, maxSp * 3.6, tostring(lastToast("Auto%-drive"))))
+	-- any input takes the controls back
+	M.call(function() Gps.go({ n = target.n, x = 0, z = 0 }) end)
+	M.key(Enum.KeyCode.Z, true)
+	M.run(1)
+	M.move = Vector3.new(0, 0, -1)
+	M.run(0.2)
+	M.move = Vector3.zero
+	check("gas, brake or steering takes the controls back", AutoDrive.state.on == false and lastToast("you took control") ~= nil)
+	Gps.clear()
+	-- the driving school: lesson 1 (stop in the box), driven with the keys like a learner
+	local function lesson(i, drive)
+		M.call(function() School.start(i) end)
+		M.run(0.3)
+		local S0 = School.state
+		M.run(40, function()
+			local s = S0.site
+			if not s or S0.over then return "stop" end
+			local dx, dz = st.x - s.x0, st.z - s.z0
+			drive(dx * s.ux + dz * s.uz, st.sp * 3.6)
+		end)
+		M.move = Vector3.zero
+		M.run(0.3)
+		return S0
+	end
+	local S1 = lesson(1, function(a, v)
+		-- a speed that brings the car to rest at the box centre (90 m): about 9 m/s, then sqrt(2 * 2 * remaining)
+		local want = math.min(9, math.sqrt(math.max(0, 2 * 2 * (89.5 - a)))) * 3.6
+		M.move = v < want - 2 and Vector3.new(0, 0, -1) or v > want + 2 and Vector3.new(0, 0, 1) or Vector3.zero
+		if a > 88 and v > 0.5 then M.move = Vector3.new(0, 0, 1) end
+	end)
+	check("driving school lesson 1 (start and stop): passed in the box", S1.st == "pass" and S1.score > 50 and State.ui == "Driving school result", S1.st .. " · " .. S1.score .. " · " .. S1.msg)
+	local nextB
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "Next" then nextB = d end
+	end
+	check("result card with Retry / Next", nextB ~= nil)
+	Hud.closePanel()
+	-- lesson 2 as asked: about 55 km/h at the red line, then full brakes
+	local S2 = lesson(2, function(a, v)
+		if a < 130 then
+			M.move = v < 55 and Vector3.new(0, 0, -1) or Vector3.zero
+		else
+			M.move = Vector3.new(0, 0, 1)
+		end
+	end)
+	check("driving school lesson 2 (emergency stop from 50 km/h): passed", S2.st == "pass", S2.st .. " · " .. S2.score .. " · " .. S2.msg)
+	Hud.closePanel()
+	School.stop()
+	M.run(1)
+	check("best scores saved by the server", string.find(plr:GetAttribute("School") or "", "stop=", 1, true) ~= nil and string.find(plr:GetAttribute("School") or "", "brake=", 1, true) ~= nil,
+		plr:GetAttribute("School"))
+	Drive.reset()
+	M.run(1)
+	-- search: the category chips filter by place kind; ☆ saves a place, listed first in the empty search
+	local Search = M.client("Search")
+	M.call(function() Nav.open() end)
+	local chip, star
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "Chip_wor" then chip = d end
+	end
+	chip.Activated:Fire()
+	M.run(0.1)
+	local results, worship = 0, 0
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "Result" then
+			results += 1
+			-- the place behind the row: its kind must be a worship kind
+			local name = string.match(d.Go.Text, "^(.-)  ·  ")
+			for _, pl in ipairs(Places) do
+				if pl.n == name and (pl.k == "mosque" or pl.k == "church") then
+					worship += 1
+					break
+				end
+			end
+			star = star or d.Star
+		end
+	end
+	check("search chips: Worship lists only mosques and churches", results > 0 and worship == results, worship .. " of " .. results)
+	chip.Activated:Fire()
+	star.Activated:Fire()
+	M.run(1.2)
+	Hud.closePanel()
+	M.call(function() Nav.open() end)
+	local first
+	for _, d in ipairs(Hud.gui:GetDescendants()) do
+		if d.Name == "Result" and not first then first = d end
+	end
+	check("☆ saves a place: saved by the server and listed first", #Search.fav == 1 and first and string.sub(first.Go.Text, 1, 3) == "★" and string.find(plr:GetAttribute("Fav") or "", "|", 1, true) ~= nil,
+		tostring(plr:GetAttribute("Fav")))
+	Hud.closePanel()
+	-- traffic density: Low = 35 % of the cars; By time of day follows the hour (never parking a car near the player)
+	local Settings = M.client("Settings")
+	Settings.set("tr", 2)
+	M.run(0.5)
+	local low = Traffic.driving()
+	Settings.set("tr", 3)
+	M.run(6)
+	local h = game:GetService("Lighting").ClockTime
+	local want = M.client("TrafficDensity").den()
+	local auto = Traffic.driving()
+	Settings.set("tr", 0)
+	M.run(0.5)
+	check("traffic density: Low 35 %, by time of day, High all", low == math.floor(Config.TRAFFIC_CARS * 0.35 + 0.5) and auto >= math.floor(Config.TRAFFIC_CARS * want + 0.5) and Traffic.driving() == Config.TRAFFIC_CARS,
+		string.format("low %d, at %.1f h %d (curve %.0f %%), high %d", low, h, auto, want * 100, Traffic.driving()))
+	Settings.set("ts", 3)
+	M.run(0.1)
+	check("text size 140 %", Hud.gui.TextSize.Scale == 1.4)
+	Settings.set("ts", 1)
+end
+
 -- ================= drifting -> drift bank and cash (server) =================
 do
 	local cash0, bank0 = plr:GetAttribute("Cash"), plr:GetAttribute("DriftBank")
@@ -693,6 +844,9 @@ do
 	-- 1) teleporting through the checkpoints is refused by the server
 	M.call(function() RaceM.toggle() end)
 	check("race starts with a countdown", State.mission == "race" and State.frozen == true and #Missions.rivals == 3, Hud.mission.Text)
+	local named = Missions.rivals[1].driver == "Samer" and Missions.rivals[2].driver == "Layth" and Missions.rivals[3].driver == "Omar"
+		and math.abs(Missions.rivals[1].sk0 - 0.96) < 1e-9 and math.abs(Missions.rivals[3].sk0 - 1.0) < 1e-9
+	check("the web game's racers Samer, Layth, Omar (skills .96 / .98 / 1.00, moved by their record)", named and Missions.rivals[2].skill >= 0.94 and Missions.rivals[2].skill <= 1.05)
 	M.run(4.2)
 	check("countdown ends", State.frozen == false)
 	local c = nil
@@ -883,6 +1037,109 @@ do
 	check("garage lists every car", rows == #Config.CARS, rows)
 	Hud.closePanel()
 	check("menu closes", State.ui == nil)
+end
+
+-- ================= the web game's car shapes (07a mkPorsche + 07a4 light lines) =================
+do
+	local car = State.car
+	local c = Config.CARS[car:GetAttribute("carIndex")]
+	local n = { Shell = 0, Wedge = 0, Glass = 0, Wheel = 0, Rim = 0, Headlight = 0, Taillight = 0, Neon = 0 }
+	local corners, lights = {}, {}
+	local lo, hi = Vector3.new(1e9, 1e9, 1e9), Vector3.new(-1e9, -1e9, -1e9)
+	for _, p in ipairs(car:GetChildren()) do
+		if n[p.Name] then n[p.Name] += 1 end
+		if p.ClassName == "WedgePart" then n.Wedge += 1 end
+		if p.Name == "Wheel" then corners[p:GetAttribute("Corner")] = true end
+		if p.Name == "Headlight" or p.Name == "Taillight" then lights[p:GetAttribute("Light")] = true end
+		if (p.Name == "Shell" or p.Name == "Glass" or p.Name == "Roof" or p.Name == "Wheel") and p:IsA("BasePart") then
+			local q = car.Body.CFrame:PointToObjectSpace(p.Position)
+			local hs = p.Size / 2
+			-- the parts' extents in the car's frame (boxes only approximately for the rotated wedges: their centre +- half size)
+			lo = Vector3.new(math.min(lo.X, q.X - hs.X), math.min(lo.Y, q.Y - hs.Y), math.min(lo.Z, q.Z - hs.Z))
+			hi = Vector3.new(math.max(hi.X, q.X + hs.X), math.max(hi.Y, q.Y + hs.Y), math.max(hi.Z, q.Z + hs.Z))
+		end
+	end
+	local all4 = corners[0] and corners[1] and corners[2] and corners[3] and lights[0] and lights[1] and lights[2] and lights[3]
+	check("player car: the web body profile (blocks + wedges), glass house, lamps, wheels with rims, its light lines",
+		n.Shell >= 4 and n.Wedge >= 1 and n.Glass >= 1 and n.Wheel == 4 and n.Rim == 4 and n.Headlight == 2 and n.Taillight == 2 and n.Neon >= 4 and all4 == true,
+		string.format("%d body pieces (%d wedges), %d glass, %d wheels, %d rims, %d neon", n.Shell, n.Wedge, n.Glass, n.Wheel, n.Rim, n.Neon))
+	-- every wedge's three corners lie on the web profile: Roblox's WedgePart has its right angle at the bottom-back edge (y = -h/2,
+	-- z = +h/2) and its slope down to the front; the corners in web car-local metres must be points of the body profile or the glass house
+	local P0 = M.client("State") and require(RS.Modules.CarBody).PROF[c.body]
+	local bh = (c.H - 0.3) * P0.bf
+	local y0 = 0.3 + bh
+	local lift = c.H * 0.34 - 0.12
+	local pts = { { c.L / 2, 0.3 + bh * P0.nf }, { c.L * (0.5 - P0.hl), y0 }, { -c.L * 0.42, y0 }, { -c.L / 2, 0.3 + bh * P0.rf },
+		{ c.L * (0.5 - P0.hl), 0.3 + bh * P0.nf }, { -c.L * 0.42, 0.3 + bh * P0.rf } }
+	for _, f in ipairs(P0.g) do
+		pts[#pts + 1] = { f * c.L, y0 }
+		pts[#pts + 1] = { f * c.L, c.H }
+	end
+	local wedges, onProfile = 0, 0
+	for _, p in ipairs(car:GetChildren()) do
+		if p.ClassName == "WedgePart" then
+			wedges += 1
+			local ok = 0
+			local h, d = p.Size.Y / 2, p.Size.Z / 2
+			for _, v in ipairs({ Vector3.new(0, -h, d), Vector3.new(0, -h, -d), Vector3.new(0, h, d) }) do
+				local q = car.Body.CFrame:PointToObjectSpace(p.CFrame:PointToWorldSpace(v)) / S
+				-- model (X right, -Z forward) -> web (z forward, y up from the ground point)
+				local wz, wy = -q.Z, q.Y + lift
+				for _, pt in ipairs(pts) do
+					if math.abs(pt[1] - wz) < 0.01 and math.abs(pt[2] - wy) < 0.01 then
+						ok += 1
+						break
+					end
+				end
+			end
+			if ok == 3 then onProfile += 1 end
+		end
+	end
+	check("every wedge's corners on the web body profile", wedges > 0 and onProfile == wedges, onProfile .. " of " .. wedges)
+	local size = (hi - lo) / S
+	check("player car the web car's size (length, width, height)", math.abs(size.Z - c.L) < 0.25 and math.abs(size.X - c.W) < 0.2 and math.abs(size.Y - (c.H + 0.06)) < 0.35,
+		string.format("%.2f x %.2f x %.2f m (web %.2f x %.2f x %.2f)", size.Z, size.X, size.Y, c.L, c.W, c.H))
+	-- traffic: Common cars plain, Uncommon and up with their light lines (the web game's carMesh)
+	local plainOk, neonOk, seen0, seen1 = true, true, 0, 0
+	for _, a in ipairs(Traffic.agents) do
+		local neon = 0
+		for _, p in ipairs(a.model:GetChildren()) do
+			if p.Name == "Neon" then neon += 1 end
+		end
+		if (a.car.tier or 0) == 0 then
+			seen0 += 1
+			if neon > 0 then plainOk = false end
+		else
+			seen1 += 1
+			if neon == 0 then neonOk = false end
+		end
+	end
+	check("traffic: light lines on Uncommon and up only", plainOk and neonOk and seen0 > 0, seen0 .. " common, " .. seen1 .. " others")
+end
+
+-- ================= the web game's landmarks, street furniture and trees =================
+do
+	local data = require(game:GetService("ServerStorage").IrbidData.Landmarks)
+	local lm = map:FindFirstChild("Landmarks")
+	check("hand-built landmarks: every exported part built", lm ~= nil and #lm:GetChildren() == #data and #data > 300, (lm and #lm:GetChildren() or 0) .. " / " .. #data)
+	local Props = M.client("Props")
+	Drive.reset()
+	M.run(1.2)
+	local kinds = {}
+	for _, p in ipairs(Props.folder:GetChildren()) do kinds[p.Name] = (kinds[p.Name] or 0) + 1 end
+	local live0 = Props.live
+	check("street lights, poles and trees around the car (the web game's LOD radius)", (kinds.lampPole or 0) > 10 and (kinds.trunk or 0) + (kinds.canopy or 0) > 10 and live0 < 6000 and #Props.folder:GetChildren() == live0,
+		string.format("%d live of %d: %d lamp poles, %d trunks, %d canopies, %d utility poles", live0, Props.count, kinds.lampPole or 0, kinds.trunk or 0, kinds.canopy or 0, kinds.utilPole or 0))
+	-- far away: the old cells go, new ones come, the count stays bounded
+	Drive.place(2000, 1500, 0)
+	M.run(1.2)
+	local near0 = 0
+	for _, p in ipairs(Props.folder:GetChildren()) do
+		if (p.Position / S - Vector3.new(0, p.Position.Y / S, 0)).Magnitude < 300 then near0 += 1 end
+	end
+	check("props behind the car are removed", near0 == 0 and Props.live < 6000 and #Props.folder:GetChildren() == Props.live, Props.live .. " live, " .. near0 .. " left at the start")
+	Drive.reset()
+	M.run(1.2)
 end
 
 -- ================= the web game's whole car list =================

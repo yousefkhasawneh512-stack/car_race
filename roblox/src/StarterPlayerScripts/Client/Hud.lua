@@ -82,6 +82,9 @@ Hud.car = Hud.label(gui, UDim2.new(1, -20, 1, -128), UDim2.fromOffset(330, 20), 
 -- Realistic handling: gear, rpm, assists acting, temperatures (the web game's line under the speed)
 Hud.gear = Hud.label(gui, UDim2.new(1, -20, 1, -150), UDim2.fromOffset(420, 18), Vector2.new(1, 1), "", 15)
 Hud.gear.TextXAlignment = Enum.TextXAlignment.Right
+-- auto-drive (Z): target speed and why (the web game's badge above the bottom edge)
+Hud.ap = Hud.label(gui, UDim2.new(0.5, 0, 1, -64), UDim2.fromOffset(420, 22), Vector2.new(0.5, 1), "", 15)
+Hud.ap.TextColor3 = Color3.fromRGB(140, 190, 255)
 Hud.car.TextXAlignment = Enum.TextXAlignment.Right
 
 local toastT = 0

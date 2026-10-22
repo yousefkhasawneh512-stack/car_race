@@ -157,6 +157,26 @@ function CarAudio.bump(sev)
 	play("thump", 0.25 + 0.5 * math.min(1, sev or 0))
 end
 
+-- an AI car honks (Reputation): a 3D horn at the car, its own pitch, quieter with distance (the web game's audHornAt)
+function CarAudio.honkAt(a, dur, pitch)
+	if not CarAudio.enabled or not (a.model and a.model.PrimaryPart) then return end
+	local at = Atlas.trafhorn
+	local s = Instance.new("Sound")
+	s.Name = "Honk"
+	s.SoundId = "rbxassetid://" .. ID
+	s.PlaybackRegionsEnabled = true
+	s.PlaybackRegion = NumberRange.new(at.start, at.start + math.min(at.len, dur or 0.5))
+	s.PlaybackSpeed = pitch or 1
+	s.Volume = 0.22 * at.level
+	s.RollOffMaxDistance = 120 * Config.SCALE
+	s.RollOffMinDistance = 8 * Config.SCALE
+	s.SoundGroup = groups.Effects
+	s.Parent = a.model.PrimaryPart
+	s:Play()
+	CarAudio.lastHonk = a
+	task.delay((dur or 0.5) + 0.3, function() s:Destroy() end)
+end
+
 -- the player's horn (X): on / off
 local hornOn = false
 function CarAudio.horn(on)

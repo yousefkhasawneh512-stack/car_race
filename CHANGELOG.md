@@ -472,3 +472,17 @@ The conversion continues from the web build itself (`roblox/CONVERSION_PROGRESS.
   device (bumpers, mirrors, lids, doors, cracks, lamps, dents, scratches, flat tyres, rims, debris, smoke, sparks, tyre smoke).
 - **Fixed against the web game**: the wall bounce factor (1.4, was 1.3), the wall impact is reported before the bounce (colB order).
 - **Tests**: `roblox/tests/run.js` (now also deterministic weather) plus the three new checks. See `CONVERSION_PROGRESS.md` for the counts.
+
+## Roblox version 4.1 (2026-10-22)
+
+- **Car shapes** (`Modules/CarBody`): the web game's mkPorsche profile per body type as blocks and wedges, glass house, roof, wing, lamps,
+  wheels with rims, and each car's own light lines (07a4) in its two colours; traffic from Uncommon up, rivals and the player's car; police in
+  the web game's white Crown Victoria with a light bar. Checked: every wedge corner lies on the web profile, the web car size.
+- **Landmarks and street furniture**: `tools/make_roblox.js` now hooks the web build's `instO` calls and `scene.add` (rendering data only) and
+  exports the hand-built landmarks mesh by mesh (625 parts, built by the server) and 73,091 instanced props (street lights, utility poles,
+  transformers, guardrails, bus stops, islands, dumpsters, cones, manholes, trees, cypresses, bushes, rocks), built by each device within the
+  web game's LOD radius per family. Scenery only (no collisions yet).
+- **Road reputation + rival memory, auto-drive (Z), driving school**: 11c / 11d ported (the web rules and lessons; the racers Samer, Layth,
+  Omar with the web skills .96 / .98 / 1.00 replace Roblox's random skills; traffic keeps the reputation gap behind the player; honks).
+- **Search chips + saved places, traffic density (High / Medium / Low / by time of day), text size.** Saved with the progress on the server
+  (remotes SaveRep, SaveSchool, SaveFav).

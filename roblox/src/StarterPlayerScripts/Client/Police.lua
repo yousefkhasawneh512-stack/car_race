@@ -3,6 +3,8 @@
 -- the player when close or at the end of their route, slowing down so they box the car in instead of ramming past. Lights flash.
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Road = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Road"))
+local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local Rules = require(ReplicatedStorage:WaitForChild("IrbidShared"):WaitForChild("Rules"))
 local Client = script.Parent
 local State = require(Client:WaitForChild("State"))
 local Drive = require(Client:WaitForChild("Drive"))
@@ -16,7 +18,9 @@ function Police.spawn()
 		local ang, r = math.random() * 2 * math.pi, 220 + math.random() * 240
 		local near = Road.nearest(State.road, st.x + math.sin(ang) * r, st.z + math.cos(ang) * r, 80)
 		if near then
-			local a = Traffic.agent("cop", { L = 5.2, W = 1.95, H = 1.45, vm = spec.vm * 0.85, a0 = spec.a0 * 0.85 }, Color3.fromRGB(244, 244, 244))
+			-- the web game's police car (mkCop: a white Ford Crown Victoria with a light bar), as fast as 85 % of the player's car
+			local cv = Config.CARS[Rules.copCar]
+			local a = Traffic.agent("cop", { L = cv.L, W = cv.W, H = cv.H, body = cv.body, name = "Police", vm = spec.vm * 0.85, a0 = spec.a0 * 0.85 }, Color3.fromHex("#f4f4f4"))
 			a.x, a.z, a.y = near.x, near.z, near.y
 			a.h = math.atan2(st.x - a.x, st.z - a.z)
 			a.thinkT = 0

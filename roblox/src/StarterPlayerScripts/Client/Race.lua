@@ -55,6 +55,9 @@ beam.Transparency = 1
 beam.Size = Vector3.new(70 * S, 12 * S, 12 * S)
 beam.Parent = Workspace.CurrentCamera
 
+-- the web game's named racers (09_ai)
+local RIVALS = { "Samer", "Layth", "Omar" }
+Race.RIVALS = RIVALS
 local race = nil -- {c, t, s = "count"|"run"|"done", prog, fin, time}
 
 local function finish(msg)
@@ -101,17 +104,21 @@ function Race.toggle()
 		local car = Config.CARS[table.remove(pool, math.random(#pool))]
 		local a = Traffic.agent("rival", car)
 		a.P, a.s, a.pi = best.P, s0, 1
-		a.skill = 0.9 + math.random() * 0.1
+		-- the web game's three named racers and their skills (09_ai bots: Samer .96, Layth .98, Omar 1.00); road reputation adjusts them
+		a.driver = RIVALS[k]
+		a.sk0 = 0.96 + (k - 1) * 0.02
+		a.skill = a.sk0
 		a.lane = (k - 2) * 1.6
 		local x, z, y, tx, tz, i = Road.sample(a.P, a.s, 1)
 		a.x, a.z, a.y, a.h, a.pi = x, z, y, math.atan2(tx, tz), i
 		Traffic.draw(a)
 		Race.rivals[#Race.rivals + 1] = a
-		names[#names + 1] = car.name
+		names[#names + 1] = a.driver .. " (" .. car.name .. ")"
 	end
 	local x, z, _, tx, tz = Road.sample(best.P, 62, 1)
 	Drive.place(x, z, math.atan2(tx, tz))
 	race = { c = best, t = 3.99, s = "count", prog = 1, fin = 0 }
+	if Race.onStart then Race.onStart(Race.rivals) end
 	State.mission = "race"
 	State.frozen = true
 	Hud.toast(best.name .. " · rivals: " .. table.concat(names, ", "), 4)
@@ -160,6 +167,7 @@ function Race.step(dt)
 				race.s = "done"
 				race.t = 6
 				local place = race.fin + 1
+				if Race.onFinish then Race.onFinish(Race.rivals) end
 				Hud.mission.Text = "Finished P" .. place .. " of 4 · " .. string.format("%.1f s", race.time)
 				local ok, reward = Remotes.Mission:InvokeServer("race_finish", place)
 				Hud.toast("Finished P" .. place .. " of 4!" .. (ok and reward and reward > 0 and ("  +" .. Hud.fmt(reward) .. " JD") or ""), 5)

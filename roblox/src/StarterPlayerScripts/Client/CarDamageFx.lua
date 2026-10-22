@@ -63,7 +63,7 @@ local function build(car)
 	local c = Config.CARS[car:GetAttribute("carIndex") or spec.ci or 1]
 	if not (body and c and c.geo) then return nil end
 	local g = c.geo
-	local B = { car = car, body = body, geo = g, parts = {}, wheels = {}, lights = {}, paint = body.Color }
+	local B = { car = car, body = body, geo = g, parts = {}, wheels = {}, rims = {}, lights = {}, paint = car:GetAttribute("Paint") or body.Color }
 	local folder = Instance.new("Folder")
 	folder.Name = "DamageParts"
 	folder.Parent = car
@@ -96,6 +96,8 @@ local function build(car)
 	for _, p in ipairs(car:GetChildren()) do
 		if p.Name == "Wheel" and p:GetAttribute("Corner") then
 			B.wheels[p:GetAttribute("Corner")] = { p = p, base = body.CFrame:ToObjectSpace(p.CFrame), size = p.Size }
+		elseif p.Name == "Rim" and p:GetAttribute("Corner") then
+			B.rims[p:GetAttribute("Corner")] = { p = p, base = body.CFrame:ToObjectSpace(p.CFrame), size = p.Size }
 		elseif (p.Name == "Headlight" or p.Name == "Taillight") and p:GetAttribute("Light") then
 			B.lights[p:GetAttribute("Light")] = { p = p, color = p.Color, mat = p.Material }
 		end
@@ -290,7 +292,15 @@ function Fx.refresh(rec, mode)
 			w.p.Size = size
 			w.cf = w.base * CFrame.new(0, -drop, 0) * rot(0, toe, side * camber)
 			weld(w.p, B.body, w.cf)
-			w.bent = show and rec.rims[j + 1] or 0
+			-- the rim goes with its wheel, and a bent one is squashed a little (the web game's dpVisual)
+			local rm = B.rims[j]
+			if rm then
+				local b = show and rec.rims[j + 1] or 0
+				rm.p.Size = b > 0.05 and Vector3.new(rm.size.X, rm.size.Y * (1 - b * 0.07), rm.size.Z * (1 + b * 0.04)) or rm.size
+				rm.cf = rm.base * CFrame.new(0, -drop, 0) * rot(0, toe, side * camber)
+				rm.bent = b
+				weld(rm.p, B.body, rm.cf)
+			end
 		end
 	end
 	if not show then return end
@@ -384,12 +394,12 @@ function Fx.step(dt, mode, T)
 		if B and B.smoke then B.smoke.Rate = 0 end
 		return
 	end
-	-- bent rims wobble with the wheel's rotation
+	-- bent rims wobble with the wheel's rotation (the web game's dpTick)
 	local v = st.vx * math.sin(st.h) + st.vz * math.cos(st.h)
 	phase += v * dt / 0.33
 	for j = 0, 3 do
-		local w = B.wheels[j]
-		if w and (w.bent or 0) > 0.05 then w.p.CFrame = B.body.CFrame * w.cf * CFrame.Angles(0, math.sin(phase + j) * w.bent * 0.07, 0) end
+		local r = B.rims[j]
+		if r and (r.bent or 0) > 0.05 then r.p.CFrame = B.body.CFrame * r.cf * CFrame.Angles(0, math.sin(phase + j) * r.bent * 0.07, 0) end
 	end
 	-- engine smoke (Full: a badly damaged or overheating engine)
 	B.smoke.Rate = State.damageSmoke and 12 or 0

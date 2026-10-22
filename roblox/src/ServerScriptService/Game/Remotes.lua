@@ -23,6 +23,9 @@ remote("RemoteEvent", "Fine")
 remote("RemoteEvent", "AddHour")
 remote("RemoteEvent", "SaveSettings")
 remote("RemoteFunction", "Damage")
+remote("RemoteEvent", "SaveRep")
+remote("RemoteEvent", "SaveSchool")
+remote("RemoteEvent", "SaveFav")
 folder.Parent = ReplicatedStorage
 
 return Remotes
