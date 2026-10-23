@@ -152,6 +152,8 @@ end
 -- twice a second: the cells within each family's radius are built, cells beyond it (+ 60 m) removed
 local t = 0
 Props.live = 0
+-- x each family's radius (the graphics draw distance, Client/Graphics)
+Props.dist = 1
 function Props.refresh()
 	t = 0
 end
@@ -161,12 +163,13 @@ function Props.step(dt, st)
 	t = 0.5
 	local ci, cj = math.floor(st.x / CELL), math.floor(st.z / CELL)
 	for _, F in pairs(Props.fam) do
-		local r = math.ceil(F.R / CELL)
+		local R = F.R * Props.dist
+		local r = math.ceil(R / CELL)
 		-- remove far cells
 		for k, list in pairs(F.built) do
 			local i, j = math.floor(k / 1000) - 500, k % 1000 - 500
 			local dx, dz = (i + 0.5) * CELL - st.x, (j + 0.5) * CELL - st.z
-			if dx * dx + dz * dz > (F.R + 60) ^ 2 then
+			if dx * dx + dz * dz > (R + 60) ^ 2 then
 				for _, e in ipairs(list) do
 					if Props.onRemoved and e[2] ~= 0 then Props.onRemoved(e[1], e[2]) end
 					e[1]:Destroy()
@@ -182,7 +185,7 @@ function Props.step(dt, st)
 				local items = F.cells[k]
 				if items and not F.built[k] then
 					local dx, dz = (i + 0.5) * CELL - st.x, (j + 0.5) * CELL - st.z
-					if dx * dx + dz * dz <= F.R * F.R then
+					if dx * dx + dz * dz <= R * R then
 						local list = {}
 						for _, idx in ipairs(items) do
 							local p = make(F, idx)

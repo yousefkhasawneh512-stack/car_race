@@ -3,6 +3,7 @@
   "tree": {
     "$className": "DataModel",
     "Workspace": { "$properties": { "StreamingEnabled": false } },
+    "Lighting": { "$properties": { "Technology": { "Enum": "Future" } } },
     "ReplicatedStorage": {
       "$path": "src/ReplicatedStorage",
       "IrbidShared": { "$path": "shared" },

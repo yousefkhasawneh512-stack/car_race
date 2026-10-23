@@ -22,12 +22,24 @@ local function cleanLevels(t)
 	return l
 end
 
--- read (and check) a saved record; a new player starts with Config.START_CASH and the starter car
+-- read (and check) a saved record; a new player starts with Config.START_CASH and the starter car. A FAILED read (DataStore down or
+-- throttled; 3 tries) is not a new player: the session then plays on a fresh record that is never saved (noSave, player attribute
+-- "SaveOff"), so it cannot overwrite the real progress
 function PlayerData.load(plr)
 	local d
+	local failed = false
 	if store then
-		local ok, v = pcall(function() return store:GetAsync("u" .. plr.UserId) end)
-		if ok and type(v) == "table" then d = v end
+		for try = 1, 3 do
+			local ok, v = pcall(function() return store:GetAsync("u" .. plr.UserId) end)
+			if ok then
+				if type(v) == "table" then d = v end
+				failed = false
+				break
+			end
+			failed = true
+			warn("[IrbidDrive] progress load failed for " .. plr.Name .. " (try " .. try .. "): " .. tostring(v))
+			if try < 3 then task.wait(try) end
+		end
 	end
 	d = d or {}
 	local owned = {}
@@ -63,12 +75,13 @@ function PlayerData.load(plr)
 		rep = type(d.rep) == "string" and #d.rep <= 200 and d.rep or "70",
 		school = type(d.school) == "string" and #d.school <= 120 and d.school or "runs=0",
 		fav = type(d.fav) == "string" and #d.fav <= 2400 and d.fav or "",
+		noSave = failed,
 	}
 end
 
 function PlayerData.save(plr)
 	local d = PlayerData.data[plr]
-	if not (d and store) then return end
+	if not (d and store) or d.noSave then return end
 	local owned, tune = {}, {}
 	for i in pairs(d.owned) do owned[#owned + 1] = i end
 	for i, t in pairs(d.tune) do tune[tostring(i)] = t end
@@ -77,9 +90,13 @@ function PlayerData.save(plr)
 	for i, r in pairs(d.damage or {}) do
 		if Damage.hurt(r) then dmg[tostring(i)] = r end
 	end
-	pcall(function()
-		store:SetAsync("u" .. plr.UserId, { v = 2, cash = math.floor(d.cash), bank = math.floor(d.bank), dt = math.floor(d.dt), owned = owned, cur = d.cur, tune = tune, set = d.settings, dmg = dmg, rep = d.rep, school = d.school, fav = d.fav })
-	end)
+	local rec = { v = 2, cash = math.floor(d.cash), bank = math.floor(d.bank), dt = math.floor(d.dt), owned = owned, cur = d.cur, tune = tune, set = d.settings, dmg = dmg, rep = d.rep, school = d.school, fav = d.fav }
+	for try = 1, 3 do
+		local ok, err = pcall(function() store:SetAsync("u" .. plr.UserId, rec) end)
+		if ok then return end
+		warn("[IrbidDrive] progress save failed for " .. plr.Name .. " (try " .. try .. "): " .. tostring(err))
+		if try < 3 then task.wait(try) end
+	end
 end
 
 -- the upgrade levels of car i (created at 0)
@@ -113,6 +130,7 @@ function PlayerData.sync(plr)
 	plr:SetAttribute("Rep", d.rep)
 	plr:SetAttribute("School", d.school)
 	plr:SetAttribute("Fav", d.fav)
+	plr:SetAttribute("SaveOff", d.noSave == true)
 end
 
 -- sync and save after a change of money or cars

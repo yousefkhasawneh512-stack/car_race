@@ -194,7 +194,7 @@ function Weather.step(dt)
 	-- rain streaks around the camera
 	local box = rainEmitter()
 	local cam = Workspace.CurrentCamera
-	box.Rain.Rate = r > 0.02 and 1800 * math.min(1, r * 1.3) or 0
+	box.Rain.Rate = r > 0.02 and 1800 * math.min(1, r * 1.3) * (Weather.rainK or 1) or 0
 	if r > 0.02 and cam then box.CFrame = CFrame.new(cam.CFrame.Position + Vector3.new(0, 16 * S, 0)) end
 	wetRoads()
 end

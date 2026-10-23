@@ -268,6 +268,9 @@ const xml='<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="ht
  // streaming off: every player's device does its own ground / wall ray tests against the whole map. The map is built by WorldBuilder when the
  // game runs, so Studio's edit view would show only the sky: a board in front of the default camera says so (WorldBuilder removes it)
  item('Workspace','Workspace',[editSign()],undefined,'<bool name="StreamingEnabled">false</bool>')+
+ // Future lighting (Lighting.Technology 4; scripts cannot change it): shadows and lights for High / Ultra, Roblox lowers it by itself on
+ // weaker devices. Everything else about the light is set by World/Sky and Client/Graphics, Client/Weather at run time
+ item('Lighting','Lighting',[],undefined,'<token name="Technology">4</token>')+
  item('ReplicatedStorage','ReplicatedStorage',[...tree(path.join(SRC,'ReplicatedStorage')),item('Folder','IrbidShared',modsOf(sharedMods)),item('Folder','IrbidCatalog',modsOf(catalogMods))])+
  item('ServerStorage','ServerStorage',[item('Folder','IrbidData',modsOf(serverMods))])+
  item('ServerScriptService','ServerScriptService',tree(path.join(SRC,'ServerScriptService')))+

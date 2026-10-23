@@ -520,3 +520,18 @@ The conversion continues from the web build itself (`roblox/CONVERSION_PROGRESS.
   cars, objectImpact on 175 objects (790 hits) and the sliding dumpsters, against the web build: equal to 1e-14. Scenario block "roadside
   objects" (11 checks). Limits: race / duel rivals follow their path exactly and are not pushed by objects; broken objects are per device and
   per session (as in the web game, until reload); not seen in Studio.
+
+## Roblox version 4.4 (2026-10-24)
+
+Owner's brief: merge Irbid Drive with "a second driving game" + a 4-module starter pack (`Downloads\IrbidDrive_Roblox_Starter_Pack (1).zip`).
+No second driving game exists on the PC (every candidate checked, `roblox/docs/FEATURE_MERGE_REPORT.md`). The web game is unchanged.
+- Graphics presets from the starter pack's `MapVisualConfig`: `Modules/GraphicsPresets` (pure) + `Client/Graphics`; settings `gq` (Auto /
+  Low / Medium / High / Ultra, Auto from Roblox's quality slider), `gsh` shadows, `gpe` colour grading + bloom, `gdd` draw distance (x the
+  props' LOD radius, `Props.dist`); rain density (`Weather.rainK`); Future lighting in the place file and in `default.project.json`.
+  The starter's `VehicleTuning` / `VehicleDamage` are not merged (they duplicate `CarPhysics` / `Damage`, which equal the web build).
+- Fix: a failed DataStore read gave a fresh profile that was then saved over the real one. Now 3 tries, then an unsaved session (`noSave`,
+  attribute `SaveOff`, a message); saves retry 3 times. Mock DataStore can fail on demand (`M.storeFail`).
+- Hand-over docs `roblox/docs/` (README_FIRST, BUILD_AND_IMPORT, FEATURE_MERGE_REPORT, BUG_FIX_REPORT, MAP_DATA_AND_SOURCES, ASSET_MANIFEST,
+  TEST_REPORT); `tools/package_roblox.js` copies the project + docs to `Downloads\IrbidDrive_Roblox_Project` + zip.
+- Tests: `roblox/tests/graphics_presets.luau` 20/20 (new); scenario +8 checks: run.js 206/206, TOUCH 208/208, NOTERRAIN 206/206;
+  physics_equiv 40/40, damage_equiv 92/92, objects_equiv 10/10, catalog_test 27/27, audio_atlas passed. Not run in Studio.

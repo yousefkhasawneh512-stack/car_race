@@ -71,6 +71,8 @@ python3 tests/<name>.py dist/irbid-drive.html       # Playwright/Chromium check 
   v49: `assist_v49` (Node, repo root, 30; needs tag `backup/v48`) and `v49_pw.py` (12, `docs/screenshots/v49/`, honours `SP`); both in `check.py`.
   Roblox (`roblox/`, Luau, separate from the web build): `node tools/make_roblox.js dist/irbid-drive.html` regenerates `roblox/data`, `roblox/shared`
   and `roblox/IrbidDrive.rbxlx` from the build + `roblox/src` (rerun after ANY change in `roblox/src`; the place file embeds the sources).
+  Roblox 4.4: `luau roblox/tests/graphics_presets.luau` (20, pure presets module); `node tools/package_roblox.js [outDir]` copies the project +
+  `roblox/docs/*.md` (hand-over reports) to `Downloads\IrbidDrive_Roblox_Project` + zip (never inside `roblox/`).
   Test: `node roblox/tests/run.js <luau.exe>` (official Luau CLI, github.com/luau-lang/luau releases; not installed on PATH) plays the place
   file in `roblox/tests/rbxmock.luau` (no physics/rendering; ~150 checks; env `TOUCH=1` = a touch device, `NOTERRAIN=1` = no Terrain object, `SCEN=<file>`
   = another scenario, e.g. the boot section plus one block for a quick run). `luau-analyze` on `roblox/src`: only Roblox globals are unknown.

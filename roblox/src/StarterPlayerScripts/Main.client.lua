@@ -55,8 +55,10 @@ local Props = require(Client:WaitForChild("Props"))
 local RoadsideObjects = require(Client:WaitForChild("RoadsideObjects"))
 local Race = require(Client:WaitForChild("Race"))
 local Laws = require(Client:WaitForChild("Laws"))
+local Graphics = require(Client:WaitForChild("Graphics"))
 -- the weather line in the settings menu (the web game's pause menu shows it under the weather row)
 table.insert(SettingsMenu.extra, { name = "weather", text = Weather.line, click = function() end, color = Color3.fromRGB(40, 60, 80) })
+table.insert(SettingsMenu.extra, { name = "graphics", text = Graphics.line, click = function() end, color = Color3.fromRGB(40, 60, 80) })
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
 -- the tuning shop opens only at Apex Drift Customs
@@ -84,6 +86,12 @@ Controls.start({
 Traffic.start()
 Traffic.density(TrafficDensity.den(), false)
 Hud.toast("Welcome to Irbid! Drift for points · R race / duel · M GPS · G wheel · K tour · F start", 6)
+-- the server could not read the saved progress (Game/PlayerData): this session is not saved, so the real progress stays safe
+local function saveOff()
+	if plr:GetAttribute("SaveOff") then Hud.toast("Your saved progress could not be loaded: this session will NOT be saved. Rejoin later to get it back.", 10) end
+end
+saveOff()
+plr:GetAttributeChangedSignal("SaveOff"):Connect(saveOff)
 
 local ai = State.ai
 -- vehicle damage: the physics hooks, impacts with walls (Drive) and cars (Bump) -> sound + damage, hard landings, speed bumps (the

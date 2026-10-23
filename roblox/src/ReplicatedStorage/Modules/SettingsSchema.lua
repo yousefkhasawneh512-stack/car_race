@@ -28,6 +28,11 @@ Schema.LIST = ({
 	{ "rm", 0, 1, 0, "Reduced motion", { "Off", "On" } },
 	{ "ts", 0, 3, 1, "Text size", { "90 %", "100 %", "120 %", "140 %" } },
 	{ "rep", 0, 1, 1, "Road reputation", { "Off", "On" } },
+	-- graphics (Client/Graphics, Modules/GraphicsPresets)
+	{ "gq", 0, 4, 0, "Graphics quality", { "Auto", "Low", "Medium", "High", "Ultra" } },
+	{ "gsh", 0, 2, 0, "Shadows", { "As the preset", "Off", "On" } },
+	{ "gpe", 0, 2, 0, "Colour grading + bloom", { "As the preset", "Off", "On" } },
+	{ "gdd", 5, 15, 10, "Draw distance (x10 %)", nil },
 	-- gamepad / racing wheel seen as a gamepad (the web game's wheel setup, key V): axes, invert, sensitivity, dead zones, curve, smoothing
 	{ "gs", 0, 1, 0, "Gamepad steering", { "Left stick", "Right stick" } },
 	{ "gp", 0, 2, 0, "Gamepad pedals", { "Triggers (RT gas, LT brake)", "Right stick up / down", "Left stick up / down" } },

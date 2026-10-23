@@ -773,6 +773,33 @@ do
 	M.run(0.1)
 	check("text size 140 %", Hud.gui.TextSize.Scale == 1.4)
 	Settings.set("ts", 1)
+	-- graphics presets: Auto (no Roblox quality readable here) = High; Low / Ultra change shadows, grading, sun rays, prop distance, rain;
+	-- the manual rows override the preset
+	local L, Props, Graphics = game:GetService("Lighting"), M.client("Props"), M.client("Graphics")
+	M.run(1)
+	local hi = Graphics.cur
+	local liveHi = Props.live
+	check("graphics Auto = High: shadows, grading on, no sun rays, props at the web distance",
+		hi.name == "High" and L.GlobalShadows == true and L.IrbidGrade.Enabled and L.IrbidBloom.Enabled and not L.IrbidSunRays.Enabled and Props.dist == 1 and L.EnvironmentSpecularScale == 0.45,
+		hi.name .. ", props " .. liveHi)
+	Settings.set("gq", 1)
+	M.run(1)
+	local liveLo = Props.live
+	check("graphics Low: no shadows, no grading, props 60 %, lighter rain", L.GlobalShadows == false and not L.IrbidGrade.Enabled and Props.dist == 0.6 and M.client("Weather").rainK == 0.4 and liveLo < liveHi,
+		"props " .. liveHi .. " -> " .. liveLo)
+	Settings.set("gq", 4)
+	M.run(1)
+	check("graphics Ultra: sun rays, stronger reflections, props 130 %", L.IrbidSunRays.Enabled and L.EnvironmentSpecularScale == 0.6 and Props.dist == 1.3 and Props.live > liveHi,
+		"props " .. Props.live)
+	Settings.set("gsh", 1)
+	Settings.set("gdd", 5)
+	M.run(0.2)
+	check("manual rows override the preset (shadows off, draw distance 50 %)", Graphics.cur.name == "Ultra" and L.GlobalShadows == false and math.abs(Props.dist - 0.65) < 1e-9, Graphics.line())
+	Settings.set("gq", 0)
+	Settings.set("gsh", 0)
+	Settings.set("gdd", 10)
+	M.run(1.5)
+	check("graphics settings sent to the server", string.find(plr:GetAttribute("Settings") or "", "gq=0", 1, true) ~= nil and Graphics.cur.name == "High", tostring(plr:GetAttribute("Settings")))
 end
 
 -- ================= drifting -> drift bank and cash (server) =================
@@ -1901,6 +1928,23 @@ do
 	M.run(6)
 	check("progress loaded on joining again", p2:GetAttribute("Cash") == cash and p2:GetAttribute("Owned") == owned and p2:GetAttribute("CurCar") == 2, p2:GetAttribute("Owned"))
 	check("car spawned again", WS:FindFirstChild("Car_1001") ~= nil)
+	-- a DataStore outage on joining: 3 failed reads -> a session that is never saved (the real record stays as it was)
+	M.removePlayer(p2)
+	M.run(0.5)
+	local before = M.store.IrbidDrive_v1.u1001
+	M.storeFail = 3
+	local p3 = M.addPlayer(1001, "Tester")
+	M.run(6)
+	check("load failed 3 times: fresh session marked SaveOff", p3:GetAttribute("SaveOff") == true and p3:GetAttribute("Cash") == Config.START_CASH and M.storeFail == 0, tostring(p3:GetAttribute("Cash")))
+	M.removePlayer(p3)
+	M.run(0.5)
+	local after = M.store.IrbidDrive_v1.u1001
+	check("an unsaved session does not overwrite the real progress", after ~= nil and after.cash == cash and after.owned ~= nil and #after.owned == #before.owned, after and tostring(after.cash))
+	-- one failed read is retried
+	M.storeFail = 1
+	local p4 = M.addPlayer(1001, "Tester")
+	M.run(6)
+	check("one failed read is retried: progress loaded", p4:GetAttribute("SaveOff") == false and p4:GetAttribute("Cash") == cash, tostring(p4:GetAttribute("Cash")))
 end
 
 check("no script errors at the end", #M.errors == 0, #M.errors .. " errors")

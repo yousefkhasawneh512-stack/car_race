@@ -13,7 +13,16 @@ first, then verify the state with the commands under "How to verify" (never assu
 - The zip `Downloads\irbid-drive-v46-FULL.zip` is an OLDER snapshot (v46) of this same repository. This repository is v49 + Roblox, so the
   conversion works from the repository, not from the zip (nothing in the zip is newer; it has no `roblox/` folder).
 
-## Current stage (2026-10-23, Roblox version 4.3)
+## Round 4.4 (2026-10-24): owner's merge brief + starter pack
+
+The brief asked to merge Irbid Drive with "a second driving game". Every candidate on the PC was checked (`docs/FEATURE_MERGE_REPORT.md` §1): none is
+a separate driving game (older snapshots of this repo; `Downloads\IrbidDrive-Roblox.rbxlx` = exactly `bd98d91`'s 81 scripts; 20 unrelated
+mini-game places; the 4-module starter pack). Merged: the starter pack's `MapVisualConfig` → graphics presets (`Modules/GraphicsPresets`,
+`Client/Graphics`, settings `gq` / `gsh` / `gpe` / `gdd`, Future lighting in the place). Its `VehicleTuning` / `VehicleDamage` duplicate
+`CarPhysics` / `Damage` and were not merged (reasons in the report). Fixed: a DataStore read failure overwrote the player's real progress
+(`docs/BUG_FIX_REPORT.md`). Hand-over docs in `docs/`, package via `tools/package_roblox.js`.
+
+## Stage table (2026-10-23, Roblox version 4.3)
 
 | Stage | Status |
 |---|---|
@@ -118,6 +127,7 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 | Driving school (11d) | `School`, `Game/Settings` (SaveSchool) | CV | scenario: lessons 1 and 2 driven and passed, result card, best scores saved |
 | Auto-drive (11c) | `AutoDrive` | CV | scenario: 355 m route driven to "arrived"; takeover by input |
 | Road reputation + rival memory (11c) | `Reputation`, `Game/Settings` (SaveRep) | CV | scenario: fines, gap, saved; named racers with the web skills |
+| Graphics quality presets (web 12e presets; values from the owner's starter pack) | `Modules/GraphicsPresets`, `Client/Graphics` | CV logic / CU look | `graphics_presets.luau` 20 checks; scenario 5 checks (Auto = High, Low, Ultra, manual override, saved); not seen in Studio |
 | Pause / settings menu (12e) | `SettingsMenu`, `Settings`, `Game/Settings` | CV | scenario: rows, saved by the server and with the progress |
 | Cameras chase / cockpit / bonnet / bumper (12, v48) | `Camera` | CU | the web numbers; camera feel not seen in Studio |
 | Accessibility: text size, reduced motion (12e v48) | `Accessibility`, `Camera` | CV | scenario: text size 140 % |
@@ -134,6 +144,7 @@ Status words: **CV** converted and verified (an automated check ran) · **CU** c
 
 | Date | Run | Result |
 |---|---|---|
+| 2026-10-24 | 4.4 (graphics presets, DataStore outage fix): `run.js` / `TOUCH=1` / `NOTERRAIN=1` | 206/206, touch 208/208, no Terrain 206/206 (graphics only, before the save fix: 203/203); graphics_presets 20/20, physics_equiv 40/40, damage_equiv 92/92, objects_equiv 10/10, catalog_test 27/27 (no source json on disk), audio_atlas passed |
 | 2026-10-22 | baseline `run.js` on `bd98d91` | 99 / 100 (the duel distance check, random traffic) |
 | 2026-10-22 | physics refactor (`ba1b7be`): `run.js` | 99 / 100 (same flaky check) · `physics_equiv` 12 / 12 (4e-13); a 1 % change in one constant fails all 12 |
 | 2026-10-22 | roster + Realistic + settings: `run.js` | 115 / 115 |
@@ -190,6 +201,7 @@ node roblox/tests/damage_equiv.js <luau.exe>              # damage vs the web bu
 node roblox/tests/objects_equiv.js <luau.exe>             # roadside colliders + object rules vs the web build
 node roblox/tests/catalog_test.js <luau.exe> [db.json]    # the car encyclopedia (and its data vs the source database)
 node roblox/tests/audio_atlas.js                          # the sound file
+<luau.exe> roblox/tests/graphics_presets.luau             # the graphics presets module
 node roblox/tests/run.js <luau.exe>                       # headless play-through (~8 min); also TOUCH=1, NOTERRAIN=1
 <luau-analyze.exe> roblox/src                             # static analysis (only Roblox globals unknown)
 ```

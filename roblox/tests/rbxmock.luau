@@ -756,8 +756,21 @@ function METHODS.GetDataStore(o, name)
 		for k, x in pairs(v) do t[k] = copy(x) end
 		return t
 	end
-	function ds.GetAsync(_, k) return copy(data[k]) end
-	function ds.SetAsync(_, k, v) data[k] = copy(v) end
+	-- M.storeFail = n: the next n reads / writes fail (a DataStore outage)
+	local function fail()
+		if (M.storeFail or 0) > 0 then
+			M.storeFail -= 1
+			error("502: API Services rejected request (test outage)")
+		end
+	end
+	function ds.GetAsync(_, k)
+		fail()
+		return copy(data[k])
+	end
+	function ds.SetAsync(_, k, v)
+		fail()
+		data[k] = copy(v)
+	end
 	function ds.UpdateAsync(_, k, f) data[k] = copy(f(copy(data[k]))) end
 	return ds
 end
