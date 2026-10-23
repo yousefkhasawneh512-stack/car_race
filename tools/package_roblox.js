@@ -10,8 +10,8 @@ for(const f of['IrbidDrive.rbxlx','default.project.json','README.md','CAR_NAMES.
 for(const f of fs.readdirSync(path.join(R,'docs')))if(f.endsWith('.md'))cp(path.join('docs',f),f);
 let n=0,bytes=0;(function walk(d){for(const f of fs.readdirSync(d)){const p=path.join(d,f),s=fs.statSync(p);if(s.isDirectory())walk(p);else{n++;bytes+=s.size}}})(OUT);
 console.log('package',OUT,n,'files',(bytes/1e6).toFixed(1),'MB');
-// zip next to the folder (Windows 10+ tar and Linux / macOS zip both write .zip)
+// zip next to the folder (Windows 10+ System32\tar.exe, not Git's GNU tar, which reads "C:" as a host; zip elsewhere)
 const Z=OUT+'.zip';fs.rmSync(Z,{force:true});
-const r=process.platform==='win32'?spawnSync('tar',['-a','-c','-f',Z,'-C',path.dirname(OUT),path.basename(OUT)],{encoding:'utf8'}):spawnSync('zip',['-qr',Z,path.basename(OUT)],{cwd:path.dirname(OUT),encoding:'utf8'});
+const r=process.platform==='win32'?spawnSync(path.join(process.env.SystemRoot||'C:\\Windows','System32','tar.exe'),['-a','-c','-f',Z,'-C',path.dirname(OUT),path.basename(OUT)],{encoding:'utf8'}):spawnSync('zip',['-qr',Z,path.basename(OUT)],{cwd:path.dirname(OUT),encoding:'utf8'});
 if(r.status!==0)throw Error('zip failed: '+(r.stderr||r.error));
 console.log('zip',Z,(fs.statSync(Z).size/1e6).toFixed(1),'MB');
